@@ -3,10 +3,11 @@ let route="home";
 let routeId="";
 
 function nav(active){
-  return `<nav class="bottom four-nav">
+  return `<nav class="bottom five-nav">
     <button data-route="home" class="${active==="home"?"active":""}">⌂<small>Home</small></button>
     <button data-route="journal" class="${active==="journal"?"active":""}">💜<small>Journal</small></button>
     <button data-route="today" class="${active==="today"?"active":""}">✅<small>Today</small></button>
+    <button data-route="todo" class="${active==="todo"?"active":""}">📝<small>To-do</small></button>
     <button data-route="settings" class="${active==="settings"?"active":""}">⚙️<small>Settings</small></button>
   </nav>`;
 }

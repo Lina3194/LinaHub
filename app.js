@@ -6,6 +6,7 @@ function render(){
     home:HomePage,
     journal:JournalPage,
     today:TodayPage,
+    todo:TodoPage,
     plants:PlantsPage,
     plant:PlantProfilePage,
     settings:SettingsPage,
@@ -22,6 +23,7 @@ function render(){
   if(route==="home") bindHome();
   if(route==="journal") bindJournal();
   if(route==="today") bindToday();
+  if(route==="todo") bindTodo();
   if(route==="plants"||route==="plant") bindPlants();
   if(route==="pokemon") bindPokemon();
   if(route==="house") bindHouse();
@@ -35,7 +37,7 @@ function bindGlobal(){
 }
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=55"));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=56"));
 }
 
 render();

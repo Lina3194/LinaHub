@@ -6,11 +6,13 @@ const DEFAULT_DATA={
   version:5,
   theme:"light",
   checkins:{},
-  checkinLayout:["energy","mood","pain","spoons","water","priorities","selfcare","plan","sleep","supports"],
+  checkinLayout:["energy","mood","pain","spoons","water","priorities","selfcare","sleep","supports"],
   checkinFilter:"all",
   checkinHidden:[],
   pokemonFriends:[],
-  medications:[],
+  medications:[
+    {id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""}
+  ],
   medicationLog:{},
   weightEntries:[],
   measurements:[],
@@ -58,6 +60,10 @@ function migrateLegacy(){
       const old=JSON.parse(raw);
       const migrated={...DEFAULT_DATA,...old,version:5};
       migrated.plants=(old.plants||DEFAULT_DATA.plants).map(normalizePlant);
+      migrated.medications=Array.isArray(migrated.medications)?migrated.medications:[];
+      if(!migrated.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
+        migrated.medications.unshift({id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""});
+      }
       localStorage.setItem(STORAGE_KEY,JSON.stringify(migrated));
       return migrated;
     }catch{}
@@ -71,6 +77,10 @@ function loadData(){
     if(raw){
       const loaded={...DEFAULT_DATA,...JSON.parse(raw)};
       loaded.plants=(loaded.plants||DEFAULT_DATA.plants).map(normalizePlant);
+      loaded.medications=Array.isArray(loaded.medications)?loaded.medications:[];
+      if(!loaded.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
+        loaded.medications.unshift({id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""});
+      }
       return loaded;
     }
     return migrateLegacy()||structuredClone(DEFAULT_DATA);

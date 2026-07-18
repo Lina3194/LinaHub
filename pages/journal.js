@@ -20,7 +20,6 @@ function JournalPage(){
     supports:["","","",""],justToday:["","",""]
   };
   const care=["Rest","Reading","Exercises","Warmth","Good food","Fresh air","Music","Gaming","Hobbies"];
-  const todaysTasks=(data.personalTasks||[]).filter(t=>!t.done && (!t.date || t.date<=today()));
 
   const blocks={
     energy:`<section class="card draggable" data-block="energy" data-group="emoji"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="energy">👁️</button><h2>⚡ Today’s energy</h2>${renderScale("energy",entry.energy)}</section>`,
@@ -30,12 +29,11 @@ function JournalPage(){
     water:`<section class="card draggable" data-block="water" data-group="wellness"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="water">👁️</button><h2>💧 Water intake</h2><div class="tokens">${Array.from({length:10},(_,i)=>`<button class="token ${i<entry.water?"active":""}" data-token="water" data-value="${i+1}">💧</button>`).join("")}</div></section>`,
     priorities:`<section class="card draggable" data-block="priorities" data-group="planning"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="priorities">👁️</button><h2>📌 Today’s priorities</h2>${entry.priorities.map((v,i)=>`<label class="row"><span class="row-num">${i+1}.</span><input class="field priority" value="${esc(v)}"></label>`).join("")}</section>`,
     selfcare:`<section class="card draggable" data-block="selfcare" data-group="wellness"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="selfcare">👁️</button><h2>🌸 Self-care menu</h2><div class="pills">${care.map(x=>`<button class="pill ${entry.selfCare.includes(x)?"active":""}" data-care="${x}">${x}</button>`).join("")}</div></section>`,
-    plan:`<section class="card draggable" data-block="plan" data-group="planning"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="plan">👁️</button><h2>🗓️ Today’s plan</h2>${todaysTasks.length?todaysTasks.map(task=>`<div class="item-row journal-task-row"><div><h3>${esc(task.title)}</h3><p>${esc(task.energy)} energy${task.time?` · Due ${esc(task.time)}`:""}</p></div><button class="check-task" data-journal-task-done="${task.id}">✓</button></div>`).join(""):`<p>No tasks due today. Add them from the Today tab.</p>`}</section>`,
     sleep:`<section class="card draggable" data-block="sleep" data-group="emoji"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="sleep">👁️</button><h2>😴 Sleep last night</h2>${renderScale("sleep",entry.sleep)}</section>`,
     supports:`<section class="card draggable" data-block="supports" data-group="planning"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="supports">👁️</button><h2>🦴 Braces / supports used</h2>${entry.supports.map(v=>`<input class="field support" style="margin-top:9px" value="${esc(v)}" placeholder="e.g. knee brace">`).join("")}</section>`
   };
 
-  const order=(data.checkinLayout||Object.keys(blocks)).filter(k=>blocks[k] && !["medication","justtoday"].includes(k));
+  const order=(data.checkinLayout||Object.keys(blocks)).filter(k=>blocks[k] && !["medication","justtoday","plan"].includes(k));
   const rendered=order.map(k=>{
     const hidden=(data.checkinHidden||[]).includes(k);
     return blocks[k].replace('class="card draggable"',`class="card draggable ${hidden?"soft-hidden":""}"`);
@@ -88,11 +86,6 @@ function bindJournal(){
 
   setupJournalDrag();
   applyJournalFilter();
-
-  document.querySelectorAll("[data-journal-task-done]").forEach(btn=>btn.onclick=()=>{
-    const task=(data.personalTasks||[]).find(t=>t.id===btn.dataset.journalTaskDone);
-    if(task){task.done=true;saveData();render();}
-  });
 
   const saveBtn=document.querySelector("#saveJournal");
   if(saveBtn) saveBtn.onclick=saveJournalEntry;
@@ -197,11 +190,6 @@ function saveJournalEntry(){
     water:document.querySelectorAll('[data-token="water"].active').length,
     selfCare:[...document.querySelectorAll("[data-care].active")].map(x=>x.dataset.care),
     priorities:[...document.querySelectorAll(".priority")].map(x=>x.value),
-    plan:[...document.querySelectorAll(".plan-row")].map(r=>({
-      task:r.querySelector(".plan-task").value,
-      energy:r.querySelector(".plan-energy").value,
-      done:r.querySelector(".done").classList.contains("active")
-    })),
     supports:[...document.querySelectorAll(".support")].map(x=>x.value)
   };
   saveData();

@@ -27,13 +27,12 @@ function JournalPage(){
     pain:`<section class="card draggable" data-block="pain" data-group="emoji"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="pain">👁️</button><h2>☀️ Today’s pain</h2>${renderScale("pain",entry.pain)}</section>`,
     spoons:`<section class="card draggable" data-block="spoons" data-group="wellness"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="spoons">👁️</button><h2>🥄 Spoon bank</h2><p>Tap a spoon as you use energy.</p><div class="tokens">${Array.from({length:12},(_,i)=>`<button class="token ${i<entry.spoons?"active":""}" data-token="spoons" data-value="${i+1}">🥄</button>`).join("")}</div></section>`,
     water:`<section class="card draggable" data-block="water" data-group="wellness"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="water">👁️</button><h2>💧 Water intake</h2><div class="tokens">${Array.from({length:10},(_,i)=>`<button class="token ${i<entry.water?"active":""}" data-token="water" data-value="${i+1}">💧</button>`).join("")}</div></section>`,
-    priorities:`<section class="card draggable" data-block="priorities" data-group="planning"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="priorities">👁️</button><h2>📌 Today’s priorities</h2>${entry.priorities.map((v,i)=>`<label class="row"><span class="row-num">${i+1}.</span><input class="field priority" value="${esc(v)}"></label>`).join("")}</section>`,
     selfcare:`<section class="card draggable" data-block="selfcare" data-group="wellness"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="selfcare">👁️</button><h2>🌸 Self-care menu</h2><div class="pills">${care.map(x=>`<button class="pill ${entry.selfCare.includes(x)?"active":""}" data-care="${x}">${x}</button>`).join("")}</div></section>`,
     sleep:`<section class="card draggable" data-block="sleep" data-group="emoji"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="sleep">👁️</button><h2>😴 Sleep last night</h2>${renderScale("sleep",entry.sleep)}</section>`,
     supports:`<section class="card draggable" data-block="supports" data-group="planning"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="supports">👁️</button><h2>🦴 Braces / supports used</h2>${entry.supports.map(v=>`<input class="field support" style="margin-top:9px" value="${esc(v)}" placeholder="e.g. knee brace">`).join("")}</section>`
   };
 
-  const order=(data.checkinLayout||Object.keys(blocks)).filter(k=>blocks[k] && !["medication","justtoday","plan"].includes(k));
+  const order=(data.checkinLayout||Object.keys(blocks)).filter(k=>blocks[k] && !["medication","justtoday","plan","priorities"].includes(k));
   const rendered=order.map(k=>{
     const hidden=(data.checkinHidden||[]).includes(k);
     return blocks[k].replace('class="card draggable"',`class="card draggable ${hidden?"soft-hidden":""}"`);
@@ -42,15 +41,18 @@ function JournalPage(){
   return shell(`${head("Today’s Check-in",niceDate())}
     <section class="card filter-card">
       <div class="layout-toolbar">
-        <div><h2>Journal view</h2><p style="margin:4px 0">Choose what you want to see today.</p></div>
-        <button class="magic-edit ${data.checkinEditMode?"active":""}" id="toggleEditMode">${data.checkinEditMode?"✓ Done":"🪄 Edit layout"}</button>
+        <button class="collapse-title" id="toggleJournalControls">
+          <span><h2>Journal view</h2><p style="margin:4px 0">${data.journalControlsCollapsed?"Tap to show layout controls":"Choose what you want to see today."}</p></span>
+          <b>${data.journalControlsCollapsed?"⌄":"⌃"}</b>
+        </button>
+        ${data.journalControlsCollapsed?"":`<button class="magic-edit ${data.checkinEditMode?"active":""}" id="toggleEditMode">${data.checkinEditMode?"✓ Done":"🪄 Edit layout"}</button>`}
       </div>
-      <div class="pills">
+      ${data.journalControlsCollapsed?"":`<div class="pills">
         <button class="pill ${data.checkinFilter==="all"?"active":""}" data-filter="all">Everything</button>
         <button class="pill ${data.checkinFilter==="emoji"?"active":""}" data-filter="emoji">Emoji check-ins</button>
-        <button class="pill ${data.checkinFilter==="planning"?"active":""}" data-filter="planning">To-do & planning</button>
+        <button class="pill ${data.checkinFilter==="planning"?"active":""}" data-filter="planning">Planning</button>
         <button class="pill ${data.checkinFilter==="wellness"?"active":""}" data-filter="wellness">Wellness</button>
-      </div>
+      </div>`}
     </section>
     <div class="stack ${data.checkinEditMode?"editing":""}" id="journalStack">${rendered}</div>
     <button class="primary" id="saveJournal">Save today’s check-in</button>
@@ -73,6 +75,9 @@ function bindJournal(){
     document.querySelectorAll("[data-filter]").forEach(x=>x.classList.toggle("active",x.dataset.filter===data.checkinFilter));
   });
 
+  document.querySelector("#toggleJournalControls")?.addEventListener("click",()=>{
+    data.journalControlsCollapsed=!data.journalControlsCollapsed;saveData();render();
+  });
   const edit=document.querySelector("#toggleEditMode");
   if(edit) edit.onclick=()=>{data.checkinEditMode=!data.checkinEditMode;saveData();render()};
 
@@ -189,7 +194,6 @@ function saveJournalEntry(){
     spoons:document.querySelectorAll('[data-token="spoons"].active').length,
     water:document.querySelectorAll('[data-token="water"].active').length,
     selfCare:[...document.querySelectorAll("[data-care].active")].map(x=>x.dataset.care),
-    priorities:[...document.querySelectorAll(".priority")].map(x=>x.value),
     supports:[...document.querySelectorAll(".support")].map(x=>x.value)
   };
   saveData();

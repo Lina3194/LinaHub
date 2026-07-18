@@ -94,3 +94,9 @@ body.reordering{
   overflow:hidden;
   touch-action:none;
 }
+
+.collapse-title{
+  flex:1;display:flex;justify-content:space-between;align-items:center;
+  border:0;background:transparent;color:var(--ink);text-align:left;padding:0
+}
+.collapse-title h2{margin:0}.collapse-title b{font-size:1.3rem;color:var(--purple)}

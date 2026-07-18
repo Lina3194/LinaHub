@@ -33,3 +33,9 @@ body.dark .today-task-icon{background:#2b2040}
 .journal-task-row{margin-top:9px}
 
 .completed-task{opacity:.62}
+
+.field-label{display:grid;gap:6px;color:var(--muted);font-size:.85rem}
+.icon-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.icon-setting{display:grid;grid-template-columns:1fr 62px;gap:8px;align-items:center}
+.home-icon-input{text-align:center;font-size:1.4rem}
+@media(max-width:460px){.icon-settings-grid{grid-template-columns:1fr}}

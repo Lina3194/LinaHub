@@ -7,21 +7,21 @@ function TodoPage(){
       <h2>➕ Add a task</h2>
       <div class="form-grid">
         <input class="field" id="todoTitle" placeholder="What do you want to do?">
-        <div class="two-col">
+        <label class="field-label">Energy needed
           <select class="field" id="todoEnergy">
             <option value="Low">Low energy</option>
             <option value="Medium" selected>Medium energy</option>
             <option value="High">High energy</option>
           </select>
-          <input class="field" id="todoDate" type="date">
-        </div>
-        <input class="field" id="todoTime" type="time">
+        </label>
+        <label class="field-label">Deadline
+          <input class="field" id="todoDeadline" type="datetime-local">
+        </label>
         <button class="primary" id="addTodo">Add to list</button>
       </div>
       <p style="margin-bottom:0">Leave the date blank and it will carry over every day until completed.</p>
     </section>
     <section class="card">
-      <h2>📋 Open tasks</h2>
       <div class="list-card">
         ${openTasks.length?openTasks.map(task=>`
           <div class="item-row">
@@ -40,7 +40,9 @@ function bindTodo(){
     const title=document.querySelector("#todoTitle").value.trim();
     if(!title){toast("Add a task first");return}
     data.personalTasks=data.personalTasks||[];
-    data.personalTasks.push({id:"todo-"+Date.now(),title,energy:document.querySelector("#todoEnergy").value,date:document.querySelector("#todoDate").value,time:document.querySelector("#todoTime").value,done:false,created:today()});
+    data.personalTasks.push({id:"todo-"+Date.now(),title,energy:document.querySelector("#todoEnergy").value,deadline:document.querySelector("#todoDeadline").value,
+      date:document.querySelector("#todoDeadline").value?document.querySelector("#todoDeadline").value.slice(0,10):"",
+      time:document.querySelector("#todoDeadline").value?document.querySelector("#todoDeadline").value.slice(11,16):"",done:false,created:today()});
     saveData();render();toast("Task added ✅");
   });
   document.querySelectorAll("[data-todo-done]").forEach(btn=>btn.onclick=()=>{

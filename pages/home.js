@@ -24,14 +24,14 @@ function HomePage(){
 
     <div class="grid">
       ${[
-        ["📖","Daily Check-in","Pain, energy, sleep and your day","journal"],
-        ["⚖️","Weight & Measures","Track weight and measurements","health"],
-        ["🌿","Plants","Care and watering","plants"],
-        ["💊","Medication","Doses and routines","medication"],
-        ["🔴","Pokémon GO","Friend tracker coming later","pokemon"],
-        ["🐠","Aquariums","Girls and boys tanks","pets"],
-        ["🏡","House","Rooms and recurring tasks","house"],
-        ["⚙️","Settings","Theme and backup","settings"]
+        [data.homeIcons?.journal||"📖","Daily Check-in","Pain, energy, sleep and your day","journal"],
+        [data.homeIcons?.health||"⚖️","Weight & Measures","Track weight and measurements","health"],
+        [data.homeIcons?.plants||"🌿","Plants","Care and watering","plants"],
+        [data.homeIcons?.medication||"💊","Medication","Doses and routines","medication"],
+        [data.homeIcons?.pokemon||"🔴","Pokémon GO","Friend tracker coming later","pokemon"],
+        [data.homeIcons?.pets||"🐠","Aquariums","Girls and boys tanks","pets"],
+        [data.homeIcons?.house||"🏡","House","Rooms and recurring tasks","house"],
+        [data.homeIcons?.settings||"⚙️","Settings","Theme and backup","settings"]
       ].map(x=>`<button class="module" data-route="${x[3]}"><span class="emoji">${x[0]}</span><strong>${x[1]}</strong><small>${x[2]}</small></button>`).join("")}
     </div>
 

@@ -9,6 +9,18 @@ function SettingsPage(){
       <h2>Appearance</h2>
       <button class="primary" id="themeToggle2">Switch to ${data.theme==="dark"?"light":"dark"} mode</button>
     </section>
+
+    <section class="card">
+      <h2>Home screen icons</h2>
+      <p>Type or paste any emoji you want to use for each module.</p>
+      <div class="icon-settings-grid">
+        ${[
+          ["journal","Daily Check-in"],["health","Weight & Measures"],["plants","Plants"],["medication","Medication"],
+          ["pokemon","Pokémon GO"],["pets","Aquariums"],["house","House"],["settings","Settings"]
+        ].map(([key,label])=>`<label class="icon-setting"><span>${label}</span><input class="field home-icon-input" data-icon-key="${key}" value="${esc(data.homeIcons?.[key]||"")}"></label>`).join("")}
+      </div>
+      <button class="primary" id="saveHomeIcons" style="margin-top:12px">Save home icons</button>
+    </section>
     <section class="card">
       <h2>Backup</h2>
       <p>Your entries use the permanent storage key <strong>linahub-data</strong>.</p>
@@ -21,6 +33,14 @@ function SettingsPage(){
 function bindSimple(){
   const t=document.querySelector("#themeToggle2");
   if(t) t.onclick=()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()};
+
+  document.querySelector("#saveHomeIcons")?.addEventListener("click",()=>{
+    data.homeIcons=data.homeIcons||{};
+    document.querySelectorAll("[data-icon-key]").forEach(input=>{
+      data.homeIcons[input.dataset.iconKey]=input.value.trim()||data.homeIcons[input.dataset.iconKey];
+    });
+    saveData();toast("Home icons updated ✨");
+  });
 
   const exp=document.querySelector("#exportData");
   if(exp) exp.onclick=()=>{

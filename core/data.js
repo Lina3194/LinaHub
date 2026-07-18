@@ -6,8 +6,13 @@ const DEFAULT_DATA={
   version:5,
   theme:"light",
   checkins:{},
-  checkinLayout:["energy","mood","pain","spoons","water","priorities","selfcare","sleep","supports"],
+  checkinLayout:["energy","mood","pain","spoons","water","selfcare","sleep","supports"],
   checkinFilter:"all",
+  journalControlsCollapsed:false,
+  homeIcons:{
+    journal:"📖",health:"⚖️",plants:"🌿",medication:"💊",
+    pokemon:"🔴",pets:"🐠",house:"🏡",settings:"⚙️"
+  },
   checkinHidden:[],
   pokemonFriends:[],
   medications:[

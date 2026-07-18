@@ -7,15 +7,17 @@ function TodoPage(){
       <h2>➕ Add a task</h2>
       <div class="form-grid">
         <input class="field" id="todoTitle" placeholder="What do you want to do?">
-        <label class="field-label">Energy needed
-          <select class="field" id="todoEnergy">
-            <option value="Low">Low energy</option>
-            <option value="Medium" selected>Medium energy</option>
-            <option value="High">High energy</option>
-          </select>
-        </label>
+        <div>
+          <span class="field-label">Energy needed</span>
+          <div class="energy-picker" id="todoEnergyPicker">
+            <button type="button" class="energy-choice" data-energy-choice="Low"><span>🟢</span><b>Low</b></button>
+            <button type="button" class="energy-choice active" data-energy-choice="Medium"><span>🟡</span><b>Medium</b></button>
+            <button type="button" class="energy-choice" data-energy-choice="High"><span>🔴</span><b>High</b></button>
+          </div>
+          <input type="hidden" id="todoEnergy" value="Medium">
+        </div>
         <label class="field-label">Deadline
-          <input class="field" id="todoDeadline" type="datetime-local">
+          <input class="field" id="todoDeadline" type="date">
         </label>
         <button class="primary" id="addTodo">Add to list</button>
       </div>
@@ -25,7 +27,7 @@ function TodoPage(){
       <div class="list-card">
         ${openTasks.length?openTasks.map(task=>`
           <div class="item-row">
-            <div><h3>${esc(task.title)}</h3><p>${esc(task.energy)} energy${task.date?` · Deadline ${esc(formatDate(task.date))}`:" · Carries over daily"}${task.time?` at ${esc(task.time)}`:""}</p></div>
+            <div><h3>${esc(task.title)}</h3><p>${esc(task.energy)} energy${task.date?` · Deadline ${esc(formatDate(task.date))}`:" · Carries over daily"}</p></div>
             <div class="item-actions"><button class="check-task" data-todo-done="${task.id}">✓</button><button class="mini danger" data-todo-delete="${task.id}">Delete</button></div>
           </div>`).join(""):`<p>No open tasks. ✨</p>`}
       </div>
@@ -36,13 +38,19 @@ function TodoPage(){
   `,"todo");
 }
 function bindTodo(){
+  document.querySelectorAll("[data-energy-choice]").forEach(btn=>btn.addEventListener("click",()=>{
+    document.querySelectorAll("[data-energy-choice]").forEach(x=>x.classList.remove("active"));
+    btn.classList.add("active");
+    document.querySelector("#todoEnergy").value=btn.dataset.energyChoice;
+  }));
+
   document.querySelector("#addTodo")?.addEventListener("click",()=>{
     const title=document.querySelector("#todoTitle").value.trim();
     if(!title){toast("Add a task first");return}
     data.personalTasks=data.personalTasks||[];
     data.personalTasks.push({id:"todo-"+Date.now(),title,energy:document.querySelector("#todoEnergy").value,deadline:document.querySelector("#todoDeadline").value,
-      date:document.querySelector("#todoDeadline").value?document.querySelector("#todoDeadline").value.slice(0,10):"",
-      time:document.querySelector("#todoDeadline").value?document.querySelector("#todoDeadline").value.slice(11,16):"",done:false,created:today()});
+      date:document.querySelector("#todoDeadline").value,
+      time:"",done:false,created:today()});
     saveData();render();toast("Task added ✅");
   });
   document.querySelectorAll("[data-todo-done]").forEach(btn=>btn.onclick=()=>{

@@ -39,3 +39,27 @@ body.dark .today-task-icon{background:#2b2040}
 .icon-setting{display:grid;grid-template-columns:1fr 62px;gap:8px;align-items:center}
 .home-icon-input{text-align:center;font-size:1.4rem}
 @media(max-width:460px){.icon-settings-grid{grid-template-columns:1fr}}
+
+.energy-picker{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-top:6px;
+}
+.energy-choice{
+  border:1px solid var(--line);
+  background:var(--card);
+  color:var(--ink);
+  border-radius:16px;
+  padding:12px 8px;
+  display:grid;
+  gap:5px;
+  place-items:center;
+}
+.energy-choice span{font-size:1.45rem}
+.energy-choice.active{
+  border-color:var(--purple);
+  background:var(--purple-soft);
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--purple) 18%,transparent);
+}
+.energy-choice b{font-size:.9rem}

@@ -21,6 +21,7 @@ function render(){
 
   if(route==="home") bindHome();
   if(route==="journal") bindJournal();
+  if(route==="today") bindToday();
   if(route==="plants"||route==="plant") bindPlants();
   if(route==="pokemon") bindPokemon();
   if(route==="house") bindHouse();
@@ -34,7 +35,7 @@ function bindGlobal(){
 }
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=54"));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=55"));
 }
 
 render();

@@ -6,7 +6,7 @@ const DEFAULT_DATA={
   version:5,
   theme:"light",
   checkins:{},
-  checkinLayout:["energy","mood","pain","spoons","water","priorities","selfcare","medication","plan","sleep","justtoday","supports"],
+  checkinLayout:["energy","mood","pain","spoons","water","priorities","selfcare","plan","sleep","supports"],
   checkinFilter:"all",
   checkinHidden:[],
   pokemonFriends:[],
@@ -14,6 +14,8 @@ const DEFAULT_DATA={
   medicationLog:{},
   weightEntries:[],
   measurements:[],
+  healthPromptLog:{},
+  personalTasks:[],
   houseTasks:[
     {id:"living-vacuum",room:"Living Room / Kitchen",task:"Vacuum floors",frequency:"Weekly",done:false},
     {id:"living-dust",room:"Living Room / Kitchen",task:"Dust surfaces and bookcase",frequency:"Weekly",done:false},

@@ -29,3 +29,5 @@ body.dark .item-row,body.dark .stat,body.dark .simple-table td,body.dark .simple
   display:grid;place-items:center;font-size:1.45rem
 }
 body.dark .today-task-icon{background:#2b2040}
+
+.journal-task-row{margin-top:9px}

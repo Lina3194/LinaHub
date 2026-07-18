@@ -1,10 +1,51 @@
 
-let pokemonUi={search:"",friendship:"all",vivillon:"all",page:1,view:"friends",editing:null};
+let pokemonUi={search:"",friendship:"all",vivillon:"all",page:1,view:"friends",editing:null,openCard:null};
 const POKE_PAGE_SIZE=40;
 const FRIENDSHIP_LEVELS=["Good Friend","Great Friend","Ultra Friend","Best Friend","Forever Friend"];
 const VIVILLON_PATTERNS=["Unknown","Archipelago","Continental","Elegant","Garden","High Plains","Icy Snow","Jungle","Marine","Meadow","Modern","Monsoon","Ocean","Polar","River","Sandstorm","Savanna","Sun","Tundra"];
 function pokeEmoji(level){return ({"Good Friend":"💚","Great Friend":"💙","Ultra Friend":"💜","Best Friend":"⭐","Forever Friend":"✨"})[level]||"🤝"}
 function pokeDate(value){return value?formatDate(value):"Never"}
+
+function friendshipCard(f){
+  const currentIndex=Math.max(0,FRIENDSHIP_LEVELS.indexOf(f.friendship));
+  return `<div class="friendship-card">
+    <div class="friendship-card-header">
+      <div class="friendship-card-icon">${pokeEmoji(f.friendship)}</div>
+      <div><small>Friendship level</small><strong>${esc(f.friendship)}</strong></div>
+    </div>
+    <div class="friendship-path">
+      ${FRIENDSHIP_LEVELS.map((level,index)=>`
+        <div class="friendship-step ${index<currentIndex?"complete":""} ${index===currentIndex?"current":""}">
+          <span>${pokeEmoji(level)}</span><small>${level.replace(" Friend","")}</small>
+        </div>`).join("")}
+    </div>
+  </div>`;
+}
+function PokemonFriendDetail(f){
+  return `<div class="poke-detail-backdrop" data-close-friend-card>
+    <section class="poke-detail-card" role="dialog" aria-modal="true">
+      <button class="poke-detail-close" data-close-friend-card>×</button>
+      <div class="poke-detail-trainer">
+        <div class="poke-detail-avatar">${pokeEmoji(f.friendship)}</div>
+        <div><small>Trainer</small><h2>${esc(f.name)}</h2>${f.nickname?`<p>${esc(f.nickname)}</p>`:""}</div>
+      </div>
+      ${friendshipCard(f)}
+      <div class="poke-detail-grid">
+        <div><small>Vivillon</small><strong>🦋 ${esc(f.vivillon||"Unknown")}</strong></div>
+        <div><small>Country</small><strong>${f.country?`🌍 ${esc(f.country)}`:"—"}</strong></div>
+        <div><small>Gifts sent</small><strong>${f.giftsSent||0}</strong><span>${pokeDate(f.lastGiftSent)}</span></div>
+        <div><small>Gifts received</small><strong>${f.giftsReceived||0}</strong><span>${pokeDate(f.lastGiftReceived)}</span></div>
+      </div>
+      ${f.notes?`<div class="poke-detail-notes"><small>Notes</small><p>${esc(f.notes)}</p></div>`:""}
+      <div class="gift-buttons">
+        <button data-detail-gift-sent="${f.id}"><b>🎁 I sent a gift</b><small>Add one for today</small></button>
+        <button data-detail-gift-received="${f.id}"><b>💌 They sent me a gift</b><small>Add one for today</small></button>
+      </div>
+      <button class="secondary poke-detail-edit" data-detail-edit="${f.id}">Edit friend</button>
+    </section>
+  </div>`;
+}
+
 function filteredPokemonFriends(){
   const q=pokemonUi.search.trim().toLowerCase();
   return (data.pokemonFriends||[]).filter(f=>{
@@ -21,6 +62,7 @@ function PokemonPage(){
   const vivCounts={},friendshipCounts={};
   friends.forEach(f=>{const v=f.vivillon||"Unknown";vivCounts[v]=(vivCounts[v]||0)+1;friendshipCounts[f.friendship]=(friendshipCounts[f.friendship]||0)+1});
   const vivillons=Object.keys(vivCounts).sort((a,b)=>a.localeCompare(b));
+  const openFriend=pokemonUi.openCard?friends.find(f=>f.id===pokemonUi.openCard):null;
   return shell(`${head("Pokémon GO","Your complete friend and gift tracker")}
     <section class="pokemon-hero"><div class="poke-metrics">
       <div class="metric-card"><span>Total friends</span><strong>${friends.length}</strong></div>
@@ -52,6 +94,7 @@ function PokemonPage(){
     ${pokemonUi.view==="import"?`<section class="card"><h2>📥 Import Excel tracker</h2><p class="muted">Choose an .xlsx file with a sheet named <b>Friends</b>. Every populated trainer row is read automatically—there is no row limit.</p><label class="excel-import-drop"><span>📄 Choose Excel file</span><small>.xlsx only</small><input id="pokemonExcelImport" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label><div class="import-options"><label><input type="radio" name="pokeImportMode" value="merge" checked><span><b>Merge safely</b><small>Add new trainers and update details while keeping gift totals.</small></span></label><label><input type="radio" name="pokeImportMode" value="replace"><span><b>Replace list</b><small>Replace all friends, preserving gift totals for matching trainer names.</small></span></label></div><div id="pokemonImportPreview"></div></section>`:""}
     ${pokemonUi.view==="stats"?`<section class="card"><h2>Friendship levels</h2><div class="poke-stat-list">${FRIENDSHIP_LEVELS.map(level=>`<button class="poke-stat-row" data-friendship-jump="${level}"><span>${pokeEmoji(level)} ${level}</span><strong>${friendshipCounts[level]||0}</strong></button>`).join("")}</div></section>
       <section class="card"><h2>Gift totals</h2><div class="stat-grid"><div class="stat"><strong>${sent}</strong><span>You sent</span></div><div class="stat"><strong>${received}</strong><span>They sent</span></div></div></section>`:""}
+  ${openFriend?PokemonFriendDetail(openFriend):""}
   `,"pokemon");
 }
 function PokemonFriendCard(f){
@@ -61,9 +104,14 @@ function PokemonFriendCard(f){
     <input class="field" data-edit-field="country" value="${esc(f.country)}" placeholder="Country"><textarea class="field" data-edit-field="notes" placeholder="Notes">${esc(f.notes)}</textarea>
     <div class="item-actions"><button class="primary" data-poke-save="${f.id}">Save changes</button><button class="secondary" data-poke-cancel="${f.id}">Cancel</button><button class="mini danger" data-poke-delete="${f.id}">Delete</button></div>
   </div></section>`;
-  return `<section class="card poke-friend-card"><div class="poke-friend-top"><div class="poke-avatar">${pokeEmoji(f.friendship)}</div><div class="poke-main"><h2>${esc(f.name)}</h2><p>${esc(f.nickname||f.country||"No nickname or country")}</p></div><button class="mini" data-poke-edit="${f.id}">Edit</button></div>
-    <div class="poke-chips"><span>${esc(f.friendship)}</span><span>🦋 ${esc(f.vivillon||"Unknown")}</span>${f.country?`<span>🌍 ${esc(f.country)}</span>`:""}</div>
+  return `<section class="card poke-friend-card">
+    <button class="poke-friend-open" data-open-friend-card="${f.id}">
+      <div class="poke-friend-top"><div class="poke-avatar">${pokeEmoji(f.friendship)}</div><div class="poke-main"><h2>${esc(f.name)}</h2><p>${esc(f.nickname||f.country||"No nickname or country")}</p></div><span class="poke-open-arrow">›</span></div>
+      ${friendshipCard(f)}
+      <div class="poke-chips"><span>🦋 ${esc(f.vivillon||"Unknown")}</span>${f.country?`<span>🌍 ${esc(f.country)}</span>`:""}</div>
+    </button>
     <div class="gift-buttons"><button data-gift-sent="${f.id}"><b>🎁 I sent a gift</b><small>${f.giftsSent||0} total · ${pokeDate(f.lastGiftSent)}</small></button><button data-gift-received="${f.id}"><b>💌 They sent me a gift</b><small>${f.giftsReceived||0} total · ${pokeDate(f.lastGiftReceived)}</small></button></div>
+    <button class="mini poke-card-edit" data-poke-edit="${f.id}">Edit details</button>
     ${f.notes?`<p class="poke-notes">${esc(f.notes)}</p>`:""}</section>`;
 }
 
@@ -72,6 +120,12 @@ function importPokemonWorkbook(file){if(typeof XLSX==="undefined"){toast("Excel 
 
 function bindPokemon(){
   document.querySelectorAll("[data-poke-view]").forEach(b=>b.onclick=()=>{pokemonUi.view=b.dataset.pokeView;pokemonUi.editing=null;render()});
+  document.querySelectorAll("[data-open-friend-card]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=b.dataset.openFriendCard;render()});
+  document.querySelectorAll("[data-close-friend-card]").forEach(b=>b.onclick=e=>{if(e.target===b||b.classList.contains("poke-detail-close")){pokemonUi.openCard=null;render()}});
+  document.querySelectorAll("[data-detail-gift-sent]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.detailGiftSent);if(!f)return;f.giftsSent=(Number(f.giftsSent)||0)+1;f.lastGiftSent=today();f.lastInteraction=today();saveData();render();toast("Gift sent recorded 🎁")});
+  document.querySelectorAll("[data-detail-gift-received]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.detailGiftReceived);if(!f)return;f.giftsReceived=(Number(f.giftsReceived)||0)+1;f.lastGiftReceived=today();f.lastInteraction=today();saveData();render();toast("Gift received recorded 💌")});
+  document.querySelectorAll("[data-detail-edit]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=null;pokemonUi.editing=b.dataset.detailEdit;render()});
+
   document.querySelector("#pokemonExcelImport")?.addEventListener("change",e=>{const f=e.target.files?.[0];if(f)importPokemonWorkbook(f)});
   document.querySelector("#pokeSearch")?.addEventListener("input",e=>{pokemonUi.search=e.target.value;pokemonUi.page=1;render();requestAnimationFrame(()=>{const i=document.querySelector("#pokeSearch");if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}})});
   document.querySelector("#pokeFriendshipFilter")?.addEventListener("change",e=>{pokemonUi.friendship=e.target.value;pokemonUi.page=1;render()});
@@ -80,7 +134,7 @@ function bindPokemon(){
   document.querySelector("#addPokemonFriend")?.addEventListener("click",()=>{const name=document.querySelector("#pokeName").value.trim();if(!name){toast("Add a trainer name");return}data.pokemonFriends.unshift(normalizePokemonFriend({id:`poke-${Date.now()}`,name,nickname:document.querySelector("#pokeNickname").value.trim(),friendship:document.querySelector("#pokeFriendship").value,vivillon:document.querySelector("#pokeVivillon").value,country:document.querySelector("#pokeCountry").value.trim(),notes:document.querySelector("#pokeNotes").value.trim()},0));saveData();pokemonUi.view="friends";pokemonUi.page=1;render();toast("Friend added 🎉")});
   document.querySelectorAll("[data-gift-sent]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.giftSent);if(!f)return;f.giftsSent=(Number(f.giftsSent)||0)+1;f.lastGiftSent=today();f.lastInteraction=today();saveData();render();toast("Gift sent recorded 🎁")});
   document.querySelectorAll("[data-gift-received]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.giftReceived);if(!f)return;f.giftsReceived=(Number(f.giftsReceived)||0)+1;f.lastGiftReceived=today();f.lastInteraction=today();saveData();render();toast("Gift received recorded 💌")});
-  document.querySelectorAll("[data-poke-edit]").forEach(b=>b.onclick=()=>{pokemonUi.editing=b.dataset.pokeEdit;render()});
+  document.querySelectorAll("[data-poke-edit]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=null;pokemonUi.editing=b.dataset.pokeEdit;render()});
   document.querySelectorAll("[data-poke-cancel]").forEach(b=>b.onclick=()=>{pokemonUi.editing=null;render()});
   document.querySelectorAll("[data-poke-save]").forEach(b=>b.onclick=()=>{const card=b.closest(".poke-friend-card"),f=data.pokemonFriends.find(x=>x.id===b.dataset.pokeSave);if(!f||!card)return;card.querySelectorAll("[data-edit-field]").forEach(i=>f[i.dataset.editField]=i.value.trim());saveData();pokemonUi.editing=null;render();toast("Friend updated ✨")});
   document.querySelectorAll("[data-poke-delete]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.pokeDelete);if(!f||!confirm(`Delete ${f.name}?`))return;data.pokemonFriends=data.pokemonFriends.filter(x=>x.id!==f.id);saveData();pokemonUi.editing=null;render()});

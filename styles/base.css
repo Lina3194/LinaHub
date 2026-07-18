@@ -63,3 +63,5 @@ body.dark{--bg:#0b0d17;--card:#131522;--ink:#f6efff;--muted:#afa5c0;--line:#332b
 body.dark .hero,body.dark .card,body.dark .bottom{background:#151225}
 body.dark .field,body.dark .secondary{background:#10121d;color:var(--ink)}
 @media(max-width:420px){h1{font-size:2rem}.shell{padding-left:12px;padding-right:12px}}
+
+.bottom.four-nav{grid-template-columns:repeat(4,1fr)}

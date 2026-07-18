@@ -36,7 +36,7 @@ function HomePage(){
     </div>
 
     <section class="card" style="margin-top:14px">
-      <h2>Today’s</h2>
+      <button class="today-heading" data-route="today"><span><h2>Today’s</h2><small>Open your full task list</small></span><b>›</b></button>
       <div class="today-list">
         ${due.map(item=>`<button class="reminder" data-route="${item.route}"><b>${item.emoji}</b><span>${item.text}</span></button>`).join("")}
       </div>

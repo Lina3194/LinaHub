@@ -5,6 +5,7 @@ function render(){
   const pages={
     home:HomePage,
     journal:JournalPage,
+    today:TodayPage,
     plants:PlantsPage,
     plant:PlantProfilePage,
     settings:SettingsPage,
@@ -33,7 +34,7 @@ function bindGlobal(){
 }
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=53"));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=54"));
 }
 
 render();

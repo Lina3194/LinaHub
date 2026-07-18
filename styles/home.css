@@ -12,3 +12,10 @@
   padding:13px;border-radius:17px;color:var(--ink);text-align:left
 }
 body.dark .module,body.dark .reminder{background:#151225}
+
+.today-heading{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  border:0;background:transparent;color:var(--ink);padding:0 0 12px;text-align:left
+}
+.today-heading h2{margin:0}.today-heading small{color:var(--muted)}
+.today-heading b{font-size:1.8rem;color:var(--purple)}

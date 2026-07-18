@@ -20,3 +20,12 @@
 .simple-table td,.simple-table th{padding:10px;text-align:left;background:#fffafd;border:1px solid var(--line)}
 body.dark .item-row,body.dark .stat,body.dark .simple-table td,body.dark .simple-table th,body.dark .check-task{background:#10121d;color:var(--ink)}
 @media(max-width:480px){.two-col{grid-template-columns:1fr}.item-row{grid-template-columns:1fr}.item-actions{justify-content:flex-end}}
+
+.today-task{
+  width:100%;grid-template-columns:48px 1fr 24px;text-align:left;color:var(--ink)
+}
+.today-task-icon{
+  width:48px;height:48px;border-radius:15px;background:#f0e2f8;
+  display:grid;place-items:center;font-size:1.45rem
+}
+body.dark .today-task-icon{background:#2b2040}

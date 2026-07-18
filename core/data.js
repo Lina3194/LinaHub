@@ -14,7 +14,8 @@ const DEFAULT_DATA={
     pokemon:"🔴",pets:"🐠",house:"🏡",settings:"⚙️"
   },
   checkinHidden:[],
-  pokemonFriends:[],
+  pokemonFriends:structuredClone(POKEMON_FRIEND_SEED),
+  pokemonSeededVersion:2,
   medications:[
     {id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""}
   ],
@@ -47,6 +48,18 @@ const DEFAULT_DATA={
   ]
 };
 
+
+function normalizePokemonFriend(f,i){
+  return {
+    id:f.id||`poke-${Date.now()}-${i}`,name:f.name||"Unknown Trainer",nickname:f.nickname||"",
+    friendship:f.friendship||"Good Friend",vivillon:f.vivillon||"Unknown",country:f.country||"",
+    lastGiftReceived:f.lastGiftReceived||"",lastGiftSent:f.lastGiftSent||"",
+    giftsReceived:Number(f.giftsReceived)||0,giftsSent:Number(f.giftsSent)||0,
+    lastInteraction:f.lastInteraction||f.lastGiftReceived||f.lastGiftSent||"",
+    active:f.active!==false,notes:f.notes||""
+  };
+}
+
 function normalizePlant(p,i){
   if(typeof p==="string"){
     return {id:p.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||`plant-${i}`,name:p,emoji:"🌿",notes:"",lastWatered:"",history:[],photo:""};
@@ -69,6 +82,10 @@ function migrateLegacy(){
       if(!migrated.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
         migrated.medications.unshift({id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""});
       }
+      if(!Array.isArray(migrated.pokemonFriends)||migrated.pokemonFriends.length===0){
+        migrated.pokemonFriends=structuredClone(POKEMON_FRIEND_SEED);migrated.pokemonSeededVersion=1;
+      }
+      migrated.pokemonFriends=migrated.pokemonFriends.map(normalizePokemonFriend);
       localStorage.setItem(STORAGE_KEY,JSON.stringify(migrated));
       return migrated;
     }catch{}
@@ -86,6 +103,10 @@ function loadData(){
       if(!loaded.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
         loaded.medications.unshift({id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""});
       }
+      if(!loaded.pokemonSeededVersion && (!Array.isArray(loaded.pokemonFriends)||loaded.pokemonFriends.length===0)){
+        loaded.pokemonFriends=structuredClone(POKEMON_FRIEND_SEED);loaded.pokemonSeededVersion=1;
+      }
+      loaded.pokemonFriends=(loaded.pokemonFriends||[]).map(normalizePokemonFriend);
       return loaded;
     }
     return migrateLegacy()||structuredClone(DEFAULT_DATA);

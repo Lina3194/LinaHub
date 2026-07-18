@@ -1,19 +1,89 @@
 
-function PokemonPage(){
- const friends=data.pokemonFriends||[];
- const counts={}; friends.forEach(x=>{if(x.vivillon) counts[x.vivillon]=(counts[x.vivillon]||0)+1});
- return shell(`${head("Pokémon GO","Friends, gifts and Vivillon")}
- <section class="card"><div class="stat-grid"><div class="stat"><strong>${friends.length}</strong><span>Total friends</span></div><div class="stat"><strong>${friends.filter(x=>x.active!==false).length}</strong><span>Active</span></div></div></section>
- <section class="card"><h2>Add friend</h2><div class="form-grid">
- <input class="field" id="pokeName" placeholder="Trainer name"><input class="field" id="pokeNickname" placeholder="Nickname">
- <div class="two-col"><select class="field" id="pokeFriendship"><option>Good Friend</option><option>Great Friend</option><option>Ultra Friend</option><option>Best Friend</option></select><input class="field" id="pokeCountry" placeholder="Country"></div>
- <div class="two-col"><input class="field" id="pokeVivillon" placeholder="Vivillon pattern"><input class="field" id="pokeLast" type="date"></div>
- <button class="primary" id="addPokemonFriend">Add friend</button></div></section>
- <section class="card"><h2>Friends</h2><div class="list-card">${friends.length?friends.map((f,i)=>`<div class="item-row"><div><h3>${esc(f.name)}</h3><p>${esc(f.nickname||"No nickname")} · ${esc(f.friendship||"")} · ${esc(f.country||"Unknown")}${f.vivillon?` · ${esc(f.vivillon)}`:""}</p><p>Last interaction: ${f.lastInteraction?esc(formatDate(f.lastInteraction)):"Not set"}</p></div><div class="item-actions"><button class="mini" data-poke-today="${i}">Today</button><button class="mini danger" data-poke-delete="${i}">Delete</button></div></div>`).join(""):`<p>No friends added yet.</p>`}</div></section>
- <section class="card"><h2>Vivillon counts</h2>${Object.keys(counts).length?Object.entries(counts).sort().map(([k,v])=>`<div class="item-row"><span>${esc(k)}</span><strong>${v}</strong></div>`).join(""):`<p>No patterns yet.</p>`}</section>`,"");
+let pokemonUi={search:"",friendship:"all",vivillon:"all",page:1,view:"friends",editing:null};
+const POKE_PAGE_SIZE=40;
+const FRIENDSHIP_LEVELS=["Good Friend","Great Friend","Ultra Friend","Best Friend","Forever Friend"];
+const VIVILLON_PATTERNS=["Unknown","Archipelago","Continental","Elegant","Garden","High Plains","Icy Snow","Jungle","Marine","Meadow","Modern","Monsoon","Ocean","Polar","River","Sandstorm","Savanna","Sun","Tundra"];
+function pokeEmoji(level){return ({"Good Friend":"💚","Great Friend":"💙","Ultra Friend":"💜","Best Friend":"⭐","Forever Friend":"✨"})[level]||"🤝"}
+function pokeDate(value){return value?formatDate(value):"Never"}
+function filteredPokemonFriends(){
+  const q=pokemonUi.search.trim().toLowerCase();
+  return (data.pokemonFriends||[]).filter(f=>{
+    const text=[f.name,f.nickname,f.country,f.vivillon].join(" ").toLowerCase();
+    return (!q||text.includes(q))&&(pokemonUi.friendship==="all"||f.friendship===pokemonUi.friendship)&&(pokemonUi.vivillon==="all"||f.vivillon===pokemonUi.vivillon);
+  });
 }
+function PokemonPage(){
+  const friends=data.pokemonFriends||[],filtered=filteredPokemonFriends();
+  const pages=Math.max(1,Math.ceil(filtered.length/POKE_PAGE_SIZE));
+  pokemonUi.page=Math.min(pokemonUi.page,pages);
+  const shown=filtered.slice((pokemonUi.page-1)*POKE_PAGE_SIZE,pokemonUi.page*POKE_PAGE_SIZE);
+  const sent=friends.reduce((n,f)=>n+(Number(f.giftsSent)||0),0),received=friends.reduce((n,f)=>n+(Number(f.giftsReceived)||0),0);
+  const vivCounts={},friendshipCounts={};
+  friends.forEach(f=>{const v=f.vivillon||"Unknown";vivCounts[v]=(vivCounts[v]||0)+1;friendshipCounts[f.friendship]=(friendshipCounts[f.friendship]||0)+1});
+  const vivillons=Object.keys(vivCounts).sort((a,b)=>a.localeCompare(b));
+  return shell(`${head("Pokémon GO","Your complete friend and gift tracker")}
+    <section class="pokemon-hero"><div class="poke-metrics">
+      <div class="metric-card"><span>Total friends</span><strong>${friends.length}</strong></div>
+      <div class="metric-card"><span>Gifts sent</span><strong>${sent}</strong></div>
+      <div class="metric-card"><span>Gifts received</span><strong>${received}</strong></div>
+      <div class="metric-card"><span>Vivillon patterns</span><strong>${Object.keys(vivCounts).filter(v=>v!=="Unknown").length}</strong></div>
+    </div></section>
+    <div class="poke-tabs poke-tabs-five">
+      <button class="${pokemonUi.view==="friends"?"active":""}" data-poke-view="friends">👥 Friends</button>
+      <button class="${pokemonUi.view==="add"?"active":""}" data-poke-view="add">➕ Add friend</button>
+      <button class="${pokemonUi.view==="vivillon"?"active":""}" data-poke-view="vivillon">🦋 Vivillon</button>
+      <button class="${pokemonUi.view==="stats"?"active":""}" data-poke-view="stats">📊 Stats</button><button class="${pokemonUi.view==="import"?"active":""}" data-poke-view="import">📥 Import</button>
+    </div>
+    ${pokemonUi.view==="add"?`<section class="card"><h2>Add a new friend</h2><div class="form-grid">
+      <input class="field" id="pokeName" placeholder="Trainer name"><input class="field" id="pokeNickname" placeholder="Nickname (optional)">
+      <div class="two-col"><select class="field" id="pokeFriendship">${FRIENDSHIP_LEVELS.map(x=>`<option>${x}</option>`).join("")}</select>
+      <select class="field" id="pokeVivillon">${VIVILLON_PATTERNS.map(x=>`<option>${x}</option>`).join("")}</select></div>
+      <input class="field" id="pokeCountry" placeholder="Country"><textarea class="field" id="pokeNotes" placeholder="Notes"></textarea>
+      <button class="primary" id="addPokemonFriend">Add friend</button></div></section>`:""}
+    ${pokemonUi.view==="friends"?`<section class="card poke-filters">
+      <input class="field" id="pokeSearch" value="${esc(pokemonUi.search)}" placeholder="Search trainer, country or Vivillon">
+      <div class="two-col"><select class="field" id="pokeFriendshipFilter"><option value="all">All friendship levels</option>${FRIENDSHIP_LEVELS.map(x=>`<option value="${x}" ${pokemonUi.friendship===x?"selected":""}>${x}</option>`).join("")}</select>
+      <select class="field" id="pokeVivillonFilter"><option value="all">All Vivillon patterns</option>${vivillons.map(x=>`<option value="${esc(x)}" ${pokemonUi.vivillon===x?"selected":""}>${esc(x)} (${vivCounts[x]})</option>`).join("")}</select></div>
+      <p class="poke-results">${filtered.length} friend${filtered.length===1?"":"s"} found</p></section>
+      <section class="poke-friend-list">${shown.length?shown.map(PokemonFriendCard).join(""):`<section class="card"><p>No friends match those filters.</p></section>`}</section>
+      ${pages>1?`<div class="poke-pagination"><button class="secondary" data-poke-page="${pokemonUi.page-1}" ${pokemonUi.page===1?"disabled":""}>← Previous</button><span>Page ${pokemonUi.page} of ${pages}</span><button class="secondary" data-poke-page="${pokemonUi.page+1}" ${pokemonUi.page===pages?"disabled":""}>Next →</button></div>`:""}`:""}
+    ${pokemonUi.view==="vivillon"?`<section class="card"><h2>🦋 Vivillon collection</h2><div class="vivillon-grid">${Object.entries(vivCounts).sort((a,b)=>b[1]-a[1]).map(([name,count])=>`<button class="vivillon-tile" data-vivillon-jump="${esc(name)}"><strong>${count}</strong><span>${esc(name)}</span></button>`).join("")}</div></section>`:""}
+
+    ${pokemonUi.view==="import"?`<section class="card"><h2>📥 Import Excel tracker</h2><p class="muted">Choose an .xlsx file with a sheet named <b>Friends</b>. Every populated trainer row is read automatically—there is no row limit.</p><label class="excel-import-drop"><span>📄 Choose Excel file</span><small>.xlsx only</small><input id="pokemonExcelImport" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label><div class="import-options"><label><input type="radio" name="pokeImportMode" value="merge" checked><span><b>Merge safely</b><small>Add new trainers and update details while keeping gift totals.</small></span></label><label><input type="radio" name="pokeImportMode" value="replace"><span><b>Replace list</b><small>Replace all friends, preserving gift totals for matching trainer names.</small></span></label></div><div id="pokemonImportPreview"></div></section>`:""}
+    ${pokemonUi.view==="stats"?`<section class="card"><h2>Friendship levels</h2><div class="poke-stat-list">${FRIENDSHIP_LEVELS.map(level=>`<button class="poke-stat-row" data-friendship-jump="${level}"><span>${pokeEmoji(level)} ${level}</span><strong>${friendshipCounts[level]||0}</strong></button>`).join("")}</div></section>
+      <section class="card"><h2>Gift totals</h2><div class="stat-grid"><div class="stat"><strong>${sent}</strong><span>You sent</span></div><div class="stat"><strong>${received}</strong><span>They sent</span></div></div></section>`:""}
+  `,"pokemon");
+}
+function PokemonFriendCard(f){
+  if(pokemonUi.editing===f.id)return `<section class="card poke-friend-card editing"><div class="form-grid">
+    <input class="field" data-edit-field="name" value="${esc(f.name)}"><input class="field" data-edit-field="nickname" value="${esc(f.nickname)}" placeholder="Nickname">
+    <div class="two-col"><select class="field" data-edit-field="friendship">${FRIENDSHIP_LEVELS.map(x=>`<option ${f.friendship===x?"selected":""}>${x}</option>`).join("")}</select><select class="field" data-edit-field="vivillon">${VIVILLON_PATTERNS.map(x=>`<option ${f.vivillon===x?"selected":""}>${x}</option>`).join("")}</select></div>
+    <input class="field" data-edit-field="country" value="${esc(f.country)}" placeholder="Country"><textarea class="field" data-edit-field="notes" placeholder="Notes">${esc(f.notes)}</textarea>
+    <div class="item-actions"><button class="primary" data-poke-save="${f.id}">Save changes</button><button class="secondary" data-poke-cancel="${f.id}">Cancel</button><button class="mini danger" data-poke-delete="${f.id}">Delete</button></div>
+  </div></section>`;
+  return `<section class="card poke-friend-card"><div class="poke-friend-top"><div class="poke-avatar">${pokeEmoji(f.friendship)}</div><div class="poke-main"><h2>${esc(f.name)}</h2><p>${esc(f.nickname||f.country||"No nickname or country")}</p></div><button class="mini" data-poke-edit="${f.id}">Edit</button></div>
+    <div class="poke-chips"><span>${esc(f.friendship)}</span><span>🦋 ${esc(f.vivillon||"Unknown")}</span>${f.country?`<span>🌍 ${esc(f.country)}</span>`:""}</div>
+    <div class="gift-buttons"><button data-gift-sent="${f.id}"><b>🎁 I sent a gift</b><small>${f.giftsSent||0} total · ${pokeDate(f.lastGiftSent)}</small></button><button data-gift-received="${f.id}"><b>💌 They sent me a gift</b><small>${f.giftsReceived||0} total · ${pokeDate(f.lastGiftReceived)}</small></button></div>
+    ${f.notes?`<p class="poke-notes">${esc(f.notes)}</p>`:""}</section>`;
+}
+
+function excelCellDate(v){if(!v)return"";if(v instanceof Date&&!isNaN(v))return v.toISOString().slice(0,10);if(typeof v==="number"){const d=new Date(Date.UTC(1899,11,30)+v*86400000);return isNaN(d)?"":d.toISOString().slice(0,10)}const d=new Date(String(v).trim());return isNaN(d)?"":d.toISOString().slice(0,10)}
+function importPokemonWorkbook(file){if(typeof XLSX==="undefined"){toast("Excel importer could not load");return}const r=new FileReader();r.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:"array",cellDates:true}),sheet=wb.Sheets["Friends"];if(!sheet){toast('No sheet named "Friends" found');return}const rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true}).slice(1).filter(x=>String(x[0]??"").trim()),seen=new Set(),clean=[];rows.forEach(x=>{const k=String(x[0]).trim().toLowerCase();if(k&&!seen.has(k)){seen.add(k);clean.push(x)}});const box=document.querySelector("#pokemonImportPreview");box.innerHTML=`<div class="import-preview"><strong>${clean.length} unique trainers found</strong><span>${rows.length-clean.length} duplicate rows ignored</span><button class="primary" id="confirmPokemonImport">Import now</button></div>`;document.querySelector("#confirmPokemonImport").onclick=()=>{const mode=document.querySelector('input[name="pokeImportMode"]:checked')?.value||"merge",old=new Map((data.pokemonFriends||[]).map(f=>[(f.name||"").trim().toLowerCase(),f])),imported=clean.map((x,i)=>{const name=String(x[0]).trim(),base=old.get(name.toLowerCase())||{};return normalizePokemonFriend({...base,id:base.id||`poke-import-${Date.now()}-${i}`,name,friendship:String(x[1]||base.friendship||"Good Friend").trim(),vivillon:String(x[2]||base.vivillon||"Unknown").trim(),country:String(x[3]||base.country||"").trim(),lastGiftReceived:excelCellDate(x[4])||base.lastGiftReceived||"",lastGiftSent:excelCellDate(x[5])||base.lastGiftSent||"",lastInteraction:excelCellDate(x[6])||base.lastInteraction||"",notes:String(x[9]||base.notes||"").trim(),giftsReceived:Number(base.giftsReceived)||0,giftsSent:Number(base.giftsSent)||0},i)});if(mode==="replace")data.pokemonFriends=imported;else{const im=new Map(imported.map(f=>[f.name.trim().toLowerCase(),f]));data.pokemonFriends=(data.pokemonFriends||[]).map(f=>im.get(f.name.trim().toLowerCase())||f);const names=new Set(data.pokemonFriends.map(f=>f.name.trim().toLowerCase()));imported.forEach(f=>{if(!names.has(f.name.trim().toLowerCase()))data.pokemonFriends.push(f)})}data.pokemonSeededVersion=2;saveData();pokemonUi.view="friends";pokemonUi.page=1;render();toast(`${clean.length} trainers imported ✨`)}}catch(err){console.error(err);toast("That Excel file could not be imported")}};r.readAsArrayBuffer(file)}
+
 function bindPokemon(){
- document.querySelector("#addPokemonFriend")?.addEventListener("click",()=>{const name=document.querySelector("#pokeName").value.trim();if(!name){toast("Add a trainer name");return}data.pokemonFriends.push({name,nickname:document.querySelector("#pokeNickname").value.trim(),friendship:document.querySelector("#pokeFriendship").value,country:document.querySelector("#pokeCountry").value.trim(),vivillon:document.querySelector("#pokeVivillon").value.trim(),lastInteraction:document.querySelector("#pokeLast").value,active:true});saveData();render()});
- document.querySelectorAll("[data-poke-today]").forEach(b=>b.onclick=()=>{data.pokemonFriends[+b.dataset.pokeToday].lastInteraction=today();saveData();render()});
- document.querySelectorAll("[data-poke-delete]").forEach(b=>b.onclick=()=>{data.pokemonFriends.splice(+b.dataset.pokeDelete,1);saveData();render()});
+  document.querySelectorAll("[data-poke-view]").forEach(b=>b.onclick=()=>{pokemonUi.view=b.dataset.pokeView;pokemonUi.editing=null;render()});
+  document.querySelector("#pokemonExcelImport")?.addEventListener("change",e=>{const f=e.target.files?.[0];if(f)importPokemonWorkbook(f)});
+  document.querySelector("#pokeSearch")?.addEventListener("input",e=>{pokemonUi.search=e.target.value;pokemonUi.page=1;render();requestAnimationFrame(()=>{const i=document.querySelector("#pokeSearch");if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}})});
+  document.querySelector("#pokeFriendshipFilter")?.addEventListener("change",e=>{pokemonUi.friendship=e.target.value;pokemonUi.page=1;render()});
+  document.querySelector("#pokeVivillonFilter")?.addEventListener("change",e=>{pokemonUi.vivillon=e.target.value;pokemonUi.page=1;render()});
+  document.querySelectorAll("[data-poke-page]").forEach(b=>b.onclick=()=>{pokemonUi.page=Number(b.dataset.pokePage);render()});
+  document.querySelector("#addPokemonFriend")?.addEventListener("click",()=>{const name=document.querySelector("#pokeName").value.trim();if(!name){toast("Add a trainer name");return}data.pokemonFriends.unshift(normalizePokemonFriend({id:`poke-${Date.now()}`,name,nickname:document.querySelector("#pokeNickname").value.trim(),friendship:document.querySelector("#pokeFriendship").value,vivillon:document.querySelector("#pokeVivillon").value,country:document.querySelector("#pokeCountry").value.trim(),notes:document.querySelector("#pokeNotes").value.trim()},0));saveData();pokemonUi.view="friends";pokemonUi.page=1;render();toast("Friend added 🎉")});
+  document.querySelectorAll("[data-gift-sent]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.giftSent);if(!f)return;f.giftsSent=(Number(f.giftsSent)||0)+1;f.lastGiftSent=today();f.lastInteraction=today();saveData();render();toast("Gift sent recorded 🎁")});
+  document.querySelectorAll("[data-gift-received]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.giftReceived);if(!f)return;f.giftsReceived=(Number(f.giftsReceived)||0)+1;f.lastGiftReceived=today();f.lastInteraction=today();saveData();render();toast("Gift received recorded 💌")});
+  document.querySelectorAll("[data-poke-edit]").forEach(b=>b.onclick=()=>{pokemonUi.editing=b.dataset.pokeEdit;render()});
+  document.querySelectorAll("[data-poke-cancel]").forEach(b=>b.onclick=()=>{pokemonUi.editing=null;render()});
+  document.querySelectorAll("[data-poke-save]").forEach(b=>b.onclick=()=>{const card=b.closest(".poke-friend-card"),f=data.pokemonFriends.find(x=>x.id===b.dataset.pokeSave);if(!f||!card)return;card.querySelectorAll("[data-edit-field]").forEach(i=>f[i.dataset.editField]=i.value.trim());saveData();pokemonUi.editing=null;render();toast("Friend updated ✨")});
+  document.querySelectorAll("[data-poke-delete]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.pokeDelete);if(!f||!confirm(`Delete ${f.name}?`))return;data.pokemonFriends=data.pokemonFriends.filter(x=>x.id!==f.id);saveData();pokemonUi.editing=null;render()});
+  document.querySelectorAll("[data-vivillon-jump]").forEach(b=>b.onclick=()=>{pokemonUi.vivillon=b.dataset.vivillonJump;pokemonUi.friendship="all";pokemonUi.search="";pokemonUi.page=1;pokemonUi.view="friends";render()});
+  document.querySelectorAll("[data-friendship-jump]").forEach(b=>b.onclick=()=>{pokemonUi.friendship=b.dataset.friendshipJump;pokemonUi.vivillon="all";pokemonUi.search="";pokemonUi.page=1;pokemonUi.view="friends";render()});
 }

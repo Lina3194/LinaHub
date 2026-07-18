@@ -32,3 +32,11 @@ This build includes:
 - Hide/show cards
 - Filters
 - Backup export/import
+
+
+v7.0 Enchanted Edition:
+- Rich galaxy/glass visual redesign
+- Sliding page transitions
+- Plant profile Back returns to Plants
+- Weight & Measurements save and show current time
+- Full Aquariums module with residents, temperature, feeds and maintenance logs

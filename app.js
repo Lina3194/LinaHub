@@ -13,7 +13,8 @@ function render(){
     health:HealthPage,
     medication:MedicationPage,
     pokemon:PokemonPage,
-    pets:()=>SimplePage("Aquariums","🐠","Girls and boys tanks"),
+    pets:AquariumsPage,
+    tank:AquariumTankPage,
     house:HousePage
   };
 
@@ -29,7 +30,8 @@ function render(){
   if(route==="house") bindHouse();
   if(route==="medication") bindMedication();
   if(route==="health") bindHealth();
-  if(["settings","pets"].includes(route)) bindSimple();
+  if(route==="settings") bindSimple();
+  if(route==="pets"||route==="tank") bindAquariums();
 }
 
 function bindGlobal(){
@@ -37,7 +39,7 @@ function bindGlobal(){
 }
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=63"));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=70"));
 }
 
 render();

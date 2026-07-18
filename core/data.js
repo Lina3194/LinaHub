@@ -36,6 +36,32 @@ const DEFAULT_DATA={
     {id:"study-dust",room:"Study / Guest Room",task:"Dust bookcase and desk",frequency:"Weekly",done:false},
     {id:"recycling",room:"Whole House",task:"Put recycling out",frequency:"Thursday",done:false}
   ],
+
+  aquariums:[
+    {
+      id:"girls-tank",name:"Girls Tank",emoji:"💗",
+      livestock:[
+        {id:"girls-guppies",type:"Fish",name:"Female guppies",count:""},
+        {id:"girls-amano",type:"Shrimp",name:"Amano shrimp",count:3},
+        {id:"girls-assassin",type:"Snail",name:"Assassin snails",count:2}
+      ],
+      temperature:"",temperatureUpdated:"",
+      feeds:[],
+      maintenance:{waterChange:"",clean:"",filterChange:"",spongeChange:""}
+    },
+    {
+      id:"boys-tank",name:"Boys Tank",emoji:"💙",
+      livestock:[
+        {id:"boys-guppies",type:"Fish",name:"Male guppies",count:""},
+        {id:"boys-babies",type:"Fish",name:"Baby guppies",count:""},
+        {id:"boys-amano",type:"Shrimp",name:"Amano shrimp",count:2},
+        {id:"boys-assassin",type:"Snail",name:"Assassin snail",count:1}
+      ],
+      temperature:"",temperatureUpdated:"",
+      feeds:[],
+      maintenance:{waterChange:"",clean:"",filterChange:"",spongeChange:""}
+    }
+  ],
   plants:[
     {id:"lemon-tree",name:"Lemon Tree",emoji:"🍋",notes:"Grown from a lemon seed.",lastWatered:"",history:[],photo:""},
     {id:"basil",name:"Basil",emoji:"🌿",notes:"",lastWatered:"",history:[],photo:""},
@@ -60,6 +86,26 @@ function normalizePokemonFriend(f,i){
   };
 }
 
+
+function normalizeAquarium(tank,i){
+  const fallback=DEFAULT_DATA.aquariums[i]||{};
+  return {
+    id:tank?.id||fallback.id||`tank-${i}`,
+    name:tank?.name||fallback.name||`Tank ${i+1}`,
+    emoji:tank?.emoji||fallback.emoji||"🐠",
+    livestock:Array.isArray(tank?.livestock)?tank.livestock:(fallback.livestock||[]),
+    temperature:tank?.temperature??"",
+    temperatureUpdated:tank?.temperatureUpdated||"",
+    feeds:Array.isArray(tank?.feeds)?tank.feeds:[],
+    maintenance:{
+      waterChange:tank?.maintenance?.waterChange||"",
+      clean:tank?.maintenance?.clean||"",
+      filterChange:tank?.maintenance?.filterChange||"",
+      spongeChange:tank?.maintenance?.spongeChange||""
+    }
+  };
+}
+
 function normalizePlant(p,i){
   if(typeof p==="string"){
     return {id:p.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||`plant-${i}`,name:p,emoji:"🌿",notes:"",lastWatered:"",history:[],photo:""};
@@ -78,6 +124,7 @@ function migrateLegacy(){
       const old=JSON.parse(raw);
       const migrated={...DEFAULT_DATA,...old,version:5};
       migrated.plants=(old.plants||DEFAULT_DATA.plants).map(normalizePlant);
+      migrated.aquariums=(migrated.aquariums||DEFAULT_DATA.aquariums).map(normalizeAquarium);
       migrated.medications=Array.isArray(migrated.medications)?migrated.medications:[];
       if(!migrated.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
         migrated.medications.unshift({id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""});
@@ -99,6 +146,7 @@ function loadData(){
     if(raw){
       const loaded={...DEFAULT_DATA,...JSON.parse(raw)};
       loaded.plants=(loaded.plants||DEFAULT_DATA.plants).map(normalizePlant);
+      loaded.aquariums=(loaded.aquariums||DEFAULT_DATA.aquariums).map(normalizeAquarium);
       loaded.medications=Array.isArray(loaded.medications)?loaded.medications:[];
       if(!loaded.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
         loaded.medications.unshift({id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""});

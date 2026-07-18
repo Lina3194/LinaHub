@@ -17,7 +17,7 @@ function PlantProfilePage(){
   if(!p) return PlantsPage();
   const history=[...(p.history||[])].sort().reverse();
 
-  return shell(`${head(p.name,"Plant profile")}
+  return shell(`${head(p.name,"Plant profile","plants")}
     <section class="card plant-profile-head">
       <div class="plant-photo-large">${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div>
       <div class="plant-profile-actions">

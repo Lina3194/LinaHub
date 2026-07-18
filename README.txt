@@ -40,3 +40,12 @@ v7.0 Enchanted Edition:
 - Plant profile Back returns to Plants
 - Weight & Measurements save and show current time
 - Full Aquariums module with residents, temperature, feeds and maintenance logs
+
+
+v8.0 Enchanted Sakura Edition:
+- Dreamy sakura, lavender, crystal-blue and golden visual theme
+- Falling cherry blossoms only in Plants
+- Rising water bubbles only in Aquariums
+- Optional uploaded pictures for every Home tab
+- Uploaded tab pictures are resized and retained in LinaHub backup
+- All existing modules, data, aquarium feed logic and tracking retained

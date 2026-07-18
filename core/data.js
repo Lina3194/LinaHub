@@ -13,6 +13,7 @@ const DEFAULT_DATA={
     journal:"📖",health:"⚖️",plants:"🌿",medication:"💊",
     pokemon:"🔴",pets:"🐠",house:"🏡",settings:"⚙️"
   },
+  homeImages:{},
   checkinHidden:[],
   pokemonFriends:structuredClone(POKEMON_FRIEND_SEED),
   pokemonSeededVersion:2,

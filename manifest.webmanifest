@@ -1,12 +1,12 @@
 {
-  "name": "LinaHub \u2014 Enchanted Edition",
+  "name": "LinaHub \u2014 Enchanted Sakura Edition",
   "short_name": "LinaHub",
-  "id": "./?version=71",
-  "start_url": "./?version=71",
+  "id": "./?version=80",
+  "start_url": "./?version=80",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#080711",
-  "theme_color": "#080711",
+  "background_color": "#f7d9eb",
+  "theme_color": "#e1d6fa",
   "description": "Lina's gentle personal life dashboard.",
   "icons": [
     {

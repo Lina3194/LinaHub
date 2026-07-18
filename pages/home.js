@@ -28,7 +28,16 @@ function HomePage(){
   const due=[];
 
   if(weekday==="Thursday") due.push({emoji:"♻️",text:"Put recycling out",route:"house"});
-  due.push({emoji:"🐠",text:"Feed both fish tanks",route:"pets"});
+  const tanksNeedingFeed=(data.aquariums||[]).filter(tank=>!tankFeedToday(tank));
+  if(tanksNeedingFeed.length){
+    due.push({
+      emoji:"🐠",
+      text:tanksNeedingFeed.length===(data.aquariums||[]).length
+        ?"Feed both fish tanks"
+        :`Feed ${tanksNeedingFeed.map(t=>t.name).join(" & ")}`,
+      route:"pets"
+    });
+  }
   if(data.checkins[today()]) due.push({emoji:"💜",text:"Today’s check-in saved",route:"journal"});
 
   return shell(`
@@ -53,7 +62,7 @@ function HomePage(){
         [data.homeIcons?.pets||"🐠","Aquariums","Girls and boys tanks","pets"],
         [data.homeIcons?.house||"🏡","House","Rooms and recurring tasks","house"],
         [data.homeIcons?.settings||"⚙️","Settings","Theme and backup","settings"]
-      ].map(x=>`<button class="module" data-route="${x[3]}"><span class="emoji">${x[0]}</span><strong>${x[1]}</strong><small>${x[2]}</small></button>`).join("")}
+      ].map(x=>`<button class="module module-${x[3]}" data-route="${x[3]}">${data.homeImages?.[x[3]]?`<span class="module-image"><img src="${data.homeImages[x[3]]}" alt=""></span>`:`<span class="emoji">${x[0]}</span>`}<strong>${x[1]}</strong><small>${x[2]}</small></button>`).join("")}
     </div>
 
     <section class="card" style="margin-top:14px">

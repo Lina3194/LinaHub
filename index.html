@@ -8,8 +8,8 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="LinaHub">
 <link rel="manifest" href="./manifest.webmanifest">
-<link rel="icon" href="./icon-192.png" type="image/png">
-<link rel="apple-touch-icon" href="./apple-touch-icon.png">
+<link rel="icon" href="./icon-192-v33.png" type="image/png">
+<link rel="apple-touch-icon" href="./apple-touch-icon-v33.png">
 <title>LinaHub</title>
 <style>
 :root{
@@ -125,6 +125,45 @@ html[data-theme="light"] .nav{background:rgba(255,255,255,.9)}
 .plan-row{display:grid;grid-template-columns:1fr 76px 42px;gap:8px}
 .plan-row select,.plan-row input{min-width:0}
 .today-only .row{margin-top:8px}
+
+
+:root{
+  --bg:#fff8fb;--panel:rgba(255,255,255,.9);--panel2:#fff4fa;
+  --text:#35234d;--muted:#806f91;--line:rgba(129,83,174,.23);
+  --accent:#7b43c6;--accent2:#d59be8;--shadow:0 12px 34px rgba(117,72,150,.12)
+}
+body{
+  background:
+    radial-gradient(circle at 10% 0%,rgba(225,184,247,.28),transparent 28%),
+    radial-gradient(circle at 95% 15%,rgba(255,211,224,.34),transparent 32%),
+    linear-gradient(180deg,#fffafe 0%,#fff7fb 100%);
+  color:var(--text)
+}
+.app{max-width:760px}
+.topbar,.card,.section,.checkin-date{
+  background:linear-gradient(180deg,rgba(255,255,255,.96),rgba(255,247,252,.93));
+  border:1px solid var(--line);box-shadow:var(--shadow);border-radius:24px
+}
+.topbar h1,.card h2,.section h2{color:#4d2d83}
+.subtitle,.topbar p,.card p{color:var(--muted)}
+.card{position:relative;overflow:hidden}
+.card:before{content:"✦";position:absolute;top:12px;right:16px;color:#dfa75b;font-size:.9rem}
+.check-grid.two-col{grid-template-columns:1fr!important}
+.emoji-scale button,.choices button,.moods button,.tap-token{
+  background:#fffafd;border:1px solid rgba(126,78,175,.2);color:var(--text);
+  box-shadow:0 5px 14px rgba(108,67,143,.07)
+}
+.emoji-scale button.selected,.choices button.selected,.moods button.selected,.tap-token.selected{
+  background:linear-gradient(180deg,#f0d9fb,#e5c2f4);
+  border-color:#9b62cf;color:#432069;
+  box-shadow:0 0 0 2px rgba(154,97,207,.1),0 8px 18px rgba(125,76,165,.14)
+}
+.primary{background:linear-gradient(135deg,#7d43c8,#b66ad8);border:none;box-shadow:0 12px 26px rgba(125,67,200,.28)}
+.field,select,textarea,input{background:rgba(255,255,255,.94)!important;color:var(--text)!important;border-color:rgba(121,77,171,.25)!important}
+.nav{background:rgba(255,255,255,.92);border:1px solid var(--line);box-shadow:0 -6px 24px rgba(107,65,145,.08)}
+.nav button{color:#624485}.nav button.active{color:#7a3dc2;background:#f1ddfb}
+.activity-pill{background:#f3e5fb;color:#5d347f;border:1px solid #d8b5ee}
+.stat{background:#fffafd;border:1px solid rgba(128,83,176,.18)}
 
 </style>
 </head>
@@ -387,7 +426,7 @@ function settings(){
  '<div class="card list"><button class="row" id="themeToggle"><div class="row-icon">'+(data.theme==="dark"?"🌙":"☀️")+'</div><div class="grow"><strong>Appearance</strong><small>'+esc(data.theme)+' mode</small></div></button>'+
  '<button class="row" id="exportData"><div class="row-icon">💾</div><div class="grow"><strong>Export backup</strong><small>Download all LinaHub data</small></div></button>'+
  '<label class="row"><div class="row-icon">📥</div><div class="grow"><strong>Import backup</strong><small>Restore a LinaHub JSON backup</small></div><input id="importData" type="file" accept=".json" hidden></label></div>'+
- '<section class="section card"><strong>LinaHub v3.2</strong><p class="subtitle">Your information stays on this device unless you export a backup.</p></section>'+nav("settings")+'</main>';
+ '<section class="section card"><strong>LinaHub v3.3</strong><p class="subtitle">Your information stays on this device unless you export a backup.</p></section>'+nav("settings")+'</main>';
 }
 function render(){
  document.documentElement.dataset.theme=data.theme;

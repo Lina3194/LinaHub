@@ -9,6 +9,23 @@ const DEFAULT_DATA={
   checkinLayout:["energy","mood","pain","spoons","water","priorities","selfcare","medication","plan","sleep","justtoday","supports"],
   checkinFilter:"all",
   checkinHidden:[],
+  pokemonFriends:[],
+  medications:[],
+  medicationLog:{},
+  weightEntries:[],
+  measurements:[],
+  houseTasks:[
+    {id:"living-vacuum",room:"Living Room / Kitchen",task:"Vacuum floors",frequency:"Weekly",done:false},
+    {id:"living-dust",room:"Living Room / Kitchen",task:"Dust surfaces and bookcase",frequency:"Weekly",done:false},
+    {id:"living-oven",room:"Living Room / Kitchen",task:"Clean oven",frequency:"Monthly",done:false},
+    {id:"living-washing",room:"Living Room / Kitchen",task:"Laundry",frequency:"Daily / every other day",done:false},
+    {id:"wc-clean",room:"Downstairs WC",task:"Clean toilet and sink",frequency:"Weekly",done:false},
+    {id:"garden-tidy",room:"Garden / Patio",task:"Tidy patio",frequency:"Weekly",done:false},
+    {id:"bedroom-bedding",room:"Main Bedroom",task:"Change bedding",frequency:"Weekly",done:false},
+    {id:"bathroom-clean",room:"Main Bathroom",task:"Clean bathroom",frequency:"Weekly",done:false},
+    {id:"study-dust",room:"Study / Guest Room",task:"Dust bookcase and desk",frequency:"Weekly",done:false},
+    {id:"recycling",room:"Whole House",task:"Put recycling out",frequency:"Thursday",done:false}
+  ],
   plants:[
     {id:"lemon-tree",name:"Lemon Tree",emoji:"🍋",notes:"Grown from a lemon seed.",lastWatered:"",history:[],photo:""},
     {id:"basil",name:"Basil",emoji:"🌿",notes:"",lastWatered:"",history:[],photo:""},

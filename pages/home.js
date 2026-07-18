@@ -25,7 +25,7 @@ function HomePage(){
     <div class="grid">
       ${[
         ["📖","Daily Check-in","Pain, energy, sleep and your day","journal"],
-        ["⚖️","Health","History and trends","health"],
+        ["⚖️","Weight & Measures","Track weight and measurements","health"],
         ["🌿","Plants","Care and watering","plants"],
         ["💊","Medication","Doses and routines","medication"],
         ["🔴","Pokémon GO","Friend tracker coming later","pokemon"],

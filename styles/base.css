@@ -184,3 +184,12 @@ body.dark .item-row,body.dark .stat,body.dark .simple-table td,body.dark .simple
   .maintenance-grid{grid-template-columns:1fr}.aquarium-hero{grid-template-columns:1fr}.bubble-cluster{display:none}
 }
 @media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+
+.feed-status{display:inline-flex;align-items:center;margin-top:8px;padding:5px 9px;border-radius:999px;font-size:.74rem;font-weight:800;position:relative;z-index:1}
+.feed-status.fed{color:#83f0c0;background:rgba(53,205,139,.12);border:1px solid rgba(53,205,139,.28)}
+.feed-status.due{color:#ffd08a;background:rgba(242,189,87,.1);border:1px solid rgba(242,189,87,.26)}
+.feed-confirmed,.feed-needed{display:grid;grid-template-columns:auto 1fr;gap:11px;align-items:center;padding:13px 14px;border-radius:17px;margin-bottom:12px}
+.feed-confirmed{background:rgba(53,205,139,.1);border:1px solid rgba(53,205,139,.25)}
+.feed-needed{background:rgba(242,189,87,.09);border:1px solid rgba(242,189,87,.24)}
+.feed-confirmed>span,.feed-needed>span{width:34px;height:34px;display:grid;place-items:center;border-radius:12px;background:rgba(255,255,255,.06);font-size:1.15rem}
+.feed-confirmed div,.feed-needed div{display:grid;gap:3px}

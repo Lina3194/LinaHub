@@ -5,6 +5,20 @@ function aquariumDateTimeLabel(value){
   if(Number.isNaN(d.getTime())) return value;
   return d.toLocaleString("en-GB",{day:"numeric",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"});
 }
+
+function aquariumLocalDate(value){
+  if(!value) return "";
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime())) return "";
+  const pad=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function tankFeedToday(tank){
+  return [...(tank.feeds||[])]
+    .filter(feed=>aquariumLocalDate(feed.createdAt)===today())
+    .sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""))[0]||null;
+}
+
 function tankById(id){return (data.aquariums||[]).find(t=>t.id===id)}
 function AquariumsPage(){
   return shell(`${head("Aquariums","Care logs for your girls and boys tanks")}
@@ -17,7 +31,7 @@ function AquariumsPage(){
         <button class="tank-card ${t.id}" data-tank="${esc(t.id)}">
           <div class="tank-wave"></div>
           <span class="tank-emoji">${t.emoji}</span>
-          <div><h2>${esc(t.name)}</h2><p>${t.livestock.reduce((n,x)=>n+(Number(x.count)||0),0)} counted residents · ${t.temperature?`${esc(t.temperature)}°C`:"Temperature not logged"}</p></div>
+          <div><h2>${esc(t.name)}</h2><p>${t.livestock.reduce((n,x)=>n+(Number(x.count)||0),0)} counted residents · ${t.temperature?`${esc(t.temperature)}°C`:"Temperature not logged"}</p><span class="feed-status ${tankFeedToday(t)?"fed":"due"}">${tankFeedToday(t)?`✓ Fed today · ${new Date(tankFeedToday(t).createdAt).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}`:"Needs feeding today"}</span></div>
           <span class="tank-arrow">›</span>
         </button>`).join("")}
     </div>
@@ -53,7 +67,10 @@ function AquariumTankPage(){
 
     <section class="card">
       <div class="section-title"><div><span class="section-kicker">🍽️ Care</span><h2>Feeds</h2></div><span class="live-time">Date & time automatic</span></div>
-      <div class="two-col"><input class="field" id="feedFood" placeholder="Food / feed type"><button class="primary" id="logFeed">Log feed now</button></div>
+      ${tankFeedToday(tank)
+        ? `<div class="feed-confirmed"><span>✓</span><div><strong>Fed today</strong><small>${aquariumDateTimeLabel(tankFeedToday(tank).createdAt)} · ${esc(tankFeedToday(tank).food||"Fed")}</small></div></div>`
+        : `<div class="feed-needed"><span>🍽️</span><div><strong>Not fed yet today</strong><small>Log the feed below when it is done.</small></div></div>`}
+      <div class="two-col"><input class="field" id="feedFood" placeholder="Food / feed type"><button class="primary" id="logFeed">${tankFeedToday(tank)?"Log another feed":"Log feed now"}</button></div>
       <div class="feed-history">${feeds.length?feeds.slice(0,12).map(f=>`<div class="feed-row"><span>🍽️</span><div><strong>${esc(f.food||"Fed")}</strong><small>${aquariumDateTimeLabel(f.createdAt)}</small></div><button class="icon-danger" data-feed-delete="${esc(f.id)}">×</button></div>`).join(""):`<p>No feeds logged yet.</p>`}</div>
     </section>
 

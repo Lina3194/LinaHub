@@ -1,10 +1,10 @@
-const CACHE="linahub-v7-enchanted";
+const CACHE="linahub-v7-1-feed-status";
 const ASSETS=[
-"./","./index.html","./app.js?v=70","./manifest.webmanifest?v=70",
-"./core/pokemon-seed.js?v=70","./core/data.js?v=70","./core/router.js?v=70",
-"./pages/home.js?v=70","./pages/today.js?v=70","./pages/todo.js?v=70","./pages/journal.js?v=70","./pages/plants.js?v=70","./pages/pokemon.js?v=70","./pages/house.js?v=70","./pages/medication.js?v=70","./pages/health.js?v=70","./pages/simple.js?v=70",
-"./styles/base.css?v=70","./styles/home.css?v=70","./styles/journal.css?v=70","./styles/plants.css?v=70","./styles/modules.css?v=70",
-"./icons/icon-192.png?v=70","./icons/icon-512.png?v=70","./icons/apple-touch-icon.png?v=70"
+"./","./index.html","./app.js?v=71","./manifest.webmanifest?v=71",
+"./core/pokemon-seed.js?v=71","./core/data.js?v=71","./core/router.js?v=71",
+"./pages/home.js?v=71","./pages/today.js?v=71","./pages/todo.js?v=71","./pages/journal.js?v=71","./pages/plants.js?v=71","./pages/pokemon.js?v=71","./pages/house.js?v=71","./pages/medication.js?v=71","./pages/health.js?v=71","./pages/simple.js?v=71",
+"./styles/base.css?v=71","./styles/home.css?v=71","./styles/journal.css?v=71","./styles/plants.css?v=71","./styles/modules.css?v=71",
+"./icons/icon-192.png?v=71","./icons/icon-512.png?v=71","./icons/apple-touch-icon.png?v=71"
 ];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

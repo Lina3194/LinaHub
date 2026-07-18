@@ -39,7 +39,7 @@ function bindGlobal(){
 }
 
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=70"));
+  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=71"));
 }
 
 render();

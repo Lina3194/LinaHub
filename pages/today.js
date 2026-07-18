@@ -76,13 +76,16 @@ function getTodayItems(){
     }
   });
 
-  items.push({
-    emoji:"🐠",
-    title:"Feed both fish tanks",
-    detail:"Girls tank and boys tank",
-    route:"pets",
-    kind:"Aquariums"
-  });
+  const tanksNeedingFeed=(data.aquariums||[]).filter(tank=>!tankFeedToday(tank));
+  if(tanksNeedingFeed.length){
+    items.push({
+      emoji:"🐠",
+      title:tanksNeedingFeed.length===(data.aquariums||[]).length?"Feed the fish tanks":`Feed ${tanksNeedingFeed.map(t=>t.name).join(" & ")}`,
+      detail:tanksNeedingFeed.map(t=>t.name).join(" · "),
+      route:"pets",
+      kind:"Aquariums"
+    });
+  }
 
   items.push({
     emoji:"💜",

@@ -1,4 +1,25 @@
 
+function localEntryTimestamp(){
+  const now=new Date();
+  const pad=n=>String(n).padStart(2,"0");
+  return {
+    date:`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`,
+    time:`${pad(now.getHours())}:${pad(now.getMinutes())}`,
+    createdAt:now.toISOString()
+  };
+}
+function entryTimeLabel(entry){
+  if(entry.time) return entry.time;
+  if(entry.createdAt){
+    const d=new Date(entry.createdAt);
+    if(!Number.isNaN(d.getTime())){
+      return d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",hour12:false});
+    }
+  }
+  return "";
+}
+
+
 function HomePage(){
   const d=new Date();
   const hour=d.getHours();

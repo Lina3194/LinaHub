@@ -109,22 +109,76 @@ function applyJournalFilter(){
 function setupJournalDrag(){
   const stack=document.querySelector("#journalStack");
   if(!stack||!data.checkinEditMode) return;
+
   let dragged=null;
+  let placeholder=null;
+  let pointerId=null;
+
+  const saveOrder=()=>{
+    data.checkinLayout=[...stack.querySelectorAll(".draggable")].map(x=>x.dataset.block);
+    saveData();
+  };
+
+  const moveCard=(clientY)=>{
+    if(!dragged) return;
+    const cards=[...stack.querySelectorAll(".draggable:not(.dragging)")];
+    const next=cards.find(card=>{
+      const r=card.getBoundingClientRect();
+      return clientY < r.top + r.height/2;
+    });
+    if(next) stack.insertBefore(dragged,next);
+    else stack.appendChild(dragged);
+  };
+
   stack.querySelectorAll(".draggable").forEach(card=>{
+    const handle=card.querySelector(".drag-handle");
+    if(!handle) return;
+
+    handle.addEventListener("pointerdown",e=>{
+      e.preventDefault();
+      dragged=card;
+      pointerId=e.pointerId;
+      handle.setPointerCapture(pointerId);
+      card.classList.add("dragging");
+      document.body.classList.add("reordering");
+    });
+
+    handle.addEventListener("pointermove",e=>{
+      if(!dragged||e.pointerId!==pointerId) return;
+      e.preventDefault();
+      moveCard(e.clientY);
+    });
+
+    const finish=e=>{
+      if(!dragged||e.pointerId!==pointerId) return;
+      try{handle.releasePointerCapture(pointerId)}catch{}
+      dragged.classList.remove("dragging");
+      dragged=null;
+      pointerId=null;
+      document.body.classList.remove("reordering");
+      saveOrder();
+    };
+
+    handle.addEventListener("pointerup",finish);
+    handle.addEventListener("pointercancel",finish);
+
+    // Desktop fallback.
     card.draggable=true;
     card.addEventListener("dragstart",e=>{
       if(!e.target.closest(".drag-handle")){e.preventDefault();return}
       dragged=card;
+      card.classList.add("dragging");
+      e.dataTransfer.effectAllowed="move";
     });
     card.addEventListener("dragover",e=>{
       e.preventDefault();
-      if(!dragged||dragged===card) return;
-      const r=card.getBoundingClientRect();
-      stack.insertBefore(dragged,e.clientY<r.top+r.height/2?card:card.nextSibling);
+      if(!dragged) return;
+      moveCard(e.clientY);
     });
     card.addEventListener("dragend",()=>{
-      data.checkinLayout=[...stack.querySelectorAll(".draggable")].map(x=>x.dataset.block);
-      saveData();
+      card.classList.remove("dragging");
+      dragged=null;
+      saveOrder();
     });
   });
 }

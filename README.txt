@@ -49,3 +49,14 @@ v8.0 Enchanted Sakura Edition:
 - Optional uploaded pictures for every Home tab
 - Uploaded tab pictures are resized and retained in LinaHub backup
 - All existing modules, data, aquarium feed logic and tracking retained
+
+v8.1:
+- Fixed Journal drag-and-drop layout persistence
+- Layout now saves while cards move, when released, and when leaving Edit layout
+- Added mobile-safe release handling
+
+v8.2:
+- Restored a deep midnight background in dark mode
+- Made dark-mode tiles lighter than the background for stronger contrast
+- Kept Sakura light mode unchanged
+- Kept all features, data, Journal layout fix, Plants petals and Aquarium bubbles

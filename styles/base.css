@@ -349,3 +349,169 @@ body[data-route="pets"],body[data-route="tank"]{
 @media(max-width:520px){
   .tab-art-setting{grid-template-columns:58px 1fr}.tab-art-preview{width:58px;height:58px}.tab-art-actions{grid-column:1/-1;grid-template-columns:1fr 1fr}
 }
+
+/* LinaHub v8.2 — restored deep dark mode with lighter glass tiles */
+body.dark{
+  --bg:#080711;
+  --bg2:#111126;
+  --card:rgba(38,31,67,.88);
+  --card-solid:#261f43;
+  --ink:#f8f3ff;
+  --muted:#c4b7d7;
+  --purple:#ad82ff;
+  --purple2:#dc72d5;
+  --blue:#78a8ff;
+  --pink:#ff80b9;
+  --gold:#f4c875;
+  --aqua:#71d5e2;
+  --line:rgba(190,157,255,.28);
+  --purple-soft:rgba(173,130,255,.17);
+  --shadow:0 18px 56px rgba(0,0,0,.38),0 0 28px rgba(117,73,196,.12);
+  color:var(--ink);
+  background:
+    radial-gradient(circle at 12% -8%,rgba(117,69,214,.34),transparent 30rem),
+    radial-gradient(circle at 95% 16%,rgba(39,111,205,.24),transparent 28rem),
+    radial-gradient(circle at 50% 92%,rgba(205,82,189,.14),transparent 34rem),
+    linear-gradient(165deg,#070610 0%,#0d0c1d 47%,#111126 100%);
+  background-attachment:fixed;
+}
+body.dark:before{
+  background-image:
+    radial-gradient(circle,rgba(255,255,255,.8) 0 1px,transparent 1.5px),
+    radial-gradient(circle,rgba(244,200,117,.66) 0 1px,transparent 1.5px);
+  background-size:82px 82px,137px 137px;
+  background-position:0 0,34px 51px;
+  opacity:.22;
+}
+body.dark:after{
+  background:
+    radial-gradient(circle at 50% 9%,rgba(255,255,255,.045),transparent 26%),
+    linear-gradient(110deg,transparent 25%,rgba(255,255,255,.03) 50%,transparent 75%);
+  opacity:1;
+}
+body.dark .hero,
+body.dark .card,
+body.dark .plant-card,
+body.dark .module,
+body.dark .tank-card{
+  background:linear-gradient(145deg,rgba(48,39,82,.94),rgba(31,26,57,.9))!important;
+  border:1px solid rgba(194,163,255,.27)!important;
+  box-shadow:var(--shadow)!important;
+  backdrop-filter:blur(18px) saturate(1.12);
+}
+body.dark .module{
+  background:linear-gradient(145deg,rgba(59,47,96,.96),rgba(38,31,69,.93))!important;
+}
+body.dark .module:before{
+  background:radial-gradient(circle,rgba(113,213,226,.17),transparent 66%);
+}
+body.dark .module:nth-child(3n+1):after{color:rgba(255,128,185,.82)}
+body.dark .module:nth-child(3n+2):after{color:rgba(190,157,255,.8)}
+body.dark .module .emoji{
+  background:linear-gradient(145deg,rgba(83,67,126,.92),rgba(51,41,82,.96))!important;
+  color:#f7eeff!important;
+  border:1px solid rgba(204,178,255,.22);
+  box-shadow:0 10px 24px rgba(0,0,0,.2);
+}
+body.dark .module-image{
+  border-color:rgba(219,199,255,.35);
+  box-shadow:0 10px 26px rgba(0,0,0,.28);
+}
+body.dark h1,
+body.dark h2,
+body.dark h3,
+body.dark strong{color:#fbf7ff!important}
+body.dark p,
+body.dark small{color:#c7bad8!important}
+body.dark .eyebrow,
+body.dark .section-kicker{color:#f4c875!important}
+body.dark .field,
+body.dark select,
+body.dark textarea,
+body.dark input{
+  background:rgba(18,15,35,.72)!important;
+  color:#f8f3ff!important;
+  border-color:rgba(190,157,255,.25)!important;
+}
+body.dark .field::placeholder,
+body.dark input::placeholder,
+body.dark textarea::placeholder{color:#9385a8!important}
+body.dark .secondary,
+body.dark .small-btn,
+body.dark .mini{
+  background:rgba(83,67,126,.34)!important;
+  color:#eadfff!important;
+  border-color:rgba(190,157,255,.24)!important;
+}
+body.dark .bottom{
+  background:rgba(15,13,31,.92)!important;
+  border-color:rgba(190,157,255,.22)!important;
+  box-shadow:0 15px 42px rgba(0,0,0,.38)!important;
+}
+body.dark .bottom button{color:#aa9abc!important}
+body.dark .bottom button.active{
+  color:#f2e9ff!important;
+  background:rgba(135,101,204,.25)!important;
+}
+body.dark .page-head .back{
+  background:rgba(83,67,126,.34)!important;
+  color:#efe6ff!important;
+  border-color:rgba(190,157,255,.22)!important;
+}
+body.dark .stat,
+body.dark .item-row,
+body.dark .simple-table td,
+body.dark .simple-table th,
+body.dark .friendship-card,
+body.dark .poke-detail-card,
+body.dark .check-task,
+body.dark .history-card,
+body.dark .livestock-row,
+body.dark .feed-row,
+body.dark .maintenance-card{
+  background:rgba(29,24,54,.72)!important;
+  color:#f8f3ff!important;
+  border-color:rgba(190,157,255,.2)!important;
+}
+body.dark .reminder{
+  background:rgba(38,31,67,.72)!important;
+  color:#f8f3ff!important;
+  border-color:rgba(190,157,255,.2)!important;
+}
+body.dark .history-value{color:#eadfff!important}
+body.dark .measure-pills span{
+  background:rgba(120,168,255,.12)!important;
+  border-color:rgba(120,168,255,.2)!important;
+}
+body.dark .tank-card{
+  background:linear-gradient(150deg,rgba(45,38,76,.95),rgba(28,37,65,.92))!important;
+}
+body.dark .tank-card.girls-tank{border-color:rgba(255,128,185,.34)!important}
+body.dark .tank-card.boys-tank{border-color:rgba(120,168,255,.36)!important}
+body.dark .tank-wave{
+  background:linear-gradient(90deg,rgba(113,213,226,.18),rgba(120,168,255,.26))!important;
+}
+body.dark[data-route="plants"],
+body.dark[data-route="plant"]{
+  background:
+    radial-gradient(circle at 16% 8%,rgba(173,74,146,.25),transparent 27rem),
+    radial-gradient(circle at 88% 12%,rgba(78,107,190,.23),transparent 28rem),
+    linear-gradient(165deg,#080711,#101020 55%,#101921);
+}
+body.dark[data-route="pets"],
+body.dark[data-route="tank"]{
+  background:
+    radial-gradient(circle at 50% -10%,rgba(118,87,176,.22),transparent 27rem),
+    radial-gradient(circle at 10% 16%,rgba(56,118,168,.2),transparent 28rem),
+    linear-gradient(170deg,#080711 0%,#0b1421 48%,#0b2028 100%);
+}
+body.dark .petal{
+  background:linear-gradient(135deg,#f9d9ec,#d875b1 58%,#9b4f8b);
+  box-shadow:0 0 12px rgba(238,143,189,.35);
+  opacity:.58;
+}
+body.dark .aqua-bubble{
+  border-color:rgba(151,231,244,.62);
+  box-shadow:0 0 15px rgba(113,213,226,.25);
+  opacity:.58;
+}

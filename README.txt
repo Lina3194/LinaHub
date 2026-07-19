@@ -132,3 +132,12 @@ v10 Premium Enchanted redesign:
 - Medication, priorities, today's plan and notes are not included in Journal
 - Weight and measurement date controls no longer stretch across the full card
 - Short accent dividers and tighter automatic-time badges
+
+v10.1:
+- Rebuilt the left-edge swipe-back gesture
+- Plant profile tabs now work
+- Plant watering can be added for today or an earlier date
+- Fish feeds can be added for today or an earlier date
+- Aquarium cleaning and maintenance can be added for today or an earlier date
+- Date pickers default to today
+- Existing LinaHub local data remains unchanged

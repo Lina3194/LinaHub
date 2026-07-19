@@ -43,3 +43,9 @@ body.dark .plant-garden-hero{
 body.dark .plant-tile{background:linear-gradient(145deg,rgba(56,45,89,.96),rgba(35,31,65,.94))}
 body.dark .plant-tile-art{background:linear-gradient(145deg,rgba(91,55,91,.72),rgba(38,69,65,.76))}
 @media(max-width:360px){.plant-tile-grid{grid-template-columns:1fr}}
+
+.profile-tabs{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin:14px 0}
+.profile-tabs button{border:0;border-bottom:2px solid transparent;background:transparent;color:var(--muted);padding:11px 5px;font-weight:750}
+.profile-tabs button.active{color:var(--ink);border-color:var(--purple)}
+.plant-tab-panel{display:none}.plant-tab-panel.active{display:block}
+.history-row{display:grid;grid-template-columns:auto 1fr auto}

@@ -13,6 +13,12 @@ function aquariumLocalDate(value){
   const pad=n=>String(n).padStart(2,"0");
   return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
 }
+
+function aquariumTimestampForDate(dateValue){
+  const selected=dateValue||today();
+  if(selected===today()) return new Date().toISOString();
+  return `${selected}T12:00:00`;
+}
 function tankFeedToday(tank){
   return [...(tank.feeds||[])]
     .filter(feed=>aquariumLocalDate(feed.createdAt)===today())
@@ -66,24 +72,18 @@ function AquariumTankPage(){
     </section>
 
     <section class="card">
-      <div class="section-title"><div><span class="section-kicker">🍽️ Care</span><h2>Feeds</h2></div><span class="live-time">Date & time automatic</span></div>
-      ${tankFeedToday(tank)
-        ? `<div class="feed-confirmed"><span>✓</span><div><strong>Fed today</strong><small>${aquariumDateTimeLabel(tankFeedToday(tank).createdAt)} · ${esc(tankFeedToday(tank).food||"Fed")}</small></div></div>`
-        : `<div class="feed-needed"><span>🍽️</span><div><strong>Not fed yet today</strong><small>Log the feed below when it is done.</small></div></div>`}
-      <div class="two-col"><input class="field" id="feedFood" placeholder="Food / feed type"><button class="primary" id="logFeed">${tankFeedToday(tank)?"Log another feed":"Log feed now"}</button></div>
-      <div class="feed-history">${feeds.length?feeds.slice(0,12).map(f=>`<div class="feed-row"><span>🍽️</span><div><strong>${esc(f.food||"Fed")}</strong><small>${aquariumDateTimeLabel(f.createdAt)}</small></div><button class="icon-danger" data-feed-delete="${esc(f.id)}">×</button></div>`).join(""):`<p>No feeds logged yet.</p>`}</div>
+      <div class="section-title"><div><span class="section-kicker">🍽️ Care</span><h2>Feeds</h2></div></div>
+      ${tankFeedToday(tank)?`<div class="feed-confirmed"><span>✓</span><div><strong>Fed today</strong><small>${aquariumDateTimeLabel(tankFeedToday(tank).createdAt)} · ${esc(tankFeedToday(tank).food||"Fed")}</small></div></div>`:`<div class="feed-needed"><span>🍽️</span><div><strong>Not fed yet today</strong><small>Log the feed below when it is done.</small></div></div>`}
+      <div class="dated-action-stack"><label class="date-picker-shell"><span>📅</span><input id="feedDate" type="date" value="${today()}" max="${today()}"></label><input class="field" id="feedFood" placeholder="Food / feed type"><button type="button" class="primary" id="logFeed">${tankFeedToday(tank)?"Log another feed":"Log feed"}</button></div>
+      <p class="helper-text">Today is selected automatically. Use the calendar for a feed you forgot to record.</p>
+      <div class="feed-history">${feeds.length?feeds.slice(0,20).map(f=>`<div class="feed-row"><span>🍽️</span><div><strong>${esc(f.food||"Fed")}</strong><small>${aquariumDateTimeLabel(f.createdAt)}</small></div><button type="button" class="icon-danger" data-feed-delete="${esc(f.id)}">×</button></div>`).join(""):`<p>No feeds logged yet.</p>`}</div>
     </section>
 
     <section class="card">
-      <div class="section-title"><div><span class="section-kicker">🧽 Maintenance</span><h2>Last completed</h2></div></div>
-      <div class="maintenance-grid">
-        ${[
-          ["waterChange","💧","Water change"],
-          ["clean","✨","Tank clean"],
-          ["filterChange","♻️","Filter change"],
-          ["spongeChange","🧽","Sponge change"]
-        ].map(([key,icon,label])=>`<div class="maintenance-card"><span>${icon}</span><strong>${label}</strong><small>${aquariumDateTimeLabel(m[key])}</small><button class="secondary" data-maintenance="${key}">Mark done now</button></div>`).join("")}
-      </div>
+      <div class="section-title"><div><span class="section-kicker">🧽 Maintenance</span><h2>Cleaning & maintenance</h2></div></div>
+      <label class="date-picker-shell maintenance-date"><span>📅</span><input id="maintenanceDate" type="date" value="${today()}" max="${today()}"></label>
+      <p class="helper-text">Choose the date once, then tap the maintenance job you completed.</p>
+      <div class="maintenance-grid">${[["waterChange","💧","Water change"],["clean","✨","Tank clean"],["filterChange","♻️","Filter change"],["spongeChange","🧽","Sponge change"]].map(([key,icon,label])=>`<div class="maintenance-card"><span>${icon}</span><strong>${label}</strong><small>${aquariumDateTimeLabel(m[key])}</small><button type="button" class="secondary" data-maintenance="${key}">Log completed</button></div>`).join("")}</div>
     </section>
   `,"pets");
 }
@@ -105,15 +105,19 @@ function bindAquariums(){
     tank.temperature=value;tank.temperatureUpdated=new Date().toISOString();saveData();toast("Temperature saved 🌡️");render();
   });
   document.querySelector("#logFeed")?.addEventListener("click",()=>{
-    tank.feeds.push({id:`feed-${Date.now()}`,food:document.querySelector("#feedFood").value.trim()||"Fed",createdAt:new Date().toISOString()});
+    const date=document.querySelector("#feedDate")?.value||today();
+    if(date>today()){toast("Choose today or an earlier date");return}
+    tank.feeds.push({id:`feed-${Date.now()}`,food:document.querySelector("#feedFood").value.trim()||"Fed",createdAt:aquariumTimestampForDate(date)});
     saveData();toast("Feed logged 🍽️");render();
   });
   document.querySelectorAll("[data-feed-delete]").forEach(b=>b.onclick=()=>{
     tank.feeds=tank.feeds.filter(x=>x.id!==b.dataset.feedDelete);saveData();render();
   });
   document.querySelectorAll("[data-maintenance]").forEach(b=>b.onclick=()=>{
+    const date=document.querySelector("#maintenanceDate")?.value||today();
+    if(date>today()){toast("Choose today or an earlier date");return}
     tank.maintenance=tank.maintenance||{};
-    tank.maintenance[b.dataset.maintenance]=new Date().toISOString();
+    tank.maintenance[b.dataset.maintenance]=aquariumTimestampForDate(date);
     saveData();toast("Maintenance updated ✨");render();
   });
 }

@@ -1,8 +1,8 @@
 {
   "name": "LinaHub \u2014 Enchanted Sakura Edition",
   "short_name": "LinaHub",
-  "id": "./?version=100",
-  "start_url": "./?version=100",
+  "id": "./?version=101",
+  "start_url": "./?version=101",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f7d9eb",

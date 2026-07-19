@@ -228,3 +228,11 @@ body.dark .manage-room-row{background:#10121d}
   .house-room-card.open{grid-column:auto}
   .house-room-tile{min-height:100px;padding:14px}
 }
+
+.dated-action{display:grid;grid-template-columns:minmax(150px,210px) 1fr;gap:10px;align-items:stretch}
+.dated-action-stack{display:grid;grid-template-columns:minmax(150px,210px) 1fr auto;gap:10px;align-items:stretch}
+.date-picker-shell{min-width:0;display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:16px;padding:0 12px;background:var(--bg);color:var(--ink)}
+.date-picker-shell input{display:block;min-width:0;width:100%;border:0;padding:12px 0;background:transparent;color:inherit;font:inherit}
+.maintenance-date{width:min(100%,210px);margin-bottom:8px}
+body.dark .date-picker-shell{background:#10121d}
+@media(max-width:560px){.dated-action,.dated-action-stack{grid-template-columns:1fr}.maintenance-date{width:100%}}

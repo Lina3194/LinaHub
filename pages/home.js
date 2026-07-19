@@ -58,11 +58,17 @@ function HomePage(){
         [data.homeIcons?.health||"⚖️","Weight & Measures","Track weight and measurements","health"],
         [data.homeIcons?.plants||"🌿","Plants","Care and watering","plants"],
         [data.homeIcons?.medication||"💊","Medication","Doses and routines","medication"],
-        [data.homeIcons?.pokemon||"🔴","Pokémon GO","Friend tracker coming later","pokemon"],
+        ["","Pokémon GO","Friendship, Vivillon and gifts","pokemon"],
         [data.homeIcons?.pets||"🐠","Aquariums","Girls and boys tanks","pets"],
         [data.homeIcons?.house||"🏡","House","Rooms and recurring tasks","house"],
         [data.homeIcons?.settings||"⚙️","Settings","Theme and backup","settings"]
-      ].map(x=>`<button type="button" class="module module-${x[3]}" data-route="${x[3]}">${data.homeImages?.[x[3]]?`<span class="module-image"><img src="${data.homeImages[x[3]]}" alt=""></span>`:`<span class="emoji">${x[0]}</span>`}<strong>${x[1]}</strong><small>${x[2]}</small></button>`).join("")}
+      ].map(x=>`<button type="button" class="module module-${x[3]}" data-route="${x[3]}">${
+        data.homeImages?.[x[3]]
+          ? `<span class="module-image"><img src="${data.homeImages[x[3]]}" alt=""></span>`
+          : x[3]==="pokemon"
+            ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=110" alt="Poké Ball"></span>`
+            : `<span class="emoji">${x[0]}</span>`
+      }<strong>${x[1]}</strong><small>${x[2]}</small></button>`).join("")}
     </div>
 
     <section class="card" style="margin-top:14px">

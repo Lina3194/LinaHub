@@ -236,3 +236,5 @@ body.dark .manage-room-row{background:#10121d}
 .maintenance-date{width:min(100%,210px);margin-bottom:8px}
 body.dark .date-picker-shell{background:#10121d}
 @media(max-width:560px){.dated-action,.dated-action-stack{grid-template-columns:1fr}.maintenance-date{width:100%}}
+
+.app-version{text-align:center;color:var(--muted);font-size:.82rem;margin:18px 0 4px}

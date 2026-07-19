@@ -58,7 +58,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  `,"settings");
+  <p class="app-version">LinaHub v11 · Consolidated build</p>`,"settings");
 }
 
 function bindSimple(){

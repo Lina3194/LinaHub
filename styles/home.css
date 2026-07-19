@@ -19,3 +19,13 @@ body.dark .module,body.dark .reminder{background:#151225}
 }
 .today-heading h2{margin:0}.today-heading small{color:var(--muted)}
 .today-heading b{font-size:1.8rem;color:var(--purple)}
+
+.app-icon-image{
+  display:grid;
+  place-items:center;
+}
+.app-icon-image img{
+  width:52px;
+  height:52px;
+  display:block;
+}

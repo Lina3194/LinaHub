@@ -49,3 +49,28 @@ body.dark .plant-tile-art{background:linear-gradient(145deg,rgba(91,55,91,.72),r
 .profile-tabs button.active{color:var(--ink);border-color:var(--purple)}
 .plant-tab-panel{display:none}.plant-tab-panel.active{display:block}
 .history-row{display:grid;grid-template-columns:auto 1fr auto}
+
+/* v11 consolidated plants */
+.plant-tile-grid{
+  display:grid !important;
+  grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+  gap:14px;
+  margin-top:14px;
+}
+.plant-tile{
+  min-width:0;
+  overflow:hidden;
+  text-align:left;
+}
+.plant-tile[hidden]{display:none !important}
+.plant-tile-copy em{margin-top:8px}
+.profile-tabs{
+  position:sticky;
+  top:8px;
+  z-index:4;
+  backdrop-filter:blur(18px);
+}
+@media(max-width:390px){
+  .plant-tile-grid{gap:10px}
+  .plant-tile-copy h2{font-size:1rem}
+}

@@ -655,3 +655,7 @@ body.dark .hero,body.dark .card,body.dark .plant-card,body.dark .module,body.dar
 html,body{overscroll-behavior-x:none}
 body.swipe-back-active .bottom{pointer-events:none}
 .shell.swipe-dragging{position:relative;z-index:5;border-radius:0}
+
+/* Journal custom self-care and support selectors */
+.section-heading-actions{align-items:center}.section-heading-actions>div{flex:1}.mini-action{margin-left:auto;border:1px solid var(--line);background:var(--card);color:var(--purple);border-radius:12px;padding:8px 10px;font-weight:800}.option-editor{display:grid;gap:9px}.option-row{display:grid;grid-template-columns:1fr 42px;gap:8px;align-items:center}.danger-icon{height:42px;border:1px solid var(--line);border-radius:13px;background:var(--card);color:#b34c66;font-size:1.25rem}.editor-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}.support-picker,.support-other{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}.support-other{margin-top:8px}.selected-supports{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.selected-support{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:var(--purple-soft);color:var(--ink)}.selected-support b{font-size:1.1rem;color:var(--purple)}
+@media(max-width:520px){.support-picker,.support-other{grid-template-columns:1fr}.support-picker button,.support-other button{width:100%}.section-heading-actions{flex-wrap:wrap}.section-heading-actions .mini-action{margin-left:54px}}

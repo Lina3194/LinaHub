@@ -19,6 +19,8 @@ const DEFAULT_DATA={
   homeImages:{},
   moduleBanners:{},
   checkinHidden:[],
+  selfCareOptions:["Rest","Reading","Exercises","Warmth","Good food","Fresh air","Music","Gaming","Hobbies"],
+  supportOptions:["Left knee","Right knee","Left ankle","Right ankle","Walking stick","Other"],
   pokemonFriends:structuredClone(POKEMON_FRIEND_SEED),
   pokemonSeededVersion:2,
   medications:[

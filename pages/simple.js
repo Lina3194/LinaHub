@@ -5,6 +5,19 @@ function SimplePage(title,emoji,text,active=""){
 
 function SettingsPage(){
   return shell(`${head("Settings","Appearance and your data")}
+    <section class="card cloud-account-card">
+      <div class="cloud-card-head">
+        <div><h2>LinaHub Cloud</h2><p>Secure automatic sync between your laptop and phone.</p></div>
+        <span class="cloud-status" data-cloud-status data-state="${CLOUD_STATE.status}">${cloudStatusText()}</span>
+      </div>
+      ${cloudUser()?`
+        <div class="cloud-user">${cloudUser().photoURL?`<img src="${esc(cloudUser().photoURL)}" alt="">`:`<span>☁️</span>`}<div><strong>${esc(cloudUser().displayName||"Google account")}</strong><small>${esc(cloudUser().email||"")}</small></div></div>
+        <div class="cloud-actions"><button class="primary" id="cloudUploadNow">Upload this device</button><button class="secondary" id="cloudDownloadNow">Download cloud copy</button><button class="mini danger" id="cloudSignOut">Sign out</button></div>
+        <p class="settings-note">Changes are saved locally first, then each LinaHub module syncs separately. Offline changes upload when your connection returns.</p>`:`
+        <button class="google-signin" id="cloudSignIn"><span>G</span> Sign in with Google</button>
+        <p class="settings-note">Your current data stays on this device until you sign in. The first signed-in device safely creates your cloud copy.</p>`}
+    </section>
+
     <section class="card">
       <h2>Appearance</h2>
       <button class="primary" id="themeToggle2">Switch to ${data.theme==="dark"?"light":"dark"} mode</button>
@@ -58,10 +71,14 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v11 · Consolidated build</p>`,"settings");
+  <p class="app-version">LinaHub v12 · Cloud Edition</p>`,"settings");
 }
 
 function bindSimple(){
+  document.querySelector("#cloudSignIn")?.addEventListener("click",linaSignIn);
+  document.querySelector("#cloudSignOut")?.addEventListener("click",linaSignOut);
+  document.querySelector("#cloudUploadNow")?.addEventListener("click",forceCloudUpload);
+  document.querySelector("#cloudDownloadNow")?.addEventListener("click",forceCloudDownload);
   const t=document.querySelector("#themeToggle2");
   if(t) t.onclick=()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()};
 

@@ -1,4 +1,4 @@
-const CACHE="linahub-v15-2-date-todo-med-pokemon-layout";
+const CACHE="linahub-v15-3-date-todo-med-pokemon-layout";
 const ASSETS=[
 "./","./index.html","./app.js?v=152","./manifest.webmanifest?v=152",
 "./core/pokemon-seed.js?v=152","./core/data.js?v=152","./core/router.js?v=152","./core/cloud.js?v=152",

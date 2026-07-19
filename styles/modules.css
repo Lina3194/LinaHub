@@ -280,3 +280,11 @@ body.dark .poke-today-grid button{background:#10121d}
   .med-photo-editor{max-width:100%;overflow:hidden}
   .med-photo-upload{min-width:0;max-width:100%}
 }
+
+
+/* v15.3 recurring weekday selectors */
+.house-weekdays{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.house-weekdays label{cursor:pointer}
+.house-weekdays input{position:absolute;opacity:0;pointer-events:none}
+.house-weekdays span{display:inline-flex;align-items:center;justify-content:center;min-width:48px;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:var(--panel-soft);font-weight:700}
+.house-weekdays input:checked+span{background:linear-gradient(135deg,rgba(174,112,255,.35),rgba(247,139,185,.3));border-color:var(--accent);box-shadow:0 0 0 2px rgba(174,112,255,.12)}

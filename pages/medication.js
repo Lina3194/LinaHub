@@ -92,7 +92,7 @@ function medicationScheduleTab(){
       <input class="field" id="medName" placeholder="Medication name">
       <div class="two-col"><input class="field" id="medDose" placeholder="Dose, e.g. 25 mg"><input class="field" id="medTime" type="time" aria-label="Usual time"></div>
       <input class="field" id="medInstructions" placeholder="Instructions, e.g. take with food">
-      <select class="field" id="medScheduleType"><option value="daily">Every day</option><option value="weekdays">Specific weekdays</option><option value="prn">As needed (PRN)</option></select>
+      <select class="field" id="medScheduleType"><option value="daily">Every day</option><option value="weekdays">Every week on selected days</option><option value="prn">As needed (PRN)</option></select>
       <div class="med-weekdays hidden" id="medWeekdays">${MED_WEEKDAYS.map(day=>`<label><input type="checkbox" value="${day}"><span>${day}</span></label>`).join("")}</div>
       <div class="two-col"><label class="field-label">Start date<input class="field" id="medStartDate" type="date"></label><label class="field-label">End date (optional)<input class="field" id="medEndDate" type="date"></label></div>
       <textarea class="field" id="medNotes" rows="3" placeholder="Extra notes"></textarea>
@@ -113,7 +113,7 @@ function MedicationPage(){
   ensureMedicationData();
   const tab=data.medicationView.tab;
   const content=tab==="schedule"?medicationScheduleTab():tab==="history"?medicationHistoryTab():medicationTodayTab();
-  return shell(`${head("Medication","Medication centre · v15.2")}
+  return shell(`${head("Medication","Medication centre · v15.3")}
     <div class="med-page">${content}</div>
     <nav class="med-bottom-tabs" aria-label="Medication sections">
       <button class="${tab==="today"?"active":""}" data-med-tab="today">✓<small>Day</small></button>

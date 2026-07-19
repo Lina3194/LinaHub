@@ -11,8 +11,20 @@ const DEFAULT_HOUSE_ROOMS=[
 ];
 
 const HOUSE_FREQUENCIES=[
-  "Daily","Every other day","Weekly","Fortnightly","Monthly","Seasonally","As needed"
+  "Daily","Every other day","Specific weekdays","Weekly","Fortnightly","Monthly","Seasonally","As needed"
 ];
+
+const HOUSE_WEEKDAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+function houseWeekdayPicker(selected=[],prefix="house"){
+  const chosen=Array.isArray(selected)?selected:[];
+  return `<div class="house-weekdays" id="${prefix}Weekdays">${HOUSE_WEEKDAYS.map(day=>`<label><input type="checkbox" value="${day}" ${chosen.includes(day)?"checked":""}><span>${day}</span></label>`).join("")}</div>`;
+}
+
+function houseScheduleLabel(task){
+  if(task.frequency==="Specific weekdays"&&task.weekdays?.length) return `Every ${task.weekdays.join(", ")}`;
+  return task.frequency;
+}
 
 function normalizeHouseTask(task,index=0){
   return {
@@ -20,6 +32,7 @@ function normalizeHouseTask(task,index=0){
     task:String(task?.task||task?.title||"Untitled job"),
     room:String(task?.room||"Whole House"),
     frequency:String(task?.frequency||"As needed"),
+    weekdays:Array.isArray(task?.weekdays)?task.weekdays.filter(day=>HOUSE_WEEKDAYS.includes(day)):[],
     energy:["Low","Medium","High"].includes(task?.energy)?task.energy:"Medium",
     priority:[1,2,3].includes(Number(task?.priority))?Number(task.priority):1,
     done:task?.done===true
@@ -173,6 +186,10 @@ function HousePage(){
         <label class="field-label">Frequency
           <select class="field" id="houseFrequency">${frequencyOptions("Weekly")}</select>
         </label>
+        <div id="houseWeekdayWrap" class="hidden">
+          <span class="field-label">Repeat on</span>
+          ${houseWeekdayPicker([],"addHouse")}
+        </div>
 
         <div>
           <span class="field-label">Energy</span>
@@ -208,7 +225,7 @@ function HousePage(){
                 <article class="item-row house-job ${task.done?"completed-task":""}">
                   <div>
                     <h3>${esc(task.task)}</h3>
-                    <p>${task.energy==="Low"?"🟢":task.energy==="High"?"🔴":"🟡"} ${esc(task.energy)} · ${"⭐".repeat(task.priority)} · ${esc(task.frequency)}</p>
+                    <p>${task.energy==="Low"?"🟢":task.energy==="High"?"🔴":"🟡"} ${esc(task.energy)} · ${"⭐".repeat(task.priority)} · ${esc(houseScheduleLabel(task))}</p>
                   </div>
                   <div class="item-actions">
                     <button type="button" class="check-task ${task.done?"done":""}" data-house-done="${esc(task.id)}">✓</button>
@@ -230,6 +247,10 @@ function HousePage(){
 function bindHouse(){
   const page=document.querySelector(".shell");
   if(!page) return;
+
+  page.querySelector("#houseFrequency")?.addEventListener("change",e=>{
+    page.querySelector("#houseWeekdayWrap")?.classList.toggle("hidden",e.target.value!=="Specific weekdays");
+  });
 
   page.addEventListener("click",event=>{
     if(event.target.closest("#toggleHouseControls")){
@@ -317,11 +338,16 @@ function bindHouse(){
         return;
       }
 
+      const frequency=page.querySelector("#houseFrequency")?.value||"Weekly";
+      const weekdays=[...page.querySelectorAll("#addHouseWeekdays input:checked")].map(input=>input.value);
+      if(frequency==="Specific weekdays"&&!weekdays.length){toast("Choose at least one weekday");return;}
+
       data.houseTasks.push({
         id:`house-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
         task,
         room:page.querySelector("#houseRoom")?.value||"Whole House",
-        frequency:page.querySelector("#houseFrequency")?.value||"Weekly",
+        frequency,
+        weekdays,
         energy:page.querySelector("#addHouseEnergy")?.value||"Medium",
         priority:Number(page.querySelector("#addHousePriority")?.value)||1,
         done:false
@@ -394,6 +420,10 @@ function openHouseEditor(id){
           <label class="field-label">Frequency
             <select class="field" id="editHouseFrequency">${frequencyOptions(task.frequency)}</select>
           </label>
+          <div id="editHouseWeekdayWrap" class="${task.frequency==="Specific weekdays"?"":"hidden"}">
+            <span class="field-label">Repeat on</span>
+            ${houseWeekdayPicker(task.weekdays,"editHouse")}
+          </div>
 
           <div><span class="field-label">Energy</span>${energyPicker(task.energy,"editHouse")}</div>
           <div><span class="field-label">Priority</span>${priorityPicker(task.priority,"editHouse")}</div>
@@ -405,6 +435,9 @@ function openHouseEditor(id){
       </section>
     </div>
   `;
+  document.querySelector("#editHouseFrequency")?.addEventListener("change",e=>{
+    document.querySelector("#editHouseWeekdayWrap")?.classList.toggle("hidden",e.target.value!=="Specific weekdays");
+  });
 }
 
 function closeHouseEditor(){
@@ -426,6 +459,9 @@ function saveHouseEditor(){
   task.task=name;
   task.room=document.querySelector("#editHouseRoom")?.value||"Whole House";
   task.frequency=document.querySelector("#editHouseFrequency")?.value||"As needed";
+  task.weekdays=[...document.querySelectorAll("#editHouseWeekdays input:checked")].map(input=>input.value);
+  if(task.frequency==="Specific weekdays"&&!task.weekdays.length){toast("Choose at least one weekday");return;}
+  if(task.frequency!=="Specific weekdays") task.weekdays=[];
   task.energy=document.querySelector("#editHouseEnergy")?.value||"Medium";
   task.priority=Number(document.querySelector("#editHousePriority")?.value)||1;
 

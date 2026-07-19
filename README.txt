@@ -1,9 +1,3 @@
-LinaHub v14.6
+LinaHub v14.7
 
-Includes everything from v14.4.
-
-Fixes:
-- Cherry-blossom petals now use real numeric positions, sizes and timings generated in JavaScript, avoiding unsupported Safari CSS calculations.
-- Repairs horizontal page overflow on phone and laptop.
-- Keeps health cards, date fields and the “Time added automatically” badge inside the page width.
-- New service-worker/cache version for GitHub Pages/PWA updates.
+Includes all previous fixes. Weight & Measures now uses compact side-by-side entry cards on laptop/desktop and a single-column layout on phones. Cherry-blossom petals remain behind the plant content.

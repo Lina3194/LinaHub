@@ -97,3 +97,12 @@ body.dark .today-task-icon{background:#2b2040}
 .poke-detail-edit{width:100%;margin-top:10px}
 body.dark .friendship-card{background:linear-gradient(135deg,rgba(121,78,220,.22),#10121d)}
 body.dark .friendship-card-icon,body.dark .friendship-step span,body.dark .poke-detail-card{background:#10121d}
+
+.todo-count{
+  min-width:34px;height:34px;padding:0 10px;border-radius:999px;display:grid;place-items:center;
+  background:var(--purple-soft);border:1px solid var(--line);color:var(--purple);font-weight:850;
+}
+.todo-item{transition:transform .16s ease,border-color .16s ease}
+.todo-item:active{transform:scale(.992)}
+.empty-todo{text-align:center;padding:18px 8px;margin:0}
+.completed-task h3{text-decoration:line-through}

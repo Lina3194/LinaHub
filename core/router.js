@@ -2,6 +2,7 @@
 let route="home";
 let routeId="";
 let navDirection="forward";
+let suppressNextPageAnimation=false;
 const navigationHistory=[];
 
 function nav(active){
@@ -28,7 +29,9 @@ function moduleBanner(active){
 }
 
 function shell(content,active){
-  return `<main class="shell page-enter ${navDirection==="back"?"from-left":"from-right"}">
+  const animationClass=suppressNextPageAnimation?"page-settled":`page-enter ${navDirection==="back"?"from-left":"from-right"}`;
+  suppressNextPageAnimation=false;
+  return `<main class="shell ${animationClass}">
     ${moduleBanner(active)}
     ${content}
   </main>${nav(active)}`;

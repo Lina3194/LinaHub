@@ -77,6 +77,22 @@ const DEFAULT_DATA={
 };
 
 
+
+function normalizePersonalTask(task,index){
+  const deadline=task?.deadline||task?.date||"";
+  return {
+    id:String(task?.id||`todo-${Date.now()}-${index}`),
+    title:String(task?.title||task?.task||"Untitled task"),
+    energy:["Low","Medium","High"].includes(task?.energy)?task.energy:"Medium",
+    deadline,
+    date:deadline,
+    time:"",
+    done:task?.done===true,
+    created:task?.created||today(),
+    completed:task?.completed||""
+  };
+}
+
 function normalizePokemonFriend(f,i){
   return {
     id:f.id||`poke-${Date.now()}-${i}`,name:f.name||"Unknown Trainer",nickname:f.nickname||"",
@@ -127,6 +143,7 @@ function migrateLegacy(){
       const migrated={...DEFAULT_DATA,...old,version:5};
       migrated.plants=(old.plants||DEFAULT_DATA.plants).map(normalizePlant);
       migrated.aquariums=(migrated.aquariums||DEFAULT_DATA.aquariums).map(normalizeAquarium);
+      migrated.personalTasks=(Array.isArray(migrated.personalTasks)?migrated.personalTasks:[]).map(normalizePersonalTask);
       migrated.medications=Array.isArray(migrated.medications)?migrated.medications:[];
       if(!migrated.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
         migrated.medications.unshift({id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""});
@@ -149,6 +166,7 @@ function loadData(){
       const loaded={...DEFAULT_DATA,...JSON.parse(raw)};
       loaded.plants=(loaded.plants||DEFAULT_DATA.plants).map(normalizePlant);
       loaded.aquariums=(loaded.aquariums||DEFAULT_DATA.aquariums).map(normalizeAquarium);
+      loaded.personalTasks=(Array.isArray(loaded.personalTasks)?loaded.personalTasks:[]).map(normalizePersonalTask);
       loaded.medications=Array.isArray(loaded.medications)?loaded.medications:[];
       if(!loaded.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
         loaded.medications.unshift({id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""});

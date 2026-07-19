@@ -57,7 +57,7 @@ function setupNavigation(){
     if(backButton){
       event.preventDefault();
       event.stopPropagation();
-      goBack(backButton.dataset.back||"home");
+      animateBackNavigation(backButton.dataset.back||"home");
       return;
     }
 
@@ -70,6 +70,23 @@ function setupNavigation(){
   });
 }
 
+function animateBackNavigation(fallback="home"){
+  const page=document.querySelector(".shell");
+  if(!page){
+    goBack(fallback);
+    return;
+  }
+
+  page.classList.add("button-back-exit");
+  const finish=()=>{
+    page.removeEventListener("animationend",finish);
+    suppressNextPageAnimation=true;
+    goBack(fallback);
+  };
+  page.addEventListener("animationend",finish,{once:true});
+  setTimeout(finish,230);
+}
+
 function setupSwipeBack(){
   if(window.__linaSwipeReady) return;
   window.__linaSwipeReady=true;
@@ -78,8 +95,9 @@ function setupSwipeBack(){
   let startX=0;
   let startY=0;
   let currentX=0;
-  const edgeWidth=32;
-  const triggerDistance=78;
+  let page=null;
+  const edgeWidth=34;
+  const triggerDistance=86;
 
   const isBlockedTarget=target=>{
     if(!(target instanceof Element)) return true;
@@ -100,77 +118,110 @@ function setupSwipeBack(){
 
     if(!tracking) return;
 
-    startX=touch.clientX;
+    startX=currentX=touch.clientX;
     startY=touch.clientY;
-    currentX=startX;
+    page=document.querySelector(".shell");
+    document.body.classList.add("swipe-back-active");
+    page?.classList.add("swipe-dragging");
   },{passive:true});
 
   document.addEventListener("touchmove",event=>{
     if(!tracking||event.touches.length!==1) return;
 
     const touch=event.touches[0];
-    const dx=touch.clientX-startX;
+    const dx=Math.max(0,touch.clientX-startX);
     const dy=touch.clientY-startY;
 
-    if(Math.abs(dy)>Math.abs(dx) && Math.abs(dy)>24){
-      tracking=false;
-      resetSwipePreview();
+    if(Math.abs(dy)>Math.abs(dx) && Math.abs(dy)>26){
+      cancelSwipe();
       return;
     }
 
-    if(dx<=0) return;
-
     currentX=touch.clientX;
+    if(dx<4||!page) return;
 
-    if(dx>10){
-      event.preventDefault();
-      const page=document.querySelector(".page-enter");
-      if(page){
-        page.classList.add("swiping-back");
-        page.style.transform=`translate3d(${Math.min(dx,170)}px,0,0)`;
-        page.style.opacity=String(Math.max(.76,1-dx/520));
-      }
-    }
+    event.preventDefault();
+    const eased=Math.min(dx,190);
+    const progress=Math.min(eased/190,1);
+    page.style.transform=`translate3d(${eased}px,0,0)`;
+    page.style.opacity=String(1-progress*.16);
+    document.documentElement.style.setProperty("--swipe-progress",String(progress));
   },{passive:false});
 
   const finishSwipe=()=>{
     if(!tracking) return;
-
     const distance=currentX-startX;
     tracking=false;
 
     if(distance>=triggerDistance){
-      const page=document.querySelector(".page-enter");
-      if(page){
-        page.classList.remove("swiping-back");
-        page.style.transition="transform .16s ease,opacity .16s ease";
-        page.style.transform="translate3d(105vw,0,0)";
-        page.style.opacity=".45";
-      }
-      setTimeout(()=>goBack("home"),90);
+      completeSwipeBack();
     }else{
-      resetSwipePreview();
+      cancelSwipe();
     }
   };
 
   document.addEventListener("touchend",finishSwipe,{passive:true});
-  document.addEventListener("touchcancel",()=>{
-    tracking=false;
-    resetSwipePreview();
-  },{passive:true});
-}
+  document.addEventListener("touchcancel",cancelSwipe,{passive:true});
 
+  function completeSwipeBack(){
+    if(!page){
+      goBack("home");
+      return;
+    }
+
+    page.classList.remove("swipe-dragging");
+    page.classList.add("swipe-completing");
+    document.documentElement.style.setProperty("--swipe-progress","1");
+
+    const finish=()=>{
+      page?.removeEventListener("transitionend",finish);
+      suppressNextPageAnimation=true;
+      cleanupSwipeStyles();
+      goBack("home");
+    };
+
+    page.addEventListener("transitionend",finish,{once:true});
+    setTimeout(finish,240);
+  }
+
+  function cancelSwipe(){
+    tracking=false;
+    if(!page){
+      cleanupSwipeStyles();
+      return;
+    }
+
+    page.classList.remove("swipe-dragging");
+    page.classList.add("swipe-cancelling");
+
+    const finish=()=>{
+      page?.removeEventListener("transitionend",finish);
+      cleanupSwipeStyles();
+    };
+
+    page.addEventListener("transitionend",finish,{once:true});
+    setTimeout(finish,230);
+  }
+
+  function cleanupSwipeStyles(){
+    if(page){
+      page.classList.remove("swipe-dragging","swipe-completing","swipe-cancelling");
+      page.style.transform="";
+      page.style.opacity="";
+    }
+    document.body.classList.remove("swipe-back-active");
+    document.documentElement.style.removeProperty("--swipe-progress");
+    page=null;
+  }
+}
 function resetSwipePreview(){
-  const page=document.querySelector(".page-enter");
+  const page=document.querySelector(".shell");
   if(!page) return;
-  page.classList.remove("swiping-back");
-  page.style.transition="transform .18s ease,opacity .18s ease";
+  page.classList.remove("swipe-dragging","swipe-completing","swipe-cancelling");
   page.style.transform="";
   page.style.opacity="";
-  setTimeout(()=>{
-    if(!page.isConnected) return;
-    page.style.transition="";
-  },190);
+  document.body.classList.remove("swipe-back-active");
+  document.documentElement.style.removeProperty("--swipe-progress");
 }
 
 setupNavigation();
@@ -178,7 +229,7 @@ setupSwipeBack();
 
 if("serviceWorker" in navigator){
   window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("./sw.js?v=84").catch(()=>{});
+    navigator.serviceWorker.register("./sw.js?v=86").catch(()=>{});
   });
 }
 

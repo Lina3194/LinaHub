@@ -555,3 +555,71 @@ body.dark .banner-art-setting{background:rgba(39,31,68,.65)}
 }
 .module-banner>span{position:relative;z-index:2}
 .page-enter.swiping-back{will-change:transform,opacity;animation:none!important}
+
+/* LinaHub v8.5 — smooth back navigation */
+.page-settled{animation:none!important}
+.shell{
+  transform:translate3d(0,0,0);
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+}
+body.swipe-back-active{
+  overflow:hidden;
+  touch-action:pan-y;
+}
+body.swipe-back-active:before{
+  z-index:0;
+}
+body.swipe-back-active #app:before{
+  content:"";
+  position:fixed;
+  inset:0;
+  z-index:-1;
+  pointer-events:none;
+  background:
+    linear-gradient(90deg,rgba(255,255,255,.20),rgba(255,255,255,.04)),
+    radial-gradient(circle at 10% 42%,rgba(224,190,255,.25),transparent 30%);
+  opacity:calc(.12 + var(--swipe-progress,0) * .5);
+}
+body.dark.swipe-back-active #app:before{
+  background:
+    linear-gradient(90deg,rgba(118,91,177,.22),rgba(8,7,17,.04)),
+    radial-gradient(circle at 8% 42%,rgba(120,94,198,.22),transparent 30%);
+}
+.shell.swipe-dragging{
+  animation:none!important;
+  transition:none!important;
+  will-change:transform,opacity;
+  box-shadow:-18px 0 34px rgba(49,31,72,.16);
+}
+body.dark .shell.swipe-dragging{
+  box-shadow:-20px 0 38px rgba(0,0,0,.34);
+}
+.shell.swipe-completing{
+  animation:none!important;
+  transition:transform .20s cubic-bezier(.22,.75,.25,1),opacity .18s ease!important;
+  transform:translate3d(102vw,0,0)!important;
+  opacity:.86!important;
+  will-change:transform,opacity;
+}
+.shell.swipe-cancelling{
+  animation:none!important;
+  transition:transform .20s cubic-bezier(.22,.75,.25,1),opacity .16s ease!important;
+  transform:translate3d(0,0,0)!important;
+  opacity:1!important;
+  will-change:transform,opacity;
+}
+.shell.button-back-exit{
+  animation:smoothBackExit .19s cubic-bezier(.4,0,.55,1) forwards!important;
+  will-change:transform,opacity;
+}
+@keyframes smoothBackExit{
+  from{transform:translate3d(0,0,0);opacity:1}
+  to{transform:translate3d(42px,0,0);opacity:.82}
+}
+@media(prefers-reduced-motion:reduce){
+  .shell.swipe-completing,.shell.swipe-cancelling,.shell.button-back-exit{
+    transition-duration:.01ms!important;
+    animation-duration:.01ms!important;
+  }
+}

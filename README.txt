@@ -76,3 +76,17 @@ v8.4:
 - Fixed left-edge swipe-back with true page history
 - Changed module banners to safe image elements so uploaded pictures cannot break page markup
 - Preserved Plants tiles, blossoms, Aquariums, bubbles, banners, dark theme, and Journal layout saving
+
+v8.5:
+- Replaced the glitchy swipe-back animation with a smoother compositor-based transition
+- Removed the double animation after a swipe completes
+- Added a gentle page reveal while swiping
+- Added a smooth exit animation to normal Back buttons
+- Added cleaner snap-back when a swipe is cancelled
+
+v8.6:
+- Rebuilt the To-do interactions so add, energy selection, complete, undo, delete and clear all work reliably
+- Fixed older tasks whose IDs were stored as numbers
+- Preserved existing tasks and normalized older task formats
+- Added Enter-to-add from the task title field
+- Corrected the service-worker version so the newest JavaScript is loaded instead of an older cached copy

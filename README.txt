@@ -1,10 +1,5 @@
-LinaHub v14.8
+LinaHub v15.1 — Medication Force Refresh
 
-Includes all v14.7 features plus a phone-first Weight & Measures fix:
-- measurement and weight cards stay within the phone screen
-- date/number inputs cannot force horizontal overflow on iPhone Safari
-- the automatic-time badge stays inside each card
-- desktop shell width is restored so cards do not stretch across the browser
-- existing plant petals remain unchanged
+This build includes the complete Medication Centre and forces GitHub Pages/PWA browsers to replace the old cached Medication placeholder.
 
-Upload all files to the existing GitHub repository and replace the old versions.
+After uploading all files to the root of the GitHub Pages repository, open the live site once in the browser. The Medication page subtitle should read “Medication centre · v15.1”.

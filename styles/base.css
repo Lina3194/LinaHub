@@ -810,3 +810,59 @@ body.swipe-back-active .bottom{pointer-events:none}
   .atmosphere-plants .petal,.atmosphere-plant .petal{animation:none!important;opacity:.2!important}
   .atmosphere-plants .petal:nth-child(n+9),.atmosphere-plant .petal:nth-child(n+9){display:none!important}
 }
+
+
+/* v14.3 — recognisable individual cherry-blossom petals on mobile */
+.atmosphere-plants .sakura-petal,.atmosphere-plant .sakura-petal{display:none}
+@media (max-width:760px){
+  .atmosphere-plants,.atmosphere-plant{
+    position:fixed!important;
+    inset:58px 0 66px!important;
+    overflow:hidden!important;
+    pointer-events:none!important;
+    z-index:6!important;
+  }
+  .atmosphere-plants .petal,.atmosphere-plant .petal{display:none!important}
+  .atmosphere-plants .sakura-petal,.atmosphere-plant .sakura-petal{
+    --petal-size:calc(13px + (var(--i) % 6) * 2px);
+    display:block;
+    position:absolute;
+    top:-48px;
+    left:calc((var(--i) * 3.47%) - 3%);
+    width:var(--petal-size);
+    height:calc(var(--petal-size) * 1.25);
+    opacity:0;
+    filter:drop-shadow(0 2px 2px rgba(95,34,73,.22));
+    animation:sakuraPetalFall calc(8.6s + (var(--i) % 8) * 1.05s) linear infinite;
+    animation-delay:calc(var(--i) * -1.11s);
+    will-change:transform,opacity;
+  }
+  .sakura-petal svg{display:block;width:100%;height:100%;overflow:visible}
+  .sakura-petal path:first-child{
+    fill:#f8b7d1;
+    stroke:rgba(255,245,250,.9);
+    stroke-width:.65;
+  }
+  .sakura-petal .sakura-vein{
+    fill:none;
+    stroke:rgba(185,74,125,.36);
+    stroke-width:.8;
+    stroke-linecap:round;
+  }
+  .sakura-petal:nth-child(2n) path:first-child{fill:#ffd3e3}
+  .sakura-petal:nth-child(3n) path:first-child{fill:#f49dc1}
+  .sakura-petal:nth-child(5n){filter:drop-shadow(0 2px 2px rgba(95,34,73,.18)) blur(.12px)}
+  .sakura-petal:nth-child(7n){width:calc(var(--petal-size) * .72);height:calc(var(--petal-size) * .95)}
+}
+@keyframes sakuraPetalFall{
+  0%{transform:translate3d(0,-10vh,0) rotateX(0deg) rotateY(0deg) rotateZ(-20deg);opacity:0}
+  8%{opacity:.9}
+  25%{transform:translate3d(28px,25vh,0) rotateX(80deg) rotateY(35deg) rotateZ(105deg);opacity:.86}
+  50%{transform:translate3d(-18px,52vh,0) rotateX(190deg) rotateY(105deg) rotateZ(225deg);opacity:.78}
+  75%{transform:translate3d(34px,80vh,0) rotateX(310deg) rotateY(170deg) rotateZ(365deg);opacity:.68}
+  100%{transform:translate3d(-12px,114vh,0) rotateX(470deg) rotateY(250deg) rotateZ(520deg);opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .atmosphere-plants .sakura-petal,.atmosphere-plant .sakura-petal{animation:none!important;opacity:.24!important}
+  .atmosphere-plants .sakura-petal:nth-child(n+9),.atmosphere-plant .sakura-petal:nth-child(n+9){display:none!important}
+}

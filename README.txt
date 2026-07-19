@@ -90,3 +90,10 @@ v8.6:
 - Preserved existing tasks and normalized older task formats
 - Added Enter-to-add from the task title field
 - Corrected the service-worker version so the newest JavaScript is loaded instead of an older cached copy
+
+v8.7:
+- Fixed Home tile image uploads in Settings
+- Fixed module banner image uploads in Settings
+- Replaced fragile label-based file pickers with explicit upload buttons
+- Added clearer storage-full errors without losing existing pictures
+- Kept To-do, navigation, Plants, Aquariums and banner features intact

@@ -623,3 +623,19 @@ body.dark .shell.swipe-dragging{
     animation-duration:.01ms!important;
   }
 }
+
+/* LinaHub v8.7 — reliable Settings image pickers */
+.compact-upload{
+  position:relative;
+  z-index:3;
+  pointer-events:auto!important;
+  cursor:pointer;
+}
+input[data-tab-image][hidden],
+input[data-banner-image][hidden]{
+  display:none!important;
+}
+.tab-art-actions{
+  position:relative;
+  z-index:3;
+}

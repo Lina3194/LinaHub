@@ -22,7 +22,8 @@ function SettingsPage(){
             <div class="tab-art-preview">${data.homeImages?.[key]?`<img src="${data.homeImages[key]}" alt="">`:`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`}</div>
             <div class="tab-art-copy"><strong>${label}</strong><label>Emoji<input class="field home-icon-input" data-icon-key="${key}" value="${esc(data.homeIcons?.[key]||"")}"></label></div>
             <div class="tab-art-actions">
-              <label class="secondary compact-upload">Add image<input type="file" accept="image/*" data-tab-image="${key}" hidden></label>
+              <button type="button" class="secondary compact-upload" data-pick-tab-image="${key}">Add image</button>
+              <input type="file" accept="image/*" data-tab-image="${key}" hidden>
               ${data.homeImages?.[key]?`<button class="mini danger" data-remove-tab-image="${key}">Remove</button>`:""}
             </div>
           </article>`).join("")}
@@ -42,7 +43,8 @@ function SettingsPage(){
             <div class="banner-art-preview">${data.moduleBanners?.[key]?`<img src="${data.moduleBanners[key]}" alt="">`:`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`}</div>
             <strong>${label}</strong>
             <div class="tab-art-actions">
-              <label class="secondary compact-upload">Add banner<input type="file" accept="image/*" data-banner-image="${key}" hidden></label>
+              <button type="button" class="secondary compact-upload" data-pick-banner-image="${key}">Add banner</button>
+              <input type="file" accept="image/*" data-banner-image="${key}" hidden>
               ${data.moduleBanners?.[key]?`<button class="mini danger" data-remove-banner-image="${key}">Remove</button>`:""}
             </div>
           </article>`).join("")}
@@ -95,6 +97,17 @@ function bindSimple(){
     });
   }
 
+
+  document.querySelectorAll("[data-pick-tab-image]").forEach(button=>{
+    button.onclick=()=>{
+      const input=document.querySelector(`[data-tab-image="${button.dataset.pickTabImage}"]`);
+      if(input){
+        input.value="";
+        input.click();
+      }
+    };
+  });
+
   document.querySelectorAll("[data-tab-image]").forEach(input=>{
     input.onchange=async e=>{
       const file=e.target.files?.[0];
@@ -103,8 +116,15 @@ function bindSimple(){
       try{
         data.homeImages=data.homeImages||{};
         data.homeImages[input.dataset.tabImage]=await resizeTabImage(file);
-        saveData();toast("Tab picture added 🌸");render();
-      }catch{toast("That picture could not be added")}
+        try{
+          saveData();
+          toast("Tab picture added 🌸");
+          render();
+        }catch(error){
+          delete data.homeImages[input.dataset.tabImage];
+          toast("Storage is full — remove an older picture first");
+        }
+      }catch(error){toast("That picture could not be added")}
     };
   });
   document.querySelectorAll("[data-remove-tab-image]").forEach(button=>{
@@ -138,6 +158,17 @@ function bindSimple(){
     });
   }
 
+
+  document.querySelectorAll("[data-pick-banner-image]").forEach(button=>{
+    button.onclick=()=>{
+      const input=document.querySelector(`[data-banner-image="${button.dataset.pickBannerImage}"]`);
+      if(input){
+        input.value="";
+        input.click();
+      }
+    };
+  });
+
   document.querySelectorAll("[data-banner-image]").forEach(input=>{
     input.onchange=async e=>{
       const file=e.target.files?.[0];
@@ -146,8 +177,15 @@ function bindSimple(){
       try{
         data.moduleBanners=data.moduleBanners||{};
         data.moduleBanners[input.dataset.bannerImage]=await resizeBannerImage(file);
-        saveData();toast("Banner picture added 🌙");render();
-      }catch{toast("That banner could not be added")}
+        try{
+          saveData();
+          toast("Banner picture added 🌙");
+          render();
+        }catch(error){
+          delete data.moduleBanners[input.dataset.bannerImage];
+          toast("Storage is full — remove an older picture first");
+        }
+      }catch(error){toast("That banner could not be added")}
     };
   });
   document.querySelectorAll("[data-remove-banner-image]").forEach(button=>{

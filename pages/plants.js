@@ -1,17 +1,23 @@
 
 function PlantsPage(){
-  return shell(`${head("Plants","Your plant family")}
-    <div class="stack">
+  return shell(`${head("Plants","Your enchanted plant family")}
+    <section class="plant-garden-hero card">
+      <div>
+        <span class="section-kicker">🌸 Enchanted garden</span>
+        <h1>My plants</h1>
+        <p>A little home for watering, photos and care notes.</p>
+      </div>
+      <div class="blossom-branch" aria-hidden="true"><span>🌸</span><span>🌸</span><span>🌸</span></div>
+    </section>
+    <div class="plant-tile-grid">
       ${data.plants.map(p=>`
-        <button class="plant-card" data-plant="${esc(p.id)}">
-          <div class="plant-thumb">${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div>
-          <div><h2>${esc(p.name)}</h2><p>${p.lastWatered?`Last watered ${esc(formatDate(p.lastWatered))}`:"Not watered yet"}</p></div>
-          <span class="plant-arrow">›</span>
+        <button class="plant-tile" data-plant="${esc(p.id)}">
+          <div class="plant-tile-art">${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div>
+          <div class="plant-tile-copy"><h2>${esc(p.name)}</h2><p>${p.lastWatered?`Watered ${esc(formatDate(p.lastWatered))}`:"Not watered yet"}</p></div>
         </button>`).join("")}
     </div>
   `,"plants");
 }
-
 function PlantProfilePage(){
   const p=data.plants.find(x=>x.id===routeId);
   if(!p) return PlantsPage();

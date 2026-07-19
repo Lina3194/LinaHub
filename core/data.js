@@ -14,6 +14,7 @@ const DEFAULT_DATA={
     pokemon:"🔴",pets:"🐠",house:"🏡",settings:"⚙️"
   },
   homeImages:{},
+  moduleBanners:{},
   checkinHidden:[],
   pokemonFriends:structuredClone(POKEMON_FRIEND_SEED),
   pokemonSeededVersion:2,

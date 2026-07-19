@@ -31,6 +31,26 @@ function SettingsPage(){
       <p class="settings-note">Pictures are resized before being saved so LinaHub stays fast. They are included in your LinaHub backup.</p>
     </section>
     <section class="card">
+      <h2>Module banner pictures</h2>
+      <p>Add a wide banner to the top of each section. These are separate from the square Home tab pictures.</p>
+      <div class="banner-art-grid">
+        ${[
+          ["journal","Daily Check-in"],["today","Today"],["todo","To-do"],["health","Weight & Measures"],
+          ["plants","Plants"],["medication","Medication"],["pokemon","Pokémon GO"],["pets","Aquariums"],["house","House"]
+        ].map(([key,label])=>`
+          <article class="banner-art-setting">
+            <div class="banner-art-preview">${data.moduleBanners?.[key]?`<img src="${data.moduleBanners[key]}" alt="">`:`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`}</div>
+            <strong>${label}</strong>
+            <div class="tab-art-actions">
+              <label class="secondary compact-upload">Add banner<input type="file" accept="image/*" data-banner-image="${key}" hidden></label>
+              ${data.moduleBanners?.[key]?`<button class="mini danger" data-remove-banner-image="${key}">Remove</button>`:""}
+            </div>
+          </article>`).join("")}
+      </div>
+      <p class="settings-note">Banner images are resized before saving and are included in your backup.</p>
+    </section>
+
+    <section class="card">
       <h2>Backup</h2>
       <p>Your entries use the permanent storage key <strong>linahub-data</strong>.</p>
       <button class="primary" id="exportData">Export backup</button>
@@ -91,6 +111,49 @@ function bindSimple(){
     button.onclick=()=>{
       if(data.homeImages) delete data.homeImages[button.dataset.removeTabImage];
       saveData();toast("Picture removed");render();
+    };
+  });
+
+
+  function resizeBannerImage(file){
+    return new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onerror=()=>reject(new Error("Could not read image"));
+      reader.onload=()=>{
+        const img=new Image();
+        img.onerror=()=>reject(new Error("Could not open image"));
+        img.onload=()=>{
+          const width=1200,height=420;
+          const scale=Math.max(width/img.width,height/img.height);
+          const drawW=img.width*scale,drawH=img.height*scale;
+          const canvas=document.createElement("canvas");
+          canvas.width=width;canvas.height=height;
+          const ctx=canvas.getContext("2d");
+          ctx.drawImage(img,(width-drawW)/2,(height-drawH)/2,drawW,drawH);
+          resolve(canvas.toDataURL("image/jpeg",0.78));
+        };
+        img.src=reader.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  document.querySelectorAll("[data-banner-image]").forEach(input=>{
+    input.onchange=async e=>{
+      const file=e.target.files?.[0];
+      if(!file) return;
+      if(!file.type.startsWith("image/")){toast("Choose an image file");return}
+      try{
+        data.moduleBanners=data.moduleBanners||{};
+        data.moduleBanners[input.dataset.bannerImage]=await resizeBannerImage(file);
+        saveData();toast("Banner picture added 🌙");render();
+      }catch{toast("That banner could not be added")}
+    };
+  });
+  document.querySelectorAll("[data-remove-banner-image]").forEach(button=>{
+    button.onclick=()=>{
+      if(data.moduleBanners) delete data.moduleBanners[button.dataset.removeBannerImage];
+      saveData();toast("Banner removed");render();
     };
   });
 

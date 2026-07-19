@@ -60,3 +60,10 @@ v8.2:
 - Made dark-mode tiles lighter than the background for stronger contrast
 - Kept Sakura light mode unchanged
 - Kept all features, data, Journal layout fix, Plants petals and Aquarium bubbles
+
+v8.3:
+- Fixed Aquariums opening reliably and restored cached aquarium assets/bubbles
+- Added true navigation history and left-edge swipe back
+- Redesigned Plants as two-column Home-style tiles
+- Added a Plants hero with cherry blossom decoration and falling petals
+- Added uploadable wide banner pictures for each module

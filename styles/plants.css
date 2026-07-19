@@ -17,3 +17,29 @@
 .history-list{display:grid;gap:8px;margin-top:10px}
 .history-row{display:flex;gap:10px;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:15px;background:#fffafd}
 body.dark .plant-card,body.dark .history-row{background:#10121d;color:var(--ink)}
+
+.plant-garden-hero{
+  min-height:170px;display:grid;grid-template-columns:1fr auto;align-items:center;
+  background:
+    radial-gradient(circle at 88% 20%,rgba(255,255,255,.7),transparent 24%),
+    linear-gradient(145deg,rgba(255,244,250,.91),rgba(228,214,250,.88),rgba(216,241,231,.83))!important;
+}
+.plant-garden-hero h1{margin:5px 0 8px}
+.blossom-branch{display:flex;align-items:center;gap:2px;font-size:1.65rem;transform:rotate(-10deg);filter:drop-shadow(0 5px 9px rgba(197,91,143,.2))}
+.blossom-branch span:nth-child(2){font-size:2.35rem;transform:translateY(-12px)}
+.plant-tile-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.plant-tile{
+  min-width:0;border:1px solid var(--line);border-radius:25px;padding:0;overflow:hidden;
+  text-align:left;color:var(--ink);background:var(--card);box-shadow:var(--shadow);
+}
+.plant-tile-art{aspect-ratio:1.18/1;display:grid;place-items:center;overflow:hidden;font-size:3rem;background:linear-gradient(145deg,rgba(255,236,246,.9),rgba(220,236,225,.9))}
+.plant-tile-art img{width:100%;height:100%;object-fit:cover}
+.plant-tile-copy{padding:13px}
+.plant-tile-copy h2{margin:0 0 5px}
+.plant-tile-copy p{margin:0;font-size:.78rem;line-height:1.35}
+body.dark .plant-garden-hero{
+  background:linear-gradient(145deg,rgba(64,43,83,.94),rgba(38,42,75,.91),rgba(27,60,58,.88))!important;
+}
+body.dark .plant-tile{background:linear-gradient(145deg,rgba(56,45,89,.96),rgba(35,31,65,.94))}
+body.dark .plant-tile-art{background:linear-gradient(145deg,rgba(91,55,91,.72),rgba(38,69,65,.76))}
+@media(max-width:360px){.plant-tile-grid{grid-template-columns:1fr}}

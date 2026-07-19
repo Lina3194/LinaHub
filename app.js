@@ -29,7 +29,19 @@ function render(){
   atmosphere.setAttribute("aria-hidden","true");
 
   if(route==="plants"||route==="plant"){
-    atmosphere.innerHTML=Array.from({length:36},(_,i)=>`<i class="sakura-petal" style="--i:${i}" aria-hidden="true"><svg viewBox="0 0 24 30" focusable="false"><path fill="#f8b7d1" stroke="#fff4fa" stroke-width="0.65" d="M12 29C8.6 24.3 2.2 21.2 1.4 13.9C.8 8.8 3.8 3.7 8.2 2.2C10.5 1.4 11.8 3.2 12 6.1C12.2 3.2 13.5 1.4 15.8 2.2C20.2 3.7 23.2 8.8 22.6 13.9C21.8 21.2 15.4 24.3 12 29Z"/><path class="sakura-vein" fill="none" stroke="#b94a7d" stroke-opacity=".4" stroke-width=".8" stroke-linecap="round" d="M12 27C11.7 20.8 11.8 14.8 12 8.2"/></svg></i>`).join("");
+    // Use real numeric values here. CSS cannot reliably calculate modulo or multiplication
+    // from --i on Safari/iOS, which was leaving the petals without a usable size/position.
+    atmosphere.innerHTML=Array.from({length:26},(_,i)=>{
+      const x=(3+(i*17)%94).toFixed(1);
+      const size=10+(i%6)*2;
+      const duration=(9+(i%7)*1.15).toFixed(2);
+      const delay=(-((i*1.37)%15)).toFixed(2);
+      const drift=(18+(i%5)*8)*(i%2===0?1:-1);
+      const driftBack=(-drift*0.55).toFixed(1);
+      const driftEnd=(drift*0.35).toFixed(1);
+      const opacity=(0.58+(i%4)*0.09).toFixed(2);
+      return `<i class="sakura-petal" style="--x:${x}%;--petal-size:${size}px;--fall-duration:${duration}s;--fall-delay:${delay}s;--drift:${drift}px;--drift-back:${driftBack}px;--drift-end:${driftEnd}px;--petal-opacity:${opacity}" aria-hidden="true"><svg viewBox="0 0 24 30" focusable="false"><path d="M12 29C8.6 24.3 2.2 21.2 1.4 13.9C.8 8.8 3.8 3.7 8.2 2.2C10.5 1.4 11.8 3.2 12 6.1C12.2 3.2 13.5 1.4 15.8 2.2C20.2 3.7 23.2 8.8 22.6 13.9C21.8 21.2 15.4 24.3 12 29Z"/><path class="sakura-vein" d="M12 27C11.7 20.8 11.8 14.8 12 8.2"/></svg></i>`;
+    }).join("");
   }else if(route==="pets"||route==="tank"){
     atmosphere.innerHTML=Array.from({length:16},(_,i)=>`<i class="aqua-bubble" style="--i:${i}"></i>`).join("");
   }
@@ -230,7 +242,7 @@ setupSwipeBack();
 
 if("serviceWorker" in navigator){
   window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("./sw.js?v=142").catch(()=>{});
+    navigator.serviceWorker.register("./sw.js?v=145").catch(()=>{});
   });
 }
 

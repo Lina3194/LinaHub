@@ -1,3 +1,9 @@
-LinaHub v14.4 — Guaranteed Cherry Blossom Petals
+LinaHub v14.5
 
-Includes all v14.3 features. Fixes the Plants decoration so individual sakura petals remain visible and falling on mobile, including devices with Reduce Motion enabled.
+Includes everything from v14.4.
+
+Fixes:
+- Cherry-blossom petals now use real numeric positions, sizes and timings generated in JavaScript, avoiding unsupported Safari CSS calculations.
+- Repairs horizontal page overflow on phone and laptop.
+- Keeps health cards, date fields and the “Time added automatically” badge inside the page width.
+- New service-worker/cache version for GitHub Pages/PWA updates.

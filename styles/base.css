@@ -923,3 +923,64 @@ body.swipe-back-active .bottom{pointer-events:none}
     opacity:.72!important;
   }
 }
+
+
+/* v14.5 — reliable mobile sakura + global mobile overflow repair */
+html,body{width:100%;max-width:100%;overflow-x:hidden}
+#app,.shell{width:100%;max-width:100%;min-width:0}
+.shell>*{min-width:0;max-width:100%}
+input,select,textarea,button{min-width:0;max-width:100%}
+
+@media (max-width:760px){
+  body[data-route="plants"] .route-atmosphere.atmosphere-plants,
+  body[data-route="plant"] .route-atmosphere.atmosphere-plant{
+    display:block!important;
+    position:fixed!important;
+    inset:0!important;
+    width:100%!important;
+    max-width:100vw!important;
+    overflow:hidden!important;
+    pointer-events:none!important;
+    z-index:8!important;
+  }
+  body[data-route="plants"] .sakura-petal,
+  body[data-route="plant"] .sakura-petal{
+    display:block!important;
+    visibility:visible!important;
+    position:absolute!important;
+    top:-42px!important;
+    left:var(--x)!important;
+    width:var(--petal-size)!important;
+    height:calc(var(--petal-size) * 1.28)!important;
+    opacity:var(--petal-opacity)!important;
+    filter:drop-shadow(0 2px 2px rgba(91,34,70,.24));
+    animation:v145SakuraFall var(--fall-duration) linear var(--fall-delay) infinite!important;
+    will-change:transform,opacity;
+  }
+  body[data-route="plants"] .sakura-petal svg,
+  body[data-route="plant"] .sakura-petal svg{display:block!important;width:100%!important;height:100%!important;overflow:visible!important}
+  body[data-route="plants"] .sakura-petal path:first-child,
+  body[data-route="plant"] .sakura-petal path:first-child{fill:#f7a8c8!important;stroke:#fff2f8!important;stroke-width:.75!important}
+  body[data-route="plants"] .sakura-petal:nth-child(2n) path:first-child,
+  body[data-route="plant"] .sakura-petal:nth-child(2n) path:first-child{fill:#ffd0e1!important}
+  body[data-route="plants"] .sakura-petal:nth-child(3n) path:first-child,
+  body[data-route="plant"] .sakura-petal:nth-child(3n) path:first-child{fill:#ee89b3!important}
+  body[data-route="plants"] .sakura-vein,
+  body[data-route="plant"] .sakura-vein{fill:none!important;stroke:#a83f70!important;stroke-opacity:.42!important;stroke-width:.8!important;stroke-linecap:round!important}
+
+  .section-title{display:grid!important;grid-template-columns:minmax(0,1fr);gap:8px;padding-top:0!important}
+  .section-title .live-time{position:static!important;justify-self:start;white-space:normal!important;max-width:100%;overflow-wrap:anywhere}
+  .health-input-stack,.two-col{min-width:0}
+  .field,.date-field{width:100%!important;max-width:100%!important}
+}
+@keyframes v145SakuraFall{
+  0%{transform:translate3d(0,-8vh,0) rotate(-24deg) scale(.82);opacity:0}
+  8%{opacity:var(--petal-opacity)}
+  32%{transform:translate3d(var(--drift),32vh,0) rotate(145deg) scale(1)}
+  62%{transform:translate3d(var(--drift-back),64vh,0) rotate(325deg) scale(.9);opacity:var(--petal-opacity)}
+  100%{transform:translate3d(var(--drift-end),112vh,0) rotate(565deg) scale(.82);opacity:0}
+}
+@media (max-width:760px) and (prefers-reduced-motion:reduce){
+  body[data-route="plants"] .sakura-petal,
+  body[data-route="plant"] .sakura-petal{animation-duration:18s!important}
+}

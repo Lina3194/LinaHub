@@ -41,11 +41,11 @@ function JournalPage(){
   return shell(`${head("Today’s Check-in",niceDate())}
     <section class="card filter-card">
       <div class="layout-toolbar">
-        <button class="collapse-title" id="toggleJournalControls">
+        <button type="button" class="collapse-title" id="toggleJournalControls">
           <span><h2>Journal view</h2><p style="margin:4px 0">${data.journalControlsCollapsed?"Tap to show layout controls":"Choose what you want to see today."}</p></span>
           <b>${data.journalControlsCollapsed?"⌄":"⌃"}</b>
         </button>
-        ${data.journalControlsCollapsed?"":`<button class="magic-edit ${data.checkinEditMode?"active":""}" id="toggleEditMode">${data.checkinEditMode?"✓ Done":"🪄 Edit layout"}</button>`}
+        ${data.journalControlsCollapsed?"":`<button type="button" class="magic-edit ${data.checkinEditMode?"active":""}" id="toggleEditMode">${data.checkinEditMode?"✓ Done":"🪄 Edit layout"}</button>`}
       </div>
       ${data.journalControlsCollapsed?"":`<div class="pills">
         <button class="pill ${data.checkinFilter==="all"?"active":""}" data-filter="all">Everything</button>

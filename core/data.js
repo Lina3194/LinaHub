@@ -8,7 +8,7 @@ const DEFAULT_DATA={
   checkins:{},
   checkinLayout:["energy","mood","pain","spoons","water","selfcare","sleep","supports"],
   checkinFilter:"all",
-  journalControlsCollapsed:false,
+  journalControlsCollapsed:true,
   homeIcons:{
     journal:"📖",health:"⚖️",plants:"🌿",medication:"💊",
     pokemon:"🔴",pets:"🐠",house:"🏡",settings:"⚙️"
@@ -26,11 +26,23 @@ const DEFAULT_DATA={
   measurements:[],
   healthPromptLog:{},
   personalTasks:[],
+  houseControlsCollapsed:true,
+  houseOpenRooms:[],
+  houseRooms:[
+    {id:"living-room",name:"Living Room",icon:"🛋️"},
+    {id:"kitchen",name:"Kitchen",icon:"🍳"},
+    {id:"downstairs-wc",name:"Downstairs WC",icon:"🚽"},
+    {id:"garden-patio",name:"Garden / Patio",icon:"🌿"},
+    {id:"main-bedroom",name:"Main Bedroom",icon:"🛏️"},
+    {id:"main-bathroom",name:"Main Bathroom",icon:"🛁"},
+    {id:"study-guest-room",name:"Study / Guest Room",icon:"💻"},
+    {id:"whole-house",name:"Whole House",icon:"🏠"}
+  ],
   houseTasks:[
-    {id:"living-vacuum",room:"Living Room / Kitchen",task:"Vacuum floors",frequency:"Weekly",done:false},
-    {id:"living-dust",room:"Living Room / Kitchen",task:"Dust surfaces and bookcase",frequency:"Weekly",done:false},
-    {id:"living-oven",room:"Living Room / Kitchen",task:"Clean oven",frequency:"Monthly",done:false},
-    {id:"living-washing",room:"Living Room / Kitchen",task:"Laundry",frequency:"Daily / every other day",done:false},
+    {id:"living-vacuum",room:"Living Room",task:"Vacuum floors",frequency:"Weekly",done:false},
+    {id:"living-dust",room:"Living Room",task:"Dust surfaces and bookcase",frequency:"Weekly",done:false},
+    {id:"living-oven",room:"Kitchen",task:"Clean oven",frequency:"Monthly",done:false},
+    {id:"living-washing",room:"Kitchen",task:"Laundry",frequency:"Daily / every other day",done:false},
     {id:"wc-clean",room:"Downstairs WC",task:"Clean toilet and sink",frequency:"Weekly",done:false},
     {id:"garden-tidy",room:"Garden / Patio",task:"Tidy patio",frequency:"Weekly",done:false},
     {id:"bedroom-bedding",room:"Main Bedroom",task:"Change bedding",frequency:"Weekly",done:false},
@@ -85,8 +97,54 @@ function normalizeHouseTaskData(task,index){
     task:String(task?.task||task?.title||"Untitled job"),
     room:String(task?.room||"Whole House"),
     frequency:String(task?.frequency||"As needed"),
+    energy:["Low","Medium","High"].includes(task?.energy)?task.energy:"Medium",
+    priority:[1,2,3].includes(Number(task?.priority))?Number(task.priority):1,
     done:task?.done===true
   };
+}
+
+
+function normalizeHouseRoomData(room,index){
+  if(typeof room==="string"){
+    return {
+      id:room.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||`room-${index}`,
+      name:room,
+      icon:"🏡"
+    };
+  }
+  return {
+    id:String(room?.id||`room-${Date.now()}-${index}`),
+    name:String(room?.name||"Room"),
+    icon:String(room?.icon||"🏡")
+  };
+}
+
+function prepareHouseData(target){
+  target.houseTasks=(Array.isArray(target.houseTasks)?target.houseTasks:DEFAULT_DATA.houseTasks).map(normalizeHouseTaskData);
+  target.houseRooms=(Array.isArray(target.houseRooms)&&target.houseRooms.length?target.houseRooms:DEFAULT_DATA.houseRooms).map(normalizeHouseRoomData);
+
+  const combined=target.houseRooms.find(room=>room.name==="Living Room / Kitchen");
+  if(combined){
+    target.houseRooms=target.houseRooms.filter(room=>room.id!==combined.id);
+    if(!target.houseRooms.some(room=>room.name==="Living Room")) target.houseRooms.unshift({id:"living-room",name:"Living Room",icon:"🛋️"});
+    if(!target.houseRooms.some(room=>room.name==="Kitchen")) target.houseRooms.splice(1,0,{id:"kitchen",name:"Kitchen",icon:"🍳"});
+    target.houseTasks.forEach(task=>{
+      if(task.room!=="Living Room / Kitchen") return;
+      task.room=/oven|hob|fridge|freezer|dish|sink|counter|worktop|kitchen|laundry|washing|bin/i.test(task.task)?"Kitchen":"Living Room";
+    });
+  }
+
+  target.houseTasks.forEach(task=>{
+    if(!target.houseRooms.some(room=>room.name===task.room)){
+      target.houseRooms.push({id:`room-${task.room.toLowerCase().replace(/[^a-z0-9]+/g,"-")||Date.now()}`,name:task.room,icon:"🏡"});
+    }
+  });
+
+  if(!target.houseRooms.some(room=>room.name==="Whole House")) target.houseRooms.push({id:"whole-house",name:"Whole House",icon:"🏠"});
+  if(typeof target.houseControlsCollapsed!=="boolean") target.houseControlsCollapsed=true;
+  if(!Array.isArray(target.houseOpenRooms)) target.houseOpenRooms=[];
+  if(typeof target.journalControlsCollapsed!=="boolean") target.journalControlsCollapsed=true;
+  return target;
 }
 
 function normalizePersonalTask(task,index){
@@ -154,7 +212,7 @@ function migrateLegacy(){
       const migrated={...DEFAULT_DATA,...old,version:5};
       migrated.plants=(old.plants||DEFAULT_DATA.plants).map(normalizePlant);
       migrated.aquariums=(migrated.aquariums||DEFAULT_DATA.aquariums).map(normalizeAquarium);
-      migrated.houseTasks=(Array.isArray(migrated.houseTasks)?migrated.houseTasks:DEFAULT_DATA.houseTasks).map(normalizeHouseTaskData);
+      prepareHouseData(migrated);
       migrated.personalTasks=(Array.isArray(migrated.personalTasks)?migrated.personalTasks:[]).map(normalizePersonalTask);
       migrated.medications=Array.isArray(migrated.medications)?migrated.medications:[];
       if(!migrated.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
@@ -178,7 +236,7 @@ function loadData(){
       const loaded={...DEFAULT_DATA,...JSON.parse(raw)};
       loaded.plants=(loaded.plants||DEFAULT_DATA.plants).map(normalizePlant);
       loaded.aquariums=(loaded.aquariums||DEFAULT_DATA.aquariums).map(normalizeAquarium);
-      loaded.houseTasks=(Array.isArray(loaded.houseTasks)?loaded.houseTasks:DEFAULT_DATA.houseTasks).map(normalizeHouseTaskData);
+      prepareHouseData(loaded);
       loaded.personalTasks=(Array.isArray(loaded.personalTasks)?loaded.personalTasks:[]).map(normalizePersonalTask);
       loaded.medications=Array.isArray(loaded.medications)?loaded.medications:[];
       if(!loaded.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
@@ -197,6 +255,12 @@ function loadData(){
 }
 
 let data=loadData();
+if(!data.v9CollapseDefaultsApplied){
+  data.journalControlsCollapsed=true;
+  data.houseControlsCollapsed=true;
+  data.v9CollapseDefaultsApplied=true;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+}
 function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}
 function today(){return new Date().toISOString().slice(0,10)}
 function niceDate(){return new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}

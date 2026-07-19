@@ -144,3 +144,87 @@ body.dark .house-editor-card{background:#151221}
   .house-job{grid-template-columns:1fr}
   .house-job .item-actions{justify-content:flex-start}
 }
+
+/* LinaHub v9.0 — custom rooms and glass room cards */
+.house-manage-card{overflow:hidden}
+.house-room-manager{display:grid;gap:14px;margin-top:16px}
+.manage-room-list{display:grid;gap:8px}
+.manage-room-row{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  padding:11px 12px;border:1px solid var(--line);border-radius:15px;background:var(--bg);
+}
+.manage-room-row span{font-weight:750}
+.manage-room-row button:disabled{opacity:.35}
+.helper-text{margin:0;color:var(--muted);font-size:.82rem}
+
+.house-room-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:14px;
+  margin-top:16px;
+}
+.house-room-card{
+  min-width:0;
+  border:1px solid var(--line);
+  border-radius:24px;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--card) 92%,white),color-mix(in srgb,var(--purple-soft) 32%,var(--card)));
+  box-shadow:0 14px 38px rgba(81,51,112,.10);
+  overflow:hidden;
+  backdrop-filter:blur(18px);
+  -webkit-backdrop-filter:blur(18px);
+}
+.house-room-card.open{grid-column:1/-1}
+.house-room-tile{
+  width:100%;
+  min-height:112px;
+  display:grid;
+  grid-template-columns:58px 1fr auto;
+  align-items:center;
+  gap:12px;
+  padding:17px;
+  border:0;
+  background:transparent;
+  color:var(--ink);
+  text-align:left;
+}
+.house-room-icon{
+  width:58px;height:58px;border-radius:19px;
+  display:grid;place-items:center;
+  font-size:1.85rem;
+  background:var(--purple-soft);
+  border:1px solid var(--line);
+}
+.house-room-copy{display:grid;gap:5px;min-width:0}
+.house-room-copy strong{font-size:1.04rem}
+.house-room-copy small{color:var(--muted);line-height:1.35}
+.house-room-arrow{font-size:1.3rem;color:var(--purple)}
+.house-room-jobs{
+  display:grid;gap:10px;
+  padding:0 14px 14px;
+  border-top:1px solid var(--line);
+}
+.house-room-jobs>.house-job:first-child{margin-top:14px}
+.empty-room{margin:14px 2px 2px;color:var(--muted);text-align:center}
+
+.priority-picker{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px;
+}
+.priority-choice{
+  min-height:54px;border:1px solid var(--line);border-radius:16px;
+  background:var(--card);color:var(--ink);font-size:.9rem;
+}
+.priority-choice.active{
+  border-color:var(--purple);
+  background:var(--purple-soft);
+  box-shadow:0 0 0 2px color-mix(in srgb,var(--purple) 18%,transparent);
+}
+body.dark .house-room-card{
+  background:linear-gradient(145deg,rgba(47,35,68,.86),rgba(23,18,36,.92));
+  box-shadow:0 16px 42px rgba(0,0,0,.28);
+}
+body.dark .manage-room-row{background:#10121d}
+@media(max-width:560px){
+  .house-room-grid{grid-template-columns:1fr}
+  .house-room-card.open{grid-column:auto}
+  .house-room-tile{min-height:100px;padding:14px}
+}

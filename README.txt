@@ -111,3 +111,13 @@ v8.9:
 - Body data-route is retained only for styling and can no longer hijack normal clicks
 - House room dropdown, Edit modal, image pickers, selects, inputs and regular buttons now work without triggering a route reload
 - Preserved smooth back navigation and all v8.8 House editing features
+
+v9.0:
+- Split Living Room and Kitchen into separate rooms
+- Added unlimited custom House rooms with icons
+- Added room deletion; jobs move safely to Whole House
+- Rebuilt House as glass room cards that open to show their jobs
+- Added Job, Room, Frequency, Energy and Priority when adding jobs
+- Added Energy and Priority to House job editing
+- House room management is collapsed by default
+- Journal view controls are collapsed by default

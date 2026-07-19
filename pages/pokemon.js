@@ -69,6 +69,28 @@ function filteredPokemonFriends(){
     return (!q||text.includes(q))&&(pokemonUi.friendship==="all"||f.friendship===pokemonUi.friendship)&&(pokemonUi.vivillon==="all"||f.vivillon===pokemonUi.vivillon);
   });
 }
+function PokemonFriendResultsMarkup(){
+  const filtered=filteredPokemonFriends();
+  const pages=Math.max(1,Math.ceil(filtered.length/POKE_PAGE_SIZE));
+  pokemonUi.page=Math.min(pokemonUi.page,pages);
+  const shown=filtered.slice((pokemonUi.page-1)*POKE_PAGE_SIZE,pokemonUi.page*POKE_PAGE_SIZE);
+  return {filtered,pages,html:`<p class="poke-results" id="pokeResultsCount">${filtered.length} friend${filtered.length===1?"":"s"} found</p></section>
+      <section class="poke-friend-list" id="pokeFriendResults">${shown.length?shown.map(PokemonFriendCard).join(""):`<section class="card"><p>No friends match those filters.</p></section>`}</section>
+      <div id="pokePagination">${pages>1?`<div class="poke-pagination"><button class="secondary" data-poke-page="${pokemonUi.page-1}" ${pokemonUi.page===1?"disabled":""}>← Previous</button><span>Page ${pokemonUi.page} of ${pages}</span><button class="secondary" data-poke-page="${pokemonUi.page+1}" ${pokemonUi.page===pages?"disabled":""}>Next →</button></div>`:""}</div>`};
+}
+function refreshPokemonFriendResults(){
+  const result=PokemonFriendResultsMarkup();
+  const count=document.querySelector("#pokeResultsCount");
+  const list=document.querySelector("#pokeFriendResults");
+  const pagination=document.querySelector("#pokePagination");
+  if(count)count.textContent=`${result.filtered.length} friend${result.filtered.length===1?"":"s"} found`;
+  if(list){
+    const shown=result.filtered.slice((pokemonUi.page-1)*POKE_PAGE_SIZE,pokemonUi.page*POKE_PAGE_SIZE);
+    list.innerHTML=shown.length?shown.map(PokemonFriendCard).join(""):`<section class="card"><p>No friends match those filters.</p></section>`;
+  }
+  if(pagination)pagination.innerHTML=result.pages>1?`<div class="poke-pagination"><button class="secondary" data-poke-page="${pokemonUi.page-1}" ${pokemonUi.page===1?"disabled":""}>← Previous</button><span>Page ${pokemonUi.page} of ${result.pages}</span><button class="secondary" data-poke-page="${pokemonUi.page+1}" ${pokemonUi.page===result.pages?"disabled":""}>Next →</button></div>`:"";
+  bindPokemonFriendControls();
+}
 function PokemonPage(){
   const friends=data.pokemonFriends||[],filtered=filteredPokemonFriends();
   const pages=Math.max(1,Math.ceil(filtered.length/POKE_PAGE_SIZE));
@@ -102,9 +124,9 @@ function PokemonPage(){
       <input class="field" id="pokeSearch" value="${esc(pokemonUi.search)}" placeholder="Search trainer, country or Vivillon">
       <div class="two-col"><select class="field" id="pokeFriendshipFilter"><option value="all">All friendship levels</option>${FRIENDSHIP_LEVELS.map(x=>`<option value="${x}" ${pokemonUi.friendship===x?"selected":""}>${x}</option>`).join("")}</select>
       <select class="field" id="pokeVivillonFilter"><option value="all">All Vivillon patterns</option>${vivillons.map(x=>`<option value="${esc(x)}" ${pokemonUi.vivillon===x?"selected":""}>${esc(x)} (${vivCounts[x]})</option>`).join("")}</select></div>
-      <p class="poke-results">${filtered.length} friend${filtered.length===1?"":"s"} found</p></section>
-      <section class="poke-friend-list">${shown.length?shown.map(PokemonFriendCard).join(""):`<section class="card"><p>No friends match those filters.</p></section>`}</section>
-      ${pages>1?`<div class="poke-pagination"><button class="secondary" data-poke-page="${pokemonUi.page-1}" ${pokemonUi.page===1?"disabled":""}>← Previous</button><span>Page ${pokemonUi.page} of ${pages}</span><button class="secondary" data-poke-page="${pokemonUi.page+1}" ${pokemonUi.page===pages?"disabled":""}>Next →</button></div>`:""}`:""}
+      <p class="poke-results" id="pokeResultsCount">${filtered.length} friend${filtered.length===1?"":"s"} found</p></section>
+      <section class="poke-friend-list" id="pokeFriendResults">${shown.length?shown.map(PokemonFriendCard).join(""):`<section class="card"><p>No friends match those filters.</p></section>`}</section>
+      <div id="pokePagination">${pages>1?`<div class="poke-pagination"><button class="secondary" data-poke-page="${pokemonUi.page-1}" ${pokemonUi.page===1?"disabled":""}>← Previous</button><span>Page ${pokemonUi.page} of ${pages}</span><button class="secondary" data-poke-page="${pokemonUi.page+1}" ${pokemonUi.page===pages?"disabled":""}>Next →</button></div>`:""}</div>`:""}
     ${pokemonUi.view==="vivillon"?`<section class="card"><h2>🦋 Vivillon collection</h2><div class="vivillon-grid">${Object.entries(vivCounts).sort((a,b)=>b[1]-a[1]).map(([name,count])=>`<button class="vivillon-tile" data-vivillon-jump="${esc(name)}"><strong>${count}</strong><span>${esc(name)}</span></button>`).join("")}</div></section>`:""}
 
     ${pokemonUi.view==="import"?`<section class="card"><h2>📥 Import Excel tracker</h2><p class="muted">Choose an .xlsx file with a sheet named <b>Friends</b>. Every populated trainer row is read automatically—there is no row limit.</p><label class="excel-import-drop"><span>📄 Choose Excel file</span><small>.xlsx only</small><input id="pokemonExcelImport" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label><div class="import-options"><label><input type="radio" name="pokeImportMode" value="merge" checked><span><b>Merge safely</b><small>Add new trainers and update details while keeping gift totals.</small></span></label><label><input type="radio" name="pokeImportMode" value="replace"><span><b>Replace list</b><small>Replace all friends, preserving gift totals for matching trainer names.</small></span></label></div><div id="pokemonImportPreview"></div></section>`:""}
@@ -134,9 +156,19 @@ function PokemonFriendCard(f){
 function excelCellDate(v){if(!v)return"";if(v instanceof Date&&!isNaN(v))return v.toISOString().slice(0,10);if(typeof v==="number"){const d=new Date(Date.UTC(1899,11,30)+v*86400000);return isNaN(d)?"":d.toISOString().slice(0,10)}const d=new Date(String(v).trim());return isNaN(d)?"":d.toISOString().slice(0,10)}
 function importPokemonWorkbook(file){if(typeof XLSX==="undefined"){toast("Excel importer could not load");return}const r=new FileReader();r.onload=e=>{try{const wb=XLSX.read(e.target.result,{type:"array",cellDates:true}),sheet=wb.Sheets["Friends"];if(!sheet){toast('No sheet named "Friends" found');return}const rows=XLSX.utils.sheet_to_json(sheet,{header:1,defval:"",raw:true}).slice(1).filter(x=>String(x[0]??"").trim()),seen=new Set(),clean=[];rows.forEach(x=>{const k=String(x[0]).trim().toLowerCase();if(k&&!seen.has(k)){seen.add(k);clean.push(x)}});const box=document.querySelector("#pokemonImportPreview");box.innerHTML=`<div class="import-preview"><strong>${clean.length} unique trainers found</strong><span>${rows.length-clean.length} duplicate rows ignored</span><button class="primary" id="confirmPokemonImport">Import now</button></div>`;document.querySelector("#confirmPokemonImport").onclick=()=>{const mode=document.querySelector('input[name="pokeImportMode"]:checked')?.value||"merge",old=new Map((data.pokemonFriends||[]).map(f=>[(f.name||"").trim().toLowerCase(),f])),imported=clean.map((x,i)=>{const name=String(x[0]).trim(),base=old.get(name.toLowerCase())||{};return normalizePokemonFriend({...base,id:base.id||`poke-import-${Date.now()}-${i}`,name,friendship:String(x[1]||base.friendship||"Good Friend").trim(),vivillon:String(x[2]||base.vivillon||"Unknown").trim(),country:String(x[3]||base.country||"").trim(),lastGiftReceived:excelCellDate(x[4])||base.lastGiftReceived||"",lastGiftSent:excelCellDate(x[5])||base.lastGiftSent||"",lastInteraction:excelCellDate(x[6])||base.lastInteraction||"",notes:String(x[9]||base.notes||"").trim(),giftsReceived:Number(base.giftsReceived)||0,giftsSent:Number(base.giftsSent)||0},i)});if(mode==="replace")data.pokemonFriends=imported;else{const im=new Map(imported.map(f=>[f.name.trim().toLowerCase(),f]));data.pokemonFriends=(data.pokemonFriends||[]).map(f=>im.get(f.name.trim().toLowerCase())||f);const names=new Set(data.pokemonFriends.map(f=>f.name.trim().toLowerCase()));imported.forEach(f=>{if(!names.has(f.name.trim().toLowerCase()))data.pokemonFriends.push(f)})}data.pokemonSeededVersion=2;saveData();pokemonUi.view="friends";pokemonUi.page=1;render();toast(`${clean.length} trainers imported ✨`)}}catch(err){console.error(err);toast("That Excel file could not be imported")}};r.readAsArrayBuffer(file)}
 
-function bindPokemon(){
-  document.querySelectorAll("[data-poke-view]").forEach(b=>b.onclick=()=>{pokemonUi.view=b.dataset.pokeView;pokemonUi.editing=null;render()});
+function bindPokemonFriendControls(){
   document.querySelectorAll("[data-open-friend-card]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=b.dataset.openFriendCard;render()});
+  document.querySelectorAll("[data-poke-page]").forEach(b=>b.onclick=()=>{pokemonUi.page=Number(b.dataset.pokePage);refreshPokemonFriendResults();document.querySelector("#pokeSearch")?.scrollIntoView({block:"nearest"})});
+  document.querySelectorAll("[data-gift-sent]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.giftSent,"sent"));
+  document.querySelectorAll("[data-gift-received]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.giftReceived,"received"));
+  document.querySelectorAll("[data-poke-edit]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=null;pokemonUi.editing=b.dataset.pokeEdit;render()});
+  document.querySelectorAll("[data-poke-cancel]").forEach(b=>b.onclick=()=>{pokemonUi.editing=null;render()});
+  document.querySelectorAll("[data-poke-save]").forEach(b=>b.onclick=()=>{const card=b.closest(".poke-friend-card"),f=data.pokemonFriends.find(x=>x.id===b.dataset.pokeSave);if(!f||!card)return;card.querySelectorAll("[data-edit-field]").forEach(i=>f[i.dataset.editField]=i.value.trim());saveData();pokemonUi.editing=null;render();toast("Friend updated ✨")});
+  document.querySelectorAll("[data-poke-delete]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.pokeDelete);if(!f||!confirm(`Delete ${f.name}?`))return;data.pokemonFriends=data.pokemonFriends.filter(x=>x.id!==f.id);saveData();pokemonUi.editing=null;render()});
+}
+function bindPokemon(){
+  bindPokemonFriendControls();
+  document.querySelectorAll("[data-poke-view]").forEach(b=>b.onclick=()=>{pokemonUi.view=b.dataset.pokeView;pokemonUi.editing=null;render()});
   document.querySelectorAll("[data-close-friend-card]").forEach(b=>b.onclick=e=>{if(e.target===b||b.classList.contains("poke-detail-close")){pokemonUi.openCard=null;render()}});
   document.querySelectorAll("[data-detail-gift-sent]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.detailGiftSent,"sent",document.querySelector("#detailGiftDate")?.value||today()));
   document.querySelectorAll("[data-detail-gift-received]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.detailGiftReceived,"received",document.querySelector("#detailGiftDate")?.value||today()));
@@ -146,31 +178,12 @@ function bindPokemon(){
   document.querySelector("#pokeSearch")?.addEventListener("input",e=>{
     pokemonUi.search=e.target.value;
     pokemonUi.page=1;
-    const cursor=e.target.selectionStart??e.target.value.length;
-    const scrollX=window.scrollX,scrollY=window.scrollY;
     clearTimeout(pokemonSearchTimer);
-    pokemonSearchTimer=setTimeout(()=>{
-      render();
-      requestAnimationFrame(()=>{
-        const i=document.querySelector("#pokeSearch");
-        if(i){
-          i.focus({preventScroll:true});
-          i.setSelectionRange(Math.min(cursor,i.value.length),Math.min(cursor,i.value.length));
-        }
-        window.scrollTo(scrollX,scrollY);
-      });
-    },140);
+    pokemonSearchTimer=setTimeout(refreshPokemonFriendResults,90);
   });
   document.querySelector("#pokeFriendshipFilter")?.addEventListener("change",e=>{pokemonUi.friendship=e.target.value;pokemonUi.page=1;saveData();render()});
   document.querySelector("#pokeVivillonFilter")?.addEventListener("change",e=>{pokemonUi.vivillon=e.target.value;pokemonUi.page=1;saveData();render()});
-  document.querySelectorAll("[data-poke-page]").forEach(b=>b.onclick=()=>{pokemonUi.page=Number(b.dataset.pokePage);render()});
   document.querySelector("#addPokemonFriend")?.addEventListener("click",()=>{const name=document.querySelector("#pokeName").value.trim();if(!name){toast("Add a trainer name");return}data.pokemonFriends.unshift(normalizePokemonFriend({id:`poke-${Date.now()}`,name,nickname:document.querySelector("#pokeNickname").value.trim(),friendship:document.querySelector("#pokeFriendship").value,vivillon:document.querySelector("#pokeVivillon").value,country:document.querySelector("#pokeCountry").value.trim(),notes:document.querySelector("#pokeNotes").value.trim()},0));saveData();pokemonUi.view="friends";pokemonUi.page=1;render();toast("Friend added 🎉")});
-  document.querySelectorAll("[data-gift-sent]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.giftSent,"sent"));
-  document.querySelectorAll("[data-gift-received]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.giftReceived,"received"));
-  document.querySelectorAll("[data-poke-edit]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=null;pokemonUi.editing=b.dataset.pokeEdit;render()});
-  document.querySelectorAll("[data-poke-cancel]").forEach(b=>b.onclick=()=>{pokemonUi.editing=null;render()});
-  document.querySelectorAll("[data-poke-save]").forEach(b=>b.onclick=()=>{const card=b.closest(".poke-friend-card"),f=data.pokemonFriends.find(x=>x.id===b.dataset.pokeSave);if(!f||!card)return;card.querySelectorAll("[data-edit-field]").forEach(i=>f[i.dataset.editField]=i.value.trim());saveData();pokemonUi.editing=null;render();toast("Friend updated ✨")});
-  document.querySelectorAll("[data-poke-delete]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.pokeDelete);if(!f||!confirm(`Delete ${f.name}?`))return;data.pokemonFriends=data.pokemonFriends.filter(x=>x.id!==f.id);saveData();pokemonUi.editing=null;render()});
   document.querySelectorAll("[data-vivillon-jump]").forEach(b=>b.onclick=()=>{pokemonUi.vivillon=b.dataset.vivillonJump;pokemonUi.friendship="all";pokemonUi.search="";pokemonUi.page=1;pokemonUi.view="friends";render()});
   document.querySelectorAll("[data-friendship-jump]").forEach(b=>b.onclick=()=>{pokemonUi.friendship=b.dataset.friendshipJump;pokemonUi.vivillon="all";pokemonUi.search="";pokemonUi.page=1;pokemonUi.view="friends";render()});
 }

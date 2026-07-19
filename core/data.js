@@ -78,6 +78,17 @@ const DEFAULT_DATA={
 
 
 
+
+function normalizeHouseTaskData(task,index){
+  return {
+    id:String(task?.id||`house-${Date.now()}-${index}`),
+    task:String(task?.task||task?.title||"Untitled job"),
+    room:String(task?.room||"Whole House"),
+    frequency:String(task?.frequency||"As needed"),
+    done:task?.done===true
+  };
+}
+
 function normalizePersonalTask(task,index){
   const deadline=task?.deadline||task?.date||"";
   return {
@@ -143,6 +154,7 @@ function migrateLegacy(){
       const migrated={...DEFAULT_DATA,...old,version:5};
       migrated.plants=(old.plants||DEFAULT_DATA.plants).map(normalizePlant);
       migrated.aquariums=(migrated.aquariums||DEFAULT_DATA.aquariums).map(normalizeAquarium);
+      migrated.houseTasks=(Array.isArray(migrated.houseTasks)?migrated.houseTasks:DEFAULT_DATA.houseTasks).map(normalizeHouseTaskData);
       migrated.personalTasks=(Array.isArray(migrated.personalTasks)?migrated.personalTasks:[]).map(normalizePersonalTask);
       migrated.medications=Array.isArray(migrated.medications)?migrated.medications:[];
       if(!migrated.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
@@ -166,6 +178,7 @@ function loadData(){
       const loaded={...DEFAULT_DATA,...JSON.parse(raw)};
       loaded.plants=(loaded.plants||DEFAULT_DATA.plants).map(normalizePlant);
       loaded.aquariums=(loaded.aquariums||DEFAULT_DATA.aquariums).map(normalizeAquarium);
+      loaded.houseTasks=(Array.isArray(loaded.houseTasks)?loaded.houseTasks:DEFAULT_DATA.houseTasks).map(normalizeHouseTaskData);
       loaded.personalTasks=(Array.isArray(loaded.personalTasks)?loaded.personalTasks:[]).map(normalizePersonalTask);
       loaded.medications=Array.isArray(loaded.medications)?loaded.medications:[];
       if(!loaded.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){

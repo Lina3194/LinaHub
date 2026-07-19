@@ -97,3 +97,10 @@ v8.7:
 - Replaced fragile label-based file pickers with explicit upload buttons
 - Added clearer storage-full errors without losing existing pictures
 - Kept To-do, navigation, Plants, Aquariums and banner features intact
+
+v8.8:
+- Added Edit to every House job
+- Jobs can now be moved between rooms from the Edit window
+- Job name and frequency can also be changed
+- House actions now use stable task IDs instead of fragile list positions
+- Existing House jobs are preserved and normalized

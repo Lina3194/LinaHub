@@ -66,9 +66,7 @@ function filteredPokemonFriends(){
   const q=pokemonUi.search.trim().toLowerCase();
   return (data.pokemonFriends||[]).filter(f=>{
     const text=[f.name,f.nickname,f.country,f.vivillon].join(" ").toLowerCase();
-    const quick=data.pokemonQuickFilter||"";const d=pokeDaysSince(f.lastInteraction);
-    const quickOk=!quick||(quick==="sentToday"?(f.giftSentDates||[]).includes(today()):quick==="receivedToday"?(f.giftReceivedDates||[]).includes(today()):quick==="inactive"?(d===null||d>=14):true);
-    return quickOk&&(!q||text.includes(q))&&(pokemonUi.friendship==="all"||f.friendship===pokemonUi.friendship)&&(pokemonUi.vivillon==="all"||f.vivillon===pokemonUi.vivillon);
+    return (!q||text.includes(q))&&(pokemonUi.friendship==="all"||f.friendship===pokemonUi.friendship)&&(pokemonUi.vivillon==="all"||f.vivillon===pokemonUi.vivillon);
   });
 }
 function PokemonPage(){
@@ -77,8 +75,6 @@ function PokemonPage(){
   pokemonUi.page=Math.min(pokemonUi.page,pages);
   const shown=filtered.slice((pokemonUi.page-1)*POKE_PAGE_SIZE,pokemonUi.page*POKE_PAGE_SIZE);
   const sent=friends.reduce((n,f)=>n+(Number(f.giftsSent)||0),0),received=friends.reduce((n,f)=>n+(Number(f.giftsReceived)||0),0);
-  const sentToday=friends.filter(f=>(f.giftSentDates||[]).includes(today())).length,receivedToday=friends.filter(f=>(f.giftReceivedDates||[]).includes(today())).length;
-  const inactive14=friends.filter(f=>{const d=pokeDaysSince(f.lastInteraction);return d===null||d>=14}).length;
   const vivCounts={},friendshipCounts={};
   friends.forEach(f=>{const v=f.vivillon||"Unknown";vivCounts[v]=(vivCounts[v]||0)+1;friendshipCounts[f.friendship]=(friendshipCounts[f.friendship]||0)+1});
   const vivillons=Object.keys(vivCounts).sort((a,b)=>a.localeCompare(b));
@@ -90,7 +86,6 @@ function PokemonPage(){
       <div class="metric-card"><span>Gifts received</span><strong>${received}</strong></div>
       <div class="metric-card"><span>Vivillon patterns</span><strong>${Object.keys(vivCounts).filter(v=>v!=="Unknown").length}</strong></div>
     </div></section>
-    <section class="card poke-today-panel"><div><span class="section-kicker">Today’s gifts</span><h2>Daily check-in</h2></div><div class="poke-today-grid"><button data-poke-today-filter="sent"><strong>${sentToday}</strong><span>sent today</span></button><button data-poke-today-filter="received"><strong>${receivedToday}</strong><span>received today</span></button><button data-poke-today-filter="inactive"><strong>${inactive14}</strong><span>inactive 14+ days</span></button></div><p>Gift buttons are now date-aware: tapping the same gift again removes it instead of double-counting.</p></section>
     <div class="poke-tabs poke-tabs-five">
       <button class="${pokemonUi.view==="friends"?"active":""}" data-poke-view="friends">👥 Friends</button>
       <button class="${pokemonUi.view==="add"?"active":""}" data-poke-view="add">➕ Add friend</button>
@@ -107,7 +102,7 @@ function PokemonPage(){
       <input class="field" id="pokeSearch" value="${esc(pokemonUi.search)}" placeholder="Search trainer, country or Vivillon">
       <div class="two-col"><select class="field" id="pokeFriendshipFilter"><option value="all">All friendship levels</option>${FRIENDSHIP_LEVELS.map(x=>`<option value="${x}" ${pokemonUi.friendship===x?"selected":""}>${x}</option>`).join("")}</select>
       <select class="field" id="pokeVivillonFilter"><option value="all">All Vivillon patterns</option>${vivillons.map(x=>`<option value="${esc(x)}" ${pokemonUi.vivillon===x?"selected":""}>${esc(x)} (${vivCounts[x]})</option>`).join("")}</select></div>
-      <p class="poke-results">${filtered.length} friend${filtered.length===1?"":"s"} found ${data.pokemonQuickFilter?`· <button class="mini" id="clearPokemonQuickFilter">Clear quick filter</button>`:""}</p></section>
+      <p class="poke-results">${filtered.length} friend${filtered.length===1?"":"s"} found</p></section>
       <section class="poke-friend-list">${shown.length?shown.map(PokemonFriendCard).join(""):`<section class="card"><p>No friends match those filters.</p></section>`}</section>
       ${pages>1?`<div class="poke-pagination"><button class="secondary" data-poke-page="${pokemonUi.page-1}" ${pokemonUi.page===1?"disabled":""}>← Previous</button><span>Page ${pokemonUi.page} of ${pages}</span><button class="secondary" data-poke-page="${pokemonUi.page+1}" ${pokemonUi.page===pages?"disabled":""}>Next →</button></div>`:""}`:""}
     ${pokemonUi.view==="vivillon"?`<section class="card"><h2>🦋 Vivillon collection</h2><div class="vivillon-grid">${Object.entries(vivCounts).sort((a,b)=>b[1]-a[1]).map(([name,count])=>`<button class="vivillon-tile" data-vivillon-jump="${esc(name)}"><strong>${count}</strong><span>${esc(name)}</span></button>`).join("")}</div></section>`:""}
@@ -149,7 +144,6 @@ function bindPokemon(){
 
   document.querySelector("#pokemonExcelImport")?.addEventListener("change",e=>{const f=e.target.files?.[0];if(f)importPokemonWorkbook(f)});
   document.querySelector("#pokeSearch")?.addEventListener("input",e=>{
-    data.pokemonQuickFilter="";
     pokemonUi.search=e.target.value;
     pokemonUi.page=1;
     const cursor=e.target.selectionStart??e.target.value.length;
@@ -167,9 +161,8 @@ function bindPokemon(){
       });
     },140);
   });
-  document.querySelector("#pokeFriendshipFilter")?.addEventListener("change",e=>{data.pokemonQuickFilter="";pokemonUi.friendship=e.target.value;pokemonUi.page=1;saveData();render()});
-  document.querySelector("#pokeVivillonFilter")?.addEventListener("change",e=>{data.pokemonQuickFilter="";pokemonUi.vivillon=e.target.value;pokemonUi.page=1;saveData();render()});
-  document.querySelector("#clearPokemonQuickFilter")?.addEventListener("click",()=>{data.pokemonQuickFilter="";saveData();render()});
+  document.querySelector("#pokeFriendshipFilter")?.addEventListener("change",e=>{pokemonUi.friendship=e.target.value;pokemonUi.page=1;saveData();render()});
+  document.querySelector("#pokeVivillonFilter")?.addEventListener("change",e=>{pokemonUi.vivillon=e.target.value;pokemonUi.page=1;saveData();render()});
   document.querySelectorAll("[data-poke-page]").forEach(b=>b.onclick=()=>{pokemonUi.page=Number(b.dataset.pokePage);render()});
   document.querySelector("#addPokemonFriend")?.addEventListener("click",()=>{const name=document.querySelector("#pokeName").value.trim();if(!name){toast("Add a trainer name");return}data.pokemonFriends.unshift(normalizePokemonFriend({id:`poke-${Date.now()}`,name,nickname:document.querySelector("#pokeNickname").value.trim(),friendship:document.querySelector("#pokeFriendship").value,vivillon:document.querySelector("#pokeVivillon").value,country:document.querySelector("#pokeCountry").value.trim(),notes:document.querySelector("#pokeNotes").value.trim()},0));saveData();pokemonUi.view="friends";pokemonUi.page=1;render();toast("Friend added 🎉")});
   document.querySelectorAll("[data-gift-sent]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.giftSent,"sent"));
@@ -180,5 +173,4 @@ function bindPokemon(){
   document.querySelectorAll("[data-poke-delete]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.pokeDelete);if(!f||!confirm(`Delete ${f.name}?`))return;data.pokemonFriends=data.pokemonFriends.filter(x=>x.id!==f.id);saveData();pokemonUi.editing=null;render()});
   document.querySelectorAll("[data-vivillon-jump]").forEach(b=>b.onclick=()=>{pokemonUi.vivillon=b.dataset.vivillonJump;pokemonUi.friendship="all";pokemonUi.search="";pokemonUi.page=1;pokemonUi.view="friends";render()});
   document.querySelectorAll("[data-friendship-jump]").forEach(b=>b.onclick=()=>{pokemonUi.friendship=b.dataset.friendshipJump;pokemonUi.vivillon="all";pokemonUi.search="";pokemonUi.page=1;pokemonUi.view="friends";render()});
-  document.querySelectorAll("[data-poke-today-filter]").forEach(b=>b.onclick=()=>{const mode=b.dataset.pokeTodayFilter;pokemonUi.view="friends";pokemonUi.friendship="all";pokemonUi.vivillon="all";pokemonUi.search=mode==="sent"?"":mode==="received"?"":"";pokemonUi.page=1;if(mode==="sent")data.pokemonQuickFilter="sentToday";else if(mode==="received")data.pokemonQuickFilter="receivedToday";else data.pokemonQuickFilter="inactive";saveData();render()});
 }

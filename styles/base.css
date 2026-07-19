@@ -659,3 +659,14 @@ body.swipe-back-active .bottom{pointer-events:none}
 /* Journal custom self-care and support selectors */
 .section-heading-actions{align-items:center}.section-heading-actions>div{flex:1}.mini-action{margin-left:auto;border:1px solid var(--line);background:var(--card);color:var(--purple);border-radius:12px;padding:8px 10px;font-weight:800}.option-editor{display:grid;gap:9px}.option-row{display:grid;grid-template-columns:1fr 42px;gap:8px;align-items:center}.danger-icon{height:42px;border:1px solid var(--line);border-radius:13px;background:var(--card);color:#b34c66;font-size:1.25rem}.editor-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}.support-picker,.support-other{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}.support-other{margin-top:8px}.selected-supports{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.selected-support{display:flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:9px 12px;background:var(--purple-soft);color:var(--ink)}.selected-support b{font-size:1.1rem;color:var(--purple)}
 @media(max-width:520px){.support-picker,.support-other{grid-template-columns:1fr}.support-picker button,.support-other button{width:100%}.section-heading-actions{flex-wrap:wrap}.section-heading-actions .mini-action{margin-left:54px}}
+
+/* v13.4 compact self-care editor */
+.compact-option-editor{margin-top:12px;padding:12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.035)}
+.add-option-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:center}
+.manage-option-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:11px}
+.manage-option-chip{display:inline-flex;align-items:center;gap:4px;min-height:38px;padding:4px 5px 4px 11px;border:1px solid var(--line);border-radius:999px;background:var(--card);color:var(--ink)}
+.manage-option-chip span{font-size:.9rem}
+.manage-option-chip button{width:30px;height:30px;border:0;border-radius:50%;background:transparent;color:var(--purple);padding:0}
+.manage-option-chip .remove-care-option{color:#d56582;font-size:1.05rem}
+.editor-hint{display:block;margin-top:9px;color:var(--muted)}
+@media(max-width:520px){.add-option-row{grid-template-columns:1fr}.add-option-row button{width:100%}}

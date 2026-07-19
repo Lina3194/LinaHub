@@ -1,3 +1,11 @@
+LinaHub v13.6 — Combined Self-care + Pokémon Cleanup
+
+Includes both requested changes together:
+- Compact Self-care editor: existing buttons stay visible; Edit opens a small add/rename/remove manager.
+- Removed the Pokémon “Today’s Gifts / Daily check-in” dashboard card and explanatory message.
+
+Also retains the Support & Braces selector, Pokémon search flicker fix, plant encyclopedia, gift tracking improvements, and prior cache repair.
+
 LinaHub v13.3 — Cache Repair
 
 Fixes:

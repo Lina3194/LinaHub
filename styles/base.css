@@ -543,3 +543,15 @@ body.dark .banner-art-setting{background:rgba(39,31,68,.65)}
 .swipe-back-hint{
   position:fixed;left:6px;top:50%;z-index:60;pointer-events:none;opacity:0;
 }
+
+.module-banner{position:relative}
+.module-banner>img{
+  position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;
+}
+.module-banner:after{
+  content:"";position:absolute;inset:0;
+  background:linear-gradient(180deg,rgba(20,12,38,.03),rgba(20,12,38,.56));
+  z-index:1;
+}
+.module-banner>span{position:relative;z-index:2}
+.page-enter.swiping-back{will-change:transform,opacity;animation:none!important}

@@ -11,7 +11,7 @@ function PlantsPage(){
     </section>
     <div class="plant-tile-grid">
       ${data.plants.map(p=>`
-        <button class="plant-tile" data-plant="${esc(p.id)}">
+        <button type="button" class="plant-tile" data-route="plant" data-route-id="${esc(p.id)}">
           <div class="plant-tile-art">${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div>
           <div class="plant-tile-copy"><h2>${esc(p.name)}</h2><p>${p.lastWatered?`Watered ${esc(formatDate(p.lastWatered))}`:"Not watered yet"}</p></div>
         </button>`).join("")}
@@ -50,7 +50,6 @@ function PlantProfilePage(){
 }
 
 function bindPlants(){
-  document.querySelectorAll("[data-plant]").forEach(btn=>btn.onclick=()=>go("plant",btn.dataset.plant));
 
   const water=document.querySelector("#waterPlant");
   if(water) water.onclick=()=>{

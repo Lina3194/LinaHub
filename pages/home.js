@@ -62,7 +62,7 @@ function HomePage(){
         [data.homeIcons?.pets||"🐠","Aquariums","Girls and boys tanks","pets"],
         [data.homeIcons?.house||"🏡","House","Rooms and recurring tasks","house"],
         [data.homeIcons?.settings||"⚙️","Settings","Theme and backup","settings"]
-      ].map(x=>`<button class="module module-${x[3]}" data-route="${x[3]}">${data.homeImages?.[x[3]]?`<span class="module-image"><img src="${data.homeImages[x[3]]}" alt=""></span>`:`<span class="emoji">${x[0]}</span>`}<strong>${x[1]}</strong><small>${x[2]}</small></button>`).join("")}
+      ].map(x=>`<button type="button" class="module module-${x[3]}" data-route="${x[3]}">${data.homeImages?.[x[3]]?`<span class="module-image"><img src="${data.homeImages[x[3]]}" alt=""></span>`:`<span class="emoji">${x[0]}</span>`}<strong>${x[1]}</strong><small>${x[2]}</small></button>`).join("")}
     </div>
 
     <section class="card" style="margin-top:14px">

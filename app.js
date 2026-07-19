@@ -20,17 +20,20 @@ function render(){
     house:HousePage
   };
 
-  document.querySelector("#app").innerHTML=(pages[route]||HomePage)();
+  const pageFactory=pages[route]||HomePage;
+  document.querySelector("#app").innerHTML=pageFactory();
+
   const atmosphere=document.createElement("div");
   atmosphere.className=`route-atmosphere atmosphere-${route}`;
   atmosphere.setAttribute("aria-hidden","true");
+
   if(route==="plants"||route==="plant"){
-    atmosphere.innerHTML=Array.from({length:14},(_,i)=>`<i class="petal" style="--i:${i}"></i>`).join("");
+    atmosphere.innerHTML=Array.from({length:18},(_,i)=>`<i class="petal" style="--i:${i}"></i>`).join("");
   }else if(route==="pets"||route==="tank"){
-    atmosphere.innerHTML=Array.from({length:13},(_,i)=>`<i class="aqua-bubble" style="--i:${i}"></i>`).join("");
+    atmosphere.innerHTML=Array.from({length:16},(_,i)=>`<i class="aqua-bubble" style="--i:${i}"></i>`).join("");
   }
+
   document.body.appendChild(atmosphere);
-  bindGlobal();
 
   if(route==="home") bindHome();
   if(route==="journal") bindJournal();
@@ -45,83 +48,138 @@ function render(){
   if(route==="pets"||route==="tank") bindAquariums();
 }
 
-function bindGlobal(){
-  document.querySelectorAll("[data-route]").forEach(btn=>btn.onclick=()=>go(btn.dataset.route));
-  document.querySelectorAll("[data-back]").forEach(btn=>btn.onclick=()=>goBack(btn.dataset.back||"home"));
-  setupSwipeBack();
+function setupNavigation(){
+  if(window.__linaNavigationReady) return;
+  window.__linaNavigationReady=true;
+
+  document.addEventListener("click",event=>{
+    const backButton=event.target.closest("[data-back]");
+    if(backButton){
+      event.preventDefault();
+      event.stopPropagation();
+      goBack(backButton.dataset.back||"home");
+      return;
+    }
+
+    const routeButton=event.target.closest("[data-route]");
+    if(routeButton){
+      event.preventDefault();
+      event.stopPropagation();
+      go(routeButton.dataset.route,routeButton.dataset.routeId||"");
+    }
+  });
 }
 
 function setupSwipeBack(){
-  if(window.__linaSwipeCleanup) window.__linaSwipeCleanup();
+  if(window.__linaSwipeReady) return;
+  window.__linaSwipeReady=true;
 
-  let startX=0,startY=0,currentX=0,tracking=false,blocked=false;
-  const edge=34;
-  const threshold=72;
+  let tracking=false;
+  let startX=0;
+  let startY=0;
+  let currentX=0;
+  const edgeWidth=32;
+  const triggerDistance=78;
 
-  const interactiveTarget=target=>!!target.closest(
-    "input,textarea,select,button,.drag-handle,.table-wrap,.poke-tabs,.tokens,.scale,.energy-picker"
-  );
-
-  const onStart=e=>{
-    const touch=e.touches?.[0];
-    if(!touch||touch.clientX>edge||route==="home"||document.body.classList.contains("reordering")) return;
-    startX=currentX=touch.clientX;
-    startY=touch.clientY;
-    blocked=interactiveTarget(e.target);
-    tracking=!blocked;
+  const isBlockedTarget=target=>{
+    if(!(target instanceof Element)) return true;
+    return !!target.closest(
+      "input,textarea,select,.drag-handle,.table-wrap,.tokens,.scale,.energy-picker,[contenteditable='true']"
+    );
   };
-  const onMove=e=>{
+
+  document.addEventListener("touchstart",event=>{
+    if(event.touches.length!==1) return;
+    const touch=event.touches[0];
+
+    tracking=
+      route!=="home" &&
+      touch.clientX<=edgeWidth &&
+      !document.body.classList.contains("reordering") &&
+      !isBlockedTarget(event.target);
+
     if(!tracking) return;
-    const touch=e.touches?.[0];
-    if(!touch) return;
+
+    startX=touch.clientX;
+    startY=touch.clientY;
+    currentX=startX;
+  },{passive:true});
+
+  document.addEventListener("touchmove",event=>{
+    if(!tracking||event.touches.length!==1) return;
+
+    const touch=event.touches[0];
     const dx=touch.clientX-startX;
-    const dy=Math.abs(touch.clientY-startY);
-    if(dy>34&&dy>Math.abs(dx)){tracking=false;return}
+    const dy=touch.clientY-startY;
+
+    if(Math.abs(dy)>Math.abs(dx) && Math.abs(dy)>24){
+      tracking=false;
+      resetSwipePreview();
+      return;
+    }
+
     if(dx<=0) return;
+
     currentX=touch.clientX;
-    if(dx>12){
-      e.preventDefault();
+
+    if(dx>10){
+      event.preventDefault();
       const page=document.querySelector(".page-enter");
       if(page){
-        page.style.transition="none";
-        page.style.transform=`translateX(${Math.min(dx,150)}px)`;
-        page.style.opacity=String(Math.max(.72,1-dx/520));
+        page.classList.add("swiping-back");
+        page.style.transform=`translate3d(${Math.min(dx,170)}px,0,0)`;
+        page.style.opacity=String(Math.max(.76,1-dx/520));
       }
     }
-  };
-  const onEnd=()=>{
+  },{passive:false});
+
+  const finishSwipe=()=>{
     if(!tracking) return;
-    const dx=currentX-startX;
-    const page=document.querySelector(".page-enter");
+
+    const distance=currentX-startX;
     tracking=false;
-    if(dx>=threshold){
+
+    if(distance>=triggerDistance){
+      const page=document.querySelector(".page-enter");
       if(page){
-        page.style.transition="transform .18s ease,opacity .18s ease";
-        page.style.transform="translateX(105vw)";
-        page.style.opacity=".5";
+        page.classList.remove("swiping-back");
+        page.style.transition="transform .16s ease,opacity .16s ease";
+        page.style.transform="translate3d(105vw,0,0)";
+        page.style.opacity=".45";
       }
-      setTimeout(()=>goBack("home"),80);
-    }else if(page){
-      page.style.transition="transform .2s ease,opacity .2s ease";
-      page.style.transform="";
-      page.style.opacity="";
+      setTimeout(()=>goBack("home"),90);
+    }else{
+      resetSwipePreview();
     }
   };
 
-  document.addEventListener("touchstart",onStart,{passive:true});
-  document.addEventListener("touchmove",onMove,{passive:false});
-  document.addEventListener("touchend",onEnd,{passive:true});
-  document.addEventListener("touchcancel",onEnd,{passive:true});
-  window.__linaSwipeCleanup=()=>{
-    document.removeEventListener("touchstart",onStart);
-    document.removeEventListener("touchmove",onMove);
-    document.removeEventListener("touchend",onEnd);
-    document.removeEventListener("touchcancel",onEnd);
-  };
+  document.addEventListener("touchend",finishSwipe,{passive:true});
+  document.addEventListener("touchcancel",()=>{
+    tracking=false;
+    resetSwipePreview();
+  },{passive:true});
 }
 
+function resetSwipePreview(){
+  const page=document.querySelector(".page-enter");
+  if(!page) return;
+  page.classList.remove("swiping-back");
+  page.style.transition="transform .18s ease,opacity .18s ease";
+  page.style.transform="";
+  page.style.opacity="";
+  setTimeout(()=>{
+    if(!page.isConnected) return;
+    page.style.transition="";
+  },190);
+}
+
+setupNavigation();
+setupSwipeBack();
+
 if("serviceWorker" in navigator){
-  window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js?v=83"));
+  window.addEventListener("load",()=>{
+    navigator.serviceWorker.register("./sw.js?v=84").catch(()=>{});
+  });
 }
 
 render();

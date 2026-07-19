@@ -28,7 +28,7 @@ function AquariumsPage(){
     </section>
     <div class="tank-grid">
       ${(data.aquariums||[]).map(t=>`
-        <button class="tank-card ${t.id}" data-tank="${esc(t.id)}">
+        <button class="tank-card ${t.id}" data-route="tank" data-route-id="${esc(t.id)}">
           <div class="tank-wave"></div>
           <span class="tank-emoji">${t.emoji}</span>
           <div><h2>${esc(t.name)}</h2><p>${t.livestock.reduce((n,x)=>n+(Number(x.count)||0),0)} counted residents · ${t.temperature?`${esc(t.temperature)}°C`:"Temperature not logged"}</p><span class="feed-status ${tankFeedToday(t)?"fed":"due"}">${tankFeedToday(t)?`✓ Fed today · ${new Date(tankFeedToday(t).createdAt).toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}`:"Needs feeding today"}</span></div>
@@ -88,7 +88,6 @@ function AquariumTankPage(){
   `,"pets");
 }
 function bindAquariums(){
-  document.querySelectorAll("[data-tank]").forEach(b=>b.onclick=()=>go("tank",b.dataset.tank));
   const tank=tankById(routeId);
   if(!tank) return;
   document.querySelector("#addLife")?.addEventListener("click",()=>{

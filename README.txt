@@ -67,3 +67,12 @@ v8.3:
 - Redesigned Plants as two-column Home-style tiles
 - Added a Plants hero with cherry blossom decoration and falling petals
 - Added uploadable wide banner pictures for each module
+
+v8.4:
+- Rebuilt navigation using one reliable delegated click handler
+- Fixed Home Plants and Aquariums tiles
+- Fixed plant and tank profile tiles
+- Fixed every Back button
+- Fixed left-edge swipe-back with true page history
+- Changed module banners to safe image elements so uploaded pictures cannot break page markup
+- Preserved Plants tiles, blossoms, Aquariums, bubbles, banners, dark theme, and Journal layout saving

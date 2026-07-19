@@ -28,6 +28,9 @@ function tankFeedToday(tank){
 function tankById(id){return (data.aquariums||[]).find(t=>t.id===id)}
 function AquariumsPage(){
   return shell(`${head("Aquariums","Care logs for your girls and boys tanks")}
+    <div class="aquarium-ambient-bubbles" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
     <section class="aquarium-hero card">
       <div><span class="section-kicker">🫧 Tank care</span><h1>Your underwater family</h1><p>Track livestock, feeding, temperature and maintenance without mixing it into Today.</p></div>
       <div class="bubble-cluster" aria-hidden="true"><i></i><i></i><i></i></div>
@@ -49,6 +52,9 @@ function AquariumTankPage(){
   const feeds=[...(tank.feeds||[])].sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""));
   const m=tank.maintenance||{};
   return shell(`${head(tank.name,"Aquarium profile","pets")}
+    <div class="aquarium-ambient-bubbles" aria-hidden="true">
+      <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
+    </div>
     <section class="card tank-profile-hero">
       <div class="tank-profile-icon">${tank.emoji}</div>
       <div><span class="section-kicker">Current water temperature</span><h1>${tank.temperature?`${esc(tank.temperature)}°C`:"Not logged"}</h1><p>${tank.temperatureUpdated?`Updated ${aquariumDateTimeLabel(tank.temperatureUpdated)}`:"Add the current temperature below."}</p></div>

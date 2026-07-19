@@ -1,3 +1,7 @@
+LinaHub v13.8 — Mobile Aquarium Bubbles
+
+Added subtle floating bubbles in various sizes along the sides and open gaps of the Aquarium pages on phone-sized screens. All v13.7 features are retained.
+
 LinaHub v13.7
 
 Includes all v13.6 changes plus a desktop Pokémon search fix. Typing in the trainer search now refreshes only the friend results and pagination, not the whole page.

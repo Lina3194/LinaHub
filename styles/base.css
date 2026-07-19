@@ -670,3 +670,31 @@ body.swipe-back-active .bottom{pointer-events:none}
 .manage-option-chip .remove-care-option{color:#d56582;font-size:1.05rem}
 .editor-hint{display:block;margin-top:9px;color:var(--muted)}
 @media(max-width:520px){.add-option-row{grid-template-columns:1fr}.add-option-row button{width:100%}}
+
+/* v13.8 — mobile aquarium ambient bubbles */
+.aquarium-ambient-bubbles{display:none;pointer-events:none;user-select:none}
+@media(max-width:760px){
+  .aquarium-ambient-bubbles{display:block;position:fixed;inset:72px 0 74px;overflow:hidden;z-index:0;pointer-events:none}
+  .aquarium-ambient-bubbles i{position:absolute;bottom:-54px;border-radius:50%;border:1px solid rgba(126,231,244,.5);background:radial-gradient(circle at 32% 28%,rgba(255,255,255,.34),rgba(91,211,236,.08) 48%,rgba(100,142,255,.03) 70%);box-shadow:inset 2px 2px 5px rgba(255,255,255,.16),0 0 8px rgba(69,215,232,.08);opacity:0;animation:aquariumBubbleRise 10s linear infinite}
+  .aquarium-ambient-bubbles i:nth-child(1){width:11px;height:11px;left:3%;animation-duration:8.5s;animation-delay:-1s}
+  .aquarium-ambient-bubbles i:nth-child(2){width:23px;height:23px;left:7%;animation-duration:13s;animation-delay:-8s}
+  .aquarium-ambient-bubbles i:nth-child(3){width:7px;height:7px;left:14%;animation-duration:7.5s;animation-delay:-4s}
+  .aquarium-ambient-bubbles i:nth-child(4){width:15px;height:15px;left:2%;animation-duration:11s;animation-delay:-6s}
+  .aquarium-ambient-bubbles i:nth-child(5){width:9px;height:9px;right:4%;animation-duration:9s;animation-delay:-2s}
+  .aquarium-ambient-bubbles i:nth-child(6){width:28px;height:28px;right:7%;animation-duration:14s;animation-delay:-10s}
+  .aquarium-ambient-bubbles i:nth-child(7){width:13px;height:13px;right:2%;animation-duration:10.5s;animation-delay:-5s}
+  .aquarium-ambient-bubbles i:nth-child(8){width:6px;height:6px;right:15%;animation-duration:8s;animation-delay:-7s}
+  .aquarium-ambient-bubbles i:nth-child(9){width:18px;height:18px;left:10%;animation-duration:12.5s;animation-delay:-11s}
+  .aquarium-ambient-bubbles i:nth-child(10){width:8px;height:8px;right:10%;animation-duration:9.5s;animation-delay:-4.5s}
+  .aquarium-ambient-bubbles i:nth-child(11){width:12px;height:12px;left:1%;animation-duration:10s;animation-delay:-9s}
+  .aquarium-ambient-bubbles i:nth-child(12){width:20px;height:20px;right:1%;animation-duration:13.5s;animation-delay:-3s}
+  .aquarium-hero,.tank-grid,.tank-profile-hero,.aquarium-ambient-bubbles~.card{position:relative;z-index:1}
+}
+@keyframes aquariumBubbleRise{
+  0%{transform:translate3d(0,0,0) scale(.82);opacity:0}
+  10%{opacity:.55}
+  48%{transform:translate3d(7px,-46vh,0) scale(1)}
+  76%{opacity:.42}
+  100%{transform:translate3d(-5px,-96vh,0) scale(1.08);opacity:0}
+}
+@media(prefers-reduced-motion:reduce){.aquarium-ambient-bubbles i{animation:none!important;opacity:.22}.aquarium-ambient-bubbles i:nth-child(n+7){display:none}}

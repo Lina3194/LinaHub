@@ -1,5 +1,5 @@
 
-let pokemonUi={search:"",friendship:"all",vivillon:"all",page:1,view:"friends",editing:null,openCard:null};
+let pokemonUi={search:"",friendship:"all",vivillon:"all",inactivity:"all",page:1,view:"friends",editing:null,openCard:null};
 let pokemonSearchTimer=null;
 const POKE_PAGE_SIZE=40;
 const FRIENDSHIP_LEVELS=["Good Friend","Great Friend","Ultra Friend","Best Friend","Forever Friend"];
@@ -66,7 +66,11 @@ function filteredPokemonFriends(){
   const q=pokemonUi.search.trim().toLowerCase();
   return (data.pokemonFriends||[]).filter(f=>{
     const text=[f.name,f.nickname,f.country,f.vivillon].join(" ").toLowerCase();
-    return (!q||text.includes(q))&&(pokemonUi.friendship==="all"||f.friendship===pokemonUi.friendship)&&(pokemonUi.vivillon==="all"||f.vivillon===pokemonUi.vivillon);
+    const inactiveDays=pokeDaysSince(f.lastInteraction);
+    const inactivityMatch=pokemonUi.inactivity==="all"
+      ||(pokemonUi.inactivity==="none"&&inactiveDays===null)
+      ||(pokemonUi.inactivity!=="none"&&inactiveDays!==null&&inactiveDays>=Number(pokemonUi.inactivity));
+    return (!q||text.includes(q))&&(pokemonUi.friendship==="all"||f.friendship===pokemonUi.friendship)&&(pokemonUi.vivillon==="all"||f.vivillon===pokemonUi.vivillon)&&inactivityMatch;
   });
 }
 function PokemonFriendResultsMarkup(){
@@ -124,6 +128,14 @@ function PokemonPage(){
       <input class="field" id="pokeSearch" value="${esc(pokemonUi.search)}" placeholder="Search trainer, country or Vivillon">
       <div class="two-col"><select class="field" id="pokeFriendshipFilter"><option value="all">All friendship levels</option>${FRIENDSHIP_LEVELS.map(x=>`<option value="${x}" ${pokemonUi.friendship===x?"selected":""}>${x}</option>`).join("")}</select>
       <select class="field" id="pokeVivillonFilter"><option value="all">All Vivillon patterns</option>${vivillons.map(x=>`<option value="${esc(x)}" ${pokemonUi.vivillon===x?"selected":""}>${esc(x)} (${vivCounts[x]})</option>`).join("")}</select></div>
+      <select class="field" id="pokeInactivityFilter">
+        <option value="all" ${pokemonUi.inactivity==="all"?"selected":""}>All interaction activity</option>
+        <option value="none" ${pokemonUi.inactivity==="none"?"selected":""}>No interaction logged</option>
+        <option value="30" ${pokemonUi.inactivity==="30"?"selected":""}>30+ days inactive</option>
+        <option value="15" ${pokemonUi.inactivity==="15"?"selected":""}>15+ days inactive</option>
+        <option value="7" ${pokemonUi.inactivity==="7"?"selected":""}>7+ days inactive</option>
+        <option value="3" ${pokemonUi.inactivity==="3"?"selected":""}>3+ days inactive</option>
+      </select>
       <p class="poke-results" id="pokeResultsCount">${filtered.length} friend${filtered.length===1?"":"s"} found</p></section>
       <section class="poke-friend-list" id="pokeFriendResults">${shown.length?shown.map(PokemonFriendCard).join(""):`<section class="card"><p>No friends match those filters.</p></section>`}</section>
       <div id="pokePagination">${pages>1?`<div class="poke-pagination"><button class="secondary" data-poke-page="${pokemonUi.page-1}" ${pokemonUi.page===1?"disabled":""}>← Previous</button><span>Page ${pokemonUi.page} of ${pages}</span><button class="secondary" data-poke-page="${pokemonUi.page+1}" ${pokemonUi.page===pages?"disabled":""}>Next →</button></div>`:""}</div>`:""}
@@ -182,7 +194,8 @@ function bindPokemon(){
     pokemonSearchTimer=setTimeout(refreshPokemonFriendResults,90);
   });
   document.querySelector("#pokeFriendshipFilter")?.addEventListener("change",e=>{pokemonUi.friendship=e.target.value;pokemonUi.page=1;saveData();render()});
-  document.querySelector("#pokeVivillonFilter")?.addEventListener("change",e=>{pokemonUi.vivillon=e.target.value;pokemonUi.page=1;saveData();render()});
+  document.querySelector("#pokeVivillonFilter")?.addEventListener("change",e=>{pokemonUi.vivillon=e.target.value;pokemonUi.page=1;render()});
+  document.querySelector("#pokeInactivityFilter")?.addEventListener("change",e=>{pokemonUi.inactivity=e.target.value;pokemonUi.page=1;render()});
   document.querySelector("#addPokemonFriend")?.addEventListener("click",()=>{const name=document.querySelector("#pokeName").value.trim();if(!name){toast("Add a trainer name");return}data.pokemonFriends.unshift(normalizePokemonFriend({id:`poke-${Date.now()}`,name,nickname:document.querySelector("#pokeNickname").value.trim(),friendship:document.querySelector("#pokeFriendship").value,vivillon:document.querySelector("#pokeVivillon").value,country:document.querySelector("#pokeCountry").value.trim(),notes:document.querySelector("#pokeNotes").value.trim()},0));saveData();pokemonUi.view="friends";pokemonUi.page=1;render();toast("Friend added 🎉")});
   document.querySelectorAll("[data-vivillon-jump]").forEach(b=>b.onclick=()=>{pokemonUi.vivillon=b.dataset.vivillonJump;pokemonUi.friendship="all";pokemonUi.search="";pokemonUi.page=1;pokemonUi.view="friends";render()});
   document.querySelectorAll("[data-friendship-jump]").forEach(b=>b.onclick=()=>{pokemonUi.friendship=b.dataset.friendshipJump;pokemonUi.vivillon="all";pokemonUi.search="";pokemonUi.page=1;pokemonUi.view="friends";render()});

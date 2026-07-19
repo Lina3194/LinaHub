@@ -1,4 +1,5 @@
 const MED_WEEKDAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+let medicationDateTouched=false;
 
 function medLocalDate(date=new Date()){
   const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,"0"),d=String(date.getDate()).padStart(2,"0");
@@ -11,7 +12,8 @@ function ensureMedicationData(){
   data.medicationHistory=Array.isArray(data.medicationHistory)?data.medicationHistory:[];
   data.medicationView=data.medicationView||{tab:"today",date:medLocalDate(),historyMed:"all"};
   data.medicationView.tab=["today","schedule","history"].includes(data.medicationView.tab)?data.medicationView.tab:"today";
-  data.medicationView.date=data.medicationView.date||medLocalDate();
+  if(!medicationDateTouched) data.medicationView.date=medLocalDate();
+  else data.medicationView.date=data.medicationView.date||medLocalDate();
   data.medications=data.medications.map((m,i)=>({
     id:m.id||medUid(`med-${i}`),name:m.name||"Medication",dose:m.dose||"",instructions:m.instructions||m.notes||"",
     scheduleType:m.scheduleType||((m.time||"").toLowerCase()==="as needed"?"prn":"daily"),
@@ -67,8 +69,8 @@ function medicationTodayTab(){
         ${m.instructions?`<p class="med-instructions">${esc(m.instructions)}</p>`:""}
         ${logs.length?`<div class="med-taken-list">${logs.map(log=>`<div><span>✓ Taken ${log.time?`at ${esc(log.time)}`:""}</span><button class="mini" data-med-log-edit="${esc(log.id)}">Edit</button></div>`).join("")}</div>`:""}
         <div class="med-mark-row">
-          <input class="field" id="doseDate-${m.id}" type="date" value="${esc(selected)}" aria-label="Dose date">
-          <input class="field" id="doseTime-${m.id}" type="time" value="${esc(defaultTime)}" aria-label="Dose time">
+          <label class="med-dose-field"><span>Date taken</span><input class="field" id="doseDate-${m.id}" type="date" value="${esc(selected)}" aria-label="Dose date"></label>
+          <label class="med-dose-field"><span>Time taken</span><input class="field" id="doseTime-${m.id}" type="time" value="${esc(defaultTime)}" aria-label="Dose time"></label>
           <button class="primary med-taken-button" data-med-take="${esc(m.id)}">✓ Mark taken</button>
         </div>
       </article>`;
@@ -111,7 +113,7 @@ function MedicationPage(){
   ensureMedicationData();
   const tab=data.medicationView.tab;
   const content=tab==="schedule"?medicationScheduleTab():tab==="history"?medicationHistoryTab():medicationTodayTab();
-  return shell(`${head("Medication","Medication centre · v15.1")}
+  return shell(`${head("Medication","Medication centre · v15.2")}
     <div class="med-page">${content}</div>
     <nav class="med-bottom-tabs" aria-label="Medication sections">
       <button class="${tab==="today"?"active":""}" data-med-tab="today">✓<small>Day</small></button>
@@ -168,7 +170,7 @@ function medEditLog(log){
 function bindMedication(){
   ensureMedicationData();
   document.querySelectorAll("[data-med-tab]").forEach(b=>b.onclick=()=>{data.medicationView.tab=b.dataset.medTab;saveData();render()});
-  document.querySelector("#medSelectedDate")?.addEventListener("change",e=>{data.medicationView.date=e.target.value||medLocalDate();saveData();render()});
+  document.querySelector("#medSelectedDate")?.addEventListener("change",e=>{medicationDateTouched=true;data.medicationView.date=e.target.value||medLocalDate();saveData();render()});
   document.querySelectorAll("[data-med-take]").forEach(b=>b.onclick=()=>{
     const medId=b.dataset.medTake,date=document.querySelector(`#doseDate-${CSS.escape(medId)}`)?.value||data.medicationView.date,time=document.querySelector(`#doseTime-${CSS.escape(medId)}`)?.value||"";
     data.medicationHistory.push({id:medUid("dose"),medId,date,time,notes:"",createdAt:new Date().toISOString()});

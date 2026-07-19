@@ -29,3 +29,11 @@ body.dark .module,body.dark .reminder{background:#151225}
   height:52px;
   display:block;
 }
+
+
+/* v15.2 keep every home icon aligned in the same top-left position */
+.module{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;overflow:hidden}
+.module .emoji,.module .module-image{flex:0 0 58px;width:58px;height:58px;margin:0 0 18px 0;align-self:flex-start}
+.module .module-image{display:grid;place-items:center;border-radius:20px;overflow:hidden;background:#f0e2f8}
+.module .module-image img{width:100%;height:100%;display:block;object-fit:cover}
+.module strong,.module small{align-self:flex-start;text-align:left}

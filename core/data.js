@@ -270,7 +270,11 @@ if(!data.v9CollapseDefaultsApplied){
   localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
 }
 function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}
-function today(){return new Date().toISOString().slice(0,10)}
+function today(){
+  const now=new Date();
+  const pad=value=>String(value).padStart(2,"0");
+  return `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`;
+}
 function niceDate(){return new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
 function formatDate(value){return new Date(value+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}
 function esc(v=""){return String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}

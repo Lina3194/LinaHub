@@ -71,25 +71,28 @@ function TodoPage(){
       </div>
     </section>
 
-    ${completed.length?`<section class="card">
-      <div class="section-title">
-        <div><span class="section-kicker">💜 Finished</span><h2>Completed</h2></div>
-        <button type="button" class="mini" id="clearCompleted">Clear all</button>
+    ${completed.length?`<details class="card completed-tasks-panel">
+      <summary class="completed-tasks-summary">
+        <span><span class="section-kicker">💜 Finished</span><strong>Completed tasks</strong><small>${completed.length} hidden</small></span>
+        <b class="completed-chevron">⌄</b>
+      </summary>
+      <div class="completed-tasks-content">
+        <div class="completed-actions"><button type="button" class="mini" id="clearCompleted">Clear all</button></div>
+        <div class="list-card">
+          ${completed.slice().reverse().map(task=>`
+            <article class="item-row completed-task">
+              <div>
+                <h3>${esc(task.title)}</h3>
+                <p>${todoEnergyIcon(task.energy)} ${esc(task.energy)} energy${task.completed?` · Completed ${esc(formatDate(task.completed))}`:""}</p>
+              </div>
+              <div class="item-actions">
+                <button type="button" class="mini" data-todo-undo="${esc(task.id)}">Undo</button>
+                <button type="button" class="mini danger" data-todo-delete="${esc(task.id)}">Delete</button>
+              </div>
+            </article>`).join("")}
+        </div>
       </div>
-      <div class="list-card">
-        ${completed.slice().reverse().map(task=>`
-          <article class="item-row completed-task">
-            <div>
-              <h3>${esc(task.title)}</h3>
-              <p>${todoEnergyIcon(task.energy)} ${esc(task.energy)} energy${task.completed?` · Completed ${esc(formatDate(task.completed))}`:""}</p>
-            </div>
-            <div class="item-actions">
-              <button type="button" class="mini" data-todo-undo="${esc(task.id)}">Undo</button>
-              <button type="button" class="mini danger" data-todo-delete="${esc(task.id)}">Delete</button>
-            </div>
-          </article>`).join("")}
-      </div>
-    </section>`:""}
+    </details>`:""}
   `,"todo");
 }
 

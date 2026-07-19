@@ -984,3 +984,64 @@ input,select,textarea,button{min-width:0;max-width:100%}
   body[data-route="plants"] .sakura-petal,
   body[data-route="plant"] .sakura-petal{animation-duration:18s!important}
 }
+
+/* v14.6 — petals behind Plants content + strict Health mobile sizing */
+#app{position:relative;z-index:1;isolation:isolate}
+.route-atmosphere{z-index:0!important}
+
+@media (max-width:760px){
+  body[data-route="plants"] .route-atmosphere.atmosphere-plants,
+  body[data-route="plant"] .route-atmosphere.atmosphere-plant{
+    z-index:0!important;
+  }
+  body[data-route="plants"] #app,
+  body[data-route="plant"] #app{
+    position:relative!important;
+    z-index:1!important;
+  }
+  /* Keep petals visible in the gaps, not visually over text/cards. */
+  body[data-route="plants"] .plant-garden-hero,
+  body[data-route="plants"] .plant-card,
+  body[data-route="plants"] .plant-tabs,
+  body[data-route="plants"] .plant-search,
+  body[data-route="plant"] .card,
+  body[data-route="plant"] .plant-profile-hero{
+    position:relative;
+    z-index:2;
+    background:linear-gradient(145deg,rgba(29,24,56,.985),rgba(15,14,32,.98))!important;
+  }
+
+  body[data-route="health"] .shell,
+  body[data-route="health"] .card,
+  body[data-route="health"] .health-input-stack,
+  body[data-route="health"] .two-col{
+    width:100%!important;
+    max-width:100%!important;
+    min-width:0!important;
+  }
+  body[data-route="health"] .card{overflow:hidden!important}
+  body[data-route="health"] .health-input-stack,
+  body[data-route="health"] .two-col{
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr)!important;
+  }
+  body[data-route="health"] input.field,
+  body[data-route="health"] input[type="date"],
+  body[data-route="health"] input[type="number"]{
+    display:block!important;
+    box-sizing:border-box!important;
+    inline-size:100%!important;
+    width:100%!important;
+    min-inline-size:0!important;
+    min-width:0!important;
+    max-inline-size:100%!important;
+    max-width:100%!important;
+    margin-left:0!important;
+    margin-right:0!important;
+  }
+  body[data-route="health"] .primary{
+    inline-size:100%!important;
+    width:100%!important;
+    max-width:100%!important;
+  }
+}

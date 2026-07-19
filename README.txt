@@ -121,3 +121,14 @@ v9.0:
 - Added Energy and Priority to House job editing
 - House room management is collapsed by default
 - Journal view controls are collapsed by default
+
+v10 Premium Enchanted redesign:
+- Premium dark purple glass interface inspired by the supplied reference while keeping LinaHub colours
+- Plants list, metrics, search and profile redesigned
+- Journal simplified to sleep, energy, mood, pain, spoons, water, self-care and supports
+- Sleep moved permanently to the top
+- Journal History allows opening and editing any past date
+- Journal Trends includes week, month, 6 months and year views for sleep, energy, mood and pain
+- Medication, priorities, today's plan and notes are not included in Journal
+- Weight and measurement date controls no longer stretch across the full card
+- Short accent dividers and tighter automatic-time badges

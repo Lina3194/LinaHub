@@ -229,7 +229,7 @@ setupSwipeBack();
 
 if("serviceWorker" in navigator){
   window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("./sw.js?v=90").catch(()=>{});
+    navigator.serviceWorker.register("./sw.js?v=100").catch(()=>{});
   });
 }
 

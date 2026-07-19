@@ -1,251 +1,75 @@
-
 const SCALE_OPTIONS={
+  sleep:[["😫","Awful"],["😟","Restless"],["😐","Okay"],["😊","Good"],["🤩","Amazing"]],
   energy:[["🥵","Very low"],["😟","Low"],["😐","Okay"],["😊","Good"],["🤩","Amazing"]],
   mood:[["😭","Overwhelmed"],["😟","Anxious"],["😐","Okay"],["🙂","Calm"],["😊","Happy"]],
-  pain:[["😭","Very severe"],["😣","Severe"],["😐","Moderate"],["🙂","Mild"],["😌","No pain"]],
-  sleep:[["😫","Awful"],["😟","Restless"],["😐","Okay"],["😊","Good"],["🤩","Amazing"]]
+  pain:[["😭","Very severe"],["😣","Severe"],["😐","Moderate"],["🙂","Mild"],["😌","No pain"]]
 };
+const JOURNAL_ORDER=["sleep","energy","mood","pain","spoons","water","selfcare","supports"];
 
-function renderScale(name,value){
-  return `<div class="scale">${SCALE_OPTIONS[name].map((x,i)=>`
-    <button data-scale="${name}" data-value="${i}" class="${value!==null&&value!==undefined&&Number(value)===i?"active":""}">
-      <span class="face">${x[0]}</span><small>${x[1]}</small>
-    </button>`).join("")}</div>`;
-}
+function journalDate(){return data.journalSelectedDate||today()}
+function dateLabel(value){return new Date(value+"T12:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
+function emptyJournalEntry(){return {sleep:null,energy:null,mood:null,pain:null,spoons:0,water:0,selfCare:[],supports:["","",""],savedAt:""}}
+function renderScale(name,value){return `<div class="scale">${SCALE_OPTIONS[name].map((x,i)=>`<button type="button" data-scale="${name}" data-value="${i}" class="${value!==null&&value!==undefined&&Number(value)===i?"active":""}"><span class="face">${x[0]}</span><small>${x[1]}</small></button>`).join("")}</div>`}
+
+function journalTabs(active){return `<div class="journal-tabs"><button type="button" data-journal-tab="today" class="${active==="today"?"active":""}">Today</button><button type="button" data-journal-tab="history" class="${active==="history"?"active":""}">History</button><button type="button" data-journal-tab="trends" class="${active==="trends"?"active":""}">Trends</button></div>`}
 
 function JournalPage(){
-  const entry=data.checkins[today()]||{
-    energy:null,mood:null,pain:null,sleep:null,spoons:0,water:0,selfCare:[],meds:[],
-    priorities:["","","","",""],plan:Array.from({length:4},()=>({task:"",energy:"Medium",done:false})),
-    supports:["","","",""],justToday:["","",""]
-  };
+  data.journalTab=data.journalTab||"today";
+  if(data.journalTab==="history") return JournalHistoryPage();
+  if(data.journalTab==="trends") return JournalTrendsPage();
+  const selected=journalDate();
+  const entry={...emptyJournalEntry(),...(data.checkins[selected]||{})};
   const care=["Rest","Reading","Exercises","Warmth","Good food","Fresh air","Music","Gaming","Hobbies"];
-
   const blocks={
-    energy:`<section class="card draggable" data-block="energy" data-group="emoji"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="energy">👁️</button><h2>⚡ Today’s energy</h2>${renderScale("energy",entry.energy)}</section>`,
-    mood:`<section class="card draggable" data-block="mood" data-group="emoji"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="mood">👁️</button><h2>💜 Today’s mood</h2>${renderScale("mood",entry.mood)}</section>`,
-    pain:`<section class="card draggable" data-block="pain" data-group="emoji"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="pain">👁️</button><h2>☀️ Today’s pain</h2>${renderScale("pain",entry.pain)}</section>`,
-    spoons:`<section class="card draggable" data-block="spoons" data-group="wellness"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="spoons">👁️</button><h2>🥄 Spoon bank</h2><p>Tap a spoon as you use energy.</p><div class="tokens">${Array.from({length:12},(_,i)=>`<button class="token ${i<entry.spoons?"active":""}" data-token="spoons" data-value="${i+1}">🥄</button>`).join("")}</div></section>`,
-    water:`<section class="card draggable" data-block="water" data-group="wellness"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="water">👁️</button><h2>💧 Water intake</h2><div class="tokens">${Array.from({length:10},(_,i)=>`<button class="token ${i<entry.water?"active":""}" data-token="water" data-value="${i+1}">💧</button>`).join("")}</div></section>`,
-    selfcare:`<section class="card draggable" data-block="selfcare" data-group="wellness"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="selfcare">👁️</button><h2>🌸 Self-care menu</h2><div class="pills">${care.map(x=>`<button class="pill ${entry.selfCare.includes(x)?"active":""}" data-care="${x}">${x}</button>`).join("")}</div></section>`,
-    sleep:`<section class="card draggable" data-block="sleep" data-group="emoji"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="sleep">👁️</button><h2>😴 Sleep last night</h2>${renderScale("sleep",entry.sleep)}</section>`,
-    supports:`<section class="card draggable" data-block="supports" data-group="planning"><div class="drag-handle">⋮⋮</div><button class="visibility-toggle" data-visibility="supports">👁️</button><h2>🦴 Braces / supports used</h2>${entry.supports.map(v=>`<input class="field support" style="margin-top:9px" value="${esc(v)}" placeholder="e.g. knee brace">`).join("")}</section>`
+    sleep:`<section class="journal-section draggable" data-block="sleep" data-group="emoji"><div class="drag-handle">⋮⋮</div><button type="button" class="visibility-toggle" data-visibility="sleep">👁️</button><div class="section-heading"><span>😴</span><div><h2>Sleep last night</h2><p>How restorative did it feel?</p></div></div>${renderScale("sleep",entry.sleep)}</section>`,
+    energy:`<section class="journal-section draggable" data-block="energy" data-group="emoji"><div class="drag-handle">⋮⋮</div><button type="button" class="visibility-toggle" data-visibility="energy">👁️</button><div class="section-heading"><span>⚡</span><div><h2>Energy</h2><p>How much energy do you have?</p></div></div>${renderScale("energy",entry.energy)}</section>`,
+    mood:`<section class="journal-section draggable" data-block="mood" data-group="emoji"><div class="drag-handle">⋮⋮</div><button type="button" class="visibility-toggle" data-visibility="mood">👁️</button><div class="section-heading"><span>💜</span><div><h2>Mood</h2><p>How are you feeling emotionally?</p></div></div>${renderScale("mood",entry.mood)}</section>`,
+    pain:`<section class="journal-section draggable" data-block="pain" data-group="emoji"><div class="drag-handle">⋮⋮</div><button type="button" class="visibility-toggle" data-visibility="pain">👁️</button><div class="section-heading"><span>☀️</span><div><h2>Pain</h2><p>How manageable is your pain?</p></div></div>${renderScale("pain",entry.pain)}</section>`,
+    spoons:`<section class="journal-section draggable" data-block="spoons" data-group="wellness"><div class="drag-handle">⋮⋮</div><button type="button" class="visibility-toggle" data-visibility="spoons">👁️</button><div class="section-heading"><span>🥄</span><div><h2>Spoon bank</h2><p>Tap how many spoons you have used.</p></div></div><div class="tokens">${Array.from({length:12},(_,i)=>`<button type="button" class="token ${i<entry.spoons?"active":""}" data-token="spoons" data-value="${i+1}">🥄</button>`).join("")}</div></section>`,
+    water:`<section class="journal-section draggable" data-block="water" data-group="wellness"><div class="drag-handle">⋮⋮</div><button type="button" class="visibility-toggle" data-visibility="water">👁️</button><div class="section-heading"><span>💧</span><div><h2>Water</h2><p>Glasses or bottles today.</p></div></div><div class="tokens">${Array.from({length:10},(_,i)=>`<button type="button" class="token ${i<entry.water?"active":""}" data-token="water" data-value="${i+1}">💧</button>`).join("")}</div></section>`,
+    selfcare:`<section class="journal-section draggable" data-block="selfcare" data-group="wellness"><div class="drag-handle">⋮⋮</div><button type="button" class="visibility-toggle" data-visibility="selfcare">👁️</button><div class="section-heading"><span>🌸</span><div><h2>Self-care</h2><p>Anything kind you did for yourself.</p></div></div><div class="pills">${care.map(x=>`<button type="button" class="pill ${entry.selfCare.includes(x)?"active":""}" data-care="${x}">${x}</button>`).join("")}</div></section>`,
+    supports:`<section class="journal-section draggable" data-block="supports" data-group="wellness"><div class="drag-handle">⋮⋮</div><button type="button" class="visibility-toggle" data-visibility="supports">👁️</button><div class="section-heading"><span>🦴</span><div><h2>Braces & supports</h2><p>Record anything you used.</p></div></div>${entry.supports.map(v=>`<input class="field support" value="${esc(v)}" placeholder="e.g. knee brace">`).join("")}</section>`
   };
-
-  const order=(data.checkinLayout||Object.keys(blocks)).filter(k=>blocks[k] && !["medication","justtoday","plan","priorities"].includes(k));
-  const rendered=order.map(k=>{
-    const hidden=(data.checkinHidden||[]).includes(k);
-    return blocks[k].replace('class="card draggable"',`class="card draggable ${hidden?"soft-hidden":""}"`);
-  }).join("");
-
-  return shell(`${head("Today’s Check-in",niceDate())}
-    <section class="card filter-card">
-      <div class="layout-toolbar">
-        <button type="button" class="collapse-title" id="toggleJournalControls">
-          <span><h2>Journal view</h2><p style="margin:4px 0">${data.journalControlsCollapsed?"Tap to show layout controls":"Choose what you want to see today."}</p></span>
-          <b>${data.journalControlsCollapsed?"⌄":"⌃"}</b>
-        </button>
-        ${data.journalControlsCollapsed?"":`<button type="button" class="magic-edit ${data.checkinEditMode?"active":""}" id="toggleEditMode">${data.checkinEditMode?"✓ Done":"🪄 Edit layout"}</button>`}
-      </div>
-      ${data.journalControlsCollapsed?"":`<div class="pills">
-        <button class="pill ${data.checkinFilter==="all"?"active":""}" data-filter="all">Everything</button>
-        <button class="pill ${data.checkinFilter==="emoji"?"active":""}" data-filter="emoji">Emoji check-ins</button>
-        <button class="pill ${data.checkinFilter==="planning"?"active":""}" data-filter="planning">Planning</button>
-        <button class="pill ${data.checkinFilter==="wellness"?"active":""}" data-filter="wellness">Wellness</button>
-      </div>`}
-    </section>
-    <div class="stack ${data.checkinEditMode?"editing":""}" id="journalStack">${rendered}</div>
-    <button class="primary" id="saveJournal">Save today’s check-in</button>
-  `,"journal");
+  let order=(data.checkinLayout||JOURNAL_ORDER).filter(k=>blocks[k]);
+  JOURNAL_ORDER.forEach(k=>{if(!order.includes(k)) order.push(k)});
+  order=order.filter(k=>k!=="sleep");order.unshift("sleep");
+  const rendered=order.map(k=>{const hidden=(data.checkinHidden||[]).includes(k);return blocks[k].replace('class="journal-section draggable"',`class="journal-section draggable ${hidden?"soft-hidden":""}"`)}).join("");
+  const editingPast=selected!==today();
+  return shell(`${head("Journal","A gentle daily check-in")}${journalTabs("today")}
+    <section class="journal-date-bar"><div><span>${editingPast?"Editing past entry":"Today"}</span><strong>${dateLabel(selected)}</strong></div>${editingPast?`<button type="button" class="secondary" id="returnToday">Return to today</button>`:""}</section>
+    <section class="card filter-card"><div class="layout-toolbar"><button type="button" class="collapse-title" id="toggleJournalControls"><span><h2>Journal view</h2><p>${data.journalControlsCollapsed?"Tap to customise your check-in":"Choose and rearrange what appears."}</p></span><b>${data.journalControlsCollapsed?"⌄":"⌃"}</b></button>${data.journalControlsCollapsed?"":`<button type="button" class="magic-edit ${data.checkinEditMode?"active":""}" id="toggleEditMode">${data.checkinEditMode?"✓ Done":"🪄 Edit layout"}</button>`}</div>${data.journalControlsCollapsed?"":`<div class="pills"><button type="button" class="pill ${data.checkinFilter==="all"?"active":""}" data-filter="all">Everything</button><button type="button" class="pill ${data.checkinFilter==="emoji"?"active":""}" data-filter="emoji">Check-ins</button><button type="button" class="pill ${data.checkinFilter==="wellness"?"active":""}" data-filter="wellness">Wellness</button></div>`}</section>
+    <div class="journal-stack ${data.checkinEditMode?"editing":""}" id="journalStack">${rendered}</div>
+    <button type="button" class="primary journal-save" id="saveJournal">Save ${editingPast?"this entry":"today’s check-in"}</button>`,"journal");
 }
+
+function JournalHistoryPage(){
+  const dates=Object.keys(data.checkins||{}).sort().reverse();
+  return shell(`${head("Journal","Review or complete an earlier day")}${journalTabs("history")}
+    <section class="card history-picker"><span class="section-kicker">📅 Add or edit an entry</span><h2>Choose any date</h2><p>You can fill in a missed check-in after midnight or correct one later.</p><div class="date-control"><input id="journalHistoryDate" type="date" max="${today()}" value="${data.journalSelectedDate||today()}"></div><button type="button" class="primary" id="openHistoryDate">Open journal</button></section>
+    <section class="journal-history-list"><div class="section-row"><div><span class="section-kicker">History</span><h2>Recent check-ins</h2></div><span>${dates.length} entries</span></div>${dates.length?dates.map(date=>{const e=data.checkins[date]||{};const count=[e.sleep,e.energy,e.mood,e.pain].filter(v=>v!==null&&v!==undefined).length;return `<button type="button" class="history-entry" data-history-date="${date}"><div><strong>${dateLabel(date)}</strong><small>${count===4?"Complete check-in":count?`${count} of 4 feelings logged`:"Wellness only"}</small></div><div class="history-faces"><span>${e.sleep!=null?SCALE_OPTIONS.sleep[e.sleep][0]:"·"}</span><span>${e.energy!=null?SCALE_OPTIONS.energy[e.energy][0]:"·"}</span><span>${e.mood!=null?SCALE_OPTIONS.mood[e.mood][0]:"·"}</span><span>${e.pain!=null?SCALE_OPTIONS.pain[e.pain][0]:"·"}</span></div><b>›</b></button>`}).join(""):`<section class="empty-state">Your saved check-ins will appear here.</section>`}</section>`,"journal");
+}
+
+function periodDays(period){return period==="week"?7:period==="month"?30:period==="six"?183:365}
+function trendData(key,days){const out=[];const now=new Date();for(let i=days-1;i>=0;i--){const d=new Date(now);d.setDate(d.getDate()-i);const keyDate=d.toISOString().slice(0,10);const v=data.checkins?.[keyDate]?.[key];if(v!==null&&v!==undefined) out.push({date:keyDate,value:Number(v)})}return out}
+function trendChart(key,label,period){const points=trendData(key,periodDays(period));const avg=points.length?(points.reduce((a,b)=>a+b.value,0)/points.length):null;const width=300,height=92,pad=10;const coords=points.map((p,i)=>`${points.length===1?width/2:pad+i*(width-pad*2)/(points.length-1)},${height-pad-(p.value/4)*(height-pad*2)}`).join(" ");return `<article class="trend-card"><div class="trend-head"><div><span>${key==="sleep"?"😴":key==="energy"?"⚡":key==="mood"?"💜":"☀️"}</span><strong>${label}</strong></div><span>${avg===null?"No data":`${SCALE_OPTIONS[key][Math.round(avg)][0]} ${avg.toFixed(1)} average`}</span></div>${points.length?`<svg class="trend-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${label} trend with ${points.length} entries"><line x1="10" y1="82" x2="290" y2="82"></line><line x1="10" y1="46" x2="290" y2="46"></line><line x1="10" y1="10" x2="290" y2="10"></line><polyline points="${coords}"></polyline>${points.map((p,i)=>{const x=points.length===1?width/2:pad+i*(width-pad*2)/(points.length-1),y=height-pad-(p.value/4)*(height-pad*2);return `<circle cx="${x}" cy="${y}" r="3"></circle>`}).join("")}</svg><small>${points.length} recorded ${points.length===1?"day":"days"}</small>`:`<div class="trend-empty">Save a few check-ins to see this trend.</div>`}</article>`}
+function JournalTrendsPage(){const period=data.journalTrendPeriod||"week";return shell(`${head("Journal","See how things change over time")}${journalTabs("trends")}<div class="trend-periods"><button type="button" data-period="week" class="${period==="week"?"active":""}">Week</button><button type="button" data-period="month" class="${period==="month"?"active":""}">Month</button><button type="button" data-period="six" class="${period==="six"?"active":""}">6 months</button><button type="button" data-period="year" class="${period==="year"?"active":""}">Year</button></div><section class="trend-grid">${trendChart("sleep","Sleep",period)}${trendChart("energy","Energy",period)}${trendChart("mood","Mood",period)}${trendChart("pain","Pain",period)}</section><p class="trend-note">These charts show patterns in your own entries. They do not diagnose causes.</p>`,"journal")}
 
 function bindJournal(){
-  document.querySelectorAll("[data-scale]").forEach(btn=>btn.onclick=()=>{
-    document.querySelectorAll(`[data-scale="${btn.dataset.scale}"]`).forEach(x=>x.classList.remove("active"));
-    btn.classList.add("active");
-  });
-  document.querySelectorAll("[data-token]").forEach(btn=>btn.onclick=()=>{
-    const n=Number(btn.dataset.value),name=btn.dataset.token;
-    document.querySelectorAll(`[data-token="${name}"]`).forEach(x=>x.classList.toggle("active",Number(x.dataset.value)<=n));
-  });
-  document.querySelectorAll("[data-care],[data-med],.done").forEach(btn=>btn.onclick=()=>btn.classList.toggle("active"));
-
-  document.querySelectorAll("[data-filter]").forEach(btn=>btn.onclick=()=>{
-    data.checkinFilter=btn.dataset.filter;saveData();applyJournalFilter();
-    document.querySelectorAll("[data-filter]").forEach(x=>x.classList.toggle("active",x.dataset.filter===data.checkinFilter));
-  });
-
-  document.querySelector("#toggleJournalControls")?.addEventListener("click",()=>{
-    data.journalControlsCollapsed=!data.journalControlsCollapsed;saveData();render();
-  });
-  const edit=document.querySelector("#toggleEditMode");
-  if(edit) edit.onclick=()=>{
-    if(data.checkinEditMode) saveJournalLayoutFromDom();
-    data.checkinEditMode=!data.checkinEditMode;
-    saveData();
-    render();
-  };
-
-  document.querySelectorAll("[data-visibility]").forEach(btn=>btn.onclick=e=>{
-    e.stopPropagation();
-    const id=btn.dataset.visibility;
-    data.checkinHidden=data.checkinHidden||[];
-    data.checkinHidden=data.checkinHidden.includes(id)?data.checkinHidden.filter(x=>x!==id):[...data.checkinHidden,id];
-    saveData();render();
-  });
-
-  setupJournalDrag();
-  applyJournalFilter();
-
-  const saveBtn=document.querySelector("#saveJournal");
-  if(saveBtn) saveBtn.onclick=saveJournalEntry;
+ document.querySelectorAll("[data-journal-tab]").forEach(btn=>btn.onclick=()=>{data.journalTab=btn.dataset.journalTab;if(data.journalTab==="today")data.journalSelectedDate=today();saveData();render()});
+ document.querySelector("#returnToday")?.addEventListener("click",()=>{data.journalSelectedDate=today();saveData();render()});
+ document.querySelector("#openHistoryDate")?.addEventListener("click",()=>{const v=document.querySelector("#journalHistoryDate")?.value;if(!v)return;data.journalSelectedDate=v;data.journalTab="today";saveData();render()});
+ document.querySelectorAll("[data-history-date]").forEach(btn=>btn.onclick=()=>{data.journalSelectedDate=btn.dataset.historyDate;data.journalTab="today";saveData();render()});
+ document.querySelectorAll("[data-period]").forEach(btn=>btn.onclick=()=>{data.journalTrendPeriod=btn.dataset.period;saveData();render()});
+ document.querySelectorAll("[data-scale]").forEach(btn=>btn.onclick=()=>{document.querySelectorAll(`[data-scale="${btn.dataset.scale}"]`).forEach(x=>x.classList.remove("active"));btn.classList.add("active")});
+ document.querySelectorAll("[data-token]").forEach(btn=>btn.onclick=()=>{const n=Number(btn.dataset.value),name=btn.dataset.token;document.querySelectorAll(`[data-token="${name}"]`).forEach(x=>x.classList.toggle("active",Number(x.dataset.value)<=n))});
+ document.querySelectorAll("[data-care]").forEach(btn=>btn.onclick=()=>btn.classList.toggle("active"));
+ document.querySelectorAll("[data-filter]").forEach(btn=>btn.onclick=()=>{data.checkinFilter=btn.dataset.filter;saveData();applyJournalFilter();document.querySelectorAll("[data-filter]").forEach(x=>x.classList.toggle("active",x.dataset.filter===data.checkinFilter))});
+ document.querySelector("#toggleJournalControls")?.addEventListener("click",()=>{data.journalControlsCollapsed=!data.journalControlsCollapsed;saveData();render()});
+ document.querySelector("#toggleEditMode")?.addEventListener("click",()=>{if(data.checkinEditMode)saveJournalLayoutFromDom();data.checkinEditMode=!data.checkinEditMode;saveData();render()});
+ document.querySelectorAll("[data-visibility]").forEach(btn=>btn.onclick=e=>{e.stopPropagation();const id=btn.dataset.visibility;data.checkinHidden=data.checkinHidden||[];data.checkinHidden=data.checkinHidden.includes(id)?data.checkinHidden.filter(x=>x!==id):[...data.checkinHidden,id];saveData();render()});
+ setupJournalDrag();applyJournalFilter();document.querySelector("#saveJournal")?.addEventListener("click",saveJournalEntry);
 }
-
-function applyJournalFilter(){
-  const filter=data.checkinFilter||"all";
-  const editing=!!data.checkinEditMode;
-  document.querySelectorAll(".draggable").forEach(card=>{
-    const hidden=(data.checkinHidden||[]).includes(card.dataset.block);
-    const filtered=filter!=="all"&&card.dataset.group!==filter;
-    card.classList.toggle("filtered-out",!editing&&(hidden||filtered));
-    card.classList.toggle("soft-hidden",editing&&hidden);
-  });
-}
-
-function saveJournalLayoutFromDom(){
-  const stack=document.querySelector("#journalStack");
-  if(!stack) return;
-  const order=[...stack.querySelectorAll(".draggable")]
-    .map(card=>card.dataset.block)
-    .filter(Boolean);
-  if(order.length){
-    data.checkinLayout=order;
-    saveData();
-  }
-}
-
-function setupJournalDrag(){
-  const stack=document.querySelector("#journalStack");
-  if(!stack||!data.checkinEditMode) return;
-
-  let dragged=null;
-  let activeHandle=null;
-  let pointerId=null;
-  let lastOrder=(data.checkinLayout||[]).join("|");
-
-  const persistIfChanged=()=>{
-    const order=[...stack.querySelectorAll(".draggable")]
-      .map(card=>card.dataset.block)
-      .filter(Boolean);
-    const signature=order.join("|");
-    if(order.length&&signature!==lastOrder){
-      data.checkinLayout=order;
-      saveData();
-      lastOrder=signature;
-    }
-  };
-
-  const moveCard=clientY=>{
-    if(!dragged) return;
-    const cards=[...stack.querySelectorAll(".draggable:not(.dragging)")];
-    const next=cards.find(card=>{
-      const rect=card.getBoundingClientRect();
-      return clientY < rect.top + rect.height/2;
-    });
-    if(next&&next!==dragged.nextElementSibling) stack.insertBefore(dragged,next);
-    else if(!next) stack.appendChild(dragged);
-    persistIfChanged();
-  };
-
-  const finish=()=>{
-    if(!dragged) return;
-    try{
-      if(activeHandle&&pointerId!==null&&activeHandle.hasPointerCapture(pointerId)){
-        activeHandle.releasePointerCapture(pointerId);
-      }
-    }catch{}
-    dragged.classList.remove("dragging");
-    dragged=null;
-    activeHandle=null;
-    pointerId=null;
-    document.body.classList.remove("reordering");
-    persistIfChanged();
-  };
-
-  stack.querySelectorAll(".draggable").forEach(card=>{
-    const handle=card.querySelector(".drag-handle");
-    if(!handle) return;
-
-    handle.addEventListener("pointerdown",event=>{
-      if(event.button!==undefined&&event.button!==0) return;
-      event.preventDefault();
-      event.stopPropagation();
-      dragged=card;
-      activeHandle=handle;
-      pointerId=event.pointerId;
-      card.classList.add("dragging");
-      document.body.classList.add("reordering");
-      try{handle.setPointerCapture(pointerId)}catch{}
-    });
-
-    handle.addEventListener("pointermove",event=>{
-      if(!dragged||event.pointerId!==pointerId) return;
-      event.preventDefault();
-      moveCard(event.clientY);
-    });
-
-    handle.addEventListener("pointerup",event=>{
-      if(event.pointerId===pointerId) finish();
-    });
-    handle.addEventListener("pointercancel",finish);
-    handle.addEventListener("lostpointercapture",()=>{
-      if(dragged) finish();
-    });
-
-    card.draggable=true;
-    card.addEventListener("dragstart",event=>{
-      if(!event.target.closest(".drag-handle")){
-        event.preventDefault();
-        return;
-      }
-      dragged=card;
-      card.classList.add("dragging");
-      document.body.classList.add("reordering");
-      event.dataTransfer.effectAllowed="move";
-      event.dataTransfer.setData("text/plain",card.dataset.block||"");
-    });
-    card.addEventListener("dragover",event=>{
-      event.preventDefault();
-      moveCard(event.clientY);
-    });
-    card.addEventListener("drop",event=>{
-      event.preventDefault();
-      moveCard(event.clientY);
-      finish();
-    });
-    card.addEventListener("dragend",finish);
-  });
-
-  // These catch releases that happen outside the handle/card on mobile.
-  window.addEventListener("pointerup",finish,{once:true});
-  window.addEventListener("pointercancel",finish,{once:true});
-  window.addEventListener("blur",finish,{once:true});
-  document.addEventListener("visibilitychange",()=>{
-    if(document.hidden) finish();
-  },{once:true});
-}
-function saveJournalEntry(){
-  const getScale=name=>{
-    const el=document.querySelector(`[data-scale="${name}"].active`);
-    return el?Number(el.dataset.value):null;
-  };
-  data.checkins[today()]={
-    energy:getScale("energy"),mood:getScale("mood"),pain:getScale("pain"),sleep:getScale("sleep"),
-    spoons:document.querySelectorAll('[data-token="spoons"].active').length,
-    water:document.querySelectorAll('[data-token="water"].active').length,
-    selfCare:[...document.querySelectorAll("[data-care].active")].map(x=>x.dataset.care),
-    supports:[...document.querySelectorAll(".support")].map(x=>x.value)
-  };
-  saveData();
-  toast("Today’s check-in saved 💜");
-}
+function applyJournalFilter(){const filter=data.checkinFilter||"all",editing=!!data.checkinEditMode;document.querySelectorAll(".draggable").forEach(card=>{const hidden=(data.checkinHidden||[]).includes(card.dataset.block),filtered=filter!=="all"&&card.dataset.group!==filter;card.classList.toggle("filtered-out",!editing&&(hidden||filtered));card.classList.toggle("soft-hidden",editing&&hidden)})}
+function saveJournalLayoutFromDom(){const stack=document.querySelector("#journalStack");if(!stack)return;const order=[...stack.querySelectorAll(".draggable")].map(c=>c.dataset.block).filter(Boolean);if(order.length){data.checkinLayout=order;saveData()}}
+function setupJournalDrag(){const stack=document.querySelector("#journalStack");if(!stack||!data.checkinEditMode)return;let dragged=null;stack.querySelectorAll(".draggable").forEach(card=>{const handle=card.querySelector(".drag-handle");if(!handle)return;handle.onpointerdown=e=>{e.preventDefault();dragged=card;card.classList.add("dragging");handle.setPointerCapture?.(e.pointerId)};handle.onpointermove=e=>{if(!dragged)return;const next=[...stack.querySelectorAll(".draggable:not(.dragging)")].find(c=>e.clientY<c.getBoundingClientRect().top+c.offsetHeight/2);next?stack.insertBefore(dragged,next):stack.appendChild(dragged)};handle.onpointerup=()=>{if(!dragged)return;dragged.classList.remove("dragging");dragged=null;saveJournalLayoutFromDom()}})}
+function saveJournalEntry(){const getScale=name=>{const el=document.querySelector(`[data-scale="${name}"].active`);return el?Number(el.dataset.value):null};const date=journalDate();data.checkins[date]={sleep:getScale("sleep"),energy:getScale("energy"),mood:getScale("mood"),pain:getScale("pain"),spoons:document.querySelectorAll('[data-token="spoons"].active').length,water:document.querySelectorAll('[data-token="water"].active').length,selfCare:[...document.querySelectorAll("[data-care].active")].map(x=>x.dataset.care),supports:[...document.querySelectorAll(".support")].map(x=>x.value).filter(Boolean),savedAt:new Date().toISOString()};saveData();toast(date===today()?"Today’s check-in saved 💜":"Past entry saved 💜")}

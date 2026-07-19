@@ -27,9 +27,9 @@ function HealthPage(){
  const period=hour<14?"Morning":hour>=17?"Evening":"Daytime";
  return shell(`${head("Weight & Measures",`${period} check-in · Track changes gently over time`)}
  <section class="card health-overview"><div class="stat-grid"><div class="stat"><span>Latest weight</span><strong>${latest?`${esc(latest.weight)} kg`:"—"}</strong>${latest?`<small>${esc(formatDate(latest.date))}${healthEntryTime(latest)?` · ${esc(healthEntryTime(latest))}`:""}</small>`:""}</div><div class="stat"><span>Weight entries</span><strong>${weights.length}</strong><small>Your private history</small></div></div></section>
- <section class="card"><div class="section-title"><div><span class="section-kicker">⚖️ Track</span><h2>Add weight</h2></div><span class="live-time">Time added automatically</span></div><div class="two-col"><input class="field" id="weightDate" type="date" value="${today()}"><input class="field" id="weightValue" type="number" step="0.1" placeholder="kg"></div><button class="primary" id="addWeight" style="margin-top:10px">Save weight</button></section>
+ <section class="card"><div class="section-title"><div><span class="section-kicker">⚖️ Track</span><h2>Add weight</h2></div><span class="live-time">Time added automatically</span></div><div class="health-input-stack"><input class="field date-field" id="weightDate" type="date" value="${today()}"><input class="field" id="weightValue" type="number" step="0.1" placeholder="kg"></div><button class="primary" id="addWeight" style="margin-top:10px">Save weight</button></section>
  <section class="card"><div class="section-title"><div><span class="section-kicker">📏 Track</span><h2>Add measurements</h2></div><span class="live-time">Time added automatically</span></div>
-  <input class="field" id="measureDate" type="date" value="${today()}">
+  <input class="field date-field" id="measureDate" type="date" value="${today()}">
   <div class="two-col" style="margin-top:10px">
     <input class="field" id="measureWaist" type="number" step="0.1" placeholder="Waist cm">
     <input class="field" id="measureTummy" type="number" step="0.1" placeholder="Tummy cm">

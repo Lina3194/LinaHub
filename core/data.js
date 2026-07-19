@@ -6,9 +6,12 @@ const DEFAULT_DATA={
   version:5,
   theme:"light",
   checkins:{},
-  checkinLayout:["energy","mood","pain","spoons","water","selfcare","sleep","supports"],
+  checkinLayout:["sleep","energy","mood","pain","spoons","water","selfcare","supports"],
   checkinFilter:"all",
   journalControlsCollapsed:true,
+  journalTab:"today",
+  journalSelectedDate:"",
+  journalTrendPeriod:"week",
   homeIcons:{
     journal:"📖",health:"⚖️",plants:"🌿",medication:"💊",
     pokemon:"🔴",pets:"🐠",house:"🏡",settings:"⚙️"

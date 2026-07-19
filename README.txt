@@ -1,17 +1,15 @@
-LinaHub v13 — Plant Encyclopedia + Pokémon Gift Update
+LinaHub v13.3 — Cache Repair
 
-What changed
-- Built-in, offline plant encyclopedia with light, water, humidity, temperature, feeding, soil and care tips.
-- Current plants automatically link to their matching care guide.
-- New encyclopedia plants can be added directly to My Plants.
-- Watering attention now uses a plant-specific suggested interval instead of one fixed interval.
-- Pokémon gift buttons are date-aware and can be tapped again to undo an accidental entry.
-- Separate sent and received gift histories remain compatible with existing totals.
-- Friend cards show days inactive and the last interaction date.
-- Daily gift dashboard shows sent today, received today and friends inactive for 14+ days.
-- Friend detail view can record gifts for today or an earlier date.
+Fixes:
+- Braces & supports selector now visibly loads in the Journal.
+- Choices: Left knee, Right knee, Left ankle, Right ankle, Walking stick, and Other.
+- Multiple supports can be added and removed before saving.
+- Self-care Edit button now visibly loads.
+- Existing self-care choices can be renamed or removed.
+- New self-care choices can be added.
+- Pokémon search flicker fix remains included.
+- Service worker cache updated so new deployments replace older code correctly.
 
-Deployment
-Upload the contents of this folder to the existing Netlify site, or drag the zip into Netlify Deploys. Existing browser and cloud data remains compatible.
-
-Version 13.2: Pokémon search stabilised to prevent page flicker while typing.
+Deployment:
+Upload the contents of this zip to the existing Netlify site through Deploys.
+After deployment, close all open LinaHub tabs and reopen the site. If it is installed on the phone home screen, fully close the app and reopen it once.

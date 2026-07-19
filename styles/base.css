@@ -698,3 +698,44 @@ body.swipe-back-active .bottom{pointer-events:none}
   100%{transform:translate3d(-5px,-96vh,0) scale(1.08);opacity:0}
 }
 @media(prefers-reduced-motion:reduce){.aquarium-ambient-bubbles i{animation:none!important;opacity:.22}.aquarium-ambient-bubbles i:nth-child(n+7){display:none}}
+
+/* v13.9 — mobile cherry blossom fall on Plants */
+.atmosphere-plants .petal,.atmosphere-plant .petal{display:none}
+@media(max-width:760px){
+  .atmosphere-plants,.atmosphere-plant{inset:68px 0 72px;z-index:1}
+  .atmosphere-plants .petal,.atmosphere-plant .petal{
+    --blossom-size:calc(11px + (var(--i) % 6) * 3px);
+    display:block;
+    top:-48px;
+    left:calc((var(--i) * 5.35%) - 2%);
+    width:var(--blossom-size);
+    height:var(--blossom-size);
+    border-radius:0;
+    background:none;
+    box-shadow:none;
+    opacity:0;
+    color:rgba(241,139,183,.86);
+    font-size:var(--blossom-size);
+    line-height:1;
+    filter:drop-shadow(0 2px 3px rgba(174,91,134,.18));
+    animation:mobileBlossomFall calc(9s + (var(--i) % 7) * 1.15s) linear infinite;
+    animation-delay:calc(var(--i) * -1.17s);
+    will-change:transform,opacity;
+  }
+  .atmosphere-plants .petal::before,.atmosphere-plant .petal::before{content:"✿"}
+  .atmosphere-plants .petal:nth-child(3n)::before,.atmosphere-plant .petal:nth-child(3n)::before{content:"❀";color:rgba(250,186,211,.92)}
+  .atmosphere-plants .petal:nth-child(4n)::before,.atmosphere-plant .petal:nth-child(4n)::before{content:"🌸";font-size:.88em}
+  .atmosphere-plants .petal:nth-child(5n),.atmosphere-plant .petal:nth-child(5n){opacity:.48;filter:blur(.15px)}
+}
+@keyframes mobileBlossomFall{
+  0%{transform:translate3d(0,-9vh,0) rotate(0deg) scale(.78);opacity:0}
+  9%{opacity:.72}
+  28%{transform:translate3d(25px,27vh,0) rotate(115deg) scale(.92)}
+  55%{transform:translate3d(-18px,56vh,0) rotate(245deg) scale(1)}
+  78%{opacity:.62}
+  100%{transform:translate3d(30px,108vh,0) rotate(470deg) scale(.9);opacity:0}
+}
+@media(prefers-reduced-motion:reduce){
+  .atmosphere-plants .petal,.atmosphere-plant .petal{animation:none!important;opacity:.18}
+  .atmosphere-plants .petal:nth-child(n+9),.atmosphere-plant .petal:nth-child(n+9){display:none}
+}

@@ -1,3 +1,8 @@
+LinaHub v13.9 — Mobile Plant Cherry Blossoms
+
+Includes everything from v13.8, plus falling cherry blossoms on the Plants tab and plant profiles on phone-sized screens.
+The blossoms are decorative only and do not block taps or scrolling.
+
 LinaHub v13.8 — Mobile Aquarium Bubbles
 
 Added subtle floating bubbles in various sizes along the sides and open gaps of the Aquarium pages on phone-sized screens. All v13.7 features are retained.

@@ -32,7 +32,7 @@ function AquariumsPage(){
       <i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i>
     </div>
     <section class="aquarium-hero card">
-      <div><span class="section-kicker">🫧 Tank care</span><h1>Your underwater family</h1><p>Track livestock, feeding, temperature and maintenance without mixing it into Today.</p></div>
+      <div><span class="section-kicker">🫧 Tank care</span><h1>Your underwater family</h1><p>Track life, feeding, temperature and maintenance without mixing it into Today.</p></div>
       <div class="bubble-cluster" aria-hidden="true"><i></i><i></i><i></i></div>
     </section>
     <div class="tank-grid">

@@ -13,3 +13,5 @@ What changed
 
 Deployment
 Upload the contents of this folder to the existing Netlify site, or drag the zip into Netlify Deploys. Existing browser and cloud data remains compatible.
+
+Version 13.2: Pokémon search stabilised to prevent page flicker while typing.

@@ -1,5 +1,6 @@
 
 let pokemonUi={search:"",friendship:"all",vivillon:"all",page:1,view:"friends",editing:null,openCard:null};
+let pokemonSearchTimer=null;
 const POKE_PAGE_SIZE=40;
 const FRIENDSHIP_LEVELS=["Good Friend","Great Friend","Ultra Friend","Best Friend","Forever Friend"];
 const VIVILLON_PATTERNS=["Unknown","Archipelago","Continental","Elegant","Garden","High Plains","Icy Snow","Jungle","Marine","Meadow","Modern","Monsoon","Ocean","Polar","River","Sandstorm","Savanna","Sun","Tundra"];
@@ -147,7 +148,25 @@ function bindPokemon(){
   document.querySelectorAll("[data-detail-edit]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=null;pokemonUi.editing=b.dataset.detailEdit;render()});
 
   document.querySelector("#pokemonExcelImport")?.addEventListener("change",e=>{const f=e.target.files?.[0];if(f)importPokemonWorkbook(f)});
-  document.querySelector("#pokeSearch")?.addEventListener("input",e=>{data.pokemonQuickFilter="";pokemonUi.search=e.target.value;pokemonUi.page=1;saveData();render();requestAnimationFrame(()=>{const i=document.querySelector("#pokeSearch");if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}})});
+  document.querySelector("#pokeSearch")?.addEventListener("input",e=>{
+    data.pokemonQuickFilter="";
+    pokemonUi.search=e.target.value;
+    pokemonUi.page=1;
+    const cursor=e.target.selectionStart??e.target.value.length;
+    const scrollX=window.scrollX,scrollY=window.scrollY;
+    clearTimeout(pokemonSearchTimer);
+    pokemonSearchTimer=setTimeout(()=>{
+      render();
+      requestAnimationFrame(()=>{
+        const i=document.querySelector("#pokeSearch");
+        if(i){
+          i.focus({preventScroll:true});
+          i.setSelectionRange(Math.min(cursor,i.value.length),Math.min(cursor,i.value.length));
+        }
+        window.scrollTo(scrollX,scrollY);
+      });
+    },140);
+  });
   document.querySelector("#pokeFriendshipFilter")?.addEventListener("change",e=>{data.pokemonQuickFilter="";pokemonUi.friendship=e.target.value;pokemonUi.page=1;saveData();render()});
   document.querySelector("#pokeVivillonFilter")?.addEventListener("change",e=>{data.pokemonQuickFilter="";pokemonUi.vivillon=e.target.value;pokemonUi.page=1;saveData();render()});
   document.querySelector("#clearPokemonQuickFilter")?.addEventListener("click",()=>{data.pokemonQuickFilter="";saveData();render()});

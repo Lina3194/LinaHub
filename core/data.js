@@ -171,6 +171,8 @@ function normalizePokemonFriend(f,i){
     friendship:f.friendship||"Good Friend",vivillon:f.vivillon||"Unknown",country:f.country||"",
     lastGiftReceived:f.lastGiftReceived||"",lastGiftSent:f.lastGiftSent||"",
     giftsReceived:Number(f.giftsReceived)||0,giftsSent:Number(f.giftsSent)||0,
+    giftReceivedDates:Array.isArray(f.giftReceivedDates)?[...new Set(f.giftReceivedDates.filter(Boolean))].sort():[],
+    giftSentDates:Array.isArray(f.giftSentDates)?[...new Set(f.giftSentDates.filter(Boolean))].sort():[],
     lastInteraction:f.lastInteraction||f.lastGiftReceived||f.lastGiftSent||"",
     active:f.active!==false,notes:f.notes||""
   };
@@ -202,7 +204,8 @@ function normalizePlant(p,i){
   }
   return {
     id:p.id||`plant-${i}`,name:p.name||"Plant",emoji:p.emoji||"🌿",notes:p.notes||"",
-    lastWatered:p.lastWatered||"",history:Array.isArray(p.history)?p.history:[],photo:p.photo||""
+    lastWatered:p.lastWatered||"",history:Array.isArray(p.history)?p.history:[],photo:p.photo||"",
+    guideId:p.guideId||"",wateringDays:Number(p.wateringDays)||0
   };
 }
 

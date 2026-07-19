@@ -1,25 +1,15 @@
-LinaHub v12 Cloud Edition
-=========================
+LinaHub v13 — Plant Encyclopedia + Pokémon Gift Update
 
-Upload every file and folder in this ZIP to the root of your GitHub repository, replacing the existing LinaHub files.
+What changed
+- Built-in, offline plant encyclopedia with light, water, humidity, temperature, feeding, soil and care tips.
+- Current plants automatically link to their matching care guide.
+- New encyclopedia plants can be added directly to My Plants.
+- Watering attention now uses a plant-specific suggested interval instead of one fixed interval.
+- Pokémon gift buttons are date-aware and can be tapped again to undo an accidental entry.
+- Separate sent and received gift histories remain compatible with existing totals.
+- Friend cards show days inactive and the last interaction date.
+- Daily gift dashboard shows sent today, received today and friends inactive for 14+ days.
+- Friend detail view can record gifts for today or an earlier date.
 
-Cloud features:
-- Google sign-in
-- Automatic laptop/phone sync
-- Offline local saving and Firestore offline cache
-- Separate Firestore document per module
-- Safe first-device migration from linahub-data
-- Manual Upload This Device / Download Cloud Copy controls in Settings
-
-Required Firebase setup (already completed for this project):
-- Google Authentication enabled
-- Firestore database created
-- lina3194.github.io added to Authorized domains
-- Rules allow signed-in users to access only users/{uid}/...
-
-First use:
-1. Open LinaHub on the device containing the data you want to keep.
-2. Go to Settings and sign in with Google.
-3. Because the cloud is empty, this device uploads automatically.
-4. Open LinaHub on the second device and sign in with the same Google account.
-5. Choose Download Cloud Copy if asked.
+Deployment
+Upload the contents of this folder to the existing Netlify site, or drag the zip into Netlify Deploys. Existing browser and cloud data remains compatible.

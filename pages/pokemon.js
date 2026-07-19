@@ -5,6 +5,19 @@ const FRIENDSHIP_LEVELS=["Good Friend","Great Friend","Ultra Friend","Best Frien
 const VIVILLON_PATTERNS=["Unknown","Archipelago","Continental","Elegant","Garden","High Plains","Icy Snow","Jungle","Marine","Meadow","Modern","Monsoon","Ocean","Polar","River","Sandstorm","Savanna","Sun","Tundra"];
 function pokeEmoji(level){return ({"Good Friend":"💚","Great Friend":"💙","Ultra Friend":"💜","Best Friend":"⭐","Forever Friend":"✨"})[level]||"🤝"}
 function pokeDate(value){return value?formatDate(value):"Never"}
+function pokeDaysSince(value){if(!value)return null;return Math.max(0,Math.floor((new Date(today()+"T12:00:00")-new Date(value+"T12:00:00"))/86400000))}
+function pokeInactiveLabel(f){const d=pokeDaysSince(f.lastInteraction);return d===null?"No interaction logged":d===0?"Active today":d===1?"1 day inactive":`${d} days inactive`}
+function giftLoggedToday(f,type){return (type==="sent"?(f.giftSentDates||[]):(f.giftReceivedDates||[])).includes(today())}
+function logPokemonGift(id,type,date=today()){
+  const f=data.pokemonFriends.find(x=>x.id===id);if(!f)return;
+  const datesKey=type==="sent"?"giftSentDates":"giftReceivedDates",countKey=type==="sent"?"giftsSent":"giftsReceived",lastKey=type==="sent"?"lastGiftSent":"lastGiftReceived";
+  f[datesKey]=Array.isArray(f[datesKey])?f[datesKey]:[];
+  if(f[datesKey].includes(date)){f[datesKey]=f[datesKey].filter(d=>d!==date);f[countKey]=Math.max(0,(Number(f[countKey])||0)-1);toast(type==="sent"?"Sent gift removed":"Received gift removed");}
+  else{f[datesKey].push(date);f[datesKey].sort();f[countKey]=(Number(f[countKey])||0)+1;toast(type==="sent"?"Gift sent recorded 🎁":"Gift received recorded 💌");}
+  f[lastKey]=f[datesKey][f[datesKey].length-1]||"";
+  const all=[...(f.giftSentDates||[]),...(f.giftReceivedDates||[])].sort();f.lastInteraction=all[all.length-1]||f.lastInteraction||"";
+  saveData();render();
+}
 
 function friendshipCard(f){
   const currentIndex=Math.max(0,FRIENDSHIP_LEVELS.indexOf(f.friendship));
@@ -35,11 +48,13 @@ function PokemonFriendDetail(f){
         <div><small>Country</small><strong>${f.country?`🌍 ${esc(f.country)}`:"—"}</strong></div>
         <div><small>Gifts sent</small><strong>${f.giftsSent||0}</strong><span>${pokeDate(f.lastGiftSent)}</span></div>
         <div><small>Gifts received</small><strong>${f.giftsReceived||0}</strong><span>${pokeDate(f.lastGiftReceived)}</span></div>
+        <div class="poke-inactive-stat"><small>Last interaction</small><strong>${pokeDate(f.lastInteraction)}</strong><span>${pokeInactiveLabel(f)}</span></div>
       </div>
       ${f.notes?`<div class="poke-detail-notes"><small>Notes</small><p>${esc(f.notes)}</p></div>`:""}
+      <div class="gift-date-tools"><label><span>Choose date</span><input id="detailGiftDate" type="date" value="${today()}" max="${today()}"></label></div>
       <div class="gift-buttons">
-        <button data-detail-gift-sent="${f.id}"><b>🎁 I sent a gift</b><small>Add one for today</small></button>
-        <button data-detail-gift-received="${f.id}"><b>💌 They sent me a gift</b><small>Add one for today</small></button>
+        <button class="${giftLoggedToday(f,"sent")?"gift-done":""}" data-detail-gift-sent="${f.id}"><b>${giftLoggedToday(f,"sent")?"✓ Gift sent today":"🎁 I sent a gift"}</b><small>Tap again to undo that date</small></button>
+        <button class="${giftLoggedToday(f,"received")?"gift-done":""}" data-detail-gift-received="${f.id}"><b>${giftLoggedToday(f,"received")?"✓ Gift received today":"💌 They sent me a gift"}</b><small>Tap again to undo that date</small></button>
       </div>
       <button class="secondary poke-detail-edit" data-detail-edit="${f.id}">Edit friend</button>
     </section>
@@ -50,7 +65,9 @@ function filteredPokemonFriends(){
   const q=pokemonUi.search.trim().toLowerCase();
   return (data.pokemonFriends||[]).filter(f=>{
     const text=[f.name,f.nickname,f.country,f.vivillon].join(" ").toLowerCase();
-    return (!q||text.includes(q))&&(pokemonUi.friendship==="all"||f.friendship===pokemonUi.friendship)&&(pokemonUi.vivillon==="all"||f.vivillon===pokemonUi.vivillon);
+    const quick=data.pokemonQuickFilter||"";const d=pokeDaysSince(f.lastInteraction);
+    const quickOk=!quick||(quick==="sentToday"?(f.giftSentDates||[]).includes(today()):quick==="receivedToday"?(f.giftReceivedDates||[]).includes(today()):quick==="inactive"?(d===null||d>=14):true);
+    return quickOk&&(!q||text.includes(q))&&(pokemonUi.friendship==="all"||f.friendship===pokemonUi.friendship)&&(pokemonUi.vivillon==="all"||f.vivillon===pokemonUi.vivillon);
   });
 }
 function PokemonPage(){
@@ -59,6 +76,8 @@ function PokemonPage(){
   pokemonUi.page=Math.min(pokemonUi.page,pages);
   const shown=filtered.slice((pokemonUi.page-1)*POKE_PAGE_SIZE,pokemonUi.page*POKE_PAGE_SIZE);
   const sent=friends.reduce((n,f)=>n+(Number(f.giftsSent)||0),0),received=friends.reduce((n,f)=>n+(Number(f.giftsReceived)||0),0);
+  const sentToday=friends.filter(f=>(f.giftSentDates||[]).includes(today())).length,receivedToday=friends.filter(f=>(f.giftReceivedDates||[]).includes(today())).length;
+  const inactive14=friends.filter(f=>{const d=pokeDaysSince(f.lastInteraction);return d===null||d>=14}).length;
   const vivCounts={},friendshipCounts={};
   friends.forEach(f=>{const v=f.vivillon||"Unknown";vivCounts[v]=(vivCounts[v]||0)+1;friendshipCounts[f.friendship]=(friendshipCounts[f.friendship]||0)+1});
   const vivillons=Object.keys(vivCounts).sort((a,b)=>a.localeCompare(b));
@@ -70,6 +89,7 @@ function PokemonPage(){
       <div class="metric-card"><span>Gifts received</span><strong>${received}</strong></div>
       <div class="metric-card"><span>Vivillon patterns</span><strong>${Object.keys(vivCounts).filter(v=>v!=="Unknown").length}</strong></div>
     </div></section>
+    <section class="card poke-today-panel"><div><span class="section-kicker">Today’s gifts</span><h2>Daily check-in</h2></div><div class="poke-today-grid"><button data-poke-today-filter="sent"><strong>${sentToday}</strong><span>sent today</span></button><button data-poke-today-filter="received"><strong>${receivedToday}</strong><span>received today</span></button><button data-poke-today-filter="inactive"><strong>${inactive14}</strong><span>inactive 14+ days</span></button></div><p>Gift buttons are now date-aware: tapping the same gift again removes it instead of double-counting.</p></section>
     <div class="poke-tabs poke-tabs-five">
       <button class="${pokemonUi.view==="friends"?"active":""}" data-poke-view="friends">👥 Friends</button>
       <button class="${pokemonUi.view==="add"?"active":""}" data-poke-view="add">➕ Add friend</button>
@@ -86,14 +106,14 @@ function PokemonPage(){
       <input class="field" id="pokeSearch" value="${esc(pokemonUi.search)}" placeholder="Search trainer, country or Vivillon">
       <div class="two-col"><select class="field" id="pokeFriendshipFilter"><option value="all">All friendship levels</option>${FRIENDSHIP_LEVELS.map(x=>`<option value="${x}" ${pokemonUi.friendship===x?"selected":""}>${x}</option>`).join("")}</select>
       <select class="field" id="pokeVivillonFilter"><option value="all">All Vivillon patterns</option>${vivillons.map(x=>`<option value="${esc(x)}" ${pokemonUi.vivillon===x?"selected":""}>${esc(x)} (${vivCounts[x]})</option>`).join("")}</select></div>
-      <p class="poke-results">${filtered.length} friend${filtered.length===1?"":"s"} found</p></section>
+      <p class="poke-results">${filtered.length} friend${filtered.length===1?"":"s"} found ${data.pokemonQuickFilter?`· <button class="mini" id="clearPokemonQuickFilter">Clear quick filter</button>`:""}</p></section>
       <section class="poke-friend-list">${shown.length?shown.map(PokemonFriendCard).join(""):`<section class="card"><p>No friends match those filters.</p></section>`}</section>
       ${pages>1?`<div class="poke-pagination"><button class="secondary" data-poke-page="${pokemonUi.page-1}" ${pokemonUi.page===1?"disabled":""}>← Previous</button><span>Page ${pokemonUi.page} of ${pages}</span><button class="secondary" data-poke-page="${pokemonUi.page+1}" ${pokemonUi.page===pages?"disabled":""}>Next →</button></div>`:""}`:""}
     ${pokemonUi.view==="vivillon"?`<section class="card"><h2>🦋 Vivillon collection</h2><div class="vivillon-grid">${Object.entries(vivCounts).sort((a,b)=>b[1]-a[1]).map(([name,count])=>`<button class="vivillon-tile" data-vivillon-jump="${esc(name)}"><strong>${count}</strong><span>${esc(name)}</span></button>`).join("")}</div></section>`:""}
 
     ${pokemonUi.view==="import"?`<section class="card"><h2>📥 Import Excel tracker</h2><p class="muted">Choose an .xlsx file with a sheet named <b>Friends</b>. Every populated trainer row is read automatically—there is no row limit.</p><label class="excel-import-drop"><span>📄 Choose Excel file</span><small>.xlsx only</small><input id="pokemonExcelImport" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"></label><div class="import-options"><label><input type="radio" name="pokeImportMode" value="merge" checked><span><b>Merge safely</b><small>Add new trainers and update details while keeping gift totals.</small></span></label><label><input type="radio" name="pokeImportMode" value="replace"><span><b>Replace list</b><small>Replace all friends, preserving gift totals for matching trainer names.</small></span></label></div><div id="pokemonImportPreview"></div></section>`:""}
     ${pokemonUi.view==="stats"?`<section class="card"><h2>Friendship levels</h2><div class="poke-stat-list">${FRIENDSHIP_LEVELS.map(level=>`<button class="poke-stat-row" data-friendship-jump="${level}"><span>${pokeEmoji(level)} ${level}</span><strong>${friendshipCounts[level]||0}</strong></button>`).join("")}</div></section>
-      <section class="card"><h2>Gift totals</h2><div class="stat-grid"><div class="stat"><strong>${sent}</strong><span>You sent</span></div><div class="stat"><strong>${received}</strong><span>They sent</span></div></div></section>`:""}
+      <section class="card"><h2>Gift totals</h2><div class="stat-grid"><div class="stat"><strong>${sent}</strong><span>You sent</span></div><div class="stat"><strong>${received}</strong><span>They sent</span></div><div class="stat"><strong>${sentToday}</strong><span>Sent today</span></div><div class="stat"><strong>${receivedToday}</strong><span>Received today</span></div></div></section>`:""}
   ${openFriend?PokemonFriendDetail(openFriend):""}
   `,"pokemon");
 }
@@ -108,9 +128,9 @@ function PokemonFriendCard(f){
     <button class="poke-friend-open" data-open-friend-card="${f.id}">
       <div class="poke-friend-top"><div class="poke-avatar">${pokeEmoji(f.friendship)}</div><div class="poke-main"><h2>${esc(f.name)}</h2><p>${esc(f.nickname||f.country||"No nickname or country")}</p></div><span class="poke-open-arrow">›</span></div>
       ${friendshipCard(f)}
-      <div class="poke-chips"><span>🦋 ${esc(f.vivillon||"Unknown")}</span>${f.country?`<span>🌍 ${esc(f.country)}</span>`:""}</div>
+      <div class="poke-chips"><span>🦋 ${esc(f.vivillon||"Unknown")}</span>${f.country?`<span>🌍 ${esc(f.country)}</span>`:""}<span class="${(pokeDaysSince(f.lastInteraction)??999)>=14?"inactive-chip":""}">🕒 ${pokeInactiveLabel(f)}</span></div>
     </button>
-    <div class="gift-buttons"><button data-gift-sent="${f.id}"><b>🎁 I sent a gift</b><small>${f.giftsSent||0} total · ${pokeDate(f.lastGiftSent)}</small></button><button data-gift-received="${f.id}"><b>💌 They sent me a gift</b><small>${f.giftsReceived||0} total · ${pokeDate(f.lastGiftReceived)}</small></button></div>
+    <div class="gift-buttons"><button class="${giftLoggedToday(f,"sent")?"gift-done":""}" data-gift-sent="${f.id}"><b>${giftLoggedToday(f,"sent")?"✓ Sent today":"🎁 I sent a gift"}</b><small>${f.giftsSent||0} total · ${pokeDate(f.lastGiftSent)}</small></button><button class="${giftLoggedToday(f,"received")?"gift-done":""}" data-gift-received="${f.id}"><b>${giftLoggedToday(f,"received")?"✓ Received today":"💌 They sent me a gift"}</b><small>${f.giftsReceived||0} total · ${pokeDate(f.lastGiftReceived)}</small></button></div>
     <button class="mini poke-card-edit" data-poke-edit="${f.id}">Edit details</button>
     ${f.notes?`<p class="poke-notes">${esc(f.notes)}</p>`:""}</section>`;
 }
@@ -122,22 +142,24 @@ function bindPokemon(){
   document.querySelectorAll("[data-poke-view]").forEach(b=>b.onclick=()=>{pokemonUi.view=b.dataset.pokeView;pokemonUi.editing=null;render()});
   document.querySelectorAll("[data-open-friend-card]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=b.dataset.openFriendCard;render()});
   document.querySelectorAll("[data-close-friend-card]").forEach(b=>b.onclick=e=>{if(e.target===b||b.classList.contains("poke-detail-close")){pokemonUi.openCard=null;render()}});
-  document.querySelectorAll("[data-detail-gift-sent]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.detailGiftSent);if(!f)return;f.giftsSent=(Number(f.giftsSent)||0)+1;f.lastGiftSent=today();f.lastInteraction=today();saveData();render();toast("Gift sent recorded 🎁")});
-  document.querySelectorAll("[data-detail-gift-received]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.detailGiftReceived);if(!f)return;f.giftsReceived=(Number(f.giftsReceived)||0)+1;f.lastGiftReceived=today();f.lastInteraction=today();saveData();render();toast("Gift received recorded 💌")});
+  document.querySelectorAll("[data-detail-gift-sent]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.detailGiftSent,"sent",document.querySelector("#detailGiftDate")?.value||today()));
+  document.querySelectorAll("[data-detail-gift-received]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.detailGiftReceived,"received",document.querySelector("#detailGiftDate")?.value||today()));
   document.querySelectorAll("[data-detail-edit]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=null;pokemonUi.editing=b.dataset.detailEdit;render()});
 
   document.querySelector("#pokemonExcelImport")?.addEventListener("change",e=>{const f=e.target.files?.[0];if(f)importPokemonWorkbook(f)});
-  document.querySelector("#pokeSearch")?.addEventListener("input",e=>{pokemonUi.search=e.target.value;pokemonUi.page=1;render();requestAnimationFrame(()=>{const i=document.querySelector("#pokeSearch");if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}})});
-  document.querySelector("#pokeFriendshipFilter")?.addEventListener("change",e=>{pokemonUi.friendship=e.target.value;pokemonUi.page=1;render()});
-  document.querySelector("#pokeVivillonFilter")?.addEventListener("change",e=>{pokemonUi.vivillon=e.target.value;pokemonUi.page=1;render()});
+  document.querySelector("#pokeSearch")?.addEventListener("input",e=>{data.pokemonQuickFilter="";pokemonUi.search=e.target.value;pokemonUi.page=1;saveData();render();requestAnimationFrame(()=>{const i=document.querySelector("#pokeSearch");if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}})});
+  document.querySelector("#pokeFriendshipFilter")?.addEventListener("change",e=>{data.pokemonQuickFilter="";pokemonUi.friendship=e.target.value;pokemonUi.page=1;saveData();render()});
+  document.querySelector("#pokeVivillonFilter")?.addEventListener("change",e=>{data.pokemonQuickFilter="";pokemonUi.vivillon=e.target.value;pokemonUi.page=1;saveData();render()});
+  document.querySelector("#clearPokemonQuickFilter")?.addEventListener("click",()=>{data.pokemonQuickFilter="";saveData();render()});
   document.querySelectorAll("[data-poke-page]").forEach(b=>b.onclick=()=>{pokemonUi.page=Number(b.dataset.pokePage);render()});
   document.querySelector("#addPokemonFriend")?.addEventListener("click",()=>{const name=document.querySelector("#pokeName").value.trim();if(!name){toast("Add a trainer name");return}data.pokemonFriends.unshift(normalizePokemonFriend({id:`poke-${Date.now()}`,name,nickname:document.querySelector("#pokeNickname").value.trim(),friendship:document.querySelector("#pokeFriendship").value,vivillon:document.querySelector("#pokeVivillon").value,country:document.querySelector("#pokeCountry").value.trim(),notes:document.querySelector("#pokeNotes").value.trim()},0));saveData();pokemonUi.view="friends";pokemonUi.page=1;render();toast("Friend added 🎉")});
-  document.querySelectorAll("[data-gift-sent]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.giftSent);if(!f)return;f.giftsSent=(Number(f.giftsSent)||0)+1;f.lastGiftSent=today();f.lastInteraction=today();saveData();render();toast("Gift sent recorded 🎁")});
-  document.querySelectorAll("[data-gift-received]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.giftReceived);if(!f)return;f.giftsReceived=(Number(f.giftsReceived)||0)+1;f.lastGiftReceived=today();f.lastInteraction=today();saveData();render();toast("Gift received recorded 💌")});
+  document.querySelectorAll("[data-gift-sent]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.giftSent,"sent"));
+  document.querySelectorAll("[data-gift-received]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.giftReceived,"received"));
   document.querySelectorAll("[data-poke-edit]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=null;pokemonUi.editing=b.dataset.pokeEdit;render()});
   document.querySelectorAll("[data-poke-cancel]").forEach(b=>b.onclick=()=>{pokemonUi.editing=null;render()});
   document.querySelectorAll("[data-poke-save]").forEach(b=>b.onclick=()=>{const card=b.closest(".poke-friend-card"),f=data.pokemonFriends.find(x=>x.id===b.dataset.pokeSave);if(!f||!card)return;card.querySelectorAll("[data-edit-field]").forEach(i=>f[i.dataset.editField]=i.value.trim());saveData();pokemonUi.editing=null;render();toast("Friend updated ✨")});
   document.querySelectorAll("[data-poke-delete]").forEach(b=>b.onclick=()=>{const f=data.pokemonFriends.find(x=>x.id===b.dataset.pokeDelete);if(!f||!confirm(`Delete ${f.name}?`))return;data.pokemonFriends=data.pokemonFriends.filter(x=>x.id!==f.id);saveData();pokemonUi.editing=null;render()});
   document.querySelectorAll("[data-vivillon-jump]").forEach(b=>b.onclick=()=>{pokemonUi.vivillon=b.dataset.vivillonJump;pokemonUi.friendship="all";pokemonUi.search="";pokemonUi.page=1;pokemonUi.view="friends";render()});
   document.querySelectorAll("[data-friendship-jump]").forEach(b=>b.onclick=()=>{pokemonUi.friendship=b.dataset.friendshipJump;pokemonUi.vivillon="all";pokemonUi.search="";pokemonUi.page=1;pokemonUi.view="friends";render()});
+  document.querySelectorAll("[data-poke-today-filter]").forEach(b=>b.onclick=()=>{const mode=b.dataset.pokeTodayFilter;pokemonUi.view="friends";pokemonUi.friendship="all";pokemonUi.vivillon="all";pokemonUi.search=mode==="sent"?"":mode==="received"?"":"";pokemonUi.page=1;if(mode==="sent")data.pokemonQuickFilter="sentToday";else if(mode==="received")data.pokemonQuickFilter="receivedToday";else data.pokemonQuickFilter="inactive";saveData();render()});
 }

@@ -1,175 +1,88 @@
+const PLANT_ENCYCLOPEDIA=[
+  {id:"lemon-tree",name:"Lemon Tree",scientific:"Citrus limon",emoji:"🍋",light:"Very bright light; several hours of direct sun is ideal.",water:"Water thoroughly when the top 2–3 cm of compost feels dry. Do not leave it sitting in water.",humidity:"Normal household humidity is usually fine.",temperature:"Prefers warmth; protect from cold draughts and frost.",feeding:"Citrus feed every 1–2 weeks in spring and summer; reduce in winter.",soil:"Free-draining citrus or houseplant compost with added perlite.",tips:["Turn the pot regularly for even growth.","Yellow leaves can mean overwatering, poor drainage or a nutrient shortage.","Repot only one size up when roots are crowded."],wateringDays:7},
+  {id:"basil",name:"Basil",scientific:"Ocimum basilicum",emoji:"🌿",light:"Bright light with around 6 hours of sun. Shield from harsh scorching midday sun behind glass.",water:"Keep lightly and evenly moist. Water when the surface begins to feel dry.",humidity:"Average humidity; good airflow helps prevent mildew.",temperature:"Warm conditions, ideally above 15°C.",feeding:"Half-strength liquid feed every 2–4 weeks while actively growing.",soil:"Rich but free-draining multipurpose compost.",tips:["Pinch out flower buds to keep leaves tender and encourage bushy growth.","Harvest just above a pair of leaves.","Avoid leaving the roots waterlogged."],wateringDays:3},
+  {id:"greek-oregano",name:"Greek Oregano",scientific:"Origanum vulgare subsp. hirtum",emoji:"🌱",light:"Full sun or the brightest window available.",water:"Allow the compost to dry noticeably between waterings.",humidity:"Prefers drier air and good airflow.",temperature:"Tolerates normal indoor temperatures; hardy outdoors in suitable conditions.",feeding:"Feed sparingly; too much fertiliser can reduce flavour.",soil:"Very free-draining compost, ideally with grit or perlite.",tips:["Trim regularly to prevent legginess.","Do not keep constantly damp.","Strong light produces the best flavour."],wateringDays:7},
+  {id:"orchid",name:"Orchid",scientific:"Phalaenopsis hybrid",emoji:"🌸",light:"Bright indirect light; an east or filtered south/west window works well.",water:"Soak the bark thoroughly, then drain completely. Water again when roots look silvery and the pot feels light.",humidity:"Moderate humidity with gentle airflow.",temperature:"Normal warm indoor temperatures; avoid cold draughts.",feeding:"Weak orchid fertiliser every 2–4 waterings during active growth.",soil:"Orchid bark, never ordinary dense compost.",tips:["Healthy wet roots are green; dry roots are silvery.","Keep water out of the crown.","Trim only dead, hollow or mushy roots with clean scissors."],wateringDays:9},
+  {id:"nemesia-vanilla",name:"Nemesia 'Vanilla'",scientific:"Nemesia hybrid",emoji:"🌼",light:"Full sun to bright partial shade.",water:"Keep evenly moist but not waterlogged, especially while flowering.",humidity:"Normal outdoor or household humidity with airflow.",temperature:"Prefers cooler conditions and may struggle in strong heat.",feeding:"Balanced liquid feed every 2–3 weeks while blooming.",soil:"Fertile, free-draining multipurpose compost.",tips:["Deadhead faded flowers to encourage more blooms.","Trim lightly if growth becomes straggly.","Protect the pot from drying out completely."],wateringDays:3},
+  {id:"spider-plant",name:"Spider Plant",scientific:"Chlorophytum comosum",emoji:"🪴",light:"Bright indirect light, though it tolerates medium light.",water:"Water when the top few centimetres feel dry. Slight drying is safer than constant wetness.",humidity:"Average humidity; brown tips can worsen in very dry air.",temperature:"Normal indoor temperatures; avoid frost.",feeding:"Monthly half-strength feed in spring and summer.",soil:"Standard free-draining houseplant compost.",tips:["Brown tips may come from salts, dry air or irregular watering.","Plantlets can be rooted in water or compost.","It tolerates being slightly root-bound."],wateringDays:7},
+  {id:"prayer-plant",name:"Prayer Plant",scientific:"Maranta leuconeura",emoji:"🍃",light:"Bright indirect light; direct sun can fade or scorch leaves.",water:"Keep lightly moist, watering when the surface just begins to dry. Use rainwater or filtered water where possible.",humidity:"Likes higher humidity.",temperature:"Warm and stable; avoid cold draughts.",feeding:"Half-strength feed monthly in spring and summer.",soil:"Moisture-retentive but airy houseplant mix with perlite.",tips:["Crispy edges often point to dry air, hard water or underwatering.","Leaves naturally fold upward at night.","Do not let the pot sit in water."],wateringDays:5},
+  {id:"apple-seeds",name:"Apple Seeds",scientific:"Malus domestica",emoji:"🍎",light:"After germination, provide very bright light and gradually introduce direct sun.",water:"Keep seed compost lightly moist, never sodden.",humidity:"A covered container can help during germination, but ventilate to prevent mould.",temperature:"Seeds usually need a cold, moist stratification period before warmth.",feeding:"Do not feed until seedlings have several true leaves; then use a very weak balanced feed.",soil:"Fine seed compost initially, then free-draining potting compost.",tips:["Chill moist seeds in the fridge for roughly 6–10 weeks.","Seed-grown apples will not grow true to the parent fruit.","Remove any mouldy seeds promptly."],wateringDays:4},
+  {id:"pothos",name:"Pothos",scientific:"Epipremnum aureum",emoji:"🌿",light:"Bright indirect light; tolerates lower light with slower growth.",water:"Allow the top half of the compost to dry before watering thoroughly.",humidity:"Average household humidity is fine.",temperature:"Warm indoor conditions; avoid cold draughts.",feeding:"Monthly in spring and summer at half strength.",soil:"Free-draining houseplant compost.",tips:["Prune above a node for bushier growth.","Yellow leaves often follow overwatering.","Toxic if eaten by pets or people."],wateringDays:8},
+  {id:"peace-lily",name:"Peace Lily",scientific:"Spathiphyllum",emoji:"🤍",light:"Medium to bright indirect light.",water:"Water when the top 2–3 cm dries; it may droop dramatically when thirsty.",humidity:"Enjoys moderate to high humidity.",temperature:"Warm indoor temperatures away from draughts.",feeding:"Monthly weak feed in spring and summer.",soil:"Moisture-retentive but draining houseplant compost.",tips:["Wipe leaves to keep them dust-free.","Brown tips can reflect salts or dry air.","Toxic if eaten by pets or people."],wateringDays:6},
+  {id:"snake-plant",name:"Snake Plant",scientific:"Dracaena trifasciata",emoji:"🌵",light:"Bright indirect light is best, but it tolerates lower light.",water:"Let the compost dry fully before watering again.",humidity:"Normal or dry household air.",temperature:"Keep above roughly 10°C.",feeding:"Light feed every 6–8 weeks in spring and summer.",soil:"Very free-draining cactus or succulent mix.",tips:["Overwatering is the main danger.","Use a pot with drainage holes.","Toxic if eaten by pets."],wateringDays:18},
+  {id:"aloe-vera",name:"Aloe Vera",scientific:"Aloe barbadensis miller",emoji:"🌵",light:"Very bright light with some direct sun, introduced gradually.",water:"Soak thoroughly, then let the compost dry completely.",humidity:"Prefers dry air.",temperature:"Warm conditions; protect from frost.",feeding:"Very weak succulent feed a few times during spring and summer.",soil:"Cactus or succulent compost with excellent drainage.",tips:["Soft translucent leaves often mean too much water.","Rotate for even growth.","Use a heavy pot if the plant becomes top-heavy."],wateringDays:18}
+];
 
+let plantUi={view:"collection",encyclopediaSearch:"",encyclopediaOpen:null};
+function encyclopediaEntry(id,name){return PLANT_ENCYCLOPEDIA.find(x=>x.id===id)||PLANT_ENCYCLOPEDIA.find(x=>x.name.toLowerCase()===String(name||"").toLowerCase())}
 function plantStatus(p){
-  if(!p.lastWatered) return {text:"Needs attention",className:"attention",icon:"🔔"};
+  const guide=encyclopediaEntry(p.guideId||p.id,p.name);
+  const threshold=Number(p.wateringDays)||guide?.wateringDays||5;
+  if(!p.lastWatered) return {text:"Needs attention",className:"attention",icon:"🔔",days:null,threshold};
   const days=Math.floor((new Date(today()+"T12:00:00")-new Date(p.lastWatered+"T12:00:00"))/86400000);
-  return days>=5
-    ? {text:"Needs attention",className:"attention",icon:"🔔"}
-    : {text:"All good",className:"good",icon:"🌿"};
+  return days>=threshold?{text:`${days} days ago`,className:"attention",icon:"🔔",days,threshold}:{text:"All good",className:"good",icon:"🌿",days,threshold};
 }
 function plantProfileTab(){return data.plantProfileTab||"overview"}
+function careGuideHtml(guide){
+  if(!guide)return `<section class="card clean-card"><h2>No care guide linked yet</h2><p>Open the encyclopedia and choose the closest match for this plant.</p></section>`;
+  return `<section class="card clean-card plant-care-guide">
+    <div class="plant-guide-title"><div class="encyclopedia-icon">${guide.emoji}</div><div><span class="section-kicker">Built-in care guide</span><h2>${esc(guide.name)}</h2><p><i>${esc(guide.scientific)}</i></p></div></div>
+    <div class="care-fact-grid">
+      <div><span>☀️</span><small>Light</small><p>${esc(guide.light)}</p></div>
+      <div><span>💧</span><small>Water</small><p>${esc(guide.water)}</p></div>
+      <div><span>💨</span><small>Humidity</small><p>${esc(guide.humidity)}</p></div>
+      <div><span>🌡️</span><small>Temperature</small><p>${esc(guide.temperature)}</p></div>
+      <div><span>🌱</span><small>Feeding</small><p>${esc(guide.feeding)}</p></div>
+      <div><span>🪴</span><small>Soil</small><p>${esc(guide.soil)}</p></div>
+    </div>
+    <div class="plant-tips"><h3>Good to know</h3>${guide.tips.map(t=>`<p>✨ ${esc(t)}</p>`).join("")}</div>
+  </section>`;
+}
+function encyclopediaCard(g,owned){return `<article class="encyclopedia-card">
+  <button type="button" class="encyclopedia-open" data-guide-open="${g.id}"><span>${g.emoji}</span><div><h2>${esc(g.name)}</h2><p>${esc(g.scientific)}</p><small>${esc(g.light.split(".")[0])}</small></div><b>›</b></button>
+  ${owned?`<em class="owned-chip">✓ In my plants</em>`:`<button type="button" class="mini" data-add-guide="${g.id}">＋ Add to my plants</button>`}
+</article>`}
 
 function PlantsPage(){
   const attention=data.plants.filter(p=>plantStatus(p).className==="attention").length;
+  const q=plantUi.encyclopediaSearch.toLowerCase();
+  const guides=PLANT_ENCYCLOPEDIA.filter(g=>[g.name,g.scientific,g.light,g.water].join(" ").toLowerCase().includes(q));
+  const opened=PLANT_ENCYCLOPEDIA.find(g=>g.id===plantUi.encyclopediaOpen);
   return shell(`${head("Plants","Your enchanted plant family")}
-    <section class="plant-garden-hero card">
-      <div>
-        <span class="section-kicker">🌸 Enchanted garden</span>
-        <h1>My plants</h1>
-        <p>A little home for watering, photos and care notes.</p>
-      </div>
-      <div class="blossom-branch" aria-hidden="true"><span>🌸</span><span>🌸</span><span>🌸</span></div>
-    </section>
-
-    <div class="plant-search"><span>⌕</span><input id="plantSearch" placeholder="Search plants…"><span>${attention?`🔔 ${attention}`:"✓"}</span></div>
-
-    <div class="plant-tile-grid" id="plantList">
-      ${data.plants.map(p=>{
-        const s=plantStatus(p);
-        return `<button type="button" class="plant-tile" data-route="plant" data-route-id="${esc(p.id)}" data-plant-name="${esc(p.name.toLowerCase())}">
-          <div class="plant-tile-art">${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div>
-          <div class="plant-tile-copy">
-            <h2>${esc(p.name)}</h2>
-            <p>${p.lastWatered?`Watered ${esc(formatDate(p.lastWatered))}`:"Not watered yet"}</p>
-            <em class="status-chip ${s.className}">${s.icon} ${s.text}</em>
-          </div>
-        </button>`;
-      }).join("")}
-    </div>
+    <section class="plant-garden-hero card"><div><span class="section-kicker">🌸 Enchanted garden</span><h1>${plantUi.view==="collection"?"My plants":"Plant encyclopedia"}</h1><p>${plantUi.view==="collection"?"A little home for watering, photos and care notes.":"Care guidance that works even when LinaHub is offline."}</p></div><div class="blossom-branch" aria-hidden="true"><span>🌸</span><span>🌸</span><span>🌸</span></div></section>
+    <div class="plant-main-tabs"><button class="${plantUi.view==="collection"?"active":""}" data-plant-view="collection">🪴 My plants</button><button class="${plantUi.view==="encyclopedia"?"active":""}" data-plant-view="encyclopedia">📖 Encyclopedia</button></div>
+    ${plantUi.view==="collection"?`
+      <div class="plant-search"><span>⌕</span><input id="plantSearch" placeholder="Search plants…"><span>${attention?`🔔 ${attention}`:"✓"}</span></div>
+      <div class="plant-tile-grid" id="plantList">${data.plants.map(p=>{const s=plantStatus(p);return `<button type="button" class="plant-tile" data-route="plant" data-route-id="${esc(p.id)}" data-plant-name="${esc(p.name.toLowerCase())}"><div class="plant-tile-art">${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div><div class="plant-tile-copy"><h2>${esc(p.name)}</h2><p>${p.lastWatered?`Watered ${esc(formatDate(p.lastWatered))}`:"Not watered yet"}</p><em class="status-chip ${s.className}">${s.icon} ${s.text}</em></div></button>`}).join("")}</div>`:`
+      <div class="plant-search"><span>⌕</span><input id="encyclopediaSearch" value="${esc(plantUi.encyclopediaSearch)}" placeholder="Search name or care need…"><span>📖 ${guides.length}</span></div>
+      <div class="encyclopedia-grid">${guides.map(g=>encyclopediaCard(g,data.plants.some(p=>(p.guideId||p.id)===g.id))).join("")||`<section class="card"><p>No matching plants found.</p></section>`}</div>`}
+    ${opened?`<div class="plant-guide-backdrop" data-close-guide><section class="plant-guide-modal"><button class="poke-detail-close" data-close-guide>×</button>${careGuideHtml(opened)}${data.plants.some(p=>(p.guideId||p.id)===opened.id)?"":`<button class="primary full-width" data-add-guide="${opened.id}">Add to my plants</button>`}</section></div>`:""}
   `,"plants");
 }
 
 function PlantProfilePage(){
-  const p=data.plants.find(x=>x.id===routeId);
-  if(!p) return PlantsPage();
-  const history=[...(p.history||[])].sort().reverse();
-  const status=plantStatus(p);
-  const active=plantProfileTab();
-
+  const p=data.plants.find(x=>x.id===routeId);if(!p)return PlantsPage();
+  const history=[...(p.history||[])].sort().reverse(),status=plantStatus(p),active=plantProfileTab(),guide=encyclopediaEntry(p.guideId||p.id,p.name);
   return shell(`${head(p.name,"Plant profile","plants")}
-    <section class="card plant-profile-head">
-      <div class="plant-photo-large">${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div>
-      <div class="plant-profile-actions">
-        <label class="secondary upload-label">📷 Add / change photo<input id="plantPhoto" type="file" accept="image/*" hidden></label>
-        <em class="status-chip ${status.className}">${status.icon} ${status.text}</em>
-      </div>
-    </section>
-
-    <div class="profile-tabs" role="tablist" aria-label="Plant profile sections">
-      ${[["overview","Overview"],["care","Care"],["history","History"],["notes","Notes"]]
-        .map(([id,label])=>`<button type="button" role="tab" aria-selected="${active===id}" data-plant-tab="${id}" class="${active===id?"active":""}">${label}</button>`).join("")}
-    </div>
-
-    <div class="plant-tab-panel ${active==="overview"?"active":""}">
-      <section class="care-summary">
-        <div><small>Last watered</small><strong>${p.lastWatered?formatDate(p.lastWatered):"Not yet"}</strong></div>
-        <div><small>Waterings logged</small><strong>${history.length}</strong></div>
-      </section>
-      <section class="card clean-card">
-        <span class="section-kicker">Overview</span>
-        <h2>Current care</h2>
-        <p>${p.lastWatered?`Last watered on ${formatDate(p.lastWatered)}.`:"No watering has been logged yet."}</p>
-        <p>${p.notes?esc(p.notes):"No care notes saved yet."}</p>
-      </section>
-    </div>
-
-    <div class="plant-tab-panel ${active==="care"?"active":""}">
-      <section class="card clean-card">
-        <span class="section-kicker">Care</span>
-        <h2>Log watering</h2>
-        <div class="dated-action">
-          <label class="date-picker-shell" aria-label="Watering date">
-            <span>📅</span><input id="plantWaterDate" type="date" value="${today()}" max="${today()}">
-          </label>
-          <button type="button" class="primary" id="waterPlant">💧 Log watering</button>
-        </div>
-        <p class="helper-text">Today is selected automatically. Open the calendar to record an earlier watering.</p>
-      </section>
-    </div>
-
-    <div class="plant-tab-panel ${active==="history"?"active":""}">
-      <section class="card clean-card">
-        <span class="section-kicker">History</span>
-        <h2>Watering history</h2>
-        <div class="history-list">
-          ${history.length?history.map(d=>`<div class="history-row"><span>💧</span><span>${esc(formatDate(d))}</span><button type="button" class="icon-danger" data-water-delete="${esc(d)}" aria-label="Delete ${esc(formatDate(d))}">×</button></div>`).join(""):`<p>No watering history yet.</p>`}
-        </div>
-      </section>
-    </div>
-
-    <div class="plant-tab-panel ${active==="notes"?"active":""}">
-      <section class="card clean-card">
-        <span class="section-kicker">Notes</span>
-        <h2>Care notes</h2>
-        <textarea class="field plant-notes" rows="6" placeholder="Care notes, growth updates, anything you notice...">${esc(p.notes)}</textarea>
-        <button type="button" class="primary" id="savePlantNotes">Save notes</button>
-      </section>
-    </div>
+    <section class="card plant-profile-head"><div class="plant-photo-large">${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div><div class="plant-profile-actions"><label class="secondary upload-label">📷 Add / change photo<input id="plantPhoto" type="file" accept="image/*" hidden></label><em class="status-chip ${status.className}">${status.icon} ${status.text}</em></div></section>
+    <div class="profile-tabs" role="tablist" aria-label="Plant profile sections">${[["overview","Overview"],["care","Care"],["history","History"],["notes","Notes"]].map(([id,label])=>`<button type="button" role="tab" aria-selected="${active===id}" data-plant-tab="${id}" class="${active===id?"active":""}">${label}</button>`).join("")}</div>
+    <div class="plant-tab-panel ${active==="overview"?"active":""}"><section class="care-summary"><div><small>Last watered</small><strong>${p.lastWatered?formatDate(p.lastWatered):"Not yet"}</strong></div><div><small>Waterings logged</small><strong>${history.length}</strong></div></section><section class="card clean-card"><span class="section-kicker">Overview</span><h2>Current care</h2><p>${p.lastWatered?`Last watered on ${formatDate(p.lastWatered)}.`:"No watering has been logged yet."}</p><p>${p.notes?esc(p.notes):"No personal care notes saved yet."}</p></section>${careGuideHtml(guide)}</div>
+    <div class="plant-tab-panel ${active==="care"?"active":""}"><section class="card clean-card"><span class="section-kicker">Care</span><h2>Log watering</h2><div class="dated-action"><label class="date-picker-shell" aria-label="Watering date"><span>📅</span><input id="plantWaterDate" type="date" value="${today()}" max="${today()}"></label><button type="button" class="primary" id="waterPlant">💧 Log watering</button></div><p class="helper-text">Today is selected automatically. Open the calendar to record an earlier watering.</p></section>${careGuideHtml(guide)}</div>
+    <div class="plant-tab-panel ${active==="history"?"active":""}"><section class="card clean-card"><span class="section-kicker">History</span><h2>Watering history</h2><div class="history-list">${history.length?history.map(d=>`<div class="history-row"><span>💧</span><span>${esc(formatDate(d))}</span><button type="button" class="icon-danger" data-water-delete="${esc(d)}" aria-label="Delete ${esc(formatDate(d))}">×</button></div>`).join(""):`<p>No watering history yet.</p>`}</div></section></div>
+    <div class="plant-tab-panel ${active==="notes"?"active":""}"><section class="card clean-card"><span class="section-kicker">Notes</span><h2>Care notes</h2><textarea class="field plant-notes" rows="6" placeholder="Care notes, growth updates, anything you notice...">${esc(p.notes)}</textarea><button type="button" class="primary" id="savePlantNotes">Save notes</button></section></div>
   `,"plants");
 }
-
+function addEncyclopediaPlant(id){const g=PLANT_ENCYCLOPEDIA.find(x=>x.id===id);if(!g)return;if(data.plants.some(p=>(p.guideId||p.id)===id)){toast("That plant is already in your collection");return}data.plants.push({id:`${id}-${Date.now()}`,guideId:id,name:g.name,emoji:g.emoji,notes:"",lastWatered:"",history:[],photo:"",wateringDays:g.wateringDays});saveData();plantUi.encyclopediaOpen=null;plantUi.view="collection";render();toast(`${g.name} added 🌿`)}
 function bindPlants(){
-  document.querySelector("#plantSearch")?.addEventListener("input",e=>{
-    const q=e.target.value.toLowerCase();
-    document.querySelectorAll("[data-plant-name]").forEach(tile=>{
-      tile.hidden=!tile.dataset.plantName.includes(q);
-    });
-  });
-
-  document.querySelectorAll("[data-plant-tab]").forEach(button=>{
-    button.addEventListener("click",()=>{
-      data.plantProfileTab=button.dataset.plantTab;
-      saveData();
-      render();
-    });
-  });
-
-  document.querySelector("#waterPlant")?.addEventListener("click",()=>{
-    const p=data.plants.find(x=>x.id===routeId);
-    if(!p) return;
-    const date=document.querySelector("#plantWaterDate")?.value||today();
-    if(date>today()){toast("Choose today or an earlier date");return}
-    p.history=Array.isArray(p.history)?p.history:[];
-    if(!p.history.includes(date)) p.history.push(date);
-    p.history.sort();
-    p.lastWatered=p.history[p.history.length-1]||"";
-    saveData();
-    toast(`${p.name} watering logged 💧`);
-    render();
-  });
-
-  document.querySelectorAll("[data-water-delete]").forEach(button=>{
-    button.addEventListener("click",()=>{
-      const p=data.plants.find(x=>x.id===routeId);
-      if(!p) return;
-      p.history=(p.history||[]).filter(date=>date!==button.dataset.waterDelete);
-      p.history.sort();
-      p.lastWatered=p.history[p.history.length-1]||"";
-      saveData();
-      toast("Watering entry removed");
-      render();
-    });
-  });
-
-  document.querySelector("#savePlantNotes")?.addEventListener("click",()=>{
-    const p=data.plants.find(x=>x.id===routeId);
-    if(!p) return;
-    p.notes=document.querySelector(".plant-notes").value;
-    saveData();
-    toast("Plant notes saved 🌿");
-  });
-
-  document.querySelector("#plantPhoto")?.addEventListener("change",e=>{
-    const file=e.target.files?.[0];
-    if(!file) return;
-    const reader=new FileReader();
-    reader.onload=()=>{
-      const p=data.plants.find(x=>x.id===routeId);
-      if(!p) return;
-      p.photo=reader.result;
-      saveData();
-      toast("Plant photo saved 📷");
-      render();
-    };
-    reader.readAsDataURL(file);
-  });
+  document.querySelectorAll("[data-plant-view]").forEach(b=>b.onclick=()=>{plantUi.view=b.dataset.plantView;plantUi.encyclopediaOpen=null;render()});
+  document.querySelector("#plantSearch")?.addEventListener("input",e=>{const q=e.target.value.toLowerCase();document.querySelectorAll("[data-plant-name]").forEach(tile=>tile.hidden=!tile.dataset.plantName.includes(q))});
+  document.querySelector("#encyclopediaSearch")?.addEventListener("input",e=>{plantUi.encyclopediaSearch=e.target.value;render();requestAnimationFrame(()=>{const i=document.querySelector("#encyclopediaSearch");if(i){i.focus();i.setSelectionRange(i.value.length,i.value.length)}})});
+  document.querySelectorAll("[data-guide-open]").forEach(b=>b.onclick=()=>{plantUi.encyclopediaOpen=b.dataset.guideOpen;render()});
+  document.querySelectorAll("[data-close-guide]").forEach(b=>b.onclick=e=>{if(e.target===b||b.classList.contains("poke-detail-close")){plantUi.encyclopediaOpen=null;render()}});
+  document.querySelectorAll("[data-add-guide]").forEach(b=>b.onclick=()=>addEncyclopediaPlant(b.dataset.addGuide));
+  document.querySelectorAll("[data-plant-tab]").forEach(button=>button.addEventListener("click",()=>{data.plantProfileTab=button.dataset.plantTab;saveData();render()}));
+  document.querySelector("#waterPlant")?.addEventListener("click",()=>{const p=data.plants.find(x=>x.id===routeId);if(!p)return;const date=document.querySelector("#plantWaterDate")?.value||today();if(date>today()){toast("Choose today or an earlier date");return}p.history=Array.isArray(p.history)?p.history:[];if(!p.history.includes(date))p.history.push(date);p.history.sort();p.lastWatered=p.history[p.history.length-1]||"";saveData();toast(`${p.name} watering logged 💧`);render()});
+  document.querySelectorAll("[data-water-delete]").forEach(button=>button.addEventListener("click",()=>{const p=data.plants.find(x=>x.id===routeId);if(!p)return;p.history=(p.history||[]).filter(date=>date!==button.dataset.waterDelete);p.history.sort();p.lastWatered=p.history[p.history.length-1]||"";saveData();toast("Watering entry removed");render()}));
+  document.querySelector("#savePlantNotes")?.addEventListener("click",()=>{const p=data.plants.find(x=>x.id===routeId);if(!p)return;p.notes=document.querySelector(".plant-notes").value;saveData();toast("Plant notes saved 🌿")});
+  document.querySelector("#plantPhoto")?.addEventListener("change",e=>{const file=e.target.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{const p=data.plants.find(x=>x.id===routeId);if(!p)return;p.photo=reader.result;saveData();toast("Plant photo saved 📷");render()};reader.readAsDataURL(file)});
 }

@@ -28,6 +28,16 @@ const CLOUD_STATE={
 };
 localStorage.setItem("linahub-device-id",CLOUD_STATE.deviceId);
 
+
+let cloudRenderTimer=null;
+function quietCloudRender(){
+  clearTimeout(cloudRenderTimer);
+  cloudRenderTimer=setTimeout(()=>{
+    suppressNextPageAnimation=true;
+    render();
+  },80);
+}
+
 function cloudStatusText(){
   return ({"signed-out":"Not signed in","connecting":"Connecting…","syncing":"Syncing…","synced":"Synced","offline":"Offline","error":"Sync error"})[CLOUD_STATE.status]||CLOUD_STATE.status;
 }
@@ -92,7 +102,7 @@ async function downloadAllModules(){
   CLOUD_STATE.applyingRemote=false;
   localStorage.setItem(`linahub-cloud-migrated-${CLOUD_STATE.user.uid}`,"1");
   setCloudStatus("synced");
-  render();
+  quietCloudRender();
 }
 function stopCloudListeners(){CLOUD_STATE.unsubscribers.forEach(fn=>fn());CLOUD_STATE.unsubscribers=[]}
 function startCloudListeners(){
@@ -106,7 +116,7 @@ function startCloudListeners(){
       applyModule(remote);localSaveOnly();CLOUD_STATE.lastSnapshot=JSON.stringify(data);
       CLOUD_STATE.applyingRemote=false;
       setCloudStatus(snap.metadata.fromCache&&!navigator.onLine?"offline":"synced");
-      render();
+      quietCloudRender();
     },error=>{console.error("LinaHub listener",error);setCloudStatus("error")});
     CLOUD_STATE.unsubscribers.push(unsub);
   });
@@ -148,10 +158,10 @@ function initLinaCloud(){
     firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     firebase.auth().onAuthStateChanged(async user=>{
       CLOUD_STATE.user=user||null;CLOUD_STATE.ready=false;
-      if(!user){stopCloudListeners();setCloudStatus("signed-out");render();return}
+      if(!user){stopCloudListeners();setCloudStatus("signed-out");quietCloudRender();return}
       setCloudStatus(navigator.onLine?"connecting":"offline");
       try{await firstCloudSetup()}catch(error){console.error(error);setCloudStatus(navigator.onLine?"error":"offline")}
-      render();
+      quietCloudRender();
     });
   }catch(error){console.error("Firebase startup",error);setCloudStatus("error")}
 }

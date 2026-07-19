@@ -2,7 +2,7 @@
 let route="home";
 let routeId="";
 let navDirection="forward";
-let suppressNextPageAnimation=false;
+let suppressNextPageAnimation=true;
 const navigationHistory=[];
 
 function nav(active){

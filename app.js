@@ -29,7 +29,7 @@ function render(){
   atmosphere.setAttribute("aria-hidden","true");
 
   if(route==="plants"||route==="plant"){
-    atmosphere.innerHTML=Array.from({length:22},(_,i)=>`<i class="petal" style="--i:${i}"></i>`).join("");
+    atmosphere.innerHTML=Array.from({length:24},(_,i)=>`<i class="petal" style="--i:${i}" aria-hidden="true">${i%5===0?"🌸":i%3===0?"❀":"✿"}</i>`).join("");
   }else if(route==="pets"||route==="tank"){
     atmosphere.innerHTML=Array.from({length:16},(_,i)=>`<i class="aqua-bubble" style="--i:${i}"></i>`).join("");
   }
@@ -230,7 +230,7 @@ setupSwipeBack();
 
 if("serviceWorker" in navigator){
   window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("./sw.js?v=133").catch(()=>{});
+    navigator.serviceWorker.register("./sw.js?v=140").catch(()=>{});
   });
 }
 

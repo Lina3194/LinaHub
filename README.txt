@@ -1,3 +1,7 @@
+LinaHub v14
+
+Includes all previous features, reliable mobile cherry blossom animation on Plants, and smaller compact plant tiles.
+
 LinaHub v13.9 — Mobile Plant Cherry Blossoms
 
 Includes everything from v13.8, plus falling cherry blossoms on the Plants tab and plant profiles on phone-sized screens.

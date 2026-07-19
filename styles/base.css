@@ -739,3 +739,47 @@ body.swipe-back-active .bottom{pointer-events:none}
   .atmosphere-plants .petal,.atmosphere-plant .petal{animation:none!important;opacity:.18}
   .atmosphere-plants .petal:nth-child(n+9),.atmosphere-plant .petal:nth-child(n+9){display:none}
 }
+
+
+/* v14 — reliable mobile cherry blossom atmosphere */
+@media (max-width:760px){
+  .atmosphere-plants,.atmosphere-plant{
+    position:fixed!important;
+    inset:58px 0 66px!important;
+    overflow:hidden!important;
+    pointer-events:none!important;
+    z-index:3!important;
+  }
+  .atmosphere-plants .petal,.atmosphere-plant .petal{
+    --blossom-size:calc(12px + (var(--i) % 6) * 3px);
+    display:block!important;
+    position:absolute!important;
+    top:-48px!important;
+    left:calc((var(--i) * 4.45%) - 3%)!important;
+    width:auto!important;
+    height:auto!important;
+    border:0!important;
+    border-radius:0!important;
+    background:transparent!important;
+    box-shadow:none!important;
+    color:rgba(238,132,179,.88)!important;
+    font-size:var(--blossom-size)!important;
+    line-height:1!important;
+    opacity:0;
+    filter:drop-shadow(0 2px 3px rgba(138,67,111,.2));
+    animation:v14BlossomFall calc(8.5s + (var(--i) % 7) * 1.05s) linear infinite!important;
+    animation-delay:calc(var(--i) * -1.13s)!important;
+    will-change:transform,opacity;
+  }
+  .atmosphere-plants .petal::before,.atmosphere-plant .petal::before{content:none!important}
+  .atmosphere-plants .petal:nth-child(2n),.atmosphere-plant .petal:nth-child(2n){color:rgba(250,183,210,.9)!important}
+  .atmosphere-plants .petal:nth-child(5n),.atmosphere-plant .petal:nth-child(5n){font-size:calc(var(--blossom-size) * .78)!important}
+}
+@keyframes v14BlossomFall{
+  0%{transform:translate3d(0,-8vh,0) rotate(0deg);opacity:0}
+  8%{opacity:.78}
+  30%{transform:translate3d(24px,28vh,0) rotate(130deg);opacity:.75}
+  58%{transform:translate3d(-18px,58vh,0) rotate(270deg);opacity:.7}
+  82%{transform:translate3d(28px,83vh,0) rotate(390deg);opacity:.58}
+  100%{transform:translate3d(-12px,112vh,0) rotate(540deg);opacity:0}
+}

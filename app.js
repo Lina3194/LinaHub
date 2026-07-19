@@ -1,7 +1,7 @@
 
 function render(){
   document.body.classList.toggle("dark",data.theme==="dark");
-  document.body.dataset.route=route;
+  document.body.dataset.route=route; // Styling metadata only; navigation clicks are restricted to explicit controls.
   document.querySelectorAll(".route-atmosphere").forEach(el=>el.remove());
 
   const pages={
@@ -61,7 +61,7 @@ function setupNavigation(){
       return;
     }
 
-    const routeButton=event.target.closest("[data-route]");
+    const routeButton=event.target.closest("button[data-route],a[data-route],[role='button'][data-route]");
     if(routeButton){
       event.preventDefault();
       event.stopPropagation();
@@ -229,7 +229,7 @@ setupSwipeBack();
 
 if("serviceWorker" in navigator){
   window.addEventListener("load",()=>{
-    navigator.serviceWorker.register("./sw.js?v=88").catch(()=>{});
+    navigator.serviceWorker.register("./sw.js?v=89").catch(()=>{});
   });
 }
 

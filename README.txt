@@ -104,3 +104,10 @@ v8.8:
 - Job name and frequency can also be changed
 - House actions now use stable task IDs instead of fragile list positions
 - Existing House jobs are preserved and normalized
+
+v8.9:
+- Fixed the root cause of House controls reloading the page
+- Navigation now reacts only to explicit route buttons/links
+- Body data-route is retained only for styling and can no longer hijack normal clicks
+- House room dropdown, Edit modal, image pickers, selects, inputs and regular buttons now work without triggering a route reload
+- Preserved smooth back navigation and all v8.8 House editing features

@@ -1,3 +1,3 @@
-LinaHub v14.3 — Cherry Blossom Petal Fix
+LinaHub v14.4 — Guaranteed Cherry Blossom Petals
 
-Includes all v14.2 features. The Plants tab now uses recognisable individual sakura petals with the classic notched cherry-blossom shape, varied pink shades, drifting and spinning on mobile.
+Includes all v14.3 features. Fixes the Plants decoration so individual sakura petals remain visible and falling on mobile, including devices with Reduce Motion enabled.

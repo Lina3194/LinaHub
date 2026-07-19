@@ -866,3 +866,60 @@ body.swipe-back-active .bottom{pointer-events:none}
   .atmosphere-plants .sakura-petal,.atmosphere-plant .sakura-petal{animation:none!important;opacity:.24!important}
   .atmosphere-plants .sakura-petal:nth-child(n+9),.atmosphere-plant .sakura-petal:nth-child(n+9){display:none!important}
 }
+
+
+/* v14.4 — guaranteed visible falling sakura petals on the Plants routes */
+@media (max-width:760px){
+  body[data-route="plants"] .route-atmosphere.atmosphere-plants,
+  body[data-route="plant"] .route-atmosphere.atmosphere-plant{
+    display:block!important;
+    position:fixed!important;
+    inset:48px 0 64px!important;
+    overflow:hidden!important;
+    pointer-events:none!important;
+    z-index:5!important;
+  }
+  body[data-route="plants"] .sakura-petal,
+  body[data-route="plant"] .sakura-petal{
+    --petal-size:calc(14px + (var(--i) % 6) * 2px);
+    display:block!important;
+    visibility:visible!important;
+    position:absolute!important;
+    top:-36px!important;
+    left:calc((var(--i) * 2.95%) - 2%)!important;
+    width:var(--petal-size)!important;
+    height:calc(var(--petal-size) * 1.28)!important;
+    opacity:.82!important;
+    animation-name:v144SakuraFall!important;
+    animation-duration:calc(10s + (var(--i) % 7) * 1.15s)!important;
+    animation-timing-function:linear!important;
+    animation-iteration-count:infinite!important;
+    animation-delay:calc(var(--i) * -1.21s)!important;
+    animation-fill-mode:both!important;
+    will-change:transform!important;
+  }
+  body[data-route="plants"] .sakura-petal svg,
+  body[data-route="plant"] .sakura-petal svg{
+    display:block!important;
+    width:100%!important;
+    height:100%!important;
+    overflow:visible!important;
+  }
+}
+@keyframes v144SakuraFall{
+  0%{transform:translate3d(0,-5vh,0) rotate(-18deg) scale(.82);opacity:.25}
+  12%{opacity:.9}
+  30%{transform:translate3d(30px,31vh,0) rotate(125deg) scale(1)}
+  56%{transform:translate3d(-18px,59vh,0) rotate(265deg) scale(.9);opacity:.82}
+  80%{transform:translate3d(35px,84vh,0) rotate(410deg) scale(1.04);opacity:.7}
+  100%{transform:translate3d(-12px,116vh,0) rotate(560deg) scale(.88);opacity:.18}
+}
+/* The user explicitly chose this decorative motion, so keep a gentler version even when OS Reduce Motion is enabled. */
+@media (max-width:760px) and (prefers-reduced-motion:reduce){
+  body[data-route="plants"] .sakura-petal,
+  body[data-route="plant"] .sakura-petal{
+    animation-name:v144SakuraFall!important;
+    animation-duration:18s!important;
+    opacity:.72!important;
+  }
+}

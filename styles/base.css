@@ -741,7 +741,7 @@ body.swipe-back-active .bottom{pointer-events:none}
 }
 
 
-/* v14 — reliable mobile cherry blossom atmosphere */
+/* v14.1 — individual falling cherry-blossom petals on mobile */
 @media (max-width:760px){
   .atmosphere-plants,.atmosphere-plant{
     position:fixed!important;
@@ -751,35 +751,62 @@ body.swipe-back-active .bottom{pointer-events:none}
     z-index:3!important;
   }
   .atmosphere-plants .petal,.atmosphere-plant .petal{
-    --blossom-size:calc(12px + (var(--i) % 6) * 3px);
+    --petal-w:calc(8px + (var(--i) % 5) * 1.6px);
+    --petal-h:calc(var(--petal-w) * 1.42);
     display:block!important;
     position:absolute!important;
-    top:-48px!important;
-    left:calc((var(--i) * 4.45%) - 3%)!important;
-    width:auto!important;
-    height:auto!important;
-    border:0!important;
-    border-radius:0!important;
-    background:transparent!important;
-    box-shadow:none!important;
-    color:rgba(238,132,179,.88)!important;
-    font-size:var(--blossom-size)!important;
-    line-height:1!important;
+    top:-42px!important;
+    left:calc((var(--i) * 3.72%) - 2%)!important;
+    width:var(--petal-w)!important;
+    height:var(--petal-h)!important;
+    border:1px solid rgba(255,255,255,.32)!important;
+    border-radius:78% 18% 72% 24%!important;
+    background:linear-gradient(145deg,rgba(255,245,250,.98) 0%,rgba(250,190,216,.95) 48%,rgba(229,123,174,.9) 100%)!important;
+    box-shadow:inset 1px 1px 2px rgba(255,255,255,.52),0 2px 4px rgba(126,54,96,.2)!important;
     opacity:0;
-    filter:drop-shadow(0 2px 3px rgba(138,67,111,.2));
-    animation:v14BlossomFall calc(8.5s + (var(--i) % 7) * 1.05s) linear infinite!important;
-    animation-delay:calc(var(--i) * -1.13s)!important;
+    transform-origin:48% 34%;
+    animation:v141PetalFall calc(8.2s + (var(--i) % 8) * 1.05s) linear infinite!important;
+    animation-delay:calc(var(--i) * -1.09s)!important;
     will-change:transform,opacity;
   }
-  .atmosphere-plants .petal::before,.atmosphere-plant .petal::before{content:none!important}
-  .atmosphere-plants .petal:nth-child(2n),.atmosphere-plant .petal:nth-child(2n){color:rgba(250,183,210,.9)!important}
-  .atmosphere-plants .petal:nth-child(5n),.atmosphere-plant .petal:nth-child(5n){font-size:calc(var(--blossom-size) * .78)!important}
+  .atmosphere-plants .petal::before,.atmosphere-plant .petal::before{
+    content:""!important;
+    position:absolute;
+    width:36%;
+    height:48%;
+    left:12%;
+    top:8%;
+    border-radius:50%;
+    background:rgba(255,255,255,.34);
+    transform:rotate(-18deg);
+  }
+  .atmosphere-plants .petal::after,.atmosphere-plant .petal::after{
+    content:""!important;
+    position:absolute;
+    width:2px;
+    height:48%;
+    left:48%;
+    top:42%;
+    border-radius:999px;
+    background:rgba(178,82,132,.24);
+    transform:rotate(14deg);
+  }
+  .atmosphere-plants .petal:nth-child(2n),.atmosphere-plant .petal:nth-child(2n){
+    background:linear-gradient(145deg,rgba(255,249,252,.98),rgba(247,173,207,.94) 55%,rgba(224,112,165,.88))!important;
+    border-radius:20% 76% 24% 72%!important;
+  }
+  .atmosphere-plants .petal:nth-child(3n),.atmosphere-plant .petal:nth-child(3n){filter:blur(.15px);}
+  .atmosphere-plants .petal:nth-child(5n),.atmosphere-plant .petal:nth-child(5n){transform:scale(.72);}
 }
-@keyframes v14BlossomFall{
-  0%{transform:translate3d(0,-8vh,0) rotate(0deg);opacity:0}
-  8%{opacity:.78}
-  30%{transform:translate3d(24px,28vh,0) rotate(130deg);opacity:.75}
-  58%{transform:translate3d(-18px,58vh,0) rotate(270deg);opacity:.7}
-  82%{transform:translate3d(28px,83vh,0) rotate(390deg);opacity:.58}
-  100%{transform:translate3d(-12px,112vh,0) rotate(540deg);opacity:0}
+@keyframes v141PetalFall{
+  0%{transform:translate3d(0,-9vh,0) rotateX(0deg) rotateY(0deg) rotateZ(12deg);opacity:0}
+  7%{opacity:.82}
+  24%{transform:translate3d(22px,24vh,0) rotateX(120deg) rotateY(45deg) rotateZ(128deg);opacity:.78}
+  49%{transform:translate3d(-16px,51vh,0) rotateX(250deg) rotateY(120deg) rotateZ(248deg);opacity:.72}
+  73%{transform:translate3d(28px,78vh,0) rotateX(380deg) rotateY(190deg) rotateZ(382deg);opacity:.62}
+  100%{transform:translate3d(-12px,112vh,0) rotateX(540deg) rotateY(270deg) rotateZ(548deg);opacity:0}
+}
+@media (prefers-reduced-motion:reduce){
+  .atmosphere-plants .petal,.atmosphere-plant .petal{animation:none!important;opacity:.2!important}
+  .atmosphere-plants .petal:nth-child(n+9),.atmosphere-plant .petal:nth-child(n+9){display:none!important}
 }

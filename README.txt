@@ -1,3 +1,5 @@
+LinaHub v14.1 — Falling Petals Fix
+
 LinaHub v14
 
 Includes all previous features, reliable mobile cherry blossom animation on Plants, and smaller compact plant tiles.

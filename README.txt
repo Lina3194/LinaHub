@@ -1,7 +1,13 @@
-LinaHub v15.3
+LinaHub v15.5 — clean cumulative rebuild
 
-LinaHub v15.1 — Medication Force Refresh
+Includes:
+- House jobs repeating on selected weekdays
+- Medication repeating on selected weekdays
+- Completed to-do tasks hidden by default
+- Pokémon inactivity filters
+- Every Home tile opens its default landing page
+- Medication opens on Day by default
+- Forced removal of older service workers and caches on first launch
 
-This build includes the complete Medication Centre and forces GitHub Pages/PWA browsers to replace the old cached Medication placeholder.
-
-After uploading all files to the root of the GitHub Pages repository, open the live site once in the browser. The Medication page subtitle should read “Medication centre · v15.1”.
+Upload the extracted files and folders directly to the repository root, replacing the existing files.
+The Medication subtitle should read “Medication centre · v15.5”.

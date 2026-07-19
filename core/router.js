@@ -85,7 +85,7 @@ function go(next,id="",direction="forward",options={}){
   const destination={route:String(next),routeId:id?String(id):""};
   const current=currentLocation();
   const topLevelTiles=new Set(["journal","today","todo","plants","health","medication","pokemon","pets","house","settings"]);
-  if(direction!=="back" && !id && topLevelTiles.has(destination.route) && current.route!==destination.route){
+  if(direction!=="back" && !id && topLevelTiles.has(destination.route) && (current.route==="home" || current.route!==destination.route)){
     resetModuleLanding(destination.route);
   }
 

@@ -11,7 +11,7 @@ const DEFAULT_HOUSE_ROOMS=[
 ];
 
 const HOUSE_FREQUENCIES=[
-  "Daily","Every other day","Specific weekdays","Weekly","Fortnightly","Monthly","Seasonally","As needed"
+  "Daily","Every other day","Every week on selected days","Weekly","Fortnightly","Monthly","Seasonally","As needed"
 ];
 
 const HOUSE_WEEKDAYS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
@@ -22,7 +22,7 @@ function houseWeekdayPicker(selected=[],prefix="house"){
 }
 
 function houseScheduleLabel(task){
-  if(task.frequency==="Specific weekdays"&&task.weekdays?.length) return `Every ${task.weekdays.join(", ")}`;
+  if(["Specific weekdays","Every week on selected days"].includes(task.frequency)&&task.weekdays?.length) return `Every ${task.weekdays.join(", ")}`;
   return task.frequency;
 }
 
@@ -184,7 +184,7 @@ function HousePage(){
         </label>
 
         <label class="field-label">Frequency
-          <select class="field" id="houseFrequency">${frequencyOptions("Weekly")}</select>
+          <select class="field" id="houseFrequency">${frequencyOptions("Every week on selected days")}</select>
         </label>
         <div id="houseWeekdayWrap" class="hidden">
           <span class="field-label">Repeat on</span>
@@ -249,7 +249,7 @@ function bindHouse(){
   if(!page) return;
 
   page.querySelector("#houseFrequency")?.addEventListener("change",e=>{
-    page.querySelector("#houseWeekdayWrap")?.classList.toggle("hidden",e.target.value!=="Specific weekdays");
+    page.querySelector("#houseWeekdayWrap")?.classList.toggle("hidden",!["Specific weekdays","Every week on selected days"].includes(e.target.value));
   });
 
   page.addEventListener("click",event=>{
@@ -340,7 +340,7 @@ function bindHouse(){
 
       const frequency=page.querySelector("#houseFrequency")?.value||"Weekly";
       const weekdays=[...page.querySelectorAll("#addHouseWeekdays input:checked")].map(input=>input.value);
-      if(frequency==="Specific weekdays"&&!weekdays.length){toast("Choose at least one weekday");return;}
+      if(["Specific weekdays","Every week on selected days"].includes(frequency)&&!weekdays.length){toast("Choose at least one weekday");return;}
 
       data.houseTasks.push({
         id:`house-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
@@ -420,7 +420,7 @@ function openHouseEditor(id){
           <label class="field-label">Frequency
             <select class="field" id="editHouseFrequency">${frequencyOptions(task.frequency)}</select>
           </label>
-          <div id="editHouseWeekdayWrap" class="${task.frequency==="Specific weekdays"?"":"hidden"}">
+          <div id="editHouseWeekdayWrap" class="${["Specific weekdays","Every week on selected days"].includes(task.frequency)?"":"hidden"}">
             <span class="field-label">Repeat on</span>
             ${houseWeekdayPicker(task.weekdays,"editHouse")}
           </div>
@@ -436,7 +436,7 @@ function openHouseEditor(id){
     </div>
   `;
   document.querySelector("#editHouseFrequency")?.addEventListener("change",e=>{
-    document.querySelector("#editHouseWeekdayWrap")?.classList.toggle("hidden",e.target.value!=="Specific weekdays");
+    document.querySelector("#editHouseWeekdayWrap")?.classList.toggle("hidden",!["Specific weekdays","Every week on selected days"].includes(e.target.value));
   });
 }
 
@@ -460,8 +460,8 @@ function saveHouseEditor(){
   task.room=document.querySelector("#editHouseRoom")?.value||"Whole House";
   task.frequency=document.querySelector("#editHouseFrequency")?.value||"As needed";
   task.weekdays=[...document.querySelectorAll("#editHouseWeekdays input:checked")].map(input=>input.value);
-  if(task.frequency==="Specific weekdays"&&!task.weekdays.length){toast("Choose at least one weekday");return;}
-  if(task.frequency!=="Specific weekdays") task.weekdays=[];
+  if(["Specific weekdays","Every week on selected days"].includes(task.frequency)&&!task.weekdays.length){toast("Choose at least one weekday");return;}
+  if(!["Specific weekdays","Every week on selected days"].includes(task.frequency)) task.weekdays=[];
   task.energy=document.querySelector("#editHouseEnergy")?.value||"Medium";
   task.priority=Number(document.querySelector("#editHousePriority")?.value)||1;
 

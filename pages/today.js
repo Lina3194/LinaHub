@@ -28,10 +28,14 @@ function getTodayItems(){
     });
   }
 
-  // Medication still to take today.
-  const medLog=(data.medicationLog||{})[today()]||{};
+  // Medication still to take today, respecting daily/weekday/PRN schedules.
+  const todayValue=today();
+  const shortDay=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][now.getDay()];
   (data.medications||[]).forEach(m=>{
-    if(!medLog[m.id]){
+    const active=m.active!==false && (!m.startDate||todayValue>=m.startDate) && (!m.endDate||todayValue<=m.endDate);
+    const due=active && (m.scheduleType==="daily" || (m.scheduleType==="weekdays"&&(m.weekdays||[]).includes(shortDay)));
+    const taken=(data.medicationHistory||[]).some(log=>log.medId===m.id&&log.date===todayValue);
+    if(due&&!taken){
       items.push({
         emoji:"💊",
         title:`Take ${m.name}`,
@@ -42,12 +46,14 @@ function getTodayItems(){
     }
   });
 
-  // House tasks due today.
+  // House tasks due today, including explicitly selected weekdays.
   (data.houseTasks||[]).forEach(t=>{
     const frequency=(t.frequency||"").toLowerCase();
+    const selectedWeekday=(t.frequency==="Specific weekdays"&&(t.weekdays||[]).includes(shortDay));
     const dueToday=
-      frequency.includes("daily") ||
-      frequency.includes("every other day") ||
+      frequency==="daily" ||
+      frequency==="every other day" ||
+      selectedWeekday ||
       frequency.includes(weekday.toLowerCase()) ||
       (weekday==="Thursday" && t.id==="recycling");
 

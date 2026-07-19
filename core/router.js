@@ -52,10 +52,42 @@ function sameLocation(a,b){
   return a.route===b.route && a.routeId===b.routeId;
 }
 
+
+function resetModuleLanding(next){
+  if(next==="medication"){
+    if(typeof ensureMedicationData==="function") ensureMedicationData();
+    data.medicationView=data.medicationView||{};
+    data.medicationView.tab="today";
+    data.medicationView.date=typeof medLocalDate==="function"?medLocalDate():today();
+    medicationDateTouched=false;
+  }
+  if(next==="journal"){
+    data.journalTab="today";
+    data.journalSelectedDate=today();
+  }
+  if(next==="plants"){
+    if(typeof plantUi!=="undefined"){plantUi.view="collection";plantUi.encyclopediaOpen=null;plantUi.encyclopediaSearch="";}
+    data.plantProfileTab="overview";
+  }
+  if(next==="pokemon" && typeof pokemonUi!=="undefined"){
+    pokemonUi.view="friends";pokemonUi.page=1;pokemonUi.editing=null;pokemonUi.openCard=null;
+  }
+  if(next==="pets"){
+    routeId="";
+  }
+  if(next==="house"){
+    data.houseControlsCollapsed=true;
+  }
+}
+
 function go(next,id="",direction="forward",options={}){
   if(!next) return;
   const destination={route:String(next),routeId:id?String(id):""};
   const current=currentLocation();
+  const topLevelTiles=new Set(["journal","today","todo","plants","health","medication","pokemon","pets","house","settings"]);
+  if(direction!=="back" && !id && topLevelTiles.has(destination.route) && current.route!==destination.route){
+    resetModuleLanding(destination.route);
+  }
 
   if(direction!=="back" && !options.replace && !sameLocation(current,destination)){
     navigationHistory.push(current);

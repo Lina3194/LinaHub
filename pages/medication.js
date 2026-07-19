@@ -113,7 +113,7 @@ function MedicationPage(){
   ensureMedicationData();
   const tab=data.medicationView.tab;
   const content=tab==="schedule"?medicationScheduleTab():tab==="history"?medicationHistoryTab():medicationTodayTab();
-  return shell(`${head("Medication","Medication centre · v15.3")}
+  return shell(`${head("Medication","Medication centre · v15.4")}
     <div class="med-page">${content}</div>
     <nav class="med-bottom-tabs" aria-label="Medication sections">
       <button class="${tab==="today"?"active":""}" data-med-tab="today">✓<small>Day</small></button>
@@ -186,7 +186,7 @@ function bindMedication(){
     const name=document.querySelector("#medName").value.trim(),scheduleType=document.querySelector("#medScheduleType").value,weekdays=[...document.querySelectorAll("#medWeekdays input:checked")].map(x=>x.value);
     if(!name){toast("Add the medication name");return}if(scheduleType==="weekdays"&&!weekdays.length){toast("Select at least one day");return}
     const med={id:document.querySelector("#medEditId").value||medUid(),name,dose:document.querySelector("#medDose").value.trim(),instructions:document.querySelector("#medInstructions").value.trim(),scheduleType,weekdays,time:document.querySelector("#medTime").value,startDate:document.querySelector("#medStartDate").value,endDate:document.querySelector("#medEndDate").value,photo:document.querySelector("#medPhotoData").value,notes:document.querySelector("#medNotes").value.trim(),active:true};
-    const existing=data.medications.findIndex(x=>x.id===med.id);if(existing>=0)data.medications[existing]=med;else data.medications.push(med);saveData();render();toast(existing>=0?"Medication updated":"Medication added");
+    const existing=data.medications.findIndex(x=>x.id===med.id);if(existing>=0)data.medications[existing]=med;else data.medications.push(med);data.medicationView.tab="today";data.medicationView.date=medLocalDate();medicationDateTouched=false;saveData();render();toast(existing>=0?"Medication updated":"Medication added");
   });
   document.querySelector("#cancelMedEdit")?.addEventListener("click",()=>render());
   document.querySelectorAll("[data-med-edit]").forEach(b=>b.onclick=()=>{const m=data.medications.find(x=>x.id===b.dataset.medEdit);if(m)medFillForm(m)});

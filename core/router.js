@@ -6,9 +6,8 @@ let suppressNextPageAnimation=true;
 const navigationHistory=[];
 
 function nav(active){
-  return `<nav class="bottom four-nav">
+  return `<nav class="bottom three-nav">
     <button type="button" data-route="home" class="${active==="home"?"active":""}">⌂<small>Home</small></button>
-    <button type="button" data-route="journal" class="${active==="journal"?"active":""}">💜<small>Journal</small></button>
     <button type="button" data-route="today" class="${active==="today"?"active":""}">✅<small>Today</small></button>
     <button type="button" data-route="todo" class="${active==="todo"?"active":""}">📝<small>To-do</small></button>
   </nav>`;

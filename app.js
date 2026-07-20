@@ -2,6 +2,7 @@
 function render(){
   resetSwipePreview();
   document.body.classList.toggle("dark",data.theme==="dark");
+  document.body.dataset.colorTheme=data.colorTheme||"amethyst";
   document.body.dataset.route=route; // Styling metadata only; navigation clicks are restricted to explicit controls.
   document.querySelectorAll(".route-atmosphere").forEach(el=>el.remove());
 
@@ -247,7 +248,7 @@ setupSwipeBack();
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=157",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=158",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

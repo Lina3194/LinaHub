@@ -18,9 +18,16 @@ function SettingsPage(){
         <p class="settings-note">Your current data stays on this device until you sign in. The first signed-in device safely creates your cloud copy.</p>`}
     </section>
 
-    <section class="card">
+    <section class="card" id="appearanceSettings">
       <h2>Appearance</h2>
-      <button class="primary" id="themeToggle2">Switch to ${data.theme==="dark"?"light":"dark"} mode</button>
+      <p>Choose a colour theme, then use the mode button for a lighter or darker version.</p>
+      <div class="theme-choice-grid">
+        ${[
+          ["amethyst","Amethyst"],["rose","Rose"],["sage","Sage"],["ocean","Ocean"],
+          ["autumn","Autumn"],["galaxy","Galaxy"],["winter","Winter"]
+        ].map(([key,label])=>`<button type="button" class="theme-choice ${data.colorTheme===key?"active":""}" data-color-theme="${key}"><span class="theme-swatch swatch-${key}"></span><strong>${label}</strong></button>`).join("")}
+      </div>
+      <button class="secondary" id="themeToggle2" style="margin-top:12px">Switch to ${data.theme==="dark"?"light":"dark"} mode</button>
     </section>
 
     <section class="card">
@@ -71,7 +78,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v15.7 · Unified Home Menu</p>`,"settings");
+  <p class="app-version">LinaHub v15.8 · Navigation & Themes</p>`,"settings");
 }
 
 function bindSimple(){
@@ -81,6 +88,14 @@ function bindSimple(){
   document.querySelector("#cloudDownloadNow")?.addEventListener("click",forceCloudDownload);
   const t=document.querySelector("#themeToggle2");
   if(t) t.onclick=()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()};
+  document.querySelectorAll("[data-color-theme]").forEach(button=>button.onclick=()=>{
+    data.colorTheme=button.dataset.colorTheme;
+    saveData();render();
+  });
+  if(data.settingsSection==="appearance"){
+    data.settingsSection="";
+    setTimeout(()=>document.querySelector("#appearanceSettings")?.scrollIntoView({behavior:"smooth",block:"start"}),60);
+  }
 
   document.querySelector("#saveHomeIcons")?.addEventListener("click",()=>{
     data.homeIcons=data.homeIcons||{};

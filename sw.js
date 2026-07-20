@@ -1,10 +1,10 @@
-const CACHE="linahub-v15-7-clean-rebuild";
+const CACHE="linahub-v15-8-navigation-themes";
 const ASSETS=[
-"./","./index.html","./app.js?v=157","./manifest.webmanifest?v=157",
-"./core/pokemon-seed.js?v=157","./core/data.js?v=157","./core/router.js?v=157","./core/cloud.js?v=157",
-"./pages/home.js?v=157","./pages/today.js?v=157","./pages/todo.js?v=157","./pages/journal.js?v=157","./pages/plants.js?v=157","./pages/pokemon.js?v=157","./pages/house.js?v=157","./pages/medication.js?v=157","./pages/health.js?v=157","./pages/simple.js?v=157","./pages/aquariums.js?v=157","./pages/period.js?v=157","./pages/treasures.js?v=157",
-"./styles/base.css?v=157","./styles/home.css?v=157","./styles/journal.css?v=157","./styles/plants.css?v=157","./styles/modules.css?v=157","./styles/period.css?v=157","./styles/treasures.css?v=157",
-"./icons/icon-192.png?v=157","./icons/icon-512.png?v=157","./icons/apple-touch-icon.png?v=157"
+"./","./index.html","./app.js?v=158","./manifest.webmanifest?v=158",
+"./core/pokemon-seed.js?v=158","./core/data.js?v=158","./core/router.js?v=158","./core/cloud.js?v=158",
+"./pages/home.js?v=158","./pages/today.js?v=158","./pages/todo.js?v=158","./pages/journal.js?v=158","./pages/plants.js?v=158","./pages/pokemon.js?v=158","./pages/house.js?v=158","./pages/medication.js?v=158","./pages/health.js?v=158","./pages/simple.js?v=158","./pages/aquariums.js?v=158","./pages/period.js?v=158","./pages/treasures.js?v=158",
+"./styles/base.css?v=158","./styles/home.css?v=158","./styles/journal.css?v=158","./styles/plants.css?v=158","./styles/modules.css?v=158","./styles/period.css?v=158","./styles/treasures.css?v=158",
+"./icons/icon-192.png?v=158","./icons/icon-512.png?v=158","./icons/apple-touch-icon.png?v=158"
 ];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

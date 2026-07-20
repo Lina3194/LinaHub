@@ -4,7 +4,8 @@ const LEGACY_KEYS=["linahub-v4","linahub-v4-1","linahub-v4-2","linahub-v4-3"];
 
 const DEFAULT_DATA={
   version:5,
-  theme:"light",
+  theme:"dark",
+  colorTheme:"amethyst",
   checkins:{},
   checkinLayout:["sleep","energy","mood","pain","spoons","water","selfcare","supports"],
   checkinFilter:"all",

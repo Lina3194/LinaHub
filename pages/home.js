@@ -54,8 +54,8 @@ function HomePage(){
           <button type="button" class="home-menu-toggle" id="homeMenuToggle" aria-label="Open Home menu" aria-expanded="false">⌄</button>
           <div class="home-menu" id="homeMenu" hidden>
             <button type="button" id="homeEditToggle"><span aria-hidden="true">✎</span><span>${editing?"Finish editing":"Edit Home"}</span></button>
-            <button type="button" id="themeToggle"><span aria-hidden="true">◐</span><span>${data.theme==="dark"?"Light mode":"Dark mode"}</span></button>
-            <button type="button" data-route="settings"><span aria-hidden="true">⚙</span><span>Settings</span></button>
+            <button type="button" id="homeThemes"><span aria-hidden="true">◈</span><span>Themes</span></button>
+            <button type="button" id="homeSettings"><span aria-hidden="true">⚙</span><span>Settings</span></button>
           </div>
         </div>
       </div>
@@ -70,9 +70,9 @@ function bindHome(){
   const menu=document.querySelector("#homeMenu");
   const closeMenu=()=>{if(!menu||!menuToggle)return;menu.hidden=true;menuToggle.setAttribute("aria-expanded","false")};
   menuToggle?.addEventListener("click",event=>{event.stopPropagation();const opening=menu.hidden;menu.hidden=!opening;menuToggle.setAttribute("aria-expanded",String(opening))});
-  menu?.addEventListener("click",event=>event.stopPropagation());
-  document.addEventListener("click",closeMenu,{once:true});
-  document.querySelector("#themeToggle")?.addEventListener("click",()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()});
+  document.addEventListener("click",event=>{if(!event.target.closest(".home-menu-wrap")) closeMenu()},{once:true});
+  document.querySelector("#homeThemes")?.addEventListener("click",()=>{data.settingsSection="appearance";saveData();go("settings")});
+  document.querySelector("#homeSettings")?.addEventListener("click",()=>go("settings"));
   document.querySelector("#homeEditToggle")?.addEventListener("click",()=>{data.homeEditing=!data.homeEditing;saveData();render()});
   if(!data.homeEditing) return;
   const saveRender=()=>{saveData();render()};

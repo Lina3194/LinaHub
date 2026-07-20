@@ -18,3 +18,6 @@ The Medication subtitle should read “Medication centre · v15.5”.
 
 
 LinaHub 16.15: Home tile dashboard details, rename/icon/size/hide/show/reorder/cover/accent controls, touch drag, and smoother Settings updates.
+
+
+v16.22: Budget/period cloud modules added, budget sections default closed, period tile countdown, compact medication date/time controls, consistent garden photo sizing. Open the PC first after deployment so its existing Budget data creates the initial cloud Budget document, then open the phone.

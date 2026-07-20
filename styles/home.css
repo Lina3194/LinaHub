@@ -84,3 +84,39 @@ body[data-route="home"] .home-menu{z-index:1000;max-height:min(320px,70vh);overf
 .tile-editor-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-top:16px}
 body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;cursor:grab}
 @media(min-width:700px){.tile-editor-backdrop{align-items:center}.tile-editor{border-radius:26px}}
+
+/* v16.21 — restore compact Home tiles */
+.home-layout{gap:10px}
+.home-tile-wrap .module{
+  min-height:118px;
+  padding:14px;
+  border-radius:20px;
+}
+.home-tile-wrap .module .emoji,
+.home-tile-wrap .module .module-image{
+  width:48px;
+  height:48px;
+  flex-basis:48px;
+  margin-bottom:11px;
+  border-radius:16px;
+  font-size:1.65rem;
+}
+.home-tile-wrap .module strong{font-size:.94rem;line-height:1.15}
+.home-tile-wrap .module small{font-size:.74rem;line-height:1.2}
+.home-tile-wrap .tile-status{padding-top:6px;font-size:.68rem}
+.home-tile-wrap.size-small .module{min-height:92px;padding:11px}
+.home-tile-wrap.size-small .emoji,
+.home-tile-wrap.size-small .module-image{width:38px;height:38px;flex-basis:38px;margin-bottom:7px;border-radius:13px;font-size:1.3rem}
+.home-tile-wrap.size-wide .module{min-height:108px;padding:13px;grid-template-columns:56px 1fr;column-gap:11px}
+.home-tile-wrap.size-wide .emoji,
+.home-tile-wrap.size-wide .module-image{width:52px;height:52px;flex-basis:52px;border-radius:16px}
+.home-tile-wrap.size-large .module{min-height:170px}
+@media(max-width:420px){
+  .home-layout{gap:8px}
+  .home-tile-wrap .module{min-height:108px;padding:12px;border-radius:18px}
+  .home-tile-wrap .module .emoji,
+  .home-tile-wrap .module .module-image{width:43px;height:43px;flex-basis:43px;margin-bottom:8px;border-radius:14px}
+  .home-tile-wrap .module strong{font-size:.88rem}
+  .home-tile-wrap .tile-status{font-size:.63rem}
+  .home-tile-wrap.size-wide .module{min-height:100px}
+}

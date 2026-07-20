@@ -1,5 +1,5 @@
 var budgetViewMonth = budgetViewMonth || new Date().toISOString().slice(0,7);
-var budgetSectionOpen = budgetSectionOpen || {entries:true,bills:true,savings:true};
+var budgetSectionOpen = budgetSectionOpen || {entries:false,bills:false,savings:false};
 var budgetOpenBill = budgetOpenBill || null;
 var budgetEditBill = budgetEditBill || null;
 

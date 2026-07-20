@@ -14,7 +14,9 @@ const CLOUD_MODULES={
   pokemon:["pokemonFriends","pokemonSeededVersion"],
   aquariums:["aquariums"],
   house:["houseControlsCollapsed","houseOpenRooms","houseRooms","houseTasks"],
-  medication:["medications","medicationLog"],
+  medication:["medications","medicationLog","medicationHistory","medicationHistoryMigrated","medicationView"],
+  period:["periodEntries","periodCycles","periodOptions","periodSelectedDate","periodCalendarMonth","periodEditOptions","periodTab","periodOpenYears"],
+  budget:["bills","budgetEntries","savingsEntries"],
   health:["weightEntries","measurements","healthPromptLog"],
   todo:["personalTasks"],
   settings:["theme","colorTheme","homeIcons","homeImages","homeLayout","treasures","favoriteTreasures","moduleBanners","v9CollapseDefaultsApplied"],
@@ -95,11 +97,17 @@ async function uploadAllModules(){
 async function downloadAllModules(){
   setCloudStatus("syncing");
   const snap=await firebase.firestore().collection(`users/${CLOUD_STATE.user.uid}/modules`).get();
+  const found=new Set();
   CLOUD_STATE.applyingRemote=true;
-  snap.forEach(doc=>applyModule(doc.data()));
+  snap.forEach(doc=>{found.add(doc.id);applyModule(doc.data())});
   localSaveOnly();
   CLOUD_STATE.lastSnapshot=JSON.stringify(data);
   CLOUD_STATE.applyingRemote=false;
+  // Older LinaHub builds did not create cloud documents for every module.
+  // Preserve this device's existing local data by creating only missing documents.
+  for(const name of Object.keys(CLOUD_MODULES)){
+    if(!found.has(name)) await pushCloudModule(name);
+  }
   localStorage.setItem(`linahub-cloud-migrated-${CLOUD_STATE.user.uid}`,"1");
   setCloudStatus("synced");
   quietCloudRender();

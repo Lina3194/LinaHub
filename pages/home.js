@@ -76,8 +76,21 @@ function homeTileStatus(id){
     return latest?`Latest weight: ${latest.weight||latest.value||"saved"}`:"Add your first measurement";
   }
   if(id==="period"){
-    const entries=Object.keys(data.periodEntries||{}).length;
-    return entries?`${entries} day${entries===1?"":"s"} tracked`:"Add today's cycle details";
+    if(typeof periodStats==="function"){
+      const stats=periodStats();
+      if(stats.active){
+        const day=periodDaysBetween(stats.active.start,today())+1;
+        return `Period day ${day}`;
+      }
+      if(stats.predicted){
+        const days=periodDaysBetween(today(),stats.predicted);
+        if(days>1) return `${days} days until your period`;
+        if(days===1) return `1 day until your period`;
+        if(days===0) return `Period predicted today`;
+        return `Period is ${Math.abs(days)} day${Math.abs(days)===1?"":"s"} late`;
+      }
+    }
+    return "Start a cycle to see your prediction";
   }
   if(id==="treasures"){
     const unlocked=typeof collectedTreasures==="function"?collectedTreasures().length:Object.values(data.treasures||{}).filter(x=>x?.collected).length;

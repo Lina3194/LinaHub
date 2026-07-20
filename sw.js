@@ -1,4 +1,4 @@
-const CACHE="linahub-v16-4-centered-treasure-modal";
+const CACHE="linahub-v16-5-garden-water-pokemon-stable";
 const ASSETS=[
 "./","./index.html","./app.js?v=164","./manifest.webmanifest?v=164",
 "./core/pokemon-seed.js?v=164","./core/data.js?v=164","./core/router.js?v=164","./core/cloud.js?v=164",

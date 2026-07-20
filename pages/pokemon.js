@@ -9,6 +9,23 @@ function pokeDate(value){return value?formatDate(value):"Never"}
 function pokeDaysSince(value){if(!value)return null;return Math.max(0,Math.floor((new Date(today()+"T12:00:00")-new Date(value+"T12:00:00"))/86400000))}
 function pokeInactiveLabel(f){const d=pokeDaysSince(f.lastInteraction);return d===null?"No interaction logged":d===0?"Active today":d===1?"1 day inactive":`${d} days inactive`}
 function giftLoggedToday(f,type){return (type==="sent"?(f.giftSentDates||[]):(f.giftReceivedDates||[])).includes(today())}
+function refreshPokemonGiftUI(f){
+  const card=document.querySelector(`[data-poke-friend-id="${CSS.escape(f.id)}"]`);
+  if(card){card.outerHTML=PokemonFriendCard(f)}
+  if(pokemonUi.openCard===f.id){
+    const detail=document.querySelector(".poke-detail-backdrop");
+    if(detail)detail.outerHTML=PokemonFriendDetail(f);
+  }
+  const friends=data.pokemonFriends||[];
+  const sent=friends.reduce((n,x)=>n+(Number(x.giftsSent)||0),0),received=friends.reduce((n,x)=>n+(Number(x.giftsReceived)||0),0);
+  const sentMetric=document.querySelector("#pokeMetricSent"),receivedMetric=document.querySelector("#pokeMetricReceived");
+  if(sentMetric)sentMetric.textContent=sent;if(receivedMetric)receivedMetric.textContent=received;
+  bindPokemonFriendControls();
+  document.querySelectorAll("[data-close-friend-card]").forEach(b=>b.onclick=e=>{if(e.target===b||b.classList.contains("poke-detail-close")){pokemonUi.openCard=null;render()}});
+  document.querySelectorAll("[data-detail-gift-sent]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.detailGiftSent,"sent",document.querySelector("#detailGiftDate")?.value||today()));
+  document.querySelectorAll("[data-detail-gift-received]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.detailGiftReceived,"received",document.querySelector("#detailGiftDate")?.value||today()));
+  document.querySelectorAll("[data-detail-edit]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=null;pokemonUi.editing=b.dataset.detailEdit;render()});
+}
 function logPokemonGift(id,type,date=today()){
   const f=data.pokemonFriends.find(x=>x.id===id);if(!f)return;
   const datesKey=type==="sent"?"giftSentDates":"giftReceivedDates",countKey=type==="sent"?"giftsSent":"giftsReceived",lastKey=type==="sent"?"lastGiftSent":"lastGiftReceived";
@@ -17,7 +34,7 @@ function logPokemonGift(id,type,date=today()){
   else{f[datesKey].push(date);f[datesKey].sort();f[countKey]=(Number(f[countKey])||0)+1;toast(type==="sent"?"Gift sent recorded 🎁":"Gift received recorded 💌");}
   f[lastKey]=f[datesKey][f[datesKey].length-1]||"";
   const all=[...(f.giftSentDates||[]),...(f.giftReceivedDates||[])].sort();f.lastInteraction=all[all.length-1]||f.lastInteraction||"";
-  saveData();render();
+  saveData();refreshPokemonGiftUI(f);
 }
 
 function friendshipCard(f){
@@ -108,8 +125,8 @@ function PokemonPage(){
   return shell(`${head("Pokémon GO","Your complete friend and gift tracker")}
     <section class="pokemon-hero"><div class="poke-metrics">
       <div class="metric-card"><span>Total friends</span><strong>${friends.length}</strong></div>
-      <div class="metric-card"><span>Gifts sent</span><strong>${sent}</strong></div>
-      <div class="metric-card"><span>Gifts received</span><strong>${received}</strong></div>
+      <div class="metric-card"><span>Gifts sent</span><strong id="pokeMetricSent">${sent}</strong></div>
+      <div class="metric-card"><span>Gifts received</span><strong id="pokeMetricReceived">${received}</strong></div>
       <div class="metric-card"><span>Vivillon patterns</span><strong>${Object.keys(vivCounts).filter(v=>v!=="Unknown").length}</strong></div>
     </div></section>
     <div class="poke-tabs poke-tabs-five">
@@ -154,7 +171,7 @@ function PokemonFriendCard(f){
     <input class="field" data-edit-field="country" value="${esc(f.country)}" placeholder="Country"><textarea class="field" data-edit-field="notes" placeholder="Notes">${esc(f.notes)}</textarea>
     <div class="item-actions"><button class="primary" data-poke-save="${f.id}">Save changes</button><button class="secondary" data-poke-cancel="${f.id}">Cancel</button><button class="mini danger" data-poke-delete="${f.id}">Delete</button></div>
   </div></section>`;
-  return `<section class="card poke-friend-card">
+  return `<section class="card poke-friend-card" data-poke-friend-id="${esc(f.id)}">
     <button class="poke-friend-open" data-open-friend-card="${f.id}">
       <div class="poke-friend-top"><div class="poke-avatar">${pokeEmoji(f.friendship)}</div><div class="poke-main"><h2>${esc(f.name)}</h2><p>${esc(f.nickname||f.country||"No nickname or country")}</p></div><span class="poke-open-arrow">›</span></div>
       ${friendshipCard(f)}

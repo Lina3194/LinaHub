@@ -111,3 +111,11 @@ body.dark .encyclopedia-card,body.dark .plant-main-tabs button{background:#10121
 }
 
 .encyclopedia-actions{display:flex;justify-content:flex-end;margin:10px 0 14px}.encyclopedia-card[hidden]{display:none!important}
+
+/* v16.5 — one-tap watering on Garden cards */
+.plant-tile{position:relative}
+.plant-tile-open{display:block;width:100%;padding:0;border:0;background:transparent;color:inherit;text-align:left}
+.plant-quick-water{position:absolute;right:10px;top:10px;z-index:3;width:42px;height:42px;border-radius:50%;border:1px solid rgba(255,255,255,.45);background:rgba(35,26,64,.78);backdrop-filter:blur(10px);box-shadow:0 7px 18px rgba(10,7,26,.28);display:grid;place-items:center;font-size:1.25rem;color:white}
+.plant-quick-water:active{transform:scale(.94)}
+.plant-quick-water.watered-today{background:rgba(61,165,126,.9);border-color:rgba(192,255,228,.75)}
+@media(max-width:760px){.plant-quick-water{width:36px;height:36px;right:8px;top:8px;font-size:1.05rem}}

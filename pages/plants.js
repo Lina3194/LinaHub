@@ -80,6 +80,29 @@ function encyclopediaCard(g,owned){return `<article class="encyclopedia-card">
   ${owned?`<em class="owned-chip">✓ In my garden</em>`:`<button type="button" class="mini" data-add-guide="${g.id}">＋ Add to my garden</button>`}
 </article>`}
 
+function PlantTile(p){
+  const s=plantStatus(p);
+  return `<article class="plant-tile" data-plant-name="${esc(p.name.toLowerCase())}" data-plant-id="${esc(p.id)}">
+    <button type="button" class="plant-tile-open" data-route="plant" data-route-id="${esc(p.id)}" aria-label="Open ${esc(p.name)}">
+      <div class="plant-tile-art">${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div>
+      <div class="plant-tile-copy"><h2>${esc(p.name)}</h2><p>${p.lastWatered?`Watered ${esc(formatDate(p.lastWatered))}`:"Not watered yet"}</p><em class="status-chip ${s.className}">${s.icon} ${s.text}</em></div>
+    </button>
+    <button type="button" class="plant-quick-water ${p.lastWatered===today()?"watered-today":""}" data-quick-water="${esc(p.id)}" aria-label="${p.lastWatered===today()?"Watered today":"Mark as watered today"}" title="${p.lastWatered===today()?"Watered today":"Mark as watered today"}">💧</button>
+  </article>`;
+}
+function quickWaterPlant(id){
+  const p=data.plants.find(x=>x.id===id);if(!p)return;
+  p.history=Array.isArray(p.history)?p.history:[];
+  const date=today();
+  if(!p.history.includes(date))p.history.push(date);
+  p.history.sort();p.lastWatered=date;saveData();
+  const current=document.querySelector(`[data-plant-id="${CSS.escape(id)}"]`);
+  if(current){current.outerHTML=PlantTile(p);bindPlantTileControls()}
+  toast(`${p.name} watered 💧`);
+}
+function bindPlantTileControls(){
+  document.querySelectorAll("[data-quick-water]").forEach(button=>button.onclick=e=>{e.preventDefault();e.stopPropagation();quickWaterPlant(button.dataset.quickWater)});
+}
 function PlantsPage(){
   const attention=data.plants.filter(p=>plantStatus(p).className==="attention").length;
   const q=plantUi.encyclopediaSearch.toLowerCase();
@@ -90,7 +113,7 @@ function PlantsPage(){
     <div class="plant-main-tabs"><button class="${plantUi.view==="collection"?"active":""}" data-plant-view="collection">🪴 My garden</button><button class="${plantUi.view==="encyclopedia"?"active":""}" data-plant-view="encyclopedia">📖 Encyclopedia</button></div>
     ${plantUi.view==="collection"?`
       <div class="plant-search"><span>⌕</span><input id="plantSearch" placeholder="Search plants…"><span>${attention?`🔔 ${attention}`:"✓"}</span></div>
-      <div class="plant-tile-grid" id="plantList">${data.plants.map(p=>{const s=plantStatus(p);return `<button type="button" class="plant-tile" data-route="plant" data-route-id="${esc(p.id)}" data-plant-name="${esc(p.name.toLowerCase())}"><div class="plant-tile-art">${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div><div class="plant-tile-copy"><h2>${esc(p.name)}</h2><p>${p.lastWatered?`Watered ${esc(formatDate(p.lastWatered))}`:"Not watered yet"}</p><em class="status-chip ${s.className}">${s.icon} ${s.text}</em></div></button>`}).join("")}</div>`:`
+      <div class="plant-tile-grid" id="plantList">${data.plants.map(PlantTile).join("")}</div>`:`
       <div class="plant-search"><span>⌕</span><input id="encyclopediaSearch" value="${esc(plantUi.encyclopediaSearch)}" placeholder="Search name or care need…"><span>📖 ${guides.length}</span></div>
       <div class="encyclopedia-actions"><button type="button" class="secondary" id="addCustomPlant">＋ Add a plant not listed</button></div><div class="encyclopedia-grid" id="encyclopediaGrid">${guides.map(g=>encyclopediaCard(g,data.plants.some(p=>(p.guideId||p.id)===g.id))).join("")||`<section class="card encyclopedia-empty"><p>No matching plants found.</p></section>`}</div>`}
     ${opened?`<div class="plant-guide-backdrop" data-close-guide><section class="plant-guide-modal"><button class="poke-detail-close" data-close-guide>×</button>${careGuideHtml(opened)}${data.plants.some(p=>(p.guideId||p.id)===opened.id)?"":`<button class="primary full-width" data-add-guide="${opened.id}">Add to my garden</button>`}</section></div>`:""}
@@ -111,6 +134,7 @@ function PlantProfilePage(){
 }
 function addEncyclopediaPlant(id){const g=PLANT_ENCYCLOPEDIA.find(x=>x.id===id);if(!g)return;if(data.plants.some(p=>(p.guideId||p.id)===id)){toast("That plant is already in your collection");return}data.plants.push({id:`${id}-${Date.now()}`,guideId:id,name:g.name,emoji:g.emoji,notes:"",lastWatered:"",history:[],photo:"",wateringDays:g.wateringDays});saveData();plantUi.encyclopediaOpen=null;plantUi.view="collection";render();toast(`${g.name} added to your garden 🌿`)}
 function bindPlants(){
+  bindPlantTileControls();
   document.querySelectorAll("[data-plant-view]").forEach(b=>b.onclick=()=>{plantUi.view=b.dataset.plantView;plantUi.encyclopediaOpen=null;render()});
   document.querySelector("#plantSearch")?.addEventListener("input",e=>{const q=e.target.value.toLowerCase();document.querySelectorAll("[data-plant-name]").forEach(tile=>tile.hidden=!tile.dataset.plantName.includes(q))});
   document.querySelector("#encyclopediaSearch")?.addEventListener("input",e=>{

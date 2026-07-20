@@ -139,3 +139,14 @@ body.dark .encyclopedia-card,body.dark .plant-main-tabs button{background:#10121
   .plant-photo-large{aspect-ratio:16/9!important;max-height:240px!important}
   .plant-tile-art{aspect-ratio:4/3!important}
 }
+
+
+/* v16.25 plant photo frame: genuinely compact on phones */
+.plant-photo-large{height:220px!important;aspect-ratio:auto!important;max-height:220px!important;overflow:hidden!important}
+.plant-photo-large img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center bottom!important}
+@media(max-width:480px){
+  .plant-profile-head{padding:18px!important}
+  .plant-photo-large{height:165px!important;max-height:165px!important;border-radius:18px!important}
+  .plant-profile-actions{gap:10px!important}
+  .plant-profile-actions .upload-label{min-height:48px!important;padding:10px 14px!important}
+}

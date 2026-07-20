@@ -1,4 +1,4 @@
-const CACHE="linahub-v16-24-self-care-add-fix";
+const CACHE="linahub-v16-25-plant-photo-tab-fix";
 const ASSETS=[
 "./","./index.html","./app.js?v=1623","./manifest.webmanifest?v=1623",
 "./core/pokemon-seed.js?v=1623","./core/data.js?v=1623","./core/router.js?v=1623","./core/cloud.js?v=1623",

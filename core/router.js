@@ -87,6 +87,10 @@ function go(next,id="",direction="forward",options={}){
     resetModuleLanding(destination.route);
   }
 
+  if(destination.route==="plant" && (current.route!=="plant" || current.routeId!==destination.routeId)){
+    data.plantProfileTab="overview";
+  }
+
   if(direction!=="back" && !options.replace && !sameLocation(current,destination)){
     navigationHistory.push(current);
     if(navigationHistory.length>50) navigationHistory.shift();

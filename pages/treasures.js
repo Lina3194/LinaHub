@@ -4,35 +4,35 @@ const TREASURE_DEFINITIONS=[
   {id:"five-plants",icon:"🪴",name:"Green Fingers",category:"Garden",story:"For caring for five plants at once.",rule:()=>Array.isArray(data.plants)&&data.plants.length>=5},
   {id:"ten-plants",icon:"🌿",name:"Growing Sanctuary",category:"Garden",story:"For growing a Garden of ten plants.",rule:()=>Array.isArray(data.plants)&&data.plants.length>=10},
   {id:"surprise-bloom",icon:"🌹",name:"A Surprise Bloom",category:"Garden",story:"For adding your first rose to the Garden.",hidden:true,rule:()=>Array.isArray(data.plants)&&data.plants.some(p=>/rose/i.test(p.name||""))},
-  {id:"orchid-keeper",icon:"❀",name:"Orchid Keeper",category:"Garden",story:"For giving an orchid a place in your Garden.",rule:()=>Array.isArray(data.plants)&&data.plants.some(p=>/orchid/i.test(p.name||""))},
-  {id:"herb-garden",icon:"☘",name:"Kitchen Herbalist",category:"Garden",story:"For growing at least three herbs.",rule:()=>{const a=(data.plants||[]).filter(p=>/basil|oregano|mint|thyme|rosemary|sage|parsley|chive|dill|coriander/i.test(p.name||""));return a.length>=3}},
-  {id:"plant-photo",icon:"▣",name:"Garden Portrait",category:"Garden",story:"For saving a photograph of one of your plants.",rule:()=>Array.isArray(data.plants)&&data.plants.some(p=>p.photo)},
+  {id:"orchid-keeper",icon:"🌸",name:"Orchid Keeper",category:"Garden",story:"For giving an orchid a place in your Garden.",rule:()=>Array.isArray(data.plants)&&data.plants.some(p=>/orchid/i.test(p.name||""))},
+  {id:"herb-garden",icon:"🌿",name:"Kitchen Herbalist",category:"Garden",story:"For growing at least three herbs.",rule:()=>{const a=(data.plants||[]).filter(p=>/basil|oregano|mint|thyme|rosemary|sage|parsley|chive|dill|coriander/i.test(p.name||""));return a.length>=3}},
+  {id:"plant-photo",icon:"🖼️",name:"Garden Portrait",category:"Garden",story:"For saving a photograph of one of your plants.",rule:()=>Array.isArray(data.plants)&&data.plants.some(p=>p.photo)},
 
-  {id:"first-journal",icon:"▤",name:"First Chapter",category:"Journal",story:"For saving your first journal check-in.",rule:()=>Object.keys(data.checkins||{}).length>=1},
-  {id:"journal-seven",icon:"✎",name:"Seven Pages",category:"Journal",story:"For recording seven days in your journal.",rule:()=>Object.keys(data.checkins||{}).length>=7},
-  {id:"journal-thirty",icon:"▥",name:"A Month of Me",category:"Journal",story:"For recording thirty journal entries.",rule:()=>Object.keys(data.checkins||{}).length>=30},
-  {id:"journal-hundred",icon:"◆",name:"The Archivist",category:"Journal",story:"For creating one hundred journal entries.",rule:()=>Object.keys(data.checkins||{}).length>=100},
-  {id:"midnight-visitor",icon:"☾",name:"Midnight Visitor",category:"Hidden",story:"For visiting LinaHub after midnight.",hidden:true,rule:()=>new Date().getHours()===0},
-  {id:"early-bird",icon:"☼",name:"Before the World Wakes",category:"Hidden",story:"For visiting LinaHub before six in the morning.",hidden:true,rule:()=>new Date().getHours()<6},
+  {id:"first-journal",icon:"📕",name:"First Chapter",category:"Journal",story:"For saving your first journal check-in.",rule:()=>Object.keys(data.checkins||{}).length>=1},
+  {id:"journal-seven",icon:"🪶",name:"Seven Pages",category:"Journal",story:"For recording seven days in your journal.",rule:()=>Object.keys(data.checkins||{}).length>=7},
+  {id:"journal-thirty",icon:"📚",name:"A Month of Me",category:"Journal",story:"For recording thirty journal entries.",rule:()=>Object.keys(data.checkins||{}).length>=30},
+  {id:"journal-hundred",icon:"🗃️",name:"The Archivist",category:"Journal",story:"For creating one hundred journal entries.",rule:()=>Object.keys(data.checkins||{}).length>=100},
+  {id:"midnight-visitor",icon:"🌙",name:"Midnight Visitor",category:"Hidden",story:"For visiting LinaHub after midnight.",hidden:true,rule:()=>new Date().getHours()===0},
+  {id:"early-bird",icon:"🌅",name:"Before the World Wakes",category:"Hidden",story:"For visiting LinaHub before six in the morning.",hidden:true,rule:()=>new Date().getHours()<6},
 
-  {id:"first-task",icon:"✓",name:"One Thing Done",category:"Home",story:"For completing your first personal task.",rule:()=>Array.isArray(data.personalTasks)&&data.personalTasks.some(t=>t.done)},
-  {id:"ten-tasks",icon:"✓",name:"Making Progress",category:"Home",story:"For completing ten personal tasks.",rule:()=>Array.isArray(data.personalTasks)&&data.personalTasks.filter(t=>t.done).length>=10},
-  {id:"house-care",icon:"⌂",name:"Home Sweet Home",category:"Home",story:"For completing a House job.",rule:()=>Array.isArray(data.houseTasks)&&data.houseTasks.some(t=>t.done)},
-  {id:"sanctuary-key",icon:"⚿",name:"Sanctuary Key",category:"Home",story:"The key to the home you are building in LinaHub.",rule:()=>true},
+  {id:"first-task",icon:"📝",name:"One Thing Done",category:"Home",story:"For completing your first personal task.",rule:()=>Array.isArray(data.personalTasks)&&data.personalTasks.some(t=>t.done)},
+  {id:"ten-tasks",icon:"✅",name:"Making Progress",category:"Home",story:"For completing ten personal tasks.",rule:()=>Array.isArray(data.personalTasks)&&data.personalTasks.filter(t=>t.done).length>=10},
+  {id:"house-care",icon:"🏡",name:"Home Sweet Home",category:"Home",story:"For completing a House job.",rule:()=>Array.isArray(data.houseTasks)&&data.houseTasks.some(t=>t.done)},
+  {id:"sanctuary-key",icon:"🗝️",name:"Sanctuary Key",category:"Home",story:"The key to the home you are building in LinaHub.",rule:()=>true},
 
-  {id:"first-med",icon:"✦",name:"Care Taken",category:"Wellness",story:"For recording your first medication dose.",rule:()=>Array.isArray(data.medicationHistory)&&data.medicationHistory.length>=1},
-  {id:"med-ten",icon:"◇",name:"Steady Care",category:"Wellness",story:"For recording ten medication doses.",rule:()=>Array.isArray(data.medicationHistory)&&data.medicationHistory.length>=10},
-  {id:"cycle-bloom",icon:"❁",name:"Cycle Bloom",category:"Wellness",story:"For bringing your cycle history into LinaHub.",rule:()=>Array.isArray(data.periodCycles)&&data.periodCycles.length>0},
-  {id:"gentle-heart",icon:"♡",name:"Gentle Heart",category:"Wellness",story:"A reminder that rest and care always count.",rule:()=>true},
+  {id:"first-med",icon:"💊",name:"Care Taken",category:"Wellness",story:"For recording your first medication dose.",rule:()=>Array.isArray(data.medicationHistory)&&data.medicationHistory.length>=1},
+  {id:"med-ten",icon:"🫖",name:"Steady Care",category:"Wellness",story:"For recording ten medication doses.",rule:()=>Array.isArray(data.medicationHistory)&&data.medicationHistory.length>=10},
+  {id:"cycle-bloom",icon:"🌺",name:"Cycle Bloom",category:"Wellness",story:"For bringing your cycle history into LinaHub.",rule:()=>Array.isArray(data.periodCycles)&&data.periodCycles.length>0},
+  {id:"gentle-heart",icon:"💜",name:"Gentle Heart",category:"Wellness",story:"A reminder that rest and care always count.",rule:()=>true},
 
-  {id:"little-aquarium",icon:"≈",name:"Little Aquarium",category:"Aquariums",story:"For creating a home for your aquarium residents.",rule:()=>Array.isArray(data.aquariums)&&data.aquariums.length>0},
-  {id:"aquarium-care",icon:"◌",name:"Clear Waters",category:"Aquariums",story:"For recording aquarium care.",rule:()=>Array.isArray(data.aquariums)&&data.aquariums.some(a=>a.feeds?.length||Object.values(a.maintenance||{}).some(Boolean))},
-  {id:"two-tanks",icon:"◉",name:"Two Little Worlds",category:"Aquariums",story:"For caring for two aquariums.",rule:()=>Array.isArray(data.aquariums)&&data.aquariums.length>=2},
+  {id:"little-aquarium",icon:"🐠",name:"Little Aquarium",category:"Aquariums",story:"For creating a home for your aquarium residents.",rule:()=>Array.isArray(data.aquariums)&&data.aquariums.length>0},
+  {id:"aquarium-care",icon:"🐚",name:"Clear Waters",category:"Aquariums",story:"For recording aquarium care.",rule:()=>Array.isArray(data.aquariums)&&data.aquariums.some(a=>a.feeds?.length||Object.values(a.maintenance||{}).some(Boolean))},
+  {id:"two-tanks",icon:"🫧",name:"Two Little Worlds",category:"Aquariums",story:"For caring for two aquariums.",rule:()=>Array.isArray(data.aquariums)&&data.aquariums.length>=2},
 
-  {id:"collector-five",icon:"✧",name:"Curious Collector",category:"Hidden",story:"For discovering five treasures.",hidden:true,rule:()=>Object.values(data.treasures||{}).filter(x=>x?.collected).length>=5},
-  {id:"collector-twelve",icon:"✦",name:"Keeper of Treasures",category:"Hidden",story:"For discovering twelve treasures.",hidden:true,rule:()=>Object.values(data.treasures||{}).filter(x=>x?.collected).length>=12},
-  {id:"room-visitor",icon:"⌘",name:"The Secret Shelf",category:"Hidden",story:"For returning to the Treasure Room again and again.",hidden:true,rule:()=>Number(data.treasureRoomVisits||0)>=20},
-  {id:"all-shelves",icon:"✺",name:"The Curator",category:"Hidden",story:"For placing a treasure on every shelf.",hidden:true,rule:()=>["Garden","Journal","Home","Wellness","Aquariums"].every(c=>TREASURE_DEFINITIONS.some(t=>t.category===c&&data.treasures?.[t.id]?.collected))}
+  {id:"collector-five",icon:"🔮",name:"Curious Collector",category:"Hidden",story:"For discovering five treasures.",hidden:true,rule:()=>Object.values(data.treasures||{}).filter(x=>x?.collected).length>=5},
+  {id:"collector-twelve",icon:"💎",name:"Keeper of Treasures",category:"Hidden",story:"For discovering twelve treasures.",hidden:true,rule:()=>Object.values(data.treasures||{}).filter(x=>x?.collected).length>=12},
+  {id:"room-visitor",icon:"🕯️",name:"The Secret Shelf",category:"Hidden",story:"For returning to the Treasure Room again and again.",hidden:true,rule:()=>Number(data.treasureRoomVisits||0)>=20},
+  {id:"all-shelves",icon:"👑",name:"The Curator",category:"Hidden",story:"For placing a treasure on every shelf.",hidden:true,rule:()=>["Garden","Journal","Home","Wellness","Aquariums"].every(c=>TREASURE_DEFINITIONS.some(t=>t.category===c&&data.treasures?.[t.id]?.collected))}
 ];
 
 const TREASURE_SHELVES=["Garden","Journal","Home","Wellness","Aquariums","Hidden"];
@@ -48,19 +48,38 @@ function collectedTreasures(){return TREASURE_DEFINITIONS.filter(t=>treasureStat
 function waitingTreasures(){return TREASURE_DEFINITIONS.filter(t=>treasureState(t.id)&&!treasureState(t.id).collected)}
 function visibleBookTreasures(){return TREASURE_DEFINITIONS.filter(t=>!t.hidden||treasureState(t.id)?.collected)}
 function treasureTrinket(t){
-  const id=t.id||"", category=t.category||"";
-  let symbol="✦", kind="crystal";
-  if(/lemon/.test(id)){symbol="◒";kind="sunstone"}
-  else if(/rose|bloom|orchid|plant|herb|garden|roots|fingers|sanctuary/.test(id)||category==="Garden"){symbol="✿";kind="botanical"}
-  else if(/journal|chapter|pages|archivist/.test(id)||category==="Journal"){symbol="✎";kind="book"}
-  else if(/task|home|house/.test(id)||category==="Home"){symbol="⌂";kind="lantern"}
-  else if(/key/.test(id)){symbol="⚿";kind="key"}
-  else if(/med|care|heart|cycle|wellness/.test(id)||category==="Wellness"){symbol="◇";kind="vial"}
-  else if(/aquarium|waters|tank|world/.test(id)||category==="Aquariums"){symbol="≈";kind="shell"}
-  else if(/midnight|moon/.test(id)){symbol="☾";kind="moon"}
-  else if(/early|world-wakes/.test(id)){symbol="☼";kind="sunstone"}
-  else if(/collector|curator|keeper|secret/.test(id)||category==="Hidden"){symbol="✦";kind="crystal"}
-  return `<i class="shelf-trinket trinket-${kind}" data-treasure="${t.id}" title="${t.name}"><span>${symbol}</span></i>`;
+  const labels={
+    "golden-lemon":"A tiny golden lemon from your lemon tree",
+    "surprise-bloom":"A little pink rose from your first rose plant",
+    "first-plant":"A tiny first seedling",
+    "five-plants":"A little potted plant",
+    "ten-plants":"A leafy garden sprig",
+    "orchid-keeper":"A delicate orchid bloom",
+    "herb-garden":"A small bundle of herbs",
+    "plant-photo":"A miniature framed garden portrait",
+    "first-journal":"A tiny leather journal",
+    "journal-seven":"A little writing quill",
+    "journal-thirty":"A miniature stack of journals",
+    "journal-hundred":"A tiny archive box",
+    "midnight-visitor":"A silver moon charm",
+    "early-bird":"A sunrise charm",
+    "first-task":"A tiny handwritten list",
+    "ten-tasks":"A little completed checklist",
+    "house-care":"A miniature home",
+    "sanctuary-key":"A tiny brass key",
+    "first-med":"A little care bottle",
+    "med-ten":"A comforting cup of tea",
+    "cycle-bloom":"A cycle flower charm",
+    "gentle-heart":"A small purple heart",
+    "little-aquarium":"A tiny glass fish",
+    "aquarium-care":"A little shell",
+    "two-tanks":"A cluster of water bubbles",
+    "collector-five":"A small crystal ball",
+    "collector-twelve":"A cut gem",
+    "room-visitor":"A tiny candle",
+    "all-shelves":"A miniature curator crown"
+  };
+  return `<i class="shelf-trinket trinket-${t.id}" data-treasure="${t.id}" title="${labels[t.id]||t.name}" aria-label="${labels[t.id]||t.name}"><span>${t.icon}</span></i>`;
 }
 
 function TreasureRoomPage(){

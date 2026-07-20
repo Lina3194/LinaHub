@@ -115,7 +115,8 @@ function bindTreasureModal(){
     data.favoriteTreasures=isDisplayed?list.filter(x=>x!==id):[...list.filter(x=>x!==id),id].slice(-3);
     saveData();
     event.currentTarget.textContent=isDisplayed?"☆ Display in Sanctuary":"★ Displayed in Sanctuary";
-    toast(isDisplayed?"Removed from your Sanctuary":"Now displayed in your Sanctuary ✨");
+    closeTreasureModal();
+    toast(isDisplayed?"Removed from your Sanctuary":"Now displayed around your Sanctuary ✨");
   });
 }
 

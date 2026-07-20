@@ -28,8 +28,8 @@ function SettingsPage(){
       <p>Add your own picture to any home tab. When a picture is set, it replaces that tab’s emoji. Removing it brings the emoji back.</p>
       <div class="tab-art-grid">
         ${[
-          ["journal","Daily Check-in"],["health","Weight & Measures"],["plants","Plants"],["medication","Medication"],
-          ["pokemon","Pokémon GO"],["pets","Aquariums"],["house","House"],["period","Period Tracker"],["settings","Settings"]
+          ["journal","Journal"],["today","Today"],["todo","To-do"],["health","Weight & Measures"],["plants","Plants"],["medication","Potions & Remedies"],
+          ["pokemon","Pokémon GO"],["pets","Aquariums"],["house","House"],["period","Period Tracker"],["treasures","Treasure Room"],["settings","Settings"]
         ].map(([key,label])=>`
           <article class="tab-art-setting">
             <div class="tab-art-preview">${data.homeImages?.[key]?`<img src="${data.homeImages[key]}" alt="">`:`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`}</div>
@@ -71,7 +71,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v16.2 · Period Tracker</p>`,"settings");
+  <p class="app-version">LinaHub v17.4 · Clean Tile Sanctuary</p>`,"settings");
 }
 
 function bindSimple(){

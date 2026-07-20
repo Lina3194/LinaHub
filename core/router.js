@@ -8,10 +8,10 @@ const navigationHistory=[];
 function nav(active){
   return `<nav class="bottom five-nav">
     <button type="button" data-route="home" class="${active==="home"?"active":""}">⌂<small>Home</small></button>
-    <button type="button" data-route="journal" class="${active==="journal"?"active":""}">💜<small>Journal</small></button>
-    <button type="button" data-route="today" class="${active==="today"?"active":""}">✅<small>Today</small></button>
-    <button type="button" data-route="todo" class="${active==="todo"?"active":""}">📝<small>To-do</small></button>
-    <button type="button" data-route="settings" class="${active==="settings"?"active":""}">⚙️<small>Settings</small></button>
+    <button type="button" data-route="period" class="${active==="period"?"active":""}">❀<small>Period</small></button>
+    <button type="button" data-route="pokemon" class="${active==="pokemon"?"active":""}"><span class="nav-pokeball"></span><small>Pokémon</small></button>
+    <button type="button" data-route="health" class="${active==="health"?"active":""}">◒<small>Measures</small></button>
+    <button type="button" data-route="settings" class="${active==="settings"?"active":""}">⚙<small>Settings</small></button>
   </nav>`;
 }
 

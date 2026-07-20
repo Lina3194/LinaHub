@@ -356,3 +356,4 @@ body.dark .poke-today-grid button{background:#10121d}
 /* v16.17 targeted medication edit control */
 .med-card-head{grid-template-columns:auto 1fr auto auto}.med-edit-existing{white-space:nowrap}
 @media(max-width:600px){.med-card-head{grid-template-columns:auto 1fr auto}.med-card-head .med-status{grid-column:1/3}.med-card-head .med-edit-existing{grid-column:3;grid-row:2}}
+.budget-month-nav{display:flex;align-items:end;justify-content:center;gap:9px;margin-bottom:14px}.budget-month-picker{min-width:190px;margin:0}.budget-month-nav>button{width:auto;min-width:44px}.savings-metric{grid-column:1/-1}.savings-metric small{display:block;margin-top:5px;color:var(--muted);font-size:.76rem}@media(max-width:520px){.budget-month-nav{display:grid;grid-template-columns:auto minmax(0,1fr) auto}.budget-month-nav #currentBudgetMonth{grid-column:1/-1}.budget-month-picker{min-width:0}}

@@ -1,4 +1,4 @@
-const CACHE="linahub-v16-2-period-tracker";
+const CACHE="linahub-v16-3-history";
 const ASSETS=[
 "./","./index.html","./app.js?v=162","./manifest.webmanifest?v=162",
 "./core/pokemon-seed.js?v=162","./core/data.js?v=162","./core/scheduler.js?v=162","./core/router.js?v=162","./core/cloud.js?v=162",

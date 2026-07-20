@@ -3,7 +3,7 @@ const STORAGE_KEY="linahub-data";
 const LEGACY_KEYS=["linahub-v4","linahub-v4-1","linahub-v4-2","linahub-v4-3"];
 
 const DEFAULT_DATA={
-  version:5,
+  version:6,
   theme:"light",
   checkins:{},
   checkinLayout:["sleep","energy","mood","pain","spoons","water","selfcare","supports"],

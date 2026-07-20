@@ -1,3 +1,198 @@
+const PERIOD_HISTORY_SEED=[
+  {start:"2013-05-23",end:"2013-05-30",source:"historical-import"},
+  {start:"2013-06-29",end:"2013-07-03",source:"historical-import"},
+  {start:"2013-07-28",end:"2013-08-01",source:"historical-import"},
+  {start:"2013-08-18",end:"2013-08-22",source:"historical-import"},
+  {start:"2013-09-14",end:"2013-09-18",source:"historical-import"},
+  {start:"2013-10-14",end:"2013-10-18",source:"historical-import"},
+  {start:"2013-11-12",end:"2013-11-15",source:"historical-import"},
+  {start:"2013-12-15",end:"2013-12-18",source:"historical-import"},
+  {start:"2014-01-13",end:"2014-01-17",source:"historical-import"},
+  {start:"2014-02-13",end:"2014-02-17",source:"historical-import"},
+  {start:"2014-03-15",end:"2014-03-19",source:"historical-import"},
+  {start:"2014-04-13",end:"2014-04-17",source:"historical-import"},
+  {start:"2014-05-13",end:"2014-05-17",source:"historical-import"},
+  {start:"2014-06-12",end:"2014-06-16",source:"historical-import"},
+  {start:"2014-07-10",end:"2014-07-14",source:"historical-import"},
+  {start:"2014-08-04",end:"2014-08-08",source:"historical-import"},
+  {start:"2014-08-26",end:"2014-08-30",source:"historical-import"},
+  {start:"2014-09-27",end:"2014-10-01",source:"historical-import"},
+  {start:"2014-10-27",end:"2014-10-31",source:"historical-import"},
+  {start:"2014-11-28",end:"2014-12-02",source:"historical-import"},
+  {start:"2014-12-28",end:"2015-01-01",source:"historical-import"},
+  {start:"2015-01-28",end:"2015-02-01",source:"historical-import"},
+  {start:"2015-03-02",end:"2015-03-06",source:"historical-import"},
+  {start:"2015-04-04",end:"2015-04-08",source:"historical-import"},
+  {start:"2015-05-04",end:"2015-05-08",source:"historical-import"},
+  {start:"2015-06-04",end:"2015-06-08",source:"historical-import"},
+  {start:"2015-07-02",end:"2015-07-06",source:"historical-import"},
+  {start:"2015-07-29",end:"2015-08-02",source:"historical-import"},
+  {start:"2015-08-27",end:"2015-08-31",source:"historical-import"},
+  {start:"2015-09-22",end:"2015-09-26",source:"historical-import"},
+  {start:"2015-10-21",end:"2015-10-25",source:"historical-import"},
+  {start:"2015-11-19",end:"2015-11-23",source:"historical-import"},
+  {start:"2015-12-17",end:"2015-12-21",source:"historical-import"},
+  {start:"2016-01-10",end:"2016-01-15",source:"historical-import"},
+  {start:"2016-02-16",end:"2016-02-20",source:"historical-import"},
+  {start:"2016-03-18",end:"2016-03-22",source:"historical-import"},
+  {start:"2016-04-17",end:"2016-04-21",source:"historical-import"},
+  {start:"2016-05-15",end:"2016-05-19",source:"historical-import"},
+  {start:"2016-06-16",end:"2016-06-20",source:"historical-import"},
+  {start:"2016-07-16",end:"2016-07-20",source:"historical-import"},
+  {start:"2016-08-16",end:"2016-08-20",source:"historical-import"},
+  {start:"2016-09-15",end:"2016-09-19",source:"historical-import"},
+  {start:"2016-10-11",end:"2016-10-15",source:"historical-import"},
+  {start:"2016-11-08",end:"2016-11-12",source:"historical-import"},
+  {start:"2016-12-05",end:"2016-12-09",source:"historical-import"},
+  {start:"2017-01-02",end:"2017-01-06",source:"historical-import"},
+  {start:"2017-01-31",end:"2017-02-04",source:"historical-import"},
+  {start:"2017-02-27",end:"2017-03-03",source:"historical-import"},
+  {start:"2017-03-26",end:"2017-03-30",source:"historical-import"},
+  {start:"2017-04-23",end:"2017-04-27",source:"historical-import"},
+  {start:"2017-05-21",end:"2017-05-25",source:"historical-import"},
+  {start:"2017-06-15",end:"2017-06-19",source:"historical-import"},
+  {start:"2017-07-13",end:"2017-07-17",source:"historical-import"},
+  {start:"2017-08-07",end:"2017-08-11",source:"historical-import"},
+  {start:"2017-09-04",end:"2017-09-08",source:"historical-import"},
+  {start:"2017-10-02",end:"2017-10-06",source:"historical-import"},
+  {start:"2017-10-28",end:"2017-11-01",source:"historical-import"},
+  {start:"2017-11-24",end:"2017-11-28",source:"historical-import"},
+  {start:"2017-12-25",end:"2017-12-29",source:"historical-import"},
+  {start:"2018-01-22",end:"2018-01-26",source:"historical-import"},
+  {start:"2018-02-19",end:"2018-02-23",source:"historical-import"},
+  {start:"2018-03-23",end:"2018-03-27",source:"historical-import"},
+  {start:"2018-04-22",end:"2018-04-26",source:"historical-import"},
+  {start:"2018-05-19",end:"2018-05-23",source:"historical-import"},
+  {start:"2018-06-17",end:"2018-06-21",source:"historical-import"},
+  {start:"2018-07-14",end:"2018-07-18",source:"historical-import"},
+  {start:"2018-08-11",end:"2018-08-15",source:"historical-import"},
+  {start:"2018-09-08",end:"2018-09-12",source:"historical-import"},
+  {start:"2018-10-07",end:"2018-10-11",source:"historical-import"},
+  {start:"2018-11-06",end:"2018-11-10",source:"historical-import"},
+  {start:"2018-12-01",end:"2018-12-05",source:"historical-import"},
+  {start:"2019-01-01",end:"2019-01-05",source:"historical-import"},
+  {start:"2019-01-28",end:"2019-02-01",source:"historical-import"},
+  {start:"2019-03-01",end:"2019-03-05",source:"historical-import"},
+  {start:"2019-03-28",end:"2019-04-01",source:"historical-import"},
+  {start:"2019-04-26",end:"2019-04-30",source:"historical-import"},
+  {start:"2019-05-26",end:"2019-05-30",source:"historical-import"},
+  {start:"2019-06-23",end:"2019-06-27",source:"historical-import"},
+  {start:"2019-07-20",end:"2019-07-24",source:"historical-import"},
+  {start:"2019-08-15",end:"2019-08-19",source:"historical-import"},
+  {start:"2019-09-11",end:"2019-09-15",source:"historical-import"},
+  {start:"2019-10-11",end:"2019-10-15",source:"historical-import"},
+  {start:"2019-11-07",end:"2019-11-11",source:"historical-import"},
+  {start:"2019-12-07",end:"2019-12-11",source:"historical-import"},
+  {start:"2020-01-04",end:"2020-01-08",source:"historical-import"},
+  {start:"2020-02-04",end:"2020-02-08",source:"historical-import"},
+  {start:"2020-02-28",end:"2020-03-03",source:"historical-import"},
+  {start:"2020-03-27",end:"2020-03-31",source:"historical-import"},
+  {start:"2020-04-28",end:"2020-05-02",source:"historical-import"},
+  {start:"2020-05-25",end:"2020-05-29",source:"historical-import"},
+  {start:"2020-06-23",end:"2020-06-27",source:"historical-import"},
+  {start:"2020-07-23",end:"2020-07-25",source:"historical-import"},
+  {start:"2020-08-21",end:"2020-08-25",source:"historical-import"},
+  {start:"2020-09-19",end:"2020-09-23",source:"historical-import"},
+  {start:"2020-10-15",end:"2020-10-19",source:"historical-import"},
+  {start:"2020-11-13",end:"2020-11-17",source:"historical-import"},
+  {start:"2020-12-08",end:"2020-12-12",source:"historical-import"},
+  {start:"2021-01-05",end:"2021-01-09",source:"historical-import"},
+  {start:"2021-02-03",end:"2021-02-07",source:"historical-import"},
+  {start:"2021-03-03",end:"2021-03-05",source:"historical-import"},
+  {start:"2021-04-05",end:"2021-04-09",source:"historical-import"},
+  {start:"2021-05-03",end:"2021-05-05",source:"historical-import"},
+  {start:"2021-06-01",end:"2021-06-05",source:"historical-import"},
+  {start:"2021-06-28",end:"2021-07-01",source:"historical-import"},
+  {start:"2021-07-22",end:"2021-07-26",source:"historical-import"},
+  {start:"2021-08-22",end:"2021-08-27",source:"historical-import"},
+  {start:"2021-09-22",end:"2021-09-26",source:"historical-import"},
+  {start:"2021-10-17",end:"2021-10-21",source:"historical-import"},
+  {start:"2021-11-13",end:"2021-11-17",source:"historical-import"},
+  {start:"2021-12-10",end:"2021-12-14",source:"historical-import"},
+  {start:"2022-01-08",end:"2022-01-12",source:"historical-import"},
+  {start:"2022-02-02",end:"2022-02-06",source:"historical-import"},
+  {start:"2022-02-27",end:"2022-03-03",source:"historical-import"},
+  {start:"2022-03-25",end:"2022-03-29",source:"historical-import"},
+  {start:"2022-04-23",end:"2022-04-27",source:"historical-import"},
+  {start:"2022-05-19",end:"2022-05-23",source:"historical-import"},
+  {start:"2022-06-17",end:"2022-06-21",source:"historical-import"},
+  {start:"2022-07-14",end:"2022-07-18",source:"historical-import"},
+  {start:"2022-08-09",end:"2022-08-13",source:"historical-import"},
+  {start:"2022-09-07",end:"2022-09-11",source:"historical-import"},
+  {start:"2022-10-03",end:"2022-10-07",source:"historical-import"},
+  {start:"2022-10-31",end:"2022-11-04",source:"historical-import"},
+  {start:"2022-11-28",end:"2022-12-02",source:"historical-import"},
+  {start:"2022-12-25",end:"2022-12-29",source:"historical-import"},
+  {start:"2023-01-21",end:"2023-01-25",source:"historical-import"},
+  {start:"2023-02-18",end:"2023-02-22",source:"historical-import"},
+  {start:"2023-03-15",end:"2023-03-20",source:"historical-import"},
+  {start:"2023-04-11",end:"2023-04-15",source:"historical-import"},
+  {start:"2023-05-09",end:"2023-05-13",source:"historical-import"},
+  {start:"2023-06-07",end:"2023-06-11",source:"historical-import"},
+  {start:"2023-07-06",end:"2023-07-10",source:"historical-import"},
+  {start:"2023-08-03",end:"2023-08-07",source:"historical-import"},
+  {start:"2023-09-01",end:"2023-09-05",source:"historical-import"},
+  {start:"2023-09-28",end:"2023-10-02",source:"historical-import"},
+  {start:"2023-10-27",end:"2023-10-31",source:"historical-import"},
+  {start:"2023-11-20",end:"2023-11-24",source:"historical-import"},
+  {start:"2023-12-16",end:"2023-12-20",source:"historical-import"},
+  {start:"2024-01-13",end:"2024-01-17",source:"historical-import"},
+  {start:"2024-02-08",end:"2024-02-12",source:"historical-import"},
+  {start:"2024-03-09",end:"2024-03-13",source:"historical-import"},
+  {start:"2024-04-01",end:"2024-04-05",source:"historical-import"},
+  {start:"2024-05-02",end:"2024-05-06",source:"historical-import"},
+  {start:"2024-05-30",end:"2024-06-03",source:"historical-import"},
+  {start:"2024-06-30",end:"2024-07-04",source:"historical-import"},
+  {start:"2024-07-29",end:"2024-08-01",source:"historical-import"},
+  {start:"2024-08-29",end:"2024-09-02",source:"historical-import"},
+  {start:"2024-09-25",end:"2024-09-29",source:"historical-import"},
+  {start:"2024-10-25",end:"2024-10-29",source:"historical-import"},
+  {start:"2024-11-24",end:"2024-11-28",source:"historical-import"},
+  {start:"2024-12-21",end:"2024-12-25",source:"historical-import"},
+  {start:"2025-01-22",end:"2025-01-24",source:"historical-import"},
+  {start:"2025-02-23",end:"2025-02-28",source:"historical-import"},
+  {start:"2025-03-22",end:"2025-03-26",source:"historical-import"},
+  {start:"2025-04-21",end:"2025-04-25",source:"historical-import"},
+  {start:"2025-05-16",end:"2025-05-20",source:"historical-import"},
+  {start:"2025-06-12",end:"2025-06-16",source:"historical-import"},
+  {start:"2025-07-10",end:"2025-07-12",source:"historical-import"},
+  {start:"2025-08-06",end:"2025-08-10",source:"historical-import"},
+  {start:"2025-09-02",end:"2025-09-04",source:"historical-import"},
+  {start:"2025-12-31",end:"2026-01-03",source:"historical-import"},
+  {start:"2026-01-31",end:"2026-02-03",source:"historical-import"},
+  {start:"2026-03-01",end:"2026-03-03",source:"historical-import"},
+  {start:"2026-03-29",end:"2026-04-01",source:"historical-import"},
+  {start:"2026-04-29",end:"2026-05-03",source:"historical-import"},
+  {start:"2026-05-30",end:"2026-06-02",source:"historical-import"},
+  {start:"2026-06-28",end:"2026-07-01",source:"historical-import"},
+];
+
+const PERIOD_ENTRY_SEED={
+  "2025-12-31":{flow:"medium",legacyImported:true},
+  "2026-01-01":{flow:"heavy",notes:"Cuddles all day",legacySymptoms:["cramps","fatigue","bloating","backaches","headaches"],legacyMoods:["sleepy","exhausted","peaceful","relaxed"],legacyImported:true},
+  "2026-01-02":{flow:"medium",legacyImported:true},
+  "2026-01-03":{flow:"light",legacyImported:true},
+  "2026-01-04":{legacySymptoms:["cramps","fatigue","bloating","gas"],legacyMoods:["sleepy","exhausted","stressed"],legacyImported:true},
+  "2026-06-28":{flow:"medium",legacyImported:true}
+};
+
+function importHistoricalPeriodData(){
+  if(Number(data.periodHistorySeedVersion||0)>=1) return;
+  const byStart=new Map((data.periodCycles||[]).filter(c=>c?.start).map(c=>[c.start,c]));
+  PERIOD_HISTORY_SEED.forEach((record,index)=>{
+    if(byStart.has(record.start)){
+      const existing=byStart.get(record.start);
+      if(!existing.end&&record.end) existing.end=record.end;
+      return;
+    }
+    data.periodCycles.push({id:`history-${record.start}`,start:record.start,end:record.end,source:record.source,importedAt:"2026-07-20"});
+  });
+  Object.entries(PERIOD_ENTRY_SEED).forEach(([date,record])=>{
+    data.periodEntries[date]={...record,...(data.periodEntries[date]||{})};
+  });
+  data.periodHistorySeedVersion=1;
+}
+
 const PERIOD_DEFAULT_OPTIONS=[
   {id:"clots",emoji:"🩸",name:"Clots",type:"toggle",choices:[]},
   {id:"colour",emoji:"🌹",name:"Colour",type:"single",choices:["Bright red","Dark red","Brown","Pink"]},
@@ -22,6 +217,7 @@ function ensurePeriodData(){
   data.periodSelectedDate=data.periodSelectedDate||today();
   data.periodCalendarMonth=data.periodCalendarMonth||today().slice(0,7);
   data.periodEditOptions=data.periodEditOptions===true;
+  importHistoricalPeriodData();
 }
 
 function periodDate(value){return new Date(`${value}T12:00:00`)}
@@ -117,6 +313,25 @@ function periodOptionEditor(){
     <div class="period-editor-actions"><button type="button" class="secondary" id="addPeriodOption">+ Add item</button><button type="button" class="mini" id="restorePeriodOptions">Restore defaults</button></div>
   </section>`;
 }
+
+function periodCycleLength(cycle,ascending){
+  const index=ascending.findIndex(item=>item.start===cycle.start);
+  const next=ascending[index+1];
+  if(next) return periodDaysBetween(cycle.start,next.start);
+  return null;
+}
+function periodHistoryMarkup(cycles){
+  if(!cycles.length) return `<p>No cycles logged yet.</p>`;
+  const ascending=[...cycles].sort((a,b)=>a.start.localeCompare(b.start));
+  const grouped={};
+  cycles.forEach(cycle=>{const year=cycle.start.slice(0,4);(grouped[year]||(grouped[year]=[])).push(cycle)});
+  return Object.keys(grouped).sort((a,b)=>b.localeCompare(a)).map(year=>`<section class="period-history-year"><h3>${year}</h3>${grouped[year].map(c=>{
+    const periodLength=c.end?periodDaysBetween(c.start,c.end)+1:null;
+    const cycleLength=periodCycleLength(c,ascending);
+    return `<article class="history-card"><div class="history-date"><strong>${formatDate(c.start)}${c.end?` – ${formatDate(c.end)}`:""}</strong><span>${cycleLength?`${cycleLength}-day cycle · `:""}${periodLength?`${periodLength}-day period`:"Ongoing"}${c.source==="historical-import"?" · imported history":""}</span></div><button type="button" class="mini danger" data-cycle-delete="${c.id}">Delete</button></article>`;
+  }).join("")}</section>`).join("");
+}
+
 function PeriodPage(){
   ensurePeriodData();
   const stats=periodStats();
@@ -149,7 +364,7 @@ function PeriodPage(){
       ${periodJournalSnapshot(selected)}
     </section>
     ${data.periodEditOptions?periodOptionEditor():""}
-    <section class="card"><h2>Cycle history</h2><div class="timeline-list">${stats.cycles.length?stats.cycles.map(c=>`<article class="history-card"><div class="history-date"><strong>${formatDate(c.start)}</strong><span>${c.end?`${periodDaysBetween(c.start,c.end)+1} days · ended ${formatDate(c.end)}`:"Ongoing"}</span></div><button type="button" class="mini danger" data-cycle-delete="${c.id}">Delete</button></article>`).join(""):`<p>No cycles logged yet.</p>`}</div></section>
+    <section class="card"><div class="section-title"><div><span class="section-kicker">📚 Your history</span><h2>Cycle history</h2></div><span class="period-import-count">${stats.cycles.length} periods</span></div><p>Your records from your notebooks and previous apps are now stored here with your LinaHub data.</p><div class="timeline-list">${periodHistoryMarkup(stats.cycles)}</div></section>
   `,"period");
 }
 

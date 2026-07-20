@@ -1,4 +1,4 @@
-const MED_WEEKDAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+const MED_WEEKDAYS=LINAHUB_WEEKDAYS;
 let medicationDateTouched=false;
 
 function medLocalDate(date=new Date()){
@@ -38,15 +38,7 @@ function medDateLabel(value){
   return new Date(`${value}T12:00:00`).toLocaleDateString("en-GB",{weekday:"short",day:"numeric",month:"short",year:"numeric"});
 }
 function medDueOn(m,dateValue){
-  if(!m.active)return false;
-  if(m.startDate&&dateValue<m.startDate)return false;
-  if(m.endDate&&dateValue>m.endDate)return false;
-  if(m.scheduleType==="prn")return true;
-  if(m.scheduleType==="weekdays"){
-    const day=MED_WEEKDAYS[new Date(`${dateValue}T12:00:00`).getDay()];
-    return m.weekdays.includes(day);
-  }
-  return true;
+  return medicationDueOnDate(m,dateValue);
 }
 function medLogsFor(medId,dateValue){
   return data.medicationHistory.filter(x=>x.medId===medId&&x.date===dateValue).sort((a,b)=>(a.time||"").localeCompare(b.time||""));

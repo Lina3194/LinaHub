@@ -16,8 +16,9 @@ const CLOUD_MODULES={
   house:["houseControlsCollapsed","houseOpenRooms","houseRooms","houseTasks"],
   medication:["medications","medicationLog"],
   health:["weightEntries","measurements","healthPromptLog"],
+  period:["periodEntries","periodCycles","periodOptions","periodSelectedDate","periodCalendarMonth","periodEditOptions"],
   todo:["personalTasks"],
-  settings:["theme","homeIcons","homeImages","moduleBanners","v9CollapseDefaultsApplied"],
+  settings:["theme","colorTheme","homeIcons","homeImages","moduleBanners","v9CollapseDefaultsApplied"],
   misc:["version"]
 };
 

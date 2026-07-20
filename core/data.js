@@ -3,8 +3,9 @@ const STORAGE_KEY="linahub-data";
 const LEGACY_KEYS=["linahub-v4","linahub-v4-1","linahub-v4-2","linahub-v4-3"];
 
 const DEFAULT_DATA={
-  version:5,
-  theme:"light",
+  version:6,
+  theme:"dark",
+  colorTheme:"amethyst",
   checkins:{},
   checkinLayout:["sleep","energy","mood","pain","spoons","water","selfcare","supports"],
   checkinFilter:"all",
@@ -14,9 +15,11 @@ const DEFAULT_DATA={
   journalTrendPeriod:"week",
   homeIcons:{
     journal:"📖",health:"⚖️",plants:"🌿",medication:"💊",
-    pokemon:"🔴",pets:"🐠",house:"🏡",settings:"⚙️"
+    pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",settings:"⚙️"
   },
   homeImages:{},
+  treasures:{},
+  favoriteTreasures:[],
   moduleBanners:{},
   checkinHidden:[],
   selfCareOptions:["Rest","Reading","Exercises","Warmth","Good food","Fresh air","Music","Gaming","Hobbies"],
@@ -30,6 +33,12 @@ const DEFAULT_DATA={
   weightEntries:[],
   measurements:[],
   healthPromptLog:{},
+  periodEntries:{},
+  periodCycles:[],
+  periodOptions:[],
+  periodSelectedDate:"",
+  periodCalendarMonth:"",
+  periodEditOptions:false,
   personalTasks:[],
   houseControlsCollapsed:true,
   houseOpenRooms:[],

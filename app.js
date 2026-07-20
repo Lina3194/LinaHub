@@ -1,7 +1,8 @@
 
 function render(){
   resetSwipePreview();
-  document.body.classList.toggle("dark",data.theme==="dark");
+  document.body.classList.toggle("dark",data.theme!=="light");
+  document.body.dataset.theme=data.colorTheme||"amethyst";
   document.body.dataset.route=route; // Styling metadata only; navigation clicks are restricted to explicit controls.
   document.querySelectorAll(".route-atmosphere").forEach(el=>el.remove());
 
@@ -18,7 +19,9 @@ function render(){
     pokemon:PokemonPage,
     pets:AquariumsPage,
     tank:AquariumTankPage,
-    house:HousePage
+    house:HousePage,
+    period:PeriodPage,
+    treasures:TreasureRoomPage
   };
 
   const pageFactory=pages[route]||HomePage;
@@ -57,6 +60,8 @@ function render(){
   if(route==="house") bindHouse();
   if(route==="medication") bindMedication();
   if(route==="health") bindHealth();
+  if(route==="period") bindPeriod();
+  if(route==="treasures") bindTreasures();
   if(route==="settings") bindSimple();
   if(route==="pets"||route==="tank") bindAquariums();
 }
@@ -243,7 +248,7 @@ setupSwipeBack();
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=155",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=173",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

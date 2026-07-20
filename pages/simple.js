@@ -80,7 +80,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v15.9 · Full Sanctuary Themes</p>`,"settings");
+  <p class="app-version">LinaHub v16.0 · Garden & Theme Update</p>`,"settings");
 }
 
 function bindSimple(){

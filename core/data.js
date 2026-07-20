@@ -18,6 +18,7 @@ const DEFAULT_DATA={
     pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",treasures:"✨",settings:"⚙️"
   },
   homeImages:{},
+  homeTileNames:{plants:"Garden"},
   homeLayout:[
     {id:"journal",size:"medium"},{id:"health",size:"medium"},{id:"plants",size:"medium"},{id:"medication",size:"medium"},
     {id:"pokemon",size:"medium"},{id:"pets",size:"medium"},{id:"house",size:"medium"},{id:"period",size:"medium"},{id:"settings",size:"medium"},{id:"treasures",size:"wide"}

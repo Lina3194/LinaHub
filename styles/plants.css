@@ -109,3 +109,5 @@ body.dark .encyclopedia-card,body.dark .plant-main-tabs button{background:#10121
   .plant-tile-art{height:82px!important}
   .plant-tile-copy{padding:8px!important}
 }
+
+.encyclopedia-actions{display:flex;justify-content:flex-end;margin:10px 0 14px}.encyclopedia-card[hidden]{display:none!important}

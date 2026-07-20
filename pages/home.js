@@ -13,7 +13,7 @@ function ensureHomeLayout(){
 const HOME_TILE_INFO={
   journal:["Daily Check-in","Pain, energy, sleep and your day","📖"],
   health:["Weight & Measures","Track weight and measurements","⚖️"],
-  plants:["Plants","Care and watering","🌿"],
+  plants:["Garden","Care and watering","🌿"],
   medication:["Medication","Doses and routines","💊"],
   pokemon:["Pokémon GO","Friendship, Vivillon and gifts",""],
   pets:["Aquariums","Girls and boys tanks","🐠"],
@@ -23,7 +23,8 @@ const HOME_TILE_INFO={
 };
 
 function homeTile(item,editing){
-  const [title,subtitle,fallback]=HOME_TILE_INFO[item.id];
+  const [defaultTitle,subtitle,fallback]=HOME_TILE_INFO[item.id];
+  const title=data.homeTileNames?.[item.id]||defaultTitle;
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon"
@@ -34,6 +35,7 @@ function homeTile(item,editing){
     ${editing?`<div class="tile-edit-controls">
       <button type="button" class="tile-move" data-move="back" aria-label="Move ${title} earlier">‹</button>
       <button type="button" class="tile-drag" aria-label="Drag ${title}">Move</button>
+      <button type="button" class="tile-rename" data-rename-tile="${item.id}" aria-label="Rename ${title}">Name</button>
       <button type="button" class="tile-size" data-size-tile="${item.id}">${item.size}</button>
       <button type="button" class="tile-move" data-move="forward" aria-label="Move ${title} later">›</button>
     </div>`:""}
@@ -59,7 +61,7 @@ function HomePage(){
           </div>
         </div>
       </div>
-      ${editing?`<p class="home-edit-help">Drag tiles, use the arrows, and tap the size button to cycle through Small, Medium, Wide and Large.</p>`:""}
+      ${editing?`<p class="home-edit-help">Drag tiles, use the arrows, rename them, and tap the size button to cycle through Small, Medium, Wide and Large.</p>`:""}
     </section>
     <div class="grid home-layout ${editing?"editing":""}">${data.homeLayout.map(item=>homeTile(item,editing)).join("")}</div>
   `,"home");
@@ -76,6 +78,16 @@ function bindHome(){
   document.querySelector("#homeEditToggle")?.addEventListener("click",()=>{data.homeEditing=!data.homeEditing;saveData();render()});
   if(!data.homeEditing) return;
   const saveRender=()=>{saveData();render()};
+  document.querySelectorAll("[data-rename-tile]").forEach(btn=>btn.addEventListener("click",()=>{
+    const id=btn.dataset.renameTile;
+    const current=data.homeTileNames?.[id]||HOME_TILE_INFO[id]?.[0]||"Tile";
+    const next=prompt("Rename this Home tile",current);
+    if(next===null)return;
+    const clean=next.trim().slice(0,40);
+    data.homeTileNames=data.homeTileNames||{};
+    if(clean)data.homeTileNames[id]=clean; else delete data.homeTileNames[id];
+    saveRender();
+  }));
   document.querySelectorAll("[data-size-tile]").forEach(btn=>btn.addEventListener("click",()=>{
     const order=["small","medium","wide","large"], item=data.homeLayout.find(x=>x.id===btn.dataset.sizeTile);
     if(item){item.size=order[(order.indexOf(item.size)+1)%order.length];saveRender()}

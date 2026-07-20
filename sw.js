@@ -1,10 +1,10 @@
-const CACHE="linahub-v15-8-navigation-themes";
+const CACHE="linahub-v16-0-garden-fix";
 const ASSETS=[
-"./","./index.html","./app.js?v=158","./manifest.webmanifest?v=158",
-"./core/pokemon-seed.js?v=158","./core/data.js?v=158","./core/router.js?v=158","./core/cloud.js?v=158",
-"./pages/home.js?v=158","./pages/today.js?v=158","./pages/todo.js?v=158","./pages/journal.js?v=158","./pages/plants.js?v=158","./pages/pokemon.js?v=158","./pages/house.js?v=158","./pages/medication.js?v=158","./pages/health.js?v=158","./pages/simple.js?v=158","./pages/aquariums.js?v=158","./pages/period.js?v=158","./pages/treasures.js?v=158",
-"./styles/base.css?v=158","./styles/home.css?v=158","./styles/journal.css?v=158","./styles/plants.css?v=158","./styles/modules.css?v=158","./styles/period.css?v=158","./styles/treasures.css?v=158",
-"./icons/icon-192.png?v=158","./icons/icon-512.png?v=158","./icons/apple-touch-icon.png?v=158"
+"./","./index.html","./app.js?v=160","./manifest.webmanifest?v=160",
+"./core/pokemon-seed.js?v=160","./core/data.js?v=160","./core/router.js?v=160","./core/cloud.js?v=160",
+"./pages/home.js?v=160","./pages/today.js?v=160","./pages/todo.js?v=160","./pages/journal.js?v=160","./pages/plants.js?v=160","./pages/pokemon.js?v=160","./pages/house.js?v=160","./pages/medication.js?v=160","./pages/health.js?v=160","./pages/simple.js?v=160","./pages/aquariums.js?v=160","./pages/period.js?v=160","./pages/treasures.js?v=160",
+"./styles/base.css?v=160","./styles/home.css?v=160","./styles/journal.css?v=160","./styles/plants.css?v=160","./styles/modules.css?v=160","./styles/period.css?v=160","./styles/treasures.css?v=160",
+"./icons/icon-192.png?v=160","./icons/icon-512.png?v=160","./icons/apple-touch-icon.png?v=160"
 ];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

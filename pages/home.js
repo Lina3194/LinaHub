@@ -1,90 +1,86 @@
+
 function localEntryTimestamp(){
   const now=new Date();
   const pad=n=>String(n).padStart(2,"0");
-  return {date:`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`,time:`${pad(now.getHours())}:${pad(now.getMinutes())}`,createdAt:now.toISOString()};
+  return {
+    date:`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`,
+    time:`${pad(now.getHours())}:${pad(now.getMinutes())}`,
+    createdAt:now.toISOString()
+  };
 }
 function entryTimeLabel(entry){
   if(entry.time) return entry.time;
-  if(entry.createdAt){const d=new Date(entry.createdAt);if(!Number.isNaN(d.getTime())) return d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",hour12:false});}
+  if(entry.createdAt){
+    const d=new Date(entry.createdAt);
+    if(!Number.isNaN(d.getTime())){
+      return d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",hour12:false});
+    }
+  }
   return "";
 }
 
-const HOME_ICON_DEFAULTS={
-  journal:"♡",today:"✓",todo:"✎",plants:"♧",medication:"⚗",pets:"◉",house:"⌂",treasures:"✦",
-  period:"❀",pokemon:"●",health:"◒",settings:"⚙"
-};
-
-function ensureHomeIcons(){
-  if(!data.homeIcons||typeof data.homeIcons!=="object") data.homeIcons={};
-  if(!data.homeImages||typeof data.homeImages!=="object") data.homeImages={};
-}
-
-function homeIcon(key,label,compact=false){
-  ensureHomeIcons();
-  const photo=data.homeImages[key];
-  const custom=data.homeIcons[key];
-  const fallback=HOME_ICON_DEFAULTS[key]||"✦";
-  return `<span class="home-icon-frame ${compact?"compact":""}">${photo?`<img src="${photo}" alt="${esc(label)}">`:`<span class="home-icon-default home-icon-${key}" aria-hidden="true">${esc(custom||fallback)}</span>`}</span>`;
-}
-
-function homeTile(routeKey,label,subtitle="",wide=false){
-  return `<button class="home-tile ${wide?"wide":""}" data-route="${routeKey}">
-    ${homeIcon(routeKey,label)}
-    <span class="home-tile-copy"><b>${label}</b>${subtitle?`<small>${subtitle}</small>`:""}</span>
-  </button>`;
-}
-
-function quickTile(routeKey,label){
-  return `<button class="quick-tile" data-route="${routeKey}">${homeIcon(routeKey,label,true)}<b>${label}</b></button>`;
-}
-
-function treasureDecoration(id,index){
-  const known={
-    "golden-lemon":"decor-lemon","first-journal":"decor-book","gentle-heart":"decor-heart",
-    "little-aquarium":"decor-bubble","green-fingers":"decor-plant","home-key":"decor-key",
-    "moon-candle":"decor-candle","cycle-bloom":"decor-bloom"
-  };
-  return `<button class="sanctuary-keepsake ${known[id]||"decor-gem"} keepsake-${index+1}" data-route="treasures" aria-label="Displayed treasure"></button>`;
-}
-
-function sanctuaryFavouriteDecor(){
-  const ids=Array.isArray(data.favoriteTreasures)?data.favoriteTreasures.slice(0,3):[];
-  return ids.map(treasureDecoration).join("");
-}
 
 function HomePage(){
-  ensureHomeIcons();
-  const hour=new Date().getHours();
+  const d=new Date();
+  const hour=d.getHours();
   const greeting=hour<12?"Good morning":hour<18?"Good afternoon":"Good evening";
+  const weekday=d.toLocaleDateString("en-GB",{weekday:"long"});
+  const due=[];
+
+  if(weekday==="Thursday") due.push({emoji:"♻️",text:"Put recycling out",route:"house"});
+  const tanksNeedingFeed=(data.aquariums||[]).filter(tank=>!tankFeedToday(tank));
+  if(tanksNeedingFeed.length){
+    due.push({
+      emoji:"🐠",
+      text:tanksNeedingFeed.length===(data.aquariums||[]).length
+        ?"Feed both fish tanks"
+        :`Feed ${tanksNeedingFeed.map(t=>t.name).join(" & ")}`,
+      route:"pets"
+    });
+  }
+  if(data.checkins[today()]) due.push({emoji:"💜",text:"Today’s check-in saved",route:"journal"});
+
   return shell(`
-    <div class="home-scene">
-      <div class="magic-sky" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
-      <section class="home-welcome">
-        <div><span class="section-kicker">LinaHub 3.0</span><h1>${greeting}, Lina</h1><p>Your enchanted sanctuary.</p></div>
-        <div class="welcome-crystal" aria-hidden="true"></div>
-      </section>
-
-      <section class="quick-row" aria-label="Journal, Today and To-do">
-        ${quickTile("journal","Journal")}
-        ${quickTile("today","Today")}
-        ${quickTile("todo","To-do")}
-      </section>
-
-      <section class="home-tile-grid" aria-label="LinaHub sections">
-        ${homeTile("plants","Plants",`${(data.plants||[]).length} growing`)}
-        ${homeTile("medication","Potions & Remedies","Medication and health")}
-        ${homeTile("pets","Aquariums",`${(data.aquariums||[]).length} tanks`)}
-        ${homeTile("house","House","Rooms and routines")}
-        ${homeTile("treasures","Treasure Room","Your collected memories",true)}
-      </section>
-
-      <div class="home-altar" aria-hidden="true">
-        <span class="altar-plant"></span><span class="altar-crystal crystal-left"></span>
-        <span class="altar-candle"><i></i></span><span class="altar-crystal crystal-right"></span>
+    <section class="hero">
+      <div class="hero-row">
+        <div>
+          <div class="eyebrow">LinaHub</div>
+          <h1>${greeting},<br>Lina ✨</h1>
+          <p>A gentle overview of what needs your attention today.</p>
+        </div>
+        <button class="theme-btn" id="themeToggle">${data.theme==="dark"?"☀️":"🌙"}</button>
       </div>
-      <div class="sanctuary-keepsakes" aria-label="Treasures displayed around your Sanctuary">${sanctuaryFavouriteDecor()}</div>
+    </section>
+
+    <div class="grid">
+      ${[
+        [data.homeIcons?.journal||"📖","Daily Check-in","Pain, energy, sleep and your day","journal"],
+        [data.homeIcons?.health||"⚖️","Weight & Measures","Track weight and measurements","health"],
+        [data.homeIcons?.plants||"🌿","Plants","Care and watering","plants"],
+        [data.homeIcons?.medication||"💊","Medication","Doses and routines","medication"],
+        ["","Pokémon GO","Friendship, Vivillon and gifts","pokemon"],
+        [data.homeIcons?.pets||"🐠","Aquariums","Girls and boys tanks","pets"],
+        [data.homeIcons?.house||"🏡","House","Rooms and recurring tasks","house"],
+        [data.homeIcons?.settings||"⚙️","Settings","Theme and backup","settings"]
+      ].map(x=>`<button type="button" class="module module-${x[3]}" data-route="${x[3]}">${
+        data.homeImages?.[x[3]]
+          ? `<span class="module-image"><img src="${data.homeImages[x[3]]}" alt=""></span>`
+          : x[3]==="pokemon"
+            ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=110" alt="Poké Ball"></span>`
+            : `<span class="emoji">${x[0]}</span>`
+      }<strong>${x[1]}</strong><small>${x[2]}</small></button>`).join("")}
     </div>
+
+    <section class="card" style="margin-top:14px">
+      <button class="today-heading" data-route="today"><span><h2>Today’s</h2><small>Open your full task list</small></span><b>›</b></button>
+      <div class="today-list">
+        ${due.map(item=>`<button class="reminder" data-route="${item.route}"><b>${item.emoji}</b><span>${item.text}</span></button>`).join("")}
+      </div>
+    </section>
   `,"home");
 }
 
-function bindHome(){}
+function bindHome(){
+  const toggle=document.querySelector("#themeToggle");
+  if(toggle) toggle.onclick=()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()};
+}

@@ -65,7 +65,7 @@ function resetModuleLanding(next){
   }
   if(next==="plants"){
     if(typeof plantUi!=="undefined"){plantUi.view="collection";plantUi.encyclopediaOpen=null;plantUi.encyclopediaSearch="";}
-    data.plantProfileTab="overview";
+    data.plantProfileTab="care";
   }
   if(next==="pokemon" && typeof pokemonUi!=="undefined"){
     pokemonUi.view="friends";pokemonUi.page=1;pokemonUi.editing=null;pokemonUi.openCard=null;
@@ -88,7 +88,7 @@ function go(next,id="",direction="forward",options={}){
   }
 
   if(destination.route==="plant" && (current.route!=="plant" || current.routeId!==destination.routeId)){
-    data.plantProfileTab="overview";
+    data.plantProfileTab="care";
   }
 
   if(direction!=="back" && !options.replace && !sameLocation(current,destination)){

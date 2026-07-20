@@ -150,3 +150,14 @@ body.dark .encyclopedia-card,body.dark .plant-main-tabs button{background:#10121
   .plant-profile-actions{gap:10px!important}
   .plant-profile-actions .upload-label{min-height:48px!important;padding:10px 14px!important}
 }
+
+
+/* v16.26 smaller uncropped plant profile photo and three-tab profile */
+.plant-profile-head{display:flex;flex-direction:column;align-items:stretch}
+.plant-photo-large{width:min(72%,420px)!important;height:150px!important;max-height:150px!important;margin:0 auto!important;aspect-ratio:auto!important;background:rgba(255,255,255,.06)!important}
+.plant-photo-large img{width:100%!important;height:100%!important;object-fit:contain!important;object-position:center!important;background:transparent!important}
+.profile-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+@media(max-width:480px){
+  .plant-photo-large{width:min(68%,280px)!important;height:105px!important;max-height:105px!important;border-radius:16px!important}
+  .plant-profile-head{padding:16px!important}
+}

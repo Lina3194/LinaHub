@@ -47,6 +47,21 @@ function treasureState(id){return data.treasures?.[id]||null}
 function collectedTreasures(){return TREASURE_DEFINITIONS.filter(t=>treasureState(t.id)?.collected)}
 function waitingTreasures(){return TREASURE_DEFINITIONS.filter(t=>treasureState(t.id)&&!treasureState(t.id).collected)}
 function visibleBookTreasures(){return TREASURE_DEFINITIONS.filter(t=>!t.hidden||treasureState(t.id)?.collected)}
+function treasureTrinket(t){
+  const id=t.id||"", category=t.category||"";
+  let symbol="✦", kind="crystal";
+  if(/lemon/.test(id)){symbol="◒";kind="sunstone"}
+  else if(/rose|bloom|orchid|plant|herb|garden|roots|fingers|sanctuary/.test(id)||category==="Garden"){symbol="✿";kind="botanical"}
+  else if(/journal|chapter|pages|archivist/.test(id)||category==="Journal"){symbol="✎";kind="book"}
+  else if(/task|home|house/.test(id)||category==="Home"){symbol="⌂";kind="lantern"}
+  else if(/key/.test(id)){symbol="⚿";kind="key"}
+  else if(/med|care|heart|cycle|wellness/.test(id)||category==="Wellness"){symbol="◇";kind="vial"}
+  else if(/aquarium|waters|tank|world/.test(id)||category==="Aquariums"){symbol="≈";kind="shell"}
+  else if(/midnight|moon/.test(id)){symbol="☾";kind="moon"}
+  else if(/early|world-wakes/.test(id)){symbol="☼";kind="sunstone"}
+  else if(/collector|curator|keeper|secret/.test(id)||category==="Hidden"){symbol="✦";kind="crystal"}
+  return `<i class="shelf-trinket trinket-${kind}" data-treasure="${t.id}" title="${t.name}"><span>${symbol}</span></i>`;
+}
 
 function TreasureRoomPage(){
   ensureTreasureData();
@@ -55,11 +70,10 @@ function TreasureRoomPage(){
     ${head("Treasure Room","Your enchanted archive","home")}
     <section class="treasure-intro"><div><span class="section-kicker">LinaHub Sanctuary</span><h1>Your Treasure Room</h1><p>Each shelf keeps the moments, habits and little victories you have gathered.</p></div><div class="treasure-count"><b>${collected.length}</b><small>discovered</small></div></section>
     <section class="treasure-library" aria-label="Enchanted treasure bookcase">
-      <div class="library-moon"></div><div class="ivy ivy-left"></div><div class="ivy ivy-right"></div>
+      <div class="library-moon"></div>
       <div class="grand-bookcase">
         <div class="bookcase-crown"><span>✦</span><b>THE TREASURE ARCHIVE</b><span>✦</span></div>
-        ${TREASURE_SHELVES.map(category=>{const items=collected.filter(t=>t.category===category).slice(0,5);return `<button class="archive-shelf" data-shelf="${category}"><span class="shelf-label">${category}</span><span class="shelf-display">${items.map(t=>`<i class="shelf-object" data-treasure="${t.id}" title="${t.name}">${t.icon}</i>`).join("")}${Array.from({length:Math.max(0,5-items.length)},()=>`<i class="shelf-empty">·</i>`).join("")}</span><span class="shelf-total">${collected.filter(t=>t.category===category).length}</span></button>`}).join("")}
-        <div class="bookcase-base"><span class="candle">◔</span><span class="base-mark">L H</span><span class="candle">◔</span></div>
+        ${TREASURE_SHELVES.map(category=>{const items=collected.filter(t=>t.category===category).slice(0,5);return `<button class="archive-shelf" data-shelf="${category}"><span class="shelf-label">${category}</span><span class="shelf-display">${items.map(t=>treasureTrinket(t)).join("")}${Array.from({length:Math.max(0,5-items.length)},()=>`<i class="shelf-empty"><span>✧</span></i>`).join("")}</span><span class="shelf-total">${collected.filter(t=>t.category===category).length}</span></button>`}).join("")}
       </div>
     </section>
     ${waiting.length?`<section class="waiting-table card"><div><span class="section-kicker">New treasure discovered</span><h2>${waiting.length} waiting to be opened</h2><p>Your archive has found something new.</p></div><button class="gift-parcel" id="collectTreasure"><span>✦</span><b>Discover</b></button></section>`:""}

@@ -1,4 +1,4 @@
-const CACHE="linahub-v16-0-garden-fix";
+const CACHE="linahub-v16-2-treasure-trinkets";
 const ASSETS=[
 "./","./index.html","./app.js?v=160","./manifest.webmanifest?v=160",
 "./core/pokemon-seed.js?v=160","./core/data.js?v=160","./core/router.js?v=160","./core/cloud.js?v=160",

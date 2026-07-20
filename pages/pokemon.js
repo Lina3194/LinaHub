@@ -10,21 +10,51 @@ function pokeDaysSince(value){if(!value)return null;return Math.max(0,Math.floor
 function pokeInactiveLabel(f){const d=pokeDaysSince(f.lastInteraction);return d===null?"No interaction logged":d===0?"Active today":d===1?"1 day inactive":`${d} days inactive`}
 function giftLoggedToday(f,type){return (type==="sent"?(f.giftSentDates||[]):(f.giftReceivedDates||[])).includes(today())}
 function refreshPokemonGiftUI(f){
+  // Update only the numbers and button labels that changed. Replacing the whole
+  // friend card made the Pokémon page visibly jump/refresh after every gift tap.
   const card=document.querySelector(`[data-poke-friend-id="${CSS.escape(f.id)}"]`);
-  if(card){card.outerHTML=PokemonFriendCard(f)}
-  if(pokemonUi.openCard===f.id){
-    const detail=document.querySelector(".poke-detail-backdrop");
-    if(detail)detail.outerHTML=PokemonFriendDetail(f);
+  if(card){
+    const sentButton=card.querySelector(`[data-gift-sent="${CSS.escape(f.id)}"]`);
+    const receivedButton=card.querySelector(`[data-gift-received="${CSS.escape(f.id)}"]`);
+    if(sentButton){
+      sentButton.classList.toggle("gift-done",giftLoggedToday(f,"sent"));
+      const label=sentButton.querySelector("b"),meta=sentButton.querySelector("small");
+      if(label)label.textContent=giftLoggedToday(f,"sent")?"✓ Sent today":"🎁 I sent a gift";
+      if(meta)meta.textContent=`${f.giftsSent||0} total · ${pokeDate(f.lastGiftSent)}`;
+    }
+    if(receivedButton){
+      receivedButton.classList.toggle("gift-done",giftLoggedToday(f,"received"));
+      const label=receivedButton.querySelector("b"),meta=receivedButton.querySelector("small");
+      if(label)label.textContent=giftLoggedToday(f,"received")?"✓ Received today":"💌 They sent me a gift";
+      if(meta)meta.textContent=`${f.giftsReceived||0} total · ${pokeDate(f.lastGiftReceived)}`;
+    }
+    const chips=card.querySelectorAll(".poke-chips span");
+    const inactiveChip=chips[chips.length-1];
+    if(inactiveChip){
+      inactiveChip.textContent=`🕒 ${pokeInactiveLabel(f)}`;
+      inactiveChip.classList.toggle("inactive-chip",(pokeDaysSince(f.lastInteraction)??999)>=14);
+    }
   }
+
+  if(pokemonUi.openCard===f.id){
+    const detail=document.querySelector(".poke-detail-card");
+    if(detail){
+      const stats=detail.querySelectorAll(".poke-detail-grid > div");
+      if(stats[2]){stats[2].querySelector("strong").textContent=f.giftsSent||0;stats[2].querySelector("span").textContent=pokeDate(f.lastGiftSent)}
+      if(stats[3]){stats[3].querySelector("strong").textContent=f.giftsReceived||0;stats[3].querySelector("span").textContent=pokeDate(f.lastGiftReceived)}
+      if(stats[4]){stats[4].querySelector("strong").textContent=pokeDate(f.lastInteraction);stats[4].querySelector("span").textContent=pokeInactiveLabel(f)}
+      const sentButton=detail.querySelector(`[data-detail-gift-sent="${CSS.escape(f.id)}"]`);
+      const receivedButton=detail.querySelector(`[data-detail-gift-received="${CSS.escape(f.id)}"]`);
+      if(sentButton){sentButton.classList.toggle("gift-done",giftLoggedToday(f,"sent"));sentButton.querySelector("b").textContent=giftLoggedToday(f,"sent")?"✓ Gift sent today":"🎁 I sent a gift"}
+      if(receivedButton){receivedButton.classList.toggle("gift-done",giftLoggedToday(f,"received"));receivedButton.querySelector("b").textContent=giftLoggedToday(f,"received")?"✓ Gift received today":"💌 They sent me a gift"}
+    }
+  }
+
   const friends=data.pokemonFriends||[];
   const sent=friends.reduce((n,x)=>n+(Number(x.giftsSent)||0),0),received=friends.reduce((n,x)=>n+(Number(x.giftsReceived)||0),0);
   const sentMetric=document.querySelector("#pokeMetricSent"),receivedMetric=document.querySelector("#pokeMetricReceived");
-  if(sentMetric)sentMetric.textContent=sent;if(receivedMetric)receivedMetric.textContent=received;
-  bindPokemonFriendControls();
-  document.querySelectorAll("[data-close-friend-card]").forEach(b=>b.onclick=e=>{if(e.target===b||b.classList.contains("poke-detail-close")){pokemonUi.openCard=null;render()}});
-  document.querySelectorAll("[data-detail-gift-sent]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.detailGiftSent,"sent",document.querySelector("#detailGiftDate")?.value||today()));
-  document.querySelectorAll("[data-detail-gift-received]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.detailGiftReceived,"received",document.querySelector("#detailGiftDate")?.value||today()));
-  document.querySelectorAll("[data-detail-edit]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=null;pokemonUi.editing=b.dataset.detailEdit;render()});
+  if(sentMetric)sentMetric.textContent=sent;
+  if(receivedMetric)receivedMetric.textContent=received;
 }
 function logPokemonGift(id,type,date=today()){
   const f=data.pokemonFriends.find(x=>x.id===id);if(!f)return;
@@ -188,8 +218,8 @@ function importPokemonWorkbook(file){if(typeof XLSX==="undefined"){toast("Excel 
 function bindPokemonFriendControls(){
   document.querySelectorAll("[data-open-friend-card]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=b.dataset.openFriendCard;render()});
   document.querySelectorAll("[data-poke-page]").forEach(b=>b.onclick=()=>{pokemonUi.page=Number(b.dataset.pokePage);refreshPokemonFriendResults();document.querySelector("#pokeSearch")?.scrollIntoView({block:"nearest"})});
-  document.querySelectorAll("[data-gift-sent]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.giftSent,"sent"));
-  document.querySelectorAll("[data-gift-received]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.giftReceived,"received"));
+  document.querySelectorAll("[data-gift-sent]").forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();logPokemonGift(b.dataset.giftSent,"sent")});
+  document.querySelectorAll("[data-gift-received]").forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();logPokemonGift(b.dataset.giftReceived,"received")});
   document.querySelectorAll("[data-poke-edit]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=null;pokemonUi.editing=b.dataset.pokeEdit;render()});
   document.querySelectorAll("[data-poke-cancel]").forEach(b=>b.onclick=()=>{pokemonUi.editing=null;render()});
   document.querySelectorAll("[data-poke-save]").forEach(b=>b.onclick=()=>{const card=b.closest(".poke-friend-card"),f=data.pokemonFriends.find(x=>x.id===b.dataset.pokeSave);if(!f||!card)return;card.querySelectorAll("[data-edit-field]").forEach(i=>f[i.dataset.editField]=i.value.trim());saveData();pokemonUi.editing=null;render();toast("Friend updated ✨")});
@@ -199,8 +229,8 @@ function bindPokemon(){
   bindPokemonFriendControls();
   document.querySelectorAll("[data-poke-view]").forEach(b=>b.onclick=()=>{pokemonUi.view=b.dataset.pokeView;pokemonUi.editing=null;render()});
   document.querySelectorAll("[data-close-friend-card]").forEach(b=>b.onclick=e=>{if(e.target===b||b.classList.contains("poke-detail-close")){pokemonUi.openCard=null;render()}});
-  document.querySelectorAll("[data-detail-gift-sent]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.detailGiftSent,"sent",document.querySelector("#detailGiftDate")?.value||today()));
-  document.querySelectorAll("[data-detail-gift-received]").forEach(b=>b.onclick=()=>logPokemonGift(b.dataset.detailGiftReceived,"received",document.querySelector("#detailGiftDate")?.value||today()));
+  document.querySelectorAll("[data-detail-gift-sent]").forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();logPokemonGift(b.dataset.detailGiftSent,"sent",document.querySelector("#detailGiftDate")?.value||today())});
+  document.querySelectorAll("[data-detail-gift-received]").forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();logPokemonGift(b.dataset.detailGiftReceived,"received",document.querySelector("#detailGiftDate")?.value||today())});
   document.querySelectorAll("[data-detail-edit]").forEach(b=>b.onclick=()=>{pokemonUi.openCard=null;pokemonUi.editing=b.dataset.detailEdit;render()});
 
   document.querySelector("#pokemonExcelImport")?.addEventListener("change",e=>{const f=e.target.files?.[0];if(f)importPokemonWorkbook(f)});

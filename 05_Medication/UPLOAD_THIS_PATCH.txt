@@ -1,0 +1,7 @@
+LINAHUB PATCH: 05_Medication
+
+Upload the CONTENTS of this folder to the ROOT of your GitHub LinaHub repository.
+Keep the folder paths exactly as shown (for example pages/medication.js stays inside pages/).
+When GitHub asks about files with the same name, replace/overwrite them.
+Do not upload the ZIP itself to the repository; extract it first.
+Only use one patch at a time unless instructed otherwise.

@@ -1,10 +1,10 @@
-const CACHE="linahub-v16-6-compact-period-calendar";
+const CACHE="linahub-v17-treasure-room";
 const ASSETS=[
-"./","./index.html","./app.js?v=162","./manifest.webmanifest?v=162",
-"./core/pokemon-seed.js?v=162","./core/data.js?v=162","./core/scheduler.js?v=162","./core/router.js?v=162","./core/cloud.js?v=162",
-"./pages/home.js?v=162","./pages/today.js?v=162","./pages/todo.js?v=162","./pages/journal.js?v=162","./pages/plants.js?v=162","./pages/pokemon.js?v=162","./pages/house.js?v=162","./pages/medication.js?v=162","./pages/health.js?v=162","./pages/simple.js?v=162","./pages/aquariums.js?v=162","./pages/period.js?v=162",
-"./styles/base.css?v=162","./styles/home.css?v=162","./styles/journal.css?v=162","./styles/plants.css?v=162","./styles/modules.css?v=162","./styles/period.css?v=162",
-"./icons/icon-192.png?v=162","./icons/icon-512.png?v=162","./icons/apple-touch-icon.png?v=162"
+"./","./index.html","./app.js?v=170","./manifest.webmanifest?v=170",
+"./core/pokemon-seed.js?v=170","./core/data.js?v=170","./core/scheduler.js?v=170","./core/router.js?v=170","./core/cloud.js?v=170",
+"./pages/home.js?v=170","./pages/today.js?v=170","./pages/todo.js?v=170","./pages/journal.js?v=170","./pages/plants.js?v=170","./pages/pokemon.js?v=170","./pages/house.js?v=170","./pages/medication.js?v=170","./pages/health.js?v=170","./pages/simple.js?v=170","./pages/aquariums.js?v=170","./pages/period.js?v=170","./pages/treasures.js?v=170",
+"./styles/base.css?v=170","./styles/home.css?v=170","./styles/journal.css?v=170","./styles/plants.css?v=170","./styles/modules.css?v=170","./styles/period.css?v=170","./styles/treasures.css?v=170",
+"./icons/icon-192.png?v=170","./icons/icon-512.png?v=170","./icons/apple-touch-icon.png?v=170"
 ];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

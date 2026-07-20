@@ -26,61 +26,42 @@ function HomePage(){
   const greeting=hour<12?"Good morning":hour<18?"Good afternoon":"Good evening";
   const weekday=d.toLocaleDateString("en-GB",{weekday:"long"});
   const due=[];
-
   if(weekday==="Thursday") due.push({emoji:"♻️",text:"Put recycling out",route:"house"});
   const tanksNeedingFeed=(data.aquariums||[]).filter(tank=>!tankFeedToday(tank));
-  if(tanksNeedingFeed.length){
-    due.push({
-      emoji:"🐠",
-      text:tanksNeedingFeed.length===(data.aquariums||[]).length
-        ?"Feed both fish tanks"
-        :`Feed ${tanksNeedingFeed.map(t=>t.name).join(" & ")}`,
-      route:"pets"
-    });
-  }
-  if(data.checkins[today()]) due.push({emoji:"💜",text:"Today’s check-in saved",route:"journal"});
+  if(tanksNeedingFeed.length) due.push({emoji:"🐠",text:"Fish are waiting for breakfast",route:"pets"});
+  if(data.checkins[today()]) due.push({emoji:"💜",text:"Today’s check-in is safely tucked away",route:"journal"});
+  const favs=(data.favoriteTreasures||[]).map(id=>typeof TREASURE_DEFINITIONS!=="undefined"?TREASURE_DEFINITIONS.find(t=>t.id===id):null).filter(Boolean);
 
   return shell(`
-    <section class="hero">
-      <div class="hero-row">
-        <div>
-          <div class="eyebrow">LinaHub</div>
-          <h1>${greeting},<br>Lina ✨</h1>
-          <p>A gentle overview of what needs your attention today.</p>
-        </div>
-        <button class="theme-btn" id="themeToggle">${data.theme==="dark"?"☀️":"🌙"}</button>
+    <section class="sanctuary-hero">
+      <div class="sanctuary-sky"><span class="sanctuary-moon"></span><i></i><i></i><i></i></div>
+      <div class="sanctuary-copy"><div class="eyebrow">LinaHub Sanctuary</div><h1>${greeting}, Lina ✨</h1><p>Welcome home. Everything you care for has a little place here.</p></div>
+      <button class="theme-btn sanctuary-theme" id="themeToggle">${data.theme==="dark"?"☀️":"🌙"}</button>
+      <div class="sanctuary-sill">${favs.length?favs.map(t=>`<span title="${t.name}">${t.icon}</span>`).join(""):`<span>🕯️</span><span>🌿</span>`}</div>
+    </section>
+
+    <section class="sanctuary-map">
+      <button class="sanctuary-door books" data-route="journal"><span class="door-scene">📚</span><b>Bookshelf</b><small>Journal, Today & To-do</small></button>
+      <button class="sanctuary-door conservatory" data-route="plants"><span class="door-scene">🪴</span><b>Conservatory</b><small>${(data.plants||[]).length} plants growing</small></button>
+      <button class="sanctuary-door apothecary" data-route="medication"><span class="door-scene">🧪</span><b>Apothecary</b><small>Medication & health</small></button>
+      <button class="sanctuary-door aquarium" data-route="pets"><span class="door-scene">🐠</span><b>Aquariums</b><small>${(data.aquariums||[]).length} cosy tanks</small></button>
+      <button class="sanctuary-door treasure featured" data-route="treasures"><span class="door-scene">✨</span><b>Treasure Room</b><small>Memories waiting inside</small></button>
+      <button class="sanctuary-door house" data-route="house"><span class="door-scene">🏡</span><b>House</b><small>Rooms & gentle routines</small></button>
+    </section>
+
+    <section class="sanctuary-drawer card">
+      <span class="section-kicker">More little corners</span>
+      <div class="sanctuary-mini-grid">
+        <button data-route="period"><span>🌸</span><b>Period</b></button><button data-route="pokemon"><span><img src="./icons/pokemon.svg?v=200" alt=""></span><b>Pokémon</b></button><button data-route="health"><span>⚖️</span><b>Measures</b></button><button data-route="settings"><span>⚙️</span><b>Spellbook</b></button>
       </div>
     </section>
 
-    <div class="grid">
-      ${[
-        [data.homeIcons?.journal||"📖","Daily Check-in","Pain, energy, sleep and your day","journal"],
-        [data.homeIcons?.health||"⚖️","Weight & Measures","Track weight and measurements","health"],
-        [data.homeIcons?.plants||"🌿","Plants","Care and watering","plants"],
-        [data.homeIcons?.medication||"💊","Medication","Doses and routines","medication"],
-        ["","Pokémon GO","Friendship, Vivillon and gifts","pokemon"],
-        [data.homeIcons?.pets||"🐠","Aquariums","Girls and boys tanks","pets"],
-        [data.homeIcons?.house||"🏡","House","Rooms and recurring tasks","house"],
-        [data.homeIcons?.period||"🌸","Period Tracker","Cycle, flow and private history","period"],
-        [data.homeIcons?.settings||"⚙️","Settings","Theme and backup","settings"]
-      ].map(x=>`<button type="button" class="module module-${x[3]}" data-route="${x[3]}">${
-        data.homeImages?.[x[3]]
-          ? `<span class="module-image"><img src="${data.homeImages[x[3]]}" alt=""></span>`
-          : x[3]==="pokemon"
-            ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=110" alt="Poké Ball"></span>`
-            : `<span class="emoji">${x[0]}</span>`
-      }<strong>${x[1]}</strong><small>${x[2]}</small></button>`).join("")}
-    </div>
-
-    <section class="card" style="margin-top:14px">
-      <button class="today-heading" data-route="today"><span><h2>Today’s</h2><small>Open your full task list</small></span><b>›</b></button>
-      <div class="today-list">
-        ${due.map(item=>`<button class="reminder" data-route="${item.route}"><b>${item.emoji}</b><span>${item.text}</span></button>`).join("")}
-      </div>
+    <section class="card sanctuary-today">
+      <button class="today-heading" data-route="today"><span><span class="section-kicker">A note on the table</span><h2>Today</h2></span><b>›</b></button>
+      <div class="today-list">${due.length?due.map(item=>`<button class="reminder" data-route="${item.route}"><b>${item.emoji}</b><span>${item.text}</span></button>`).join(""):`<div class="sanctuary-clear">✨ Nothing urgent is calling for you.</div>`}</div>
     </section>
   `,"home");
 }
-
 function bindHome(){
   const toggle=document.querySelector("#themeToggle");
   if(toggle) toggle.onclick=()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()};

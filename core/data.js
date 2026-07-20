@@ -17,6 +17,8 @@ const DEFAULT_DATA={
     pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",settings:"⚙️"
   },
   homeImages:{},
+  treasures:{},
+  favoriteTreasures:[],
   moduleBanners:{},
   checkinHidden:[],
   selfCareOptions:["Rest","Reading","Exercises","Warmth","Good food","Fresh air","Music","Gaming","Hobbies"],

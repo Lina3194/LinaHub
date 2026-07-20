@@ -1,10 +1,10 @@
-const CACHE="linahub-v15-6-clean-rebuild";
+const CACHE="linahub-v15-7-clean-rebuild";
 const ASSETS=[
-"./","./index.html","./app.js?v=156","./manifest.webmanifest?v=156",
-"./core/pokemon-seed.js?v=156","./core/data.js?v=156","./core/router.js?v=156","./core/cloud.js?v=156",
-"./pages/home.js?v=156","./pages/today.js?v=156","./pages/todo.js?v=156","./pages/journal.js?v=156","./pages/plants.js?v=156","./pages/pokemon.js?v=156","./pages/house.js?v=156","./pages/medication.js?v=156","./pages/health.js?v=156","./pages/simple.js?v=156","./pages/aquariums.js?v=156","./pages/period.js?v=156","./pages/treasures.js?v=156",
-"./styles/base.css?v=156","./styles/home.css?v=156","./styles/journal.css?v=156","./styles/plants.css?v=156","./styles/modules.css?v=156","./styles/period.css?v=156","./styles/treasures.css?v=156",
-"./icons/icon-192.png?v=156","./icons/icon-512.png?v=156","./icons/apple-touch-icon.png?v=156"
+"./","./index.html","./app.js?v=157","./manifest.webmanifest?v=157",
+"./core/pokemon-seed.js?v=157","./core/data.js?v=157","./core/router.js?v=157","./core/cloud.js?v=157",
+"./pages/home.js?v=157","./pages/today.js?v=157","./pages/todo.js?v=157","./pages/journal.js?v=157","./pages/plants.js?v=157","./pages/pokemon.js?v=157","./pages/house.js?v=157","./pages/medication.js?v=157","./pages/health.js?v=157","./pages/simple.js?v=157","./pages/aquariums.js?v=157","./pages/period.js?v=157","./pages/treasures.js?v=157",
+"./styles/base.css?v=157","./styles/home.css?v=157","./styles/journal.css?v=157","./styles/plants.css?v=157","./styles/modules.css?v=157","./styles/period.css?v=157","./styles/treasures.css?v=157",
+"./icons/icon-192.png?v=157","./icons/icon-512.png?v=157","./icons/apple-touch-icon.png?v=157"
 ];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

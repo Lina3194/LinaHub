@@ -29,7 +29,7 @@ function SettingsPage(){
       <div class="tab-art-grid">
         ${[
           ["journal","Daily Check-in"],["health","Weight & Measures"],["plants","Plants"],["medication","Medication"],
-          ["pokemon","Pokémon GO"],["pets","Aquariums"],["house","House"],["period","Period Tracker"],["treasures","Treasure Room"],["settings","Settings"]
+          ["pokemon","Pokémon GO"],["pets","Aquariums"],["house","House"],["period","Period Tracker"],["treasures","Treasure Room"]
         ].map(([key,label])=>`
           <article class="tab-art-setting">
             <div class="tab-art-preview">${data.homeImages?.[key]?`<img src="${data.homeImages[key]}" alt="">`:`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`}</div>
@@ -71,7 +71,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v15.6 · Custom Home</p>`,"settings");
+  <p class="app-version">LinaHub v15.7 · Unified Home Menu</p>`,"settings");
 }
 
 function bindSimple(){

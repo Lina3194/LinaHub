@@ -1,5 +1,5 @@
 function ensureHomeLayout(){
-  const defaults=["journal","health","plants","medication","pokemon","pets","house","period","settings","treasures"];
+  const defaults=["journal","health","plants","medication","pokemon","pets","house","period","treasures"];
   if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
   const seen=new Set();
   data.homeLayout=data.homeLayout.filter(item=>{
@@ -19,7 +19,6 @@ const HOME_TILE_INFO={
   pets:["Aquariums","Girls and boys tanks","🐠"],
   house:["House","Rooms and recurring tasks","🏡"],
   period:["Period Tracker","Cycles, symptoms and history","🌸"],
-  settings:["Settings","Theme, pictures and backup","⚙️"],
   treasures:["Treasure Room","Your collected memories","✨"]
 };
 
@@ -51,7 +50,14 @@ function HomePage(){
     <section class="hero">
       <div class="hero-row">
         <div><div class="eyebrow">LinaHub</div><h1>${greeting},<br>Lina ✨</h1><p>A gentle overview of everything in your little hub.</p></div>
-        <div class="home-head-actions"><button class="secondary home-edit-toggle" id="homeEditToggle">${editing?"Done":"Arrange"}</button><button class="theme-btn" id="themeToggle">${data.theme==="dark"?"☀️":"🌙"}</button></div>
+        <div class="home-menu-wrap">
+          <button type="button" class="home-menu-toggle" id="homeMenuToggle" aria-label="Open Home menu" aria-expanded="false">⌄</button>
+          <div class="home-menu" id="homeMenu" hidden>
+            <button type="button" id="homeEditToggle"><span aria-hidden="true">✎</span><span>${editing?"Finish editing":"Edit Home"}</span></button>
+            <button type="button" id="themeToggle"><span aria-hidden="true">◐</span><span>${data.theme==="dark"?"Light mode":"Dark mode"}</span></button>
+            <button type="button" data-route="settings"><span aria-hidden="true">⚙</span><span>Settings</span></button>
+          </div>
+        </div>
       </div>
       ${editing?`<p class="home-edit-help">Drag tiles, use the arrows, and tap the size button to cycle through Small, Medium, Wide and Large.</p>`:""}
     </section>
@@ -60,6 +66,12 @@ function HomePage(){
 }
 
 function bindHome(){
+  const menuToggle=document.querySelector("#homeMenuToggle");
+  const menu=document.querySelector("#homeMenu");
+  const closeMenu=()=>{if(!menu||!menuToggle)return;menu.hidden=true;menuToggle.setAttribute("aria-expanded","false")};
+  menuToggle?.addEventListener("click",event=>{event.stopPropagation();const opening=menu.hidden;menu.hidden=!opening;menuToggle.setAttribute("aria-expanded",String(opening))});
+  menu?.addEventListener("click",event=>event.stopPropagation());
+  document.addEventListener("click",closeMenu,{once:true});
   document.querySelector("#themeToggle")?.addEventListener("click",()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()});
   document.querySelector("#homeEditToggle")?.addEventListener("click",()=>{data.homeEditing=!data.homeEditing;saveData();render()});
   if(!data.homeEditing) return;

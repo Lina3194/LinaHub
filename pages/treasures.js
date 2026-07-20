@@ -86,13 +86,37 @@ function openTreasureModal(id,newlyCollected=false){
   const t=TREASURE_DEFINITIONS.find(x=>x.id===id); if(!t)return;
   const state=treasureState(id); const fav=(data.favoriteTreasures||[]).includes(id);
   const modal=document.querySelector("#treasureModal"); if(!modal)return;
-  modal.innerHTML=`<div class="treasure-modal-backdrop" data-close-treasure><div class="treasure-modal ${newlyCollected?"reveal":""}" role="dialog" aria-modal="true" onclick="event.stopPropagation()">
-    <button class="modal-close" data-close-treasure>×</button>
+  modal.innerHTML=`<div class="treasure-modal-backdrop"><div class="treasure-modal ${newlyCollected?"reveal":""}" role="dialog" aria-modal="true">
+    <button type="button" class="modal-close" data-close-treasure aria-label="Close">×</button>
     <div class="modal-sparkles">✦ ✧ ✦</div><div class="modal-treasure-icon">${t.icon}</div>
     <span class="section-kicker">${newlyCollected?"A new treasure!":t.category}</span><h2>${t.name}</h2><p>${t.story}</p>
     <small>Collected ${new Date(state?.unlockedAt||Date.now()).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}</small>
-    <button class="primary favourite-treasure" data-favourite="${id}">${fav?"★ Displayed in Sanctuary":"☆ Display in Sanctuary"}</button>
+    <button type="button" class="primary favourite-treasure" data-favourite="${id}">${fav?"★ Displayed in Sanctuary":"☆ Display in Sanctuary"}</button>
   </div></div>`;
+  bindTreasureModal();
+}
+
+function closeTreasureModal(){
+  const modal=document.querySelector("#treasureModal");
+  if(modal) modal.innerHTML="";
+}
+
+function bindTreasureModal(){
+  const backdrop=document.querySelector(".treasure-modal-backdrop");
+  const panel=document.querySelector(".treasure-modal");
+  panel?.addEventListener("click",event=>event.stopPropagation());
+  backdrop?.addEventListener("click",closeTreasureModal);
+  document.querySelector("[data-close-treasure]")?.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();closeTreasureModal()});
+  document.querySelector("[data-favourite]")?.addEventListener("click",event=>{
+    event.preventDefault(); event.stopPropagation();
+    const id=event.currentTarget.dataset.favourite;
+    const list=Array.isArray(data.favoriteTreasures)?data.favoriteTreasures:[];
+    const isDisplayed=list.includes(id);
+    data.favoriteTreasures=isDisplayed?list.filter(x=>x!==id):[...list.filter(x=>x!==id),id].slice(-3);
+    saveData();
+    event.currentTarget.textContent=isDisplayed?"☆ Display in Sanctuary":"★ Displayed in Sanctuary";
+    toast(isDisplayed?"Removed from your Sanctuary":"Now displayed in your Sanctuary ✨");
+  });
 }
 
 function bindTreasures(){
@@ -102,19 +126,7 @@ function bindTreasures(){
     data.treasures[next.id].collected=true; saveData();
     openTreasureModal(next.id,true);
   });
-  const root=document.querySelector("main")||document.body;
-  root.onclick=treasureClickHandler;
-}
-function treasureClickHandler(event){
-  if(route!=="treasures") return;
-  const favButton=event.target.closest("[data-favourite]"); if(favButton){
-    const id=favButton.dataset.favourite; const list=data.favoriteTreasures||[];
-    data.favoriteTreasures=list.includes(id)?list.filter(x=>x!==id):[...list,id].slice(-3); saveData();
-    openTreasureModal(id);
-    const btn=document.querySelector(`[data-favourite="${id}"]`);
-    if(btn) btn.textContent=(data.favoriteTreasures||[]).includes(id)?"★ Displayed in Sanctuary":"☆ Display in Sanctuary";
-    return;
-  }
-  const card=event.target.closest("[data-treasure]"); if(card){openTreasureModal(card.dataset.treasure);return;}
-  const close=event.target.closest("[data-close-treasure]"); if(close){document.querySelector("#treasureModal").innerHTML="";render();return;}
+  document.querySelectorAll("[data-treasure]").forEach(card=>card.addEventListener("click",event=>{
+    event.preventDefault(); openTreasureModal(card.dataset.treasure);
+  }));
 }

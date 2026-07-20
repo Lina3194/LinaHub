@@ -247,7 +247,7 @@ setupSwipeBack();
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=162",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=173",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

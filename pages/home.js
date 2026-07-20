@@ -9,6 +9,27 @@ function entryTimeLabel(entry){
   return "";
 }
 
+const HOME_ICON_DEFAULTS={
+  journal:"📖",today:"✓",todo:"✎",plants:"🪴",medication:"⚗",pets:"🐠",house:"⌂",treasures:"✦"
+};
+
+function ensureHomeIcons(){
+  if(!data.homeIcons||typeof data.homeIcons!=="object") data.homeIcons={};
+}
+
+function homeIcon(key,label){
+  ensureHomeIcons();
+  const photo=data.homeIcons[key];
+  return `<span class="home-icon-frame">${photo?`<img src="${photo}" alt="${esc(label)}">`:`<span class="home-icon-default home-icon-${key}" aria-hidden="true">${HOME_ICON_DEFAULTS[key]||"✦"}</span>`}</span>`;
+}
+
+function editableShelfItem(routeKey,label,subtitle=""){
+  return `<div class="shelf-item-wrap">
+    <button class="shelf-item" data-route="${routeKey}">${homeIcon(routeKey,label)}<span class="shelf-label"><b>${label}</b>${subtitle?`<small>${subtitle}</small>`:""}</span></button>
+    <label class="icon-edit" title="Change ${esc(label)} picture" aria-label="Change ${esc(label)} picture">✎<input type="file" accept="image/*" data-home-icon="${routeKey}" hidden></label>
+  </div>`;
+}
+
 function sanctuaryFavouriteDecor(){
   const ids=Array.isArray(data.favoriteTreasures)?data.favoriteTreasures:[];
   return ids.map(id=>{
@@ -20,50 +41,90 @@ function sanctuaryFavouriteDecor(){
 }
 
 function HomePage(){
-  const d=new Date();
-  const hour=d.getHours();
+  ensureHomeIcons();
+  const hour=new Date().getHours();
   const greeting=hour<12?"Good morning":hour<18?"Good afternoon":"Good evening";
-  const weekday=d.toLocaleDateString("en-GB",{weekday:"long"});
-  const due=[];
-  if(weekday==="Thursday") due.push({text:"Put recycling out",route:"house"});
-  const tanksNeedingFeed=(data.aquariums||[]).filter(tank=>!tankFeedToday(tank));
-  if(tanksNeedingFeed.length) due.push({text:"Fish are waiting for breakfast",route:"pets"});
-  if(data.checkins[today()]) due.push({text:"Today’s check-in is safely tucked away",route:"journal"});
-
   return shell(`
-    <section class="sanctuary-hero">
-      <div class="sanctuary-copy"><span class="section-kicker">LinaHub</span><h1>${greeting}, Lina</h1><p>Welcome home.</p></div>
-      <button class="theme-btn sanctuary-theme" id="themeToggle" aria-label="Change theme">${data.theme==="dark"?"Light":"Night"}</button>
-      <div class="moon-window" aria-hidden="true"><span></span><i></i><i></i><i></i></div>
-      <div class="hero-shelf" aria-label="Favourite treasures displayed in your Sanctuary">
-        <span class="shelf-candle" aria-hidden="true"></span>
-        ${sanctuaryFavouriteDecor() || `<span class="empty-shelf-note">Your favourite treasures will sit here</span>`}
-      </div>
+    <section class="home-welcome">
+      <div><span class="section-kicker">LinaHub</span><h1>${greeting}, Lina</h1><p>Welcome home.</p></div>
+      <button class="theme-btn" id="themeToggle" aria-label="Change theme">${data.theme==="dark"?"Light":"Night"}</button>
     </section>
 
-    <section class="sanctuary-shelves" aria-label="LinaHub rooms">
-      <button class="shelf-tile" data-route="journal"><span class="small-icon icon-books">📚</span><span class="tile-copy"><b>Bookshelf</b><small>Journal, Today & To-do</small></span></button>
-      <button class="shelf-tile" data-route="plants"><span class="small-icon icon-plant">🪴</span><span class="tile-copy"><b>Conservatory</b><small>${(data.plants||[]).length} plants growing</small></span></button>
-      <button class="shelf-tile" data-route="medication"><span class="small-icon icon-potion">🧪</span><span class="tile-copy"><b>Apothecary</b><small>Medication & health</small></span></button>
-      <button class="shelf-tile" data-route="pets"><span class="small-icon icon-fish">🐠</span><span class="tile-copy"><b>Aquariums</b><small>${(data.aquariums||[]).length} cosy tanks</small></span></button>
-      <button class="shelf-tile treasure-tile" data-route="treasures"><span class="small-icon icon-treasure">✦</span><span class="tile-copy"><b>Treasure Room</b><small>Memories waiting inside</small></span></button>
-      <button class="shelf-tile" data-route="house"><span class="small-icon icon-house">🏡</span><span class="tile-copy"><b>House</b><small>Rooms & gentle routines</small></span></button>
+    <section class="single-shelf quick-shelf" aria-label="Journal, Today and To-do">
+      <div class="shelf-items-row three-items">
+        ${editableShelfItem("journal","Journal")}
+        ${editableShelfItem("today","Today")}
+        ${editableShelfItem("todo","To-do")}
+      </div>
+      <div class="wood-shelf" aria-hidden="true"></div>
+    </section>
+
+    <section class="sanctuary-treasure-display" aria-label="Favourite treasures displayed in your Sanctuary">
+      <span class="display-title">Displayed treasures</span>
+      <div class="display-row">${sanctuaryFavouriteDecor()||`<small>Choose a treasure to display here</small>`}</div>
+    </section>
+
+    <section class="room-shelf-stack" aria-label="LinaHub sections">
+      <div class="single-shelf">
+        <div class="shelf-items-row two-items">
+          ${editableShelfItem("plants","Plants",`${(data.plants||[]).length} growing`)}
+          ${editableShelfItem("medication","Potions & Remedies","Medication and health")}
+        </div><div class="wood-shelf" aria-hidden="true"></div>
+      </div>
+      <div class="single-shelf">
+        <div class="shelf-items-row two-items">
+          ${editableShelfItem("pets","Aquariums",`${(data.aquariums||[]).length} tanks`)}
+          ${editableShelfItem("house","House","Rooms and routines")}
+        </div><div class="wood-shelf" aria-hidden="true"></div>
+      </div>
+      <div class="single-shelf treasure-last-shelf">
+        <div class="shelf-items-row one-item">
+          ${editableShelfItem("treasures","Treasure Room","Your collected memories")}
+        </div><div class="wood-shelf" aria-hidden="true"></div>
+      </div>
     </section>
 
     <section class="little-shelf card">
-      <span class="section-kicker">More little corners</span>
       <div class="little-shelf-row">
         <button data-route="period"><span>🌸</span><b>Period</b></button>
-        <button data-route="pokemon"><span><img src="./icons/pokemon.svg?v=200" alt=""></span><b>Pokémon</b></button>
+        <button data-route="pokemon"><span><img src="./icons/pokemon.svg?v=173" alt=""></span><b>Pokémon</b></button>
         <button data-route="health"><span class="measure-icon">◒</span><b>Measures</b></button>
-        <button data-route="settings"><span class="spell-icon">◇</span><b>Spellbook</b></button>
+        <button data-route="settings"><span class="settings-icon">⚙</span><b>Settings</b></button>
       </div>
     </section>
-
-    ${due.length?`<section class="card sanctuary-note"><span class="section-kicker">A note on the table</span><button class="today-heading" data-route="today"><h2>Today</h2><b>›</b></button><div class="today-list">${due.map(item=>`<button class="reminder" data-route="${item.route}"><span>${item.text}</span><b>›</b></button>`).join("")}</div></section>`:""}
   `,"home");
 }
+
+function resizeHomeIcon(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=()=>reject(new Error("read"));
+    reader.onload=()=>{
+      const img=new Image();
+      img.onerror=()=>reject(new Error("image"));
+      img.onload=()=>{
+        const size=240;
+        const canvas=document.createElement("canvas"); canvas.width=size; canvas.height=size;
+        const ctx=canvas.getContext("2d");
+        const scale=Math.max(size/img.width,size/img.height);
+        const width=img.width*scale,height=img.height*scale;
+        ctx.drawImage(img,(size-width)/2,(size-height)/2,width,height);
+        resolve(canvas.toDataURL("image/jpeg",.82));
+      };
+      img.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
 function bindHome(){
-  const toggle=document.querySelector("#themeToggle");
-  if(toggle) toggle.onclick=()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()};
+  document.querySelector("#themeToggle")?.addEventListener("click",()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()});
+  document.querySelectorAll("[data-home-icon]").forEach(input=>input.addEventListener("change",async event=>{
+    const file=event.target.files?.[0]; if(!file)return;
+    try{
+      ensureHomeIcons();
+      data.homeIcons[event.target.dataset.homeIcon]=await resizeHomeIcon(file);
+      saveData(); toast("Shelf picture updated ✨"); render();
+    }catch{toast("That picture could not be added");}
+  }));
 }

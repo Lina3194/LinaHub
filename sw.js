@@ -1,10 +1,10 @@
-const CACHE="linahub-v17-1-treasure-room";
+const CACHE="linahub-v17-3-simple-shelves";
 const ASSETS=[
-"./","./index.html","./app.js?v=170","./manifest.webmanifest?v=170",
-"./core/pokemon-seed.js?v=170","./core/data.js?v=170","./core/scheduler.js?v=170","./core/router.js?v=170","./core/cloud.js?v=170",
-"./pages/home.js?v=170","./pages/today.js?v=170","./pages/todo.js?v=170","./pages/journal.js?v=170","./pages/plants.js?v=170","./pages/pokemon.js?v=170","./pages/house.js?v=170","./pages/medication.js?v=170","./pages/health.js?v=170","./pages/simple.js?v=170","./pages/aquariums.js?v=170","./pages/period.js?v=170","./pages/treasures.js?v=170",
-"./styles/base.css?v=170","./styles/home.css?v=170","./styles/journal.css?v=170","./styles/plants.css?v=170","./styles/modules.css?v=170","./styles/period.css?v=170","./styles/treasures.css?v=170",
-"./icons/icon-192.png?v=170","./icons/icon-512.png?v=170","./icons/apple-touch-icon.png?v=170"
+"./","./index.html","./app.js?v=173","./manifest.webmanifest?v=173",
+"./core/pokemon-seed.js?v=173","./core/data.js?v=173","./core/scheduler.js?v=173","./core/router.js?v=173","./core/cloud.js?v=173",
+"./pages/home.js?v=173","./pages/today.js?v=173","./pages/todo.js?v=173","./pages/journal.js?v=173","./pages/plants.js?v=173","./pages/pokemon.js?v=173","./pages/house.js?v=173","./pages/medication.js?v=173","./pages/health.js?v=173","./pages/simple.js?v=173","./pages/aquariums.js?v=173","./pages/period.js?v=173","./pages/treasures.js?v=173",
+"./styles/base.css?v=173","./styles/home.css?v=173","./styles/journal.css?v=173","./styles/plants.css?v=173","./styles/modules.css?v=173","./styles/period.css?v=173","./styles/treasures.css?v=173",
+"./icons/icon-192.png?v=173","./icons/icon-512.png?v=173","./icons/apple-touch-icon.png?v=173"
 ];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

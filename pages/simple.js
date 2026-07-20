@@ -29,7 +29,7 @@ function SettingsPage(){
       <div class="tab-art-grid">
         ${[
           ["journal","Daily Check-in"],["health","Weight & Measures"],["plants","Plants"],["medication","Medication"],
-          ["pokemon","Pokémon GO"],["pets","Aquariums"],["house","House"],["settings","Settings"]
+          ["pokemon","Pokémon GO"],["pets","Aquariums"],["house","House"],["period","Period Tracker"],["settings","Settings"]
         ].map(([key,label])=>`
           <article class="tab-art-setting">
             <div class="tab-art-preview">${data.homeImages?.[key]?`<img src="${data.homeImages[key]}" alt="">`:`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`}</div>
@@ -50,7 +50,7 @@ function SettingsPage(){
       <div class="banner-art-grid">
         ${[
           ["journal","Daily Check-in"],["today","Today"],["todo","To-do"],["health","Weight & Measures"],
-          ["plants","Plants"],["medication","Medication"],["pokemon","Pokémon GO"],["pets","Aquariums"],["house","House"]
+          ["plants","Plants"],["medication","Medication"],["pokemon","Pokémon GO"],["pets","Aquariums"],["house","House"],["period","Period Tracker"]
         ].map(([key,label])=>`
           <article class="banner-art-setting">
             <div class="banner-art-preview">${data.moduleBanners?.[key]?`<img src="${data.moduleBanners[key]}" alt="">`:`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`}</div>
@@ -71,7 +71,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v12 · Cloud Edition</p>`,"settings");
+  <p class="app-version">LinaHub v16.2 · Period Tracker</p>`,"settings");
 }
 
 function bindSimple(){

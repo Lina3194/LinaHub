@@ -14,7 +14,7 @@ const DEFAULT_DATA={
   journalTrendPeriod:"week",
   homeIcons:{
     journal:"📖",health:"⚖️",plants:"🌿",medication:"💊",
-    pokemon:"🔴",pets:"🐠",house:"🏡",settings:"⚙️"
+    pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",settings:"⚙️"
   },
   homeImages:{},
   moduleBanners:{},
@@ -30,6 +30,12 @@ const DEFAULT_DATA={
   weightEntries:[],
   measurements:[],
   healthPromptLog:{},
+  periodEntries:{},
+  periodCycles:[],
+  periodOptions:[],
+  periodSelectedDate:"",
+  periodCalendarMonth:"",
+  periodEditOptions:false,
   personalTasks:[],
   houseControlsCollapsed:true,
   houseOpenRooms:[],

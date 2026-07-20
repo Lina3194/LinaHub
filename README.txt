@@ -1,23 +1,20 @@
-LinaHub v16.1 — Smart Weekday Scheduling
+LinaHub v16.2 — Period Tracker
 
-LinaHub v15.5 — clean cumulative rebuild
+NEW
+- Period Tracker home tile
+- Start and end a period
+- Monthly calendar with logged flow and predicted next start
+- Spotting, light, medium and heavy flow
+- Cycle length, period length and cycle history
+- Journal connection for pain, mood, energy and sleep (no duplicate logging)
+- Fully editable period-specific items
+- Add, rename, change emoji, choose input type, reorder, hide, delete or restore defaults
+- Item types: Yes/No, one choice, several choices, number and short note
 
-Includes:
-- House jobs repeating on selected weekdays
-- Medication repeating on selected weekdays
-- Completed to-do tasks hidden by default
-- Pokémon inactivity filters
-- Every Home tile opens its default landing page
-- Medication opens on Day by default
-- Forced removal of older service workers and caches on first launch
-
-Upload the extracted files and folders directly to the repository root, replacing the existing files.
-The Medication subtitle should read “Medication centre · v15.5”.
-
-
-CHANGES IN 16.1
-- House jobs can repeat on one or several selected weekdays.
-- The weekday picker appears when that repeat option is chosen.
-- Previously selected weekdays remain ticked while editing.
-- Today only shows selected-weekday house jobs on their chosen days.
-- Medication and house schedules now use one shared weekday helper.
+TO PUBLISH
+1. Extract this ZIP.
+2. Copy everything into your LinaHub repository folder.
+3. Replace files when Windows asks.
+4. Open GitHub Desktop.
+5. Commit to main.
+6. Push origin.

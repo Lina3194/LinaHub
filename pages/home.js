@@ -61,6 +61,7 @@ function HomePage(){
         ["","Pokémon GO","Friendship, Vivillon and gifts","pokemon"],
         [data.homeIcons?.pets||"🐠","Aquariums","Girls and boys tanks","pets"],
         [data.homeIcons?.house||"🏡","House","Rooms and recurring tasks","house"],
+        [data.homeIcons?.period||"🌸","Period Tracker","Cycle, flow and private history","period"],
         [data.homeIcons?.settings||"⚙️","Settings","Theme and backup","settings"]
       ].map(x=>`<button type="button" class="module module-${x[3]}" data-route="${x[3]}">${
         data.homeImages?.[x[3]]

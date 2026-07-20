@@ -18,7 +18,8 @@ function render(){
     pokemon:PokemonPage,
     pets:AquariumsPage,
     tank:AquariumTankPage,
-    house:HousePage
+    house:HousePage,
+    period:PeriodPage
   };
 
   const pageFactory=pages[route]||HomePage;
@@ -57,6 +58,7 @@ function render(){
   if(route==="house") bindHouse();
   if(route==="medication") bindMedication();
   if(route==="health") bindHealth();
+  if(route==="period") bindPeriod();
   if(route==="settings") bindSimple();
   if(route==="pets"||route==="tank") bindAquariums();
 }
@@ -243,7 +245,7 @@ setupSwipeBack();
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=155",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=162",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

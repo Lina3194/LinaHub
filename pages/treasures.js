@@ -133,6 +133,65 @@ function ensureTreasureData(){
 }
 function treasureState(id){return data.treasures?.[id]||null}
 function treasureRarity(t){return t.rarity||"Common"}
+function treasureHint(t){
+  const hints={
+    "golden-lemon":"A tiny seed may become something golden with enough patience.",
+    "first-plant":"Every Garden begins with one new arrival.",
+    "five-plants":"Let your little plant family grow.",
+    "ten-plants":"A sanctuary needs plenty of leaves.",
+    "orchid-keeper":"A delicate flowering guest is waiting for a home.",
+    "herb-garden":"Gather a few useful kitchen herbs together.",
+    "plant-photo":"Capture one of your plants as it is today.",
+    "twenty-plants":"Keep growing your indoor jungle.",
+    "fifty-plants":"Only a true botanical sanctuary could reveal this.",
+    "first-watering":"One thirsty plant is waiting for a drink.",
+    "water-ten":"A little rain, repeated with care.",
+    "water-hundred":"The Garden remembers every drop.",
+    "all-watered-today":"Make sure nobody in the Garden is left thirsty today.",
+    "plant-notes-five":"Write down what your plants need and what you notice.",
+    "plant-photos-five":"Build a small gallery of leafy memories.",
+    "basil-boss":"A fragrant kitchen favourite belongs in your Garden.",
+    "oregano-keeper":"A little piece of Greece can grow on the windowsill.",
+    "spider-plant":"Look for a plant with arching striped leaves and little babies.",
+    "prayer-plant":"Some leaves lift themselves when evening comes.",
+    "first-journal":"Your story begins with a single check-in.",
+    "journal-three":"Return to your journal a few times.",
+    "journal-seven":"Fill a whole week with little pieces of your story.",
+    "journal-ten":"Keep turning small moments into chapters.",
+    "journal-thirty":"A month of memories is waiting to be written.",
+    "journal-fifty":"Keep filling the archive with your own words.",
+    "journal-hundred":"A true archivist has many pages to protect.",
+    "journal-year":"Let an entire year live between the pages.",
+    "full-checkin":"Tell LinaHub the full picture of how you feel today.",
+    "self-care-first":"Choose one gentle thing for yourself.",
+    "brain-dump":"Give a busy mind somewhere safe to empty itself.",
+    "first-task":"Finish one small thing and mark it done.",
+    "ten-tasks":"A handful of completed tasks will uncover this.",
+    "tasks-twentyfive":"Keep collecting those satisfying little ticks.",
+    "tasks-hundred":"Many tiny wins can make life feel much lighter.",
+    "house-care":"Complete one job that cares for your home.",
+    "house-five":"A few tidy little wins are enough to begin.",
+    "house-twentyfive":"Let your home glow through repeated care.",
+    "house-hundred":"A deeply cared-for home holds this treasure.",
+    "first-med":"Record one moment of taking care of your health.",
+    "med-ten":"Steady care, repeated over time, will reveal this.",
+    "cycle-bloom":"Bring a little of your cycle history into LinaHub.",
+    "gentle-heart":"Sometimes the kindest achievement is simply being here.",
+    "little-aquarium":"Create a watery little world of your own.",
+    "aquarium-care":"Record a moment of care for your aquarium.",
+    "two-tanks":"Two separate watery worlds are needed for this one."
+  };
+  if(hints[t.id])return hints[t.id];
+  const byCategory={
+    Garden:"Spend a little more time caring for and recording your Garden.",
+    Journal:"Your journal holds the clue. Keep checking in and writing.",
+    Home:"A few more completed jobs around your home may uncover this.",
+    Wellness:"Look after yourself gently and keep recording your care.",
+    Aquariums:"Your aquarium residents may reveal this through regular care.",
+    Hidden:"This secret responds to unusual moments inside LinaHub."
+  };
+  return byCategory[t.category]||"Keep exploring LinaHub and this treasure may reveal itself.";
+}
 function collectedTreasures(){return TREASURE_DEFINITIONS.filter(t=>treasureState(t.id)?.collected)}
 function waitingTreasures(){return TREASURE_DEFINITIONS.filter(t=>treasureState(t.id)&&!treasureState(t.id).collected)}
 function visibleBookTreasures(){return TREASURE_DEFINITIONS.filter(t=>!t.hidden||treasureState(t.id)?.collected)}
@@ -185,7 +244,7 @@ function TreasureRoomPage(){
       </div>
     </section>
     ${waiting.length?`<section class="waiting-table card"><div><span class="section-kicker">New treasure discovered</span><h2>${waiting.length} waiting to be opened</h2><p>Your archive has found something new.</p></div><button class="gift-parcel" id="collectTreasure"><span>✦</span><b>Discover</b></button></section>`:""}
-    <section class="card treasure-book"><div class="section-title"><div><span class="section-kicker">Treasure Book</span><h2>Your discoveries</h2></div><small>${collected.length}/${TREASURE_DEFINITIONS.length}</small></div><div class="treasure-grid">${visibleBookTreasures().map(t=>{const s=treasureState(t.id);return s?.collected?`<button class="treasure-card" data-treasure="${t.id}"><span>${t.icon}</span><strong>${t.name}</strong><small>${t.category} · ${treasureRarity(t)}</small></button>`:`<div class="treasure-card locked"><span>?</span><strong>Undiscovered</strong><small>${t.category}</small></div>`}).join("")}</div></section>
+    <section class="card treasure-book"><div class="section-title"><div><span class="section-kicker">Treasure Book</span><h2>Your discoveries</h2></div><small>${collected.length}/${TREASURE_DEFINITIONS.length}</small></div><div class="treasure-grid">${visibleBookTreasures().map(t=>{const s=treasureState(t.id);return s?.collected?`<button class="treasure-card" data-treasure="${t.id}"><span>${t.icon}</span><strong>${t.name}</strong><small>${t.category} · ${treasureRarity(t)}</small></button>`:`<button type="button" class="treasure-card locked" data-locked-treasure="${t.id}" onclick="openTreasureHintModal('${t.id}')" aria-label="Undiscovered ${t.category} treasure. Tap for a hint."><span>?</span><strong>Undiscovered</strong><small>${t.category} · Tap for a hint</small></button>`}).join("")}</div></section>
     <div id="treasureModal"></div>
   `,"treasures");
 }
@@ -196,6 +255,16 @@ function openTreasureModal(id,newlyCollected=false){
   const portal=document.createElement("div");
   portal.id="treasureModalPortal";
   portal.innerHTML=`<div class="treasure-modal-backdrop"><div class="treasure-modal ${newlyCollected?"reveal":""}" role="dialog" aria-modal="true" aria-label="${t.name}"><button class="modal-close" data-close-treasure aria-label="Close treasure">×</button><div class="modal-sparkles">✦　✧　✦</div><div class="modal-treasure-icon">${t.icon}</div><span class="section-kicker">${newlyCollected?"New treasure discovered":t.category}</span><h2>${t.name}</h2><div class="treasure-rarity">${treasureRarity(t)}</div><p>${t.story}</p><small>Discovered ${new Date(s?.unlockedAt||Date.now()).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}</small></div></div>`;
+  document.body.appendChild(portal);
+  document.body.classList.add("treasure-modal-open");
+  bindTreasureModal();
+}
+function openTreasureHintModal(id){
+  const t=TREASURE_DEFINITIONS.find(x=>x.id===id);if(!t)return;
+  closeTreasureModal();
+  const portal=document.createElement("div");
+  portal.id="treasureModalPortal";
+  portal.innerHTML=`<div class="treasure-modal-backdrop"><div class="treasure-modal treasure-hint-modal" role="dialog" aria-modal="true" aria-label="Hint for an undiscovered treasure"><button class="modal-close" data-close-treasure aria-label="Close hint">×</button><div class="modal-sparkles">✧　✦　✧</div><div class="locked-treasure-mark">?</div><span class="section-kicker">Hidden treasure</span><h2>Still undiscovered</h2><div class="hint-label">A little hint</div><p>${treasureHint(t)}</p><small>${t.category} shelf</small></div></div>`;
   document.body.appendChild(portal);
   document.body.classList.add("treasure-modal-open");
   bindTreasureModal();
@@ -211,4 +280,12 @@ function bindTreasureModal(){
   b?.addEventListener("click",closeTreasureModal);
   portal?.querySelector("[data-close-treasure]")?.addEventListener("click",closeTreasureModal);
 }
-function bindTreasures(){ensureTreasureData();data.treasureRoomVisits=Number(data.treasureRoomVisits||0)+1;saveData();document.querySelector("#collectTreasure")?.addEventListener("click",()=>{const n=waitingTreasures()[0];if(!n)return;data.treasures[n.id].collected=true;saveData();openTreasureModal(n.id,true)});document.querySelectorAll("[data-treasure]").forEach(c=>c.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openTreasureModal(c.dataset.treasure)}));document.querySelectorAll("[data-shelf]").forEach(s=>s.addEventListener("click",()=>{const first=collectedTreasures().find(t=>t.category===s.dataset.shelf);if(first)openTreasureModal(first.id);else toast("This shelf is waiting for its first treasure")}))}
+function bindTreasures(){
+  ensureTreasureData();
+  data.treasureRoomVisits=Number(data.treasureRoomVisits||0)+1;
+  saveData();
+  document.querySelector("#collectTreasure")?.addEventListener("click",()=>{const n=waitingTreasures()[0];if(!n)return;data.treasures[n.id].collected=true;saveData();openTreasureModal(n.id,true)});
+  document.querySelectorAll("[data-treasure]").forEach(c=>c.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openTreasureModal(c.dataset.treasure)}));
+  document.querySelectorAll("[data-locked-treasure]").forEach(c=>c.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openTreasureHintModal(c.dataset.lockedTreasure)}));
+  document.querySelectorAll("[data-shelf]").forEach(s=>s.addEventListener("click",()=>{const first=collectedTreasures().find(t=>t.category===s.dataset.shelf);if(first)openTreasureModal(first.id);else toast("This shelf is waiting for its first treasure")}));
+}

@@ -1,4 +1,4 @@
-const CACHE="linahub-v16-5-calendar-care";
+const CACHE="linahub-v16-6-compact-period-calendar";
 const ASSETS=[
 "./","./index.html","./app.js?v=162","./manifest.webmanifest?v=162",
 "./core/pokemon-seed.js?v=162","./core/data.js?v=162","./core/scheduler.js?v=162","./core/router.js?v=162","./core/cloud.js?v=162",

@@ -24,3 +24,25 @@ body:not(.dark) .period-care-pill.active{background:#cda7e8;color:#2c173b}
 .period-flow-main{grid-template-columns:repeat(3,1fr)}
 .period-care-field{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid var(--line);background:var(--soft);border-radius:16px;padding:10px 12px}
 @media(max-width:760px){.period-flow-main{grid-template-columns:repeat(3,1fr)}.period-flow-main button{padding:10px 5px}.period-care-pill{padding:9px 11px;font-size:.82rem}.period-legend{gap:9px}}
+
+
+/* v16.6 compact mobile predictions + solid calendar phase fills */
+.period-prediction-grid{gap:8px;margin:10px 0}
+.period-prediction-grid .stat{border-radius:16px;padding:11px 12px;min-height:0}
+.period-prediction-grid span{font-size:.72rem}
+.period-prediction-grid strong{font-size:1rem;line-height:1.2;margin-top:4px}
+.period-calendar-day.in-cycle{background:#c95f93;border-color:#e496ba;color:#fff}
+.period-calendar-day.flow-spotting{background:#e8a8c6;border-color:#f0c1d6;color:#26182f}
+.period-calendar-day.flow-light{background:#df8fb4;border-color:#efb4cf;color:#24152e}
+.period-calendar-day.flow-medium{background:#d2679a;border-color:#ea9fc0;color:#fff}
+.period-calendar-day.flow-heavy{background:#b94768;border-color:#dd7891;color:#fff}
+.period-calendar-day.fertile-window{background:#4dbf91;border-color:#79dbb6;color:#10281f}
+.period-calendar-day.ovulation-day{background:#29bfc4;border-color:#70e7e8;color:#08272a;box-shadow:inset 0 0 0 2px rgba(255,255,255,.28),0 0 0 2px rgba(91,225,220,.18)}
+.period-calendar-day.predicted-period{background:color-mix(in srgb,#f3a7c8 20%,var(--soft));border:1px dashed #e58db5;color:var(--text)}
+@media(max-width:760px){
+  .period-tabs{margin-top:4px}
+  .period-prediction-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;margin:8px 0}
+  .period-prediction-grid .stat{padding:8px 7px;border-radius:13px}
+  .period-prediction-grid span{font-size:.61rem;line-height:1.15}
+  .period-prediction-grid strong{font-size:.78rem;line-height:1.15;overflow-wrap:anywhere}
+}

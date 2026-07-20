@@ -3,6 +3,7 @@ function getTodayItems(){
   const items=[];
   const now=new Date();
   const hour=now.getHours();
+  const weekday=now.toLocaleDateString("en-GB",{weekday:"long"});
   const healthLog=(data.healthPromptLog||{})[today()]||{};
 
   // Morning and evening health check prompts.
@@ -29,9 +30,10 @@ function getTodayItems(){
 
   // Medication still to take today, respecting daily/weekday/PRN schedules.
   const todayValue=today();
+  const shortDay=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][now.getDay()];
   (data.medications||[]).forEach(m=>{
     const active=m.active!==false && (!m.startDate||todayValue>=m.startDate) && (!m.endDate||todayValue<=m.endDate);
-    const due=active && medicationDueOnDate(m,todayValue);
+    const due=active && (m.scheduleType==="daily" || (m.scheduleType==="weekdays"&&(m.weekdays||[]).includes(shortDay)));
     const taken=(data.medicationHistory||[]).some(log=>log.medId===m.id&&log.date===todayValue);
     if(due&&!taken){
       items.push({
@@ -46,7 +48,14 @@ function getTodayItems(){
 
   // House tasks due today, including explicitly selected weekdays.
   (data.houseTasks||[]).forEach(t=>{
-    const dueToday=houseTaskDueOn(t,now);
+    const frequency=(t.frequency||"").toLowerCase();
+    const selectedWeekday=(t.frequency==="Specific weekdays"&&(t.weekdays||[]).includes(shortDay));
+    const dueToday=
+      frequency==="daily" ||
+      frequency==="every other day" ||
+      selectedWeekday ||
+      frequency.includes(weekday.toLowerCase()) ||
+      (weekday==="Thursday" && t.id==="recycling");
 
     if(dueToday && !t.done){
       items.push({

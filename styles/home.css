@@ -1,17 +1,39 @@
-/* LinaHub 3.0 — exact magical concept treatment */
-.sr-only{position:absolute!important;width:1px!important;height:1px!important;padding:0!important;margin:-1px!important;overflow:hidden!important;clip:rect(0,0,0,0)!important;white-space:nowrap!important;border:0!important}
-body[data-route="home"]{background:#07061a!important;background-image:radial-gradient(circle at 50% -12%,rgba(89,47,170,.32),transparent 34rem),linear-gradient(180deg,#08071b,#050414 72%)!important}
-body[data-route="home"] .shell{max-width:760px;padding:0 14px 116px}
-.home-concept{position:relative;max-width:720px;margin:0 auto;color:#f6eadf;padding-top:18px}
-.concept-hero{position:relative;height:285px;overflow:hidden;border-radius:0 0 28px 28px;background:linear-gradient(90deg,rgba(7,6,26,.98) 0%,rgba(7,6,26,.94) 39%,rgba(7,6,26,.15) 62%,transparent 100%)}
-.concept-window{position:absolute;right:0;top:0;width:69%;height:100%;background:url('../assets/home3/hero-scene.png') center/cover no-repeat;z-index:-1;filter:saturate(1.05) contrast(1.03)}
-.concept-hero:after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,#07061a 0%,rgba(7,6,26,.96) 37%,rgba(7,6,26,.38) 57%,transparent 78%);pointer-events:none;z-index:0}
-.concept-brand,.concept-copy{position:relative;z-index:1}.concept-brand{padding:20px 0 0 18px;font-family:Georgia,"Times New Roman",serif;letter-spacing:.24em;color:#efc16c;font-size:.82rem}.concept-brand:before,.concept-brand:after{content:"✦";margin:0 10px 0 0}.concept-brand:after{margin:0 0 0 10px}
-.concept-copy{padding:27px 0 0 18px}.concept-copy>span{display:block;font-family:Georgia,"Times New Roman",serif;font-size:2rem;line-height:1;color:#f7eadf}.concept-copy h1{margin:2px 0 8px;font-family:Georgia,"Times New Roman",serif;font-size:4.35rem;line-height:.94;font-weight:500;background:linear-gradient(180deg,#f6d9ff,#b681e8);-webkit-background-clip:text;background-clip:text;color:transparent;text-shadow:0 0 28px rgba(175,102,255,.18)}.concept-copy h1:after{content:"☾";font-size:2rem;margin-left:12px;color:#dfb6ff;-webkit-text-fill-color:#dfb6ff}.concept-divider{width:205px;height:1px;background:linear-gradient(90deg,#e7b95d 0 62%,transparent 62%);position:relative;margin:12px 0 15px}.concept-divider:after{content:"✦";position:absolute;right:70px;top:-9px;color:#efc16c}.concept-copy p{margin:0;color:#d4c8d8;font-size:.9rem;line-height:1.55}
-.concept-quick{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin:10px 0 11px}.concept-main{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.concept-button{position:relative;border:0;padding:0;overflow:hidden;background-color:#15102f;background-repeat:no-repeat;background-size:cover;background-position:center;box-shadow:none;transition:transform .16s ease,filter .16s ease}.concept-button:active{transform:scale(.985);filter:brightness(1.08)}
-.concept-quick{height:157px}.concept-quick .concept-button{height:100%;border-radius:22px}.concept-journal{background-image:url('../assets/home3/quick-journal.png')}.concept-today{background-image:url('../assets/home3/quick-today.png')}.concept-todo{background-image:url('../assets/home3/quick-todo.png')}
-.concept-main .concept-button{height:150px;border-radius:22px}.concept-main .concept-plants{background-image:url('../assets/home3/tile-plants.png')}.concept-main .concept-medication{background-image:url('../assets/home3/tile-potions.png')}.concept-main .concept-pets{background-image:url('../assets/home3/tile-aquariums.png')}.concept-main .concept-house{background-image:url('../assets/home3/tile-house.png')}.concept-main .concept-wide{grid-column:1/-1;height:125px;background-image:url('../assets/home3/tile-treasure.png');border-radius:23px}
-.custom-home-badge{position:absolute;right:10px;top:10px;width:34px;height:34px;border-radius:11px;overflow:hidden;display:grid;place-items:center;background:rgba(16,9,39,.82);border:1px solid rgba(235,187,105,.6);box-shadow:0 5px 12px rgba(0,0,0,.28);z-index:3}.custom-home-badge img{width:100%;height:100%;object-fit:cover}.custom-home-badge.custom-symbol{color:#efc16c;font-family:Georgia,serif;font-size:1.2rem}
-body[data-route="home"] .bottom{background:rgba(9,7,29,.96)!important;border:1px solid rgba(193,133,213,.34)!important;border-radius:30px!important;padding:7px!important;box-shadow:0 18px 46px rgba(0,0,0,.48)!important}.bottom button{min-height:58px}.bottom button.active{background:radial-gradient(circle at 50% 20%,rgba(132,65,219,.55),rgba(73,32,121,.45))!important;border:1px solid rgba(191,115,238,.35);box-shadow:inset 0 1px rgba(255,255,255,.08),0 0 20px rgba(124,58,201,.22)}.bottom small{font-family:Georgia,"Times New Roman",serif;font-size:.65rem!important;color:#d9c4df!important}
-@media(max-width:560px){body[data-route="home"] .shell{padding-left:8px;padding-right:8px}.home-concept{padding-top:0}.concept-hero{height:260px}.concept-window{width:74%}.concept-brand{padding-top:16px;font-size:.7rem}.concept-copy{padding-top:24px}.concept-copy>span{font-size:1.55rem}.concept-copy h1{font-size:3.6rem}.concept-copy p{font-size:.78rem}.concept-quick{height:132px;gap:7px}.concept-main{gap:8px}.concept-main .concept-button{height:119px}.concept-main .concept-wide{height:101px}.concept-button{border-radius:18px!important}}
-@media(max-width:390px){.concept-hero{height:238px}.concept-copy h1{font-size:3.15rem}.concept-copy>span{font-size:1.35rem}.concept-copy p{font-size:.72rem}.concept-divider{width:165px}.concept-quick{height:112px}.concept-main .concept-button{height:104px}.concept-main .concept-wide{height:90px}}
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.module{
+  min-height:142px;padding:18px;border:1px solid var(--line);border-radius:24px;background:var(--card);
+  box-shadow:var(--shadow);text-align:left;color:var(--ink);position:relative;
+}
+.module .emoji{display:grid;place-items:center;width:58px;height:58px;border-radius:20px;background:#f0e2f8;font-size:2rem;margin-bottom:18px}
+.module strong{display:block;font-size:1rem}.module small{color:var(--muted)}
+.today-list{display:grid;gap:9px}
+.reminder{
+  width:100%;display:flex;align-items:center;gap:12px;background:#fffafd;border:1px solid var(--line);
+  padding:13px;border-radius:17px;color:var(--ink);text-align:left
+}
+body.dark .module,body.dark .reminder{background:#151225}
+
+.today-heading{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  border:0;background:transparent;color:var(--ink);padding:0 0 12px;text-align:left
+}
+.today-heading h2{margin:0}.today-heading small{color:var(--muted)}
+.today-heading b{font-size:1.8rem;color:var(--purple)}
+
+.app-icon-image{
+  display:grid;
+  place-items:center;
+}
+.app-icon-image img{
+  width:52px;
+  height:52px;
+  display:block;
+}
+
+
+/* v15.2 keep every home icon aligned in the same top-left position */
+.module{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;overflow:hidden}
+.module .emoji,.module .module-image{flex:0 0 58px;width:58px;height:58px;margin:0 0 18px 0;align-self:flex-start}
+.module .module-image{display:grid;place-items:center;border-radius:20px;overflow:hidden;background:#f0e2f8}
+.module .module-image img{width:100%;height:100%;display:block;object-fit:cover}
+.module strong,.module small{align-self:flex-start;text-align:left}

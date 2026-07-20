@@ -19,6 +19,8 @@ const DEFAULT_DATA={
   },
   homeImages:{},
   homeTileNames:{plants:"Garden"},
+  homeTileAccents:{},
+  homeHidden:[],
   bills:[],
   budgetEntries:[],
   homeLayout:[
@@ -219,7 +221,7 @@ function normalizePlant(p,i){
   return {
     id:p.id||`plant-${i}`,name:p.name||"Plant",emoji:p.emoji||"🌿",notes:p.notes||"",
     lastWatered:p.lastWatered||"",history:Array.isArray(p.history)?p.history:[],photo:p.photo||"",
-    guideId:p.guideId||"",wateringDays:Number(p.wateringDays)||0
+    photoKey:p.photoKey||`plant:${p.id||`plant-${i}`}`,guideId:p.guideId||"",wateringDays:Number(p.wateringDays)||0
   };
 }
 
@@ -281,7 +283,18 @@ if(!data.v9CollapseDefaultsApplied){
   data.v9CollapseDefaultsApplied=true;
   localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
 }
-function saveData(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}
+function saveData(){
+  try{
+    // Images are stored separately in IndexedDB. Never let a large photo make all app data fail to save.
+    const serializable={...data,plants:(data.plants||[]).map(plant=>({...plant,photo:/^data:image\//.test(plant.photo||"")?"":plant.photo||""}))};
+    localStorage.setItem(STORAGE_KEY,JSON.stringify(serializable));
+    return true;
+  }catch(error){
+    console.error("LinaHub could not save",error);
+    toast("LinaHub could not save that change. Please free a little browser storage.");
+    return false;
+  }
+}
 function today(){
   const now=new Date();
   const pad=value=>String(value).padStart(2,"0");

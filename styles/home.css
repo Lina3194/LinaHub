@@ -62,3 +62,25 @@ body[data-route="home"] .home-menu{z-index:1000;max-height:min(320px,70vh);overf
   object-fit: contain;
   object-position: center;
 }
+
+/* v16.15 — fully customisable Home tiles */
+.home-tile-wrap{--tile-accent:var(--purple)}
+.home-tile-wrap .module{border-color:color-mix(in srgb,var(--tile-accent) 38%,var(--line));background:linear-gradient(150deg,color-mix(in srgb,var(--tile-accent) 11%,var(--card)) 0%,var(--card) 72%)}
+.home-tile-wrap .module::after{content:"";position:absolute;top:14px;right:14px;width:8px;height:8px;border-radius:50%;background:var(--tile-accent);box-shadow:0 0 15px color-mix(in srgb,var(--tile-accent) 70%,transparent)}
+.tile-status{display:block;margin-top:auto;padding-top:10px;color:color-mix(in srgb,var(--tile-accent) 72%,var(--ink));font-size:.75rem;font-weight:750;line-height:1.25}
+.home-tile-wrap.size-small .tile-subtitle{display:none}.home-tile-wrap.size-small .tile-status{font-size:.68rem;padding-top:5px}
+.home-tile-wrap.size-wide .tile-status{grid-column:2;margin-top:4px;padding-top:0}
+.home-tile-wrap.size-wide .module{grid-template-rows:auto auto auto}
+.home-tile-wrap.size-wide .emoji,.home-tile-wrap.size-wide .module-image{grid-row:1/4}
+.tile-edit-controls{grid-template-columns:34px 34px 1fr 34px}.tile-edit-controls .tile-customise{font-weight:800}
+.hidden-home-tiles{margin:18px 0 110px;padding:16px;border:1px dashed var(--line);border-radius:22px;background:color-mix(in srgb,var(--card) 86%,transparent)}
+.hidden-home-tiles h2{margin:0 0 10px;font-size:1rem}.hidden-home-tiles>div{display:grid;gap:8px}.hidden-home-tiles button{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:9px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);text-align:left}.hidden-home-tiles button b{color:var(--purple)}
+.tile-editor-backdrop{position:fixed;inset:0;z-index:5000;display:grid;align-items:end;background:rgba(7,4,18,.72);backdrop-filter:blur(8px);padding:14px}
+.tile-editor{width:min(620px,100%);max-height:88vh;overflow:auto;margin:0 auto;padding:18px;border:1px solid var(--line);border-radius:26px 26px 18px 18px;background:var(--card);box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.tile-editor-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}.tile-editor-head h2{margin:3px 0 0}.tile-editor-head>button{width:42px;height:42px;border:1px solid var(--line);border-radius:14px;background:transparent;color:var(--ink);font-size:1.8rem}
+.tile-editor>label{display:block;margin:12px 0;color:var(--muted);font-size:.84rem}.tile-editor .field{margin-top:6px;font-size:16px}
+.tile-colour-label{display:flex!important;align-items:center;justify-content:space-between;gap:12px}.tile-colour-label input{width:64px;height:44px;padding:3px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.tile-cover-row{display:grid;grid-template-columns:92px 1fr;gap:13px;align-items:center;margin:15px 0;padding:12px;border:1px solid var(--line);border-radius:18px}.tile-cover-preview{width:92px;height:92px;display:grid;place-items:center;overflow:hidden;border-radius:18px;background:var(--purple-soft);font-size:2.4rem}.tile-cover-preview img{width:100%;height:100%;object-fit:contain}.tile-cover-row p{margin:4px 0 9px;color:var(--muted);font-size:.78rem}.tile-cover-row button{margin:3px 5px 3px 0}
+.tile-editor-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-top:16px}
+body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;cursor:grab}
+@media(min-width:700px){.tile-editor-backdrop{align-items:center}.tile-editor{border-radius:26px}}

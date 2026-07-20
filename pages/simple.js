@@ -89,10 +89,19 @@ function bindSimple(){
   document.querySelector("#cloudUploadNow")?.addEventListener("click",forceCloudUpload);
   document.querySelector("#cloudDownloadNow")?.addEventListener("click",forceCloudDownload);
   const t=document.querySelector("#themeToggle2");
-  if(t) t.onclick=()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()};
+  if(t) t.onclick=()=>{
+    data.theme=data.theme==="dark"?"light":"dark";
+    saveData();
+    document.body.classList.toggle("dark",data.theme==="dark");
+    t.textContent=`Switch to ${data.theme==="dark"?"light":"dark"} mode`;
+    toast(`${data.theme==="dark"?"Dark":"Light"} mode selected`);
+  };
   document.querySelectorAll("[data-color-theme]").forEach(button=>button.onclick=()=>{
     data.colorTheme=button.dataset.colorTheme;
-    saveData();render();
+    saveData();
+    document.body.dataset.colorTheme=data.colorTheme;
+    document.querySelectorAll("[data-color-theme]").forEach(b=>b.classList.toggle("active",b===button));
+    toast("Theme updated ✨");
   });
   if(data.settingsSection==="appearance"){
     data.settingsSection="";
@@ -153,7 +162,14 @@ function bindSimple(){
         try{
           saveData();
           toast("Tab picture added 🌸");
-          render();
+          const card=input.closest(".tab-art-setting");
+          const preview=card?.querySelector(".tab-art-preview");
+          if(preview) preview.innerHTML=`<img src="${data.homeImages[input.dataset.tabImage]}" alt="">`;
+          if(card&&!card.querySelector(`[data-remove-tab-image="${input.dataset.tabImage}"]`)){
+            const remove=document.createElement("button");remove.type="button";remove.className="mini danger";remove.dataset.removeTabImage=input.dataset.tabImage;remove.textContent="Remove";
+            card.querySelector(".tab-art-actions")?.appendChild(remove);
+            remove.addEventListener("click",()=>{delete data.homeImages[input.dataset.tabImage];saveData();preview.innerHTML=`<span>${esc(data.homeIcons?.[input.dataset.tabImage]||"✨")}</span>`;remove.remove();toast("Picture removed")});
+          }
         }catch(error){
           delete data.homeImages[input.dataset.tabImage];
           toast("Storage is full — remove an older picture first");
@@ -164,7 +180,11 @@ function bindSimple(){
   document.querySelectorAll("[data-remove-tab-image]").forEach(button=>{
     button.onclick=()=>{
       if(data.homeImages) delete data.homeImages[button.dataset.removeTabImage];
-      saveData();toast("Picture removed");render();
+      saveData();
+      const card=button.closest(".tab-art-setting");
+      const preview=card?.querySelector(".tab-art-preview");
+      if(preview) preview.innerHTML=`<span>${esc(data.homeIcons?.[button.dataset.removeTabImage]||"✨")}</span>`;
+      button.remove();toast("Picture removed");
     };
   });
 
@@ -214,7 +234,9 @@ function bindSimple(){
         try{
           saveData();
           toast("Banner picture added 🌙");
-          render();
+          const card=input.closest(".banner-art-setting");
+          const preview=card?.querySelector(".banner-art-preview");
+          if(preview) preview.innerHTML=`<img src="${data.moduleBanners[input.dataset.bannerImage]}" alt="">`;
         }catch(error){
           delete data.moduleBanners[input.dataset.bannerImage];
           toast("Storage is full — remove an older picture first");
@@ -225,7 +247,11 @@ function bindSimple(){
   document.querySelectorAll("[data-remove-banner-image]").forEach(button=>{
     button.onclick=()=>{
       if(data.moduleBanners) delete data.moduleBanners[button.dataset.removeBannerImage];
-      saveData();toast("Banner removed");render();
+      saveData();
+      const card=button.closest(".banner-art-setting");
+      const preview=card?.querySelector(".banner-art-preview");
+      if(preview) preview.innerHTML=`<span>${esc(data.homeIcons?.[button.dataset.removeBannerImage]||"✨")}</span>`;
+      button.remove();toast("Banner removed");
     };
   });
 

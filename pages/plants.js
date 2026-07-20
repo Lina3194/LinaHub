@@ -84,7 +84,7 @@ function PlantTile(p){
   const s=plantStatus(p);
   return `<article class="plant-tile" data-plant-name="${esc(p.name.toLowerCase())}" data-plant-id="${esc(p.id)}">
     <button type="button" class="plant-tile-open" data-route="plant" data-route-id="${esc(p.id)}" aria-label="Open ${esc(p.name)}">
-      <div class="plant-tile-art">${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div>
+      <div class="plant-tile-art">${plantPhotoSrc(p)?`<img src="${plantPhotoSrc(p)}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div>
       <div class="plant-tile-copy"><h2>${esc(p.name)}</h2><p>${p.lastWatered?`Watered ${esc(formatDate(p.lastWatered))}`:"Not watered yet"}</p><em class="status-chip ${s.className}">${s.icon} ${s.text}</em></div>
     </button>
     <button type="button" class="plant-quick-water ${p.lastWatered===today()?"watered-today":""}" data-quick-water="${esc(p.id)}" aria-label="${p.lastWatered===today()?"Watered today":"Mark as watered today"}" title="${p.lastWatered===today()?"Watered today":"Mark as watered today"}">${p.lastWatered===today()?"✓":"💧"}</button>
@@ -132,7 +132,7 @@ function PlantProfilePage(){
   const p=data.plants.find(x=>x.id===routeId);if(!p)return PlantsPage();
   const history=[...(p.history||[])].sort().reverse(),status=plantStatus(p),active=plantProfileTab(),guide=encyclopediaEntry(p.guideId||p.id,p.name);
   return shell(`${head(p.name,"Plant profile","plants")}
-    <section class="card plant-profile-head"><div class="plant-photo-large">${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div><div class="plant-profile-actions"><label class="secondary upload-label">📷 Add / change photo<input id="plantPhoto" type="file" accept="image/*" hidden></label><em class="status-chip ${status.className}">${status.icon} ${status.text}</em></div></section>
+    <section class="card plant-profile-head"><div class="plant-photo-large">${plantPhotoSrc(p)?`<img src="${plantPhotoSrc(p)}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div><div class="plant-profile-actions"><label class="secondary upload-label">📷 Add / change photo<input id="plantPhoto" type="file" accept="image/*" hidden></label><em class="status-chip ${status.className}">${status.icon} ${status.text}</em></div></section>
     <div class="profile-tabs" role="tablist" aria-label="Plant profile sections">${[["overview","Overview"],["care","Care"],["history","History"],["notes","Notes"]].map(([id,label])=>`<button type="button" role="tab" aria-selected="${active===id}" data-plant-tab="${id}" class="${active===id?"active":""}">${label}</button>`).join("")}</div>
     <div class="plant-tab-panel ${active==="overview"?"active":""}"><section class="care-summary"><div><small>Last watered</small><strong>${p.lastWatered?formatDate(p.lastWatered):"Not yet"}</strong></div><div><small>Waterings logged</small><strong>${history.length}</strong></div></section><section class="card clean-card"><span class="section-kicker">Overview</span><h2>Current care</h2><p>${p.lastWatered?`Last watered on ${formatDate(p.lastWatered)}.`:"No watering has been logged yet."}</p><p>${p.notes?esc(p.notes):"No personal care notes saved yet."}</p></section>${careGuideHtml(guide)}</div>
     <div class="plant-tab-panel ${active==="care"?"active":""}"><section class="card clean-card"><span class="section-kicker">Care</span><h2>Log watering</h2><div class="dated-action"><label class="date-picker-shell" aria-label="Watering date"><span>📅</span><input id="plantWaterDate" type="date" value="${today()}" max="${today()}"></label><button type="button" class="primary" id="waterPlant">💧 Log watering</button></div><p class="helper-text">Today is selected automatically. Open the calendar to record an earlier watering.</p></section>${careGuideHtml(guide)}</div>
@@ -172,5 +172,21 @@ function bindPlants(){
   document.querySelector("#waterPlant")?.addEventListener("click",()=>{const p=data.plants.find(x=>x.id===routeId);if(!p)return;const date=document.querySelector("#plantWaterDate")?.value||today();if(date>today()){toast("Choose today or an earlier date");return}p.history=Array.isArray(p.history)?p.history:[];if(!p.history.includes(date))p.history.push(date);p.history.sort();p.lastWatered=p.history[p.history.length-1]||"";saveData();toast(`${p.name} watering logged 💧`);render()});
   document.querySelectorAll("[data-water-delete]").forEach(button=>button.addEventListener("click",()=>{const p=data.plants.find(x=>x.id===routeId);if(!p)return;p.history=(p.history||[]).filter(date=>date!==button.dataset.waterDelete);p.history.sort();p.lastWatered=p.history[p.history.length-1]||"";saveData();toast("Watering entry removed");render()}));
   document.querySelector("#savePlantNotes")?.addEventListener("click",()=>{const p=data.plants.find(x=>x.id===routeId);if(!p)return;p.notes=document.querySelector(".plant-notes").value;saveData();toast("Plant notes saved 🌿")});
-  document.querySelector("#plantPhoto")?.addEventListener("change",e=>{const file=e.target.files?.[0];if(!file)return;const reader=new FileReader();reader.onload=()=>{const p=data.plants.find(x=>x.id===routeId);if(!p)return;p.photo=reader.result;saveData();toast("Plant photo saved 📷");render()};reader.readAsDataURL(file)});
+  document.querySelector("#plantPhoto")?.addEventListener("change",async e=>{
+    const file=e.target.files?.[0]; if(!file)return;
+    const p=data.plants.find(x=>x.id===routeId); if(!p)return;
+    try{
+      toast("Saving plant photo…");
+      const image=await imageFileToCompressedDataUrl(file);
+      p.photoKey=plantPhotoKey(p);
+      await putLinaImage(p.photoKey,image);
+      p.photo="";
+      saveData();
+      toast("Plant photo saved safely 📷");
+      render();
+    }catch(error){
+      console.error(error);
+      toast("That photo could not be saved");
+    }
+  });
 }

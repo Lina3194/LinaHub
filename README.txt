@@ -15,3 +15,6 @@ Includes:
 
 Upload the extracted files and folders directly to the repository root, replacing the existing files.
 The Medication subtitle should read “Medication centre · v15.5”.
+
+
+LinaHub 16.15: Home tile dashboard details, rename/icon/size/hide/show/reorder/cover/accent controls, touch drag, and smoother Settings updates.

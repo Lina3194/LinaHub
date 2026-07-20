@@ -3,3 +3,24 @@
 .period-history-year{margin-top:1.2rem}.period-history-year>h3{margin:.2rem 0 .7rem;font-size:1.2rem}.period-import-count{padding:.4rem .7rem;border:1px solid var(--line);border-radius:999px;font-weight:800}.period-history-year .history-card{margin-bottom:.65rem}.period-history-year .history-date span{display:block;margin-top:.25rem;opacity:.76}
 .period-tabs{display:flex;gap:8px;margin:12px 0 16px}.period-tabs button{flex:1;border:1px solid var(--line);background:var(--soft);color:var(--text);padding:11px;border-radius:999px;font-weight:800}.period-tabs button.active{background:var(--accent);color:#fff}.period-prediction-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}.period-prediction-grid .stat{background:var(--card);border:1px solid var(--line);border-radius:20px;padding:15px}.period-prediction-grid span{display:block;color:var(--muted);font-size:.82rem}.period-prediction-grid strong{display:block;margin-top:6px}.period-year-toggle{width:100%;display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:10px;border:1px solid var(--line);background:var(--soft);color:var(--text);border-radius:16px;padding:14px;text-align:left;font-weight:900}.period-year-toggle span{font-size:1.2rem}.period-year-toggle small{color:var(--muted)}.period-year-toggle b{font-size:1.4rem}.period-year-cycles{padding-top:9px}.period-options-list.compact{grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:7px}.period-options-list.compact .period-option-row{padding:8px 10px;border-radius:14px;min-height:48px}.period-options-list.compact .period-option-label{min-width:0;gap:7px}.period-options-list.compact .period-option-label span{font-size:1.05rem}.period-options-list.compact .period-option-label strong{font-size:.8rem}
 @media(max-width:760px){.period-prediction-grid{grid-template-columns:1fr}.period-options-list.compact{grid-template-columns:repeat(2,minmax(0,1fr))}.period-options-list.compact .period-option-row{flex-direction:row;align-items:center}.period-options-list.compact .period-option-toggle{width:40px;height:25px}.period-options-list.compact .period-option-toggle span{width:19px;height:19px}}
+
+/* v16.5 calendar phases + journal-style care pills */
+.period-calendar-day.predicted-period{background:color-mix(in srgb,#f3a7c8 20%,var(--soft));border:1px dashed #e58db5}
+.period-calendar-day.fertile-window{background:color-mix(in srgb,#67d6b2 24%,var(--soft));border-color:color-mix(in srgb,#67d6b2 58%,var(--line))}
+.period-calendar-day.ovulation-day{background:color-mix(in srgb,#45c7c9 34%,var(--soft));border-color:#5be1dc;box-shadow:inset 0 0 0 1px color-mix(in srgb,#5be1dc 50%,transparent)}
+.period-calendar-day.in-cycle{background:color-mix(in srgb,#f5a7c7 30%,var(--soft));border-color:color-mix(in srgb,#f5a7c7 45%,var(--line))}
+.period-calendar-day.flow-heavy{background:color-mix(in srgb,#df6680 48%,var(--soft))}
+.period-calendar-day.flow-medium{background:color-mix(in srgb,#ed8fb3 42%,var(--soft))}
+.period-calendar-day.flow-light{background:color-mix(in srgb,#f7bed6 36%,var(--soft))}
+.period-calendar-day.flow-spotting{background:color-mix(in srgb,#f8d1e2 27%,var(--soft))}
+.legend-predicted{background:#f3a7c8;border:1px dashed #e58db5}
+.legend-fertile{background:#67d6b2}
+.legend-ovulation{background:#45c7c9;box-shadow:0 0 0 2px color-mix(in srgb,#5be1dc 30%,transparent)}
+.period-compact-pills,.period-care-pills{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0 16px}
+.period-care-pill{border:1px solid var(--line);background:#241a35;color:#f7efff;border-radius:17px;padding:10px 13px;font-weight:700;line-height:1.1}
+.period-care-pill.active{background:#b98bdd;color:#23152f;border-color:#d9b8f3;box-shadow:0 0 0 3px rgba(188,139,222,.18),0 8px 18px rgba(113,70,146,.22)}
+body:not(.dark) .period-care-pill{background:#f2e6fa;color:#4c2b68;border-color:#d5b8e8}
+body:not(.dark) .period-care-pill.active{background:#cda7e8;color:#2c173b}
+.period-flow-main{grid-template-columns:repeat(3,1fr)}
+.period-care-field{display:flex;align-items:center;gap:8px;flex-wrap:wrap;border:1px solid var(--line);background:var(--soft);border-radius:16px;padding:10px 12px}
+@media(max-width:760px){.period-flow-main{grid-template-columns:repeat(3,1fr)}.period-flow-main button{padding:10px 5px}.period-care-pill{padding:9px 11px;font-size:.82rem}.period-legend{gap:9px}}

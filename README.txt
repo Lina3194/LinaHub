@@ -18,3 +18,8 @@ TO PUBLISH
 4. Open GitHub Desktop.
 5. Commit to main.
 6. Push origin.
+
+
+Version 16.5
+- Added predicted period, fertile-window and ovulation colours to the calendar.
+- Changed spotting and period-care toggles into compact Journal-style pills.

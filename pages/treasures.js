@@ -100,7 +100,26 @@ function TreasureRoomPage(){
     <div id="treasureModal"></div>
   `,"treasures");
 }
-function openTreasureModal(id,newlyCollected=false){const t=TREASURE_DEFINITIONS.find(x=>x.id===id);if(!t)return;const s=treasureState(id),m=document.querySelector("#treasureModal");if(!m)return;m.innerHTML=`<div class="treasure-modal-backdrop"><div class="treasure-modal ${newlyCollected?"reveal":""}" role="dialog" aria-modal="true"><button class="modal-close" data-close-treasure>×</button><div class="modal-sparkles">✦　✧　✦</div><div class="modal-treasure-icon">${t.icon}</div><span class="section-kicker">${newlyCollected?"New treasure discovered":t.category}</span><h2>${t.name}</h2><p>${t.story}</p><small>Discovered ${new Date(s?.unlockedAt||Date.now()).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}</small></div></div>`;bindTreasureModal()}
-function closeTreasureModal(){const m=document.querySelector("#treasureModal");if(m)m.innerHTML=""}
-function bindTreasureModal(){const b=document.querySelector(".treasure-modal-backdrop"),p=document.querySelector(".treasure-modal");p?.addEventListener("click",e=>e.stopPropagation());b?.addEventListener("click",closeTreasureModal);document.querySelector("[data-close-treasure]")?.addEventListener("click",closeTreasureModal)}
+function openTreasureModal(id,newlyCollected=false){
+  const t=TREASURE_DEFINITIONS.find(x=>x.id===id);if(!t)return;
+  const s=treasureState(id);
+  closeTreasureModal();
+  const portal=document.createElement("div");
+  portal.id="treasureModalPortal";
+  portal.innerHTML=`<div class="treasure-modal-backdrop"><div class="treasure-modal ${newlyCollected?"reveal":""}" role="dialog" aria-modal="true" aria-label="${t.name}"><button class="modal-close" data-close-treasure aria-label="Close treasure">×</button><div class="modal-sparkles">✦　✧　✦</div><div class="modal-treasure-icon">${t.icon}</div><span class="section-kicker">${newlyCollected?"New treasure discovered":t.category}</span><h2>${t.name}</h2><p>${t.story}</p><small>Discovered ${new Date(s?.unlockedAt||Date.now()).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}</small></div></div>`;
+  document.body.appendChild(portal);
+  document.body.classList.add("treasure-modal-open");
+  bindTreasureModal();
+}
+function closeTreasureModal(){
+  document.querySelector("#treasureModalPortal")?.remove();
+  document.body.classList.remove("treasure-modal-open");
+}
+function bindTreasureModal(){
+  const portal=document.querySelector("#treasureModalPortal");
+  const b=portal?.querySelector(".treasure-modal-backdrop"),p=portal?.querySelector(".treasure-modal");
+  p?.addEventListener("click",e=>e.stopPropagation());
+  b?.addEventListener("click",closeTreasureModal);
+  portal?.querySelector("[data-close-treasure]")?.addEventListener("click",closeTreasureModal);
+}
 function bindTreasures(){ensureTreasureData();data.treasureRoomVisits=Number(data.treasureRoomVisits||0)+1;saveData();document.querySelector("#collectTreasure")?.addEventListener("click",()=>{const n=waitingTreasures()[0];if(!n)return;data.treasures[n.id].collected=true;saveData();openTreasureModal(n.id,true)});document.querySelectorAll("[data-treasure]").forEach(c=>c.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openTreasureModal(c.dataset.treasure)}));document.querySelectorAll("[data-shelf]").forEach(s=>s.addEventListener("click",()=>{const first=collectedTreasures().find(t=>t.category===s.dataset.shelf);if(first)openTreasureModal(first.id);else toast("This shelf is waiting for its first treasure")}))}

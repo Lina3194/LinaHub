@@ -81,6 +81,42 @@ const TREASURE_DEFINITIONS=[
   {id:"visits-fifty",icon:"🔐",name:"Keeper of the Archive",category:"Hidden",rarity:"Epic",story:"For visiting the Treasure Room fifty times.",hidden:true,rule:()=>Number(data.treasureRoomVisits||0)>=50},
   {id:"visits-hundred",icon:"📚",name:"The Librarian",category:"Hidden",rarity:"Legendary",story:"For visiting the Treasure Room one hundred times.",hidden:true,rule:()=>Number(data.treasureRoomVisits||0)>=100},
 
+  {id:"seventyfive-plants",icon:"🌲",name:"Secret Conservatory",category:"Garden",rarity:"Mythical",story:"For caring for seventy-five plants in LinaHub.",rule:()=>Array.isArray(data.plants)&&data.plants.length>=75},
+  {id:"water-twentyfive",icon:"🚿",name:"Gentle Showers",category:"Garden",rarity:"Rare",story:"For logging twenty-five plant waterings.",rule:()=>Array.isArray(data.plants)&&data.plants.reduce((n,p)=>n+(p.history||[]).length,0)>=25},
+  {id:"water-fifty",icon:"🌦️",name:"Rain Keeper",category:"Garden",rarity:"Epic",story:"For logging fifty plant waterings.",rule:()=>Array.isArray(data.plants)&&data.plants.reduce((n,p)=>n+(p.history||[]).length,0)>=50},
+  {id:"plant-notes-ten",icon:"📒",name:"Botanical Notes",category:"Garden",rarity:"Rare",story:"For writing care notes for ten plants.",rule:()=>Array.isArray(data.plants)&&data.plants.filter(p=>(p.notes||'').trim()).length>=10},
+  {id:"plant-photos-ten",icon:"🏞️",name:"Living Gallery",category:"Garden",rarity:"Epic",story:"For saving photographs of ten plants.",rule:()=>Array.isArray(data.plants)&&data.plants.filter(p=>p.photo).length>=10},
+
+  {id:"journal-twentyfive",icon:"📝",name:"Twenty-Five Pages",category:"Journal",rarity:"Rare",story:"For recording twenty-five journal entries.",rule:()=>Object.keys(data.checkins||{}).length>=25},
+  {id:"journal-seventyfive",icon:"📖",name:"A Book of Me",category:"Journal",rarity:"Epic",story:"For recording seventy-five journal entries.",rule:()=>Object.keys(data.checkins||{}).length>=75},
+  {id:"journal-twohundred",icon:"🗄️",name:"Memory Keeper",category:"Journal",rarity:"Epic",story:"For recording two hundred journal entries.",rule:()=>Object.keys(data.checkins||{}).length>=200},
+  {id:"journal-fivehundred",icon:"🏛️",name:"The Great Archive",category:"Journal",rarity:"Mythical",story:"For recording five hundred journal entries.",rule:()=>Object.keys(data.checkins||{}).length>=500},
+  {id:"self-care-ten",icon:"🕊️",name:"Ten Gentle Moments",category:"Journal",rarity:"Rare",story:"For recording self-care on ten check-ins.",rule:()=>Object.values(data.checkins||{}).filter(e=>Array.isArray(e?.selfCare)&&e.selfCare.length>0).length>=10},
+
+  {id:"tasks-fifty",icon:"🧾",name:"Fifty Things Lighter",category:"Home",rarity:"Epic",story:"For completing fifty personal tasks.",rule:()=>Array.isArray(data.personalTasks)&&data.personalTasks.filter(t=>t.done).length>=50},
+  {id:"tasks-twohundred",icon:"🏅",name:"Home Hero",category:"Home",rarity:"Mythical",story:"For completing two hundred personal tasks.",rule:()=>Array.isArray(data.personalTasks)&&data.personalTasks.filter(t=>t.done).length>=200},
+  {id:"house-seventyfive",icon:"🧺",name:"A Lovely Rhythm",category:"Home",rarity:"Epic",story:"For completing seventy-five House jobs.",rule:()=>Array.isArray(data.houseTasks)&&data.houseTasks.filter(t=>t.done).length>=75},
+  {id:"house-fifty",icon:"🪟",name:"Shining Sanctuary",category:"Home",rarity:"Epic",story:"For completing fifty House jobs.",rule:()=>Array.isArray(data.houseTasks)&&data.houseTasks.filter(t=>t.done).length>=50},
+  {id:"house-twohundred",icon:"🏰",name:"Keeper of the Sanctuary",category:"Home",rarity:"Mythical",story:"For completing two hundred House jobs.",rule:()=>Array.isArray(data.houseTasks)&&data.houseTasks.filter(t=>t.done).length>=200},
+
+  {id:"med-twentyfive",icon:"🧴",name:"Caring Routine",category:"Wellness",rarity:"Rare",story:"For recording twenty-five medication doses.",rule:()=>Array.isArray(data.medicationHistory)&&data.medicationHistory.length>=25},
+  {id:"med-fifty",icon:"🌿",name:"Steady and Strong",category:"Wellness",rarity:"Epic",story:"For recording fifty medication doses.",rule:()=>Array.isArray(data.medicationHistory)&&data.medicationHistory.length>=50},
+  {id:"med-twohundred",icon:"🏺",name:"The Apothecary",category:"Wellness",rarity:"Mythical",story:"For recording two hundred medication doses.",rule:()=>Array.isArray(data.medicationHistory)&&data.medicationHistory.length>=200},
+  {id:"cycles-six",icon:"🌼",name:"Six Seasons",category:"Wellness",rarity:"Rare",story:"For keeping six cycle records.",rule:()=>Array.isArray(data.periodCycles)&&data.periodCycles.length>=6},
+  {id:"cycles-twelve",icon:"🌕",name:"A Year of Moons",category:"Wellness",rarity:"Legendary",story:"For keeping twelve cycle records.",rule:()=>Array.isArray(data.periodCycles)&&data.periodCycles.length>=12},
+
+  {id:"seven-tanks",icon:"🐟",name:"Seven Little Worlds",category:"Aquariums",rarity:"Epic",story:"For caring for seven aquariums.",rule:()=>Array.isArray(data.aquariums)&&data.aquariums.length>=7},
+  {id:"ten-tanks",icon:"🪸",name:"Aquatic Sanctuary",category:"Aquariums",rarity:"Mythical",story:"For caring for ten aquariums.",rule:()=>Array.isArray(data.aquariums)&&data.aquariums.length>=10},
+  {id:"aquarium-feed-twentyfive",icon:"🦐",name:"Dinner Bell",category:"Aquariums",rarity:"Rare",story:"For recording twenty-five aquarium feedings.",rule:()=>Array.isArray(data.aquariums)&&data.aquariums.reduce((n,a)=>n+(a.feeds||[]).length,0)>=25},
+  {id:"aquarium-feed-hundred",icon:"🐬",name:"Guardian of the Waters",category:"Aquariums",rarity:"Legendary",story:"For recording one hundred aquarium feedings.",rule:()=>Array.isArray(data.aquariums)&&data.aquariums.reduce((n,a)=>n+(a.feeds||[]).length,0)>=100},
+  {id:"aquarium-care-five",icon:"🧪",name:"Water Alchemist",category:"Aquariums",rarity:"Epic",story:"For recording care in five aquarium entries.",rule:()=>Array.isArray(data.aquariums)&&data.aquariums.filter(a=>Object.values(a.maintenance||{}).some(Boolean)).length>=5},
+
+  {id:"collector-seventyfive",icon:"🪄",name:"Grand Collector",category:"Hidden",rarity:"Legendary",story:"For discovering seventy-five treasures.",hidden:true,rule:()=>Object.values(data.treasures||{}).filter(x=>x?.collected).length>=75},
+  {id:"collector-hundred",icon:"🌟",name:"Master of the Archive",category:"Hidden",rarity:"Mythical",story:"For discovering one hundred treasures.",hidden:true,rule:()=>Object.values(data.treasures||{}).filter(x=>x?.collected).length>=100},
+  {id:"visits-ten",icon:"🚪",name:"The Door Knows You",category:"Hidden",rarity:"Uncommon",story:"For visiting the Treasure Room ten times.",hidden:true,rule:()=>Number(data.treasureRoomVisits||0)>=10},
+  {id:"visits-twohundred",icon:"🗝️",name:"Permanent Resident",category:"Hidden",rarity:"Mythical",story:"For visiting the Treasure Room two hundred times.",hidden:true,rule:()=>Number(data.treasureRoomVisits||0)>=200},
+  {id:"sunday-sanctuary",icon:"🕯️",name:"Sunday Sanctuary",category:"Hidden",rarity:"Rare",story:"For visiting LinaHub on a Sunday evening.",hidden:true,rule:()=>new Date().getDay()===0&&new Date().getHours()>=18},
+
   {id:"collector-five",icon:"🔮",name:"Curious Collector",category:"Hidden",story:"For discovering five treasures.",hidden:true,rule:()=>Object.values(data.treasures||{}).filter(x=>x?.collected).length>=5},
   {id:"collector-twelve",icon:"💎",name:"Keeper of Treasures",category:"Hidden",story:"For discovering twelve treasures.",hidden:true,rule:()=>Object.values(data.treasures||{}).filter(x=>x?.collected).length>=12},
   {id:"room-visitor",icon:"🕯️",name:"The Secret Shelf",category:"Hidden",story:"For returning to the Treasure Room again and again.",hidden:true,rule:()=>Number(data.treasureRoomVisits||0)>=20},
@@ -145,7 +181,7 @@ function TreasureRoomPage(){
       <div class="library-moon"></div>
       <div class="grand-bookcase">
         <div class="bookcase-crown"><span>✦</span><b>THE TREASURE ARCHIVE</b><span>✦</span></div>
-        ${TREASURE_SHELVES.map(category=>{const items=collected.filter(t=>t.category===category).slice(0,5);return `<button class="archive-shelf" data-shelf="${category}"><span class="shelf-label">${category}</span><span class="shelf-display">${items.map(t=>treasureTrinket(t)).join("")}${Array.from({length:Math.max(0,5-items.length)},()=>`<i class="shelf-empty"><span>✧</span></i>`).join("")}</span><span class="shelf-total">${collected.filter(t=>t.category===category).length}</span></button>`}).join("")}
+        ${TREASURE_SHELVES.map(category=>{const items=collected.filter(t=>t.category===category).slice(0,10);return `<button class="archive-shelf" data-shelf="${category}" aria-label="${category} shelf"><span class="shelf-display">${items.map(t=>treasureTrinket(t)).join("")}${Array.from({length:Math.max(0,10-items.length)},()=>`<i class="shelf-empty"><span>✧</span></i>`).join("")}</span></button>`}).join("")}
       </div>
     </section>
     ${waiting.length?`<section class="waiting-table card"><div><span class="section-kicker">New treasure discovered</span><h2>${waiting.length} waiting to be opened</h2><p>Your archive has found something new.</p></div><button class="gift-parcel" id="collectTreasure"><span>✦</span><b>Discover</b></button></section>`:""}

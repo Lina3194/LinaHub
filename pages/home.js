@@ -46,10 +46,15 @@ function homeTileStatus(id){
     return tasks.length?`${tasks.length} job${tasks.length===1?"":"s"} still to do`:"✓ House jobs complete";
   }
   if(id==="medication"){
-    const meds=data.medications||[];
-    const log=data.medicationLog?.[todayKey]||{};
-    const taken=Object.values(log).filter(Boolean).length;
-    const remaining=Math.max(0,meds.length-taken);
+    const shortDay=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date(`${todayKey}T12:00:00`).getDay()];
+    let remaining=0;
+    (data.medications||[]).forEach(m=>{
+      const active=m.active!==false&&(!m.startDate||todayKey>=m.startDate)&&(!m.endDate||todayKey<=m.endDate);
+      const due=active&&(m.scheduleType==="daily"||(m.scheduleType==="weekdays"&&(m.weekdays||[]).includes(shortDay)));
+      if(!due)return;
+      const taken=(data.medicationHistory||[]).filter(x=>x.medId===m.id&&x.date===todayKey).length;
+      remaining+=Math.max(0,(Number(m.dosesPerDay)||1)-taken);
+    });
     return remaining?`💊 ${remaining} dose${remaining===1?"":"s"} left today`:"✓ Medication complete";
   }
   if(id==="budget"){

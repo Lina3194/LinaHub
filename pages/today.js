@@ -24,8 +24,9 @@ function getTodayItems(){
   (data.medications||[]).forEach(m=>{
     const active=m.active!==false && (!m.startDate||todayValue>=m.startDate) && (!m.endDate||todayValue<=m.endDate);
     const due=active && (m.scheduleType==="daily" || (m.scheduleType==="weekdays"&&(m.weekdays||[]).includes(shortDay)));
-    const taken=(data.medicationHistory||[]).some(log=>log.medId===m.id&&log.date===todayValue);
-    if(due&&!taken) items.push({emoji:"💊",title:`Take ${m.name}`,detail:[m.dose,m.time].filter(Boolean).join(" · "),route:"medication",kind:"Medication"});
+    const taken=(data.medicationHistory||[]).filter(log=>log.medId===m.id&&log.date===todayValue).length;
+    const required=Math.max(1,Number(m.dosesPerDay)||1);
+    if(due&&taken<required) items.push({emoji:"💊",title:`Take ${m.name}`,detail:[m.dose,m.time,required>1?`${taken} of ${required} taken`:null].filter(Boolean).join(" · "),route:"medication",kind:"Medication"});
   });
 
   (data.houseTasks||[]).forEach(t=>{

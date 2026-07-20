@@ -19,7 +19,8 @@ function ensureMedicationData(){
     scheduleType:m.scheduleType||((m.time||"").toLowerCase()==="as needed"?"prn":"daily"),
     weekdays:Array.isArray(m.weekdays)?m.weekdays:[],time:/^\d{2}:\d{2}$/.test(m.time||"")?m.time:"",
     timeLabel:!/^\d{2}:\d{2}$/.test(m.time||"")&&m.time!=="As needed"?(m.time||""):"",
-    startDate:m.startDate||"",endDate:m.endDate||"",photo:m.photo||"",notes:m.notes||"",active:m.active!==false
+    startDate:m.startDate||"",endDate:m.endDate||"",photo:m.photo||"",notes:m.notes||"",active:m.active!==false,
+    dosesPerDay:Math.max(1,Number(m.dosesPerDay)||1)
   }));
   // Convert the original one-check-per-day format into proper history once.
   if(!data.medicationHistoryMigrated && data.medicationLog && typeof data.medicationLog==="object"){
@@ -56,26 +57,30 @@ function medPhoto(m,large=false){
 }
 function medicationTodayTab(){
   const selected=data.medicationView.date||medLocalDate();
-  const meds=data.medications.filter(m=>medDueOn(m,selected));
+  const scheduled=data.medications.filter(m=>medDueOn(m,selected));
+  const meds=scheduled.filter(m=>m.scheduleType==="prn"||medLogsFor(m.id,selected).length<m.dosesPerDay);
+  const completed=scheduled.filter(m=>m.scheduleType!=="prn"&&medLogsFor(m.id,selected).length>=m.dosesPerDay);
   return `<section class="med-date-card card">
     <div><span class="section-kicker">📅 Selected day</span><h2>${medDateLabel(selected)}</h2></div>
     <input class="field med-day-picker" id="medSelectedDate" type="date" value="${esc(selected)}">
   </section>
   <section class="med-dose-list">
     ${meds.length?meds.map(m=>{
-      const logs=medLogsFor(m.id,selected),defaultTime=m.time||medNowTime();
+      const logs=medLogsFor(m.id,selected),defaultTime=m.time||medNowTime(),remaining=Math.max(0,m.dosesPerDay-logs.length);
+      const status=m.scheduleType==="prn"?(logs.length?`${logs.length} taken today`:"As needed"):`${logs.length} of ${m.dosesPerDay} taken`;
       return `<article class="card med-dose-card">
-        <div class="med-card-head">${medPhoto(m)}<div><h2>${esc(m.name)}</h2><p>${esc([m.dose,m.time||m.timeLabel,m.scheduleType==="prn"?"As needed":""].filter(Boolean).join(" · "))}</p></div><span class="med-status ${logs.length?"taken":"due"}">${logs.length?`✓ ${logs.length>1?`${logs.length} doses`:`Taken`}`:(m.scheduleType==="prn"?"As needed":"Due")}</span><button class="mini med-edit-existing" type="button" data-med-edit-today="${esc(m.id)}">Edit</button></div>
+        <div class="med-card-head">${medPhoto(m)}<div><h2>${esc(m.name)}</h2><p>${esc([m.dose,m.time||m.timeLabel,m.scheduleType==="prn"?"As needed":`${m.dosesPerDay} ${m.dosesPerDay===1?"dose":"doses"} daily`].filter(Boolean).join(" · "))}</p></div><span class="med-status ${logs.length?"taken":"due"}">${esc(status)}</span><button class="mini med-edit-existing" type="button" data-med-edit-today="${esc(m.id)}">Edit</button></div>
         ${m.instructions?`<p class="med-instructions">${esc(m.instructions)}</p>`:""}
-        ${logs.length?`<div class="med-taken-list">${logs.map(log=>`<div><span>✓ Taken ${log.time?`at ${esc(log.time)}`:""}</span><button class="mini" data-med-log-edit="${esc(log.id)}">Edit</button></div>`).join("")}</div>`:""}
+        ${logs.length?`<div class="med-taken-list">${logs.map(log=>`<div><span>✓ Taken ${log.time?`at ${esc(log.time)}`:""}</span><span class="med-log-actions"><button class="mini" data-med-log-edit="${esc(log.id)}">Edit</button><button class="mini danger" data-med-log-delete="${esc(log.id)}" aria-label="Delete dose">×</button></span></div>`).join("")}</div>`:""}
         <div class="med-mark-row">
           <label class="med-dose-field"><span>Date taken</span><input class="field" id="doseDate-${m.id}" type="date" value="${esc(selected)}" aria-label="Dose date"></label>
           <label class="med-dose-field"><span>Time taken</span><input class="field" id="doseTime-${m.id}" type="time" value="${esc(defaultTime)}" aria-label="Dose time"></label>
-          <button class="primary med-taken-button" data-med-take="${esc(m.id)}">✓ Mark taken</button>
+          <button class="primary med-taken-button" data-med-take="${esc(m.id)}">✓ Mark ${m.scheduleType==="prn"?"taken":remaining===1?"final dose":"next dose"}</button>
         </div>
       </article>`;
-    }).join(""):`<section class="card empty"><h2>Nothing scheduled</h2><p>No medication is due on this day. As-needed medication will still appear here.</p></section>`}
-  </section>`;
+    }).join(""):`<section class="card empty"><h2>All medication completed</h2><p>${scheduled.length?"Everything scheduled for this day has been taken.":"No medication is scheduled on this day."}</p></section>`}
+  </section>
+  ${completed.length?`<details class="card med-completed"><summary>Completed today · ${completed.length}</summary><div>${completed.map(m=>`<div class="med-completed-row">${medPhoto(m)}<span><strong>${esc(m.name)}</strong><small>${medLogsFor(m.id,selected).length} of ${m.dosesPerDay} taken</small></span><button class="mini" data-med-open-history="${esc(m.id)}">View doses</button></div>`).join("")}</div></details>`:""}`;
 }
 function medicationScheduleTab(){
   const meds=data.medications;
@@ -91,6 +96,7 @@ function medicationScheduleTab(){
     <div class="form-grid">
       <input class="field" id="medName" placeholder="Medication name">
       <div class="two-col"><input class="field" id="medDose" placeholder="Dose, e.g. 25 mg"><input class="field" id="medTime" type="time" aria-label="Usual time"></div>
+      <label class="field-label">Times taken per day<input class="field" id="medDosesPerDay" type="number" min="1" max="12" step="1" value="1"></label>
       <input class="field" id="medInstructions" placeholder="Instructions, e.g. take with food">
       <select class="field" id="medScheduleType"><option value="daily">Every day</option><option value="weekdays">Every week on selected days</option><option value="prn">As needed (PRN)</option></select>
       <div class="med-weekdays hidden" id="medWeekdays">${MED_WEEKDAYS.map(day=>`<label><input type="checkbox" value="${day}"><span>${day}</span></label>`).join("")}</div>
@@ -100,7 +106,7 @@ function medicationScheduleTab(){
     </div>
   </section>
   <section class="card"><div class="section-title"><div><span class="section-kicker">💊 Your list</span><h2>Current and future medication</h2></div></div>
-    <div class="med-schedule-list">${meds.length?meds.map(m=>`<div class="med-schedule-row">${medPhoto(m)}<div><strong>${esc(m.name)}</strong><small>${esc([m.dose,m.scheduleType==="daily"?"Daily":m.scheduleType==="prn"?"As needed":m.weekdays.join(", "),m.time,m.startDate?`from ${medDateLabel(m.startDate)}`:"",m.endDate?`until ${medDateLabel(m.endDate)}`:""].filter(Boolean).join(" · "))}</small></div><button class="mini" data-med-edit="${esc(m.id)}">Edit</button><button class="mini danger" data-med-delete="${esc(m.id)}">×</button></div>`).join(""):`<p>No medications added yet.</p>`}</div>
+    <div class="med-schedule-list">${meds.length?meds.map(m=>`<div class="med-schedule-row">${medPhoto(m)}<div><strong>${esc(m.name)}</strong><small>${esc([m.dose,m.scheduleType==="daily"?"Daily":m.scheduleType==="prn"?"As needed":m.weekdays.join(", "),m.scheduleType!=="prn"?`${m.dosesPerDay} ${m.dosesPerDay===1?"dose":"doses"} per day`:"",m.time,m.startDate?`from ${medDateLabel(m.startDate)}`:"",m.endDate?`until ${medDateLabel(m.endDate)}`:""].filter(Boolean).join(" · "))}</small></div><button class="mini" data-med-edit="${esc(m.id)}">Edit</button><button class="mini danger" data-med-delete="${esc(m.id)}">×</button></div>`).join(""):`<p>No medications added yet.</p>`}</div>
   </section>`;
 }
 function medicationHistoryTab(){
@@ -143,6 +149,7 @@ function medFillForm(m){
   document.querySelector("#medDose").value=m.dose;
   document.querySelector("#medTime").value=m.time;
   document.querySelector("#medInstructions").value=m.instructions;
+  document.querySelector("#medDosesPerDay").value=m.dosesPerDay||1;
   document.querySelector("#medScheduleType").value=m.scheduleType;
   document.querySelector("#medStartDate").value=m.startDate;
   document.querySelector("#medEndDate").value=m.endDate;
@@ -185,7 +192,8 @@ function bindMedication(){
   document.querySelector("#saveMedication")?.addEventListener("click",()=>{
     const name=document.querySelector("#medName").value.trim(),scheduleType=document.querySelector("#medScheduleType").value,weekdays=[...document.querySelectorAll("#medWeekdays input:checked")].map(x=>x.value);
     if(!name){toast("Add the medication name");return}if(scheduleType==="weekdays"&&!weekdays.length){toast("Select at least one day");return}
-    const med={id:document.querySelector("#medEditId").value||medUid(),name,dose:document.querySelector("#medDose").value.trim(),instructions:document.querySelector("#medInstructions").value.trim(),scheduleType,weekdays,time:document.querySelector("#medTime").value,startDate:document.querySelector("#medStartDate").value,endDate:document.querySelector("#medEndDate").value,photo:document.querySelector("#medPhotoData").value,notes:document.querySelector("#medNotes").value.trim(),active:true};
+    const dosesPerDay=Math.max(1,Math.min(12,Number(document.querySelector("#medDosesPerDay").value)||1));
+    const med={id:document.querySelector("#medEditId").value||medUid(),name,dose:document.querySelector("#medDose").value.trim(),instructions:document.querySelector("#medInstructions").value.trim(),scheduleType,weekdays,time:document.querySelector("#medTime").value,startDate:document.querySelector("#medStartDate").value,endDate:document.querySelector("#medEndDate").value,photo:document.querySelector("#medPhotoData").value,notes:document.querySelector("#medNotes").value.trim(),active:true,dosesPerDay};
     const existing=data.medications.findIndex(x=>x.id===med.id);if(existing>=0)data.medications[existing]=med;else data.medications.push(med);data.medicationView.tab="today";data.medicationView.date=medLocalDate();medicationDateTouched=false;saveData();render();toast(existing>=0?"Medication updated":"Medication added");
   });
   document.querySelector("#cancelMedEdit")?.addEventListener("click",()=>render());
@@ -194,5 +202,6 @@ function bindMedication(){
   document.querySelectorAll("[data-med-delete]").forEach(b=>b.onclick=()=>{const m=data.medications.find(x=>x.id===b.dataset.medDelete);if(!m||!confirm(`Remove ${m.name}? Its dose history will be kept.`))return;data.medications=data.medications.filter(x=>x.id!==m.id);saveData();render()});
   document.querySelector("#medHistoryFilter")?.addEventListener("change",e=>{data.medicationView.historyMed=e.target.value;saveData();render()});
   document.querySelectorAll("[data-med-log-edit]").forEach(b=>b.onclick=()=>{const log=data.medicationHistory.find(x=>x.id===b.dataset.medLogEdit);if(log)medEditLog(log)});
+  document.querySelectorAll("[data-med-open-history]").forEach(b=>b.onclick=()=>{data.medicationView.tab="history";data.medicationView.historyMed=b.dataset.medOpenHistory;saveData();render()});
   document.querySelectorAll("[data-med-log-delete]").forEach(b=>b.onclick=()=>{if(!confirm("Delete this dose record?"))return;data.medicationHistory=data.medicationHistory.filter(x=>x.id!==b.dataset.medLogDelete);saveData();render()});
 }

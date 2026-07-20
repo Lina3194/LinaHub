@@ -415,3 +415,27 @@ body[data-route="budget"] .budget-bill-item{border-radius:15px}
   .med-mark-row .med-taken-button{grid-column:auto}
   .med-dose-field{width:100%}
 }
+
+/* v16.23 medication dose counting and narrow-phone containment */
+body[data-route="medication"] .content,body[data-route="medication"] .med-page,body[data-route="medication"] .card{min-width:0;max-width:100%;box-sizing:border-box}
+body[data-route="medication"] .med-dose-card{overflow:hidden}
+.med-card-head>div{min-width:0}.med-card-head h2,.med-card-head p{overflow-wrap:anywhere}
+.med-log-actions{display:flex;gap:6px;flex:0 0 auto}
+.med-taken-list>div>span:first-child{min-width:0;overflow-wrap:anywhere}
+.med-completed summary{cursor:pointer;font-weight:850}.med-completed>div{display:grid;gap:8px;margin-top:12px}
+.med-completed-row{display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:10px;padding:8px;border:1px solid var(--line);border-radius:14px}.med-completed-row strong,.med-completed-row small{display:block}.med-completed-row small{color:var(--muted);margin-top:2px}
+@media(max-width:600px){
+  .med-card-head{grid-template-columns:48px minmax(0,1fr) auto!important;gap:9px}
+  .med-card-head .med-status{grid-column:2/3!important;grid-row:2;width:max-content;max-width:100%;white-space:normal}
+  .med-card-head .med-edit-existing{grid-column:3!important;grid-row:1/3!important;align-self:center}
+  .med-mark-row{grid-template-columns:1fr!important}
+  .med-mark-row .med-taken-button{grid-column:auto!important}
+  .med-dose-field .field{width:100%!important;max-width:100%!important;height:38px!important;min-height:38px!important;font-size:.76rem!important;padding:5px 7px!important}
+  .med-taken-list>div{gap:8px;align-items:flex-start}
+}
+@media(max-width:380px){
+  .med-card-head{grid-template-columns:44px minmax(0,1fr)!important}
+  .med-card-head .med-edit-existing{grid-column:2!important;grid-row:3!important;justify-self:start}
+  .med-card-head .med-status{grid-column:1/-1!important;grid-row:4!important}
+  .med-completed-row{grid-template-columns:auto 1fr}.med-completed-row button{grid-column:2}
+}

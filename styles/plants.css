@@ -129,3 +129,13 @@ body.dark .encyclopedia-card,body.dark .plant-main-tabs button{background:#10121
   .plant-tile-art{aspect-ratio:1/1}
   .plant-photo-large{aspect-ratio:1/1;max-height:72vw}
 }
+
+/* v16.23 garden photos: compact, filled frames */
+.plant-tile-art{aspect-ratio:4/3!important;height:auto!important;max-height:none!important}
+.plant-tile-art img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;background:transparent!important}
+.plant-photo-large{aspect-ratio:16/9!important;max-height:320px!important}
+.plant-photo-large img{width:100%!important;height:100%!important;object-fit:cover!important;object-position:center!important;background:transparent!important}
+@media(max-width:480px){
+  .plant-photo-large{aspect-ratio:16/9!important;max-height:240px!important}
+  .plant-tile-art{aspect-ratio:4/3!important}
+}

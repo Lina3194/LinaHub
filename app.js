@@ -21,6 +21,7 @@ function render(){
     tank:AquariumTankPage,
     house:HousePage,
     period:PeriodPage,
+    budget:BudgetPage,
     treasures:TreasureRoomPage
   };
 
@@ -62,6 +63,7 @@ function render(){
   if(route==="health") bindHealth();
   if(route==="settings") bindSimple();
   if(route==="period") bindPeriod();
+  if(route==="budget") bindBudget();
   if(route==="treasures") bindTreasures();
   if(route==="pets"||route==="tank") bindAquariums();
 }
@@ -248,7 +250,7 @@ setupSwipeBack();
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=160",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1611",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

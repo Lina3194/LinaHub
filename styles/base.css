@@ -1198,3 +1198,6 @@ body:not(.dark)[data-color-theme="clouds"]{--theme-bg-a:#f3fbfe;--theme-bg-b:#dc
 body:not(.dark)[data-color-theme="marble"]{--theme-bg-a:#fff7fb;--theme-bg-b:#f3dce9;--theme-bg-c:#fffafd;--theme-card-b:rgba(255,246,251,.95)}
 
 @media(max-width:420px){.theme-choice-grid{grid-template-columns:1fr 1fr}.theme-choice{padding:9px;gap:8px}.theme-swatch{width:28px;height:28px;flex-basis:28px}.theme-choice strong{font-size:.83rem}}
+
+/* Prevent iPhone Safari zooming when adding or editing jobs and other form data. */
+@media (max-width: 820px){input,textarea,select{font-size:16px!important}}

@@ -1,5 +1,5 @@
 function ensureHomeLayout(){
-  const defaults=["journal","health","plants","medication","pokemon","pets","house","period","treasures"];
+  const defaults=["journal","health","plants","medication","pokemon","pets","house","period","budget","treasures"];
   if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
   const seen=new Set();
   data.homeLayout=data.homeLayout.filter(item=>{
@@ -19,6 +19,7 @@ const HOME_TILE_INFO={
   pets:["Aquariums","Girls and boys tanks","🐠"],
   house:["House","Rooms and recurring tasks","🏡"],
   period:["Period Tracker","Cycles, symptoms and history","🌸"],
+  budget:["Budget & Bills","Track bills, income and spending","💷"],
   treasures:["Treasure Room","Your collected memories","✨"]
 };
 

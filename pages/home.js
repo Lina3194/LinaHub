@@ -1,86 +1,83 @@
-
-function localEntryTimestamp(){
-  const now=new Date();
-  const pad=n=>String(n).padStart(2,"0");
-  return {
-    date:`${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())}`,
-    time:`${pad(now.getHours())}:${pad(now.getMinutes())}`,
-    createdAt:now.toISOString()
-  };
-}
-function entryTimeLabel(entry){
-  if(entry.time) return entry.time;
-  if(entry.createdAt){
-    const d=new Date(entry.createdAt);
-    if(!Number.isNaN(d.getTime())){
-      return d.toLocaleTimeString([], {hour:"2-digit",minute:"2-digit",hour12:false});
-    }
-  }
-  return "";
+function ensureHomeLayout(){
+  const defaults=["journal","health","plants","medication","pokemon","pets","house","period","settings","treasures"];
+  if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
+  const seen=new Set();
+  data.homeLayout=data.homeLayout.filter(item=>{
+    const id=typeof item==="string"?item:item?.id;
+    if(!defaults.includes(id)||seen.has(id)) return false;
+    seen.add(id); return true;
+  }).map(item=>typeof item==="string"?{id:item,size:item==="treasures"?"wide":"medium"}:{id:item.id,size:["small","medium","wide","large"].includes(item.size)?item.size:"medium"});
+  defaults.forEach(id=>{if(!seen.has(id)) data.homeLayout.push({id,size:id==="treasures"?"wide":"medium"})});
 }
 
+const HOME_TILE_INFO={
+  journal:["Daily Check-in","Pain, energy, sleep and your day","📖"],
+  health:["Weight & Measures","Track weight and measurements","⚖️"],
+  plants:["Plants","Care and watering","🌿"],
+  medication:["Medication","Doses and routines","💊"],
+  pokemon:["Pokémon GO","Friendship, Vivillon and gifts",""],
+  pets:["Aquariums","Girls and boys tanks","🐠"],
+  house:["House","Rooms and recurring tasks","🏡"],
+  period:["Period Tracker","Cycles, symptoms and history","🌸"],
+  settings:["Settings","Theme, pictures and backup","⚙️"],
+  treasures:["Treasure Room","Your collected memories","✨"]
+};
+
+function homeTile(item,editing){
+  const [title,subtitle,fallback]=HOME_TILE_INFO[item.id];
+  const art=data.homeImages?.[item.id]
+    ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
+    : item.id==="pokemon"
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=156" alt="Poké Ball"></span>`
+      : `<span class="emoji">${data.homeIcons?.[item.id]||fallback}</span>`;
+  return `<article class="home-tile-wrap size-${item.size}" draggable="${editing}" data-home-id="${item.id}">
+    <button type="button" class="module module-${item.id}" ${editing?'tabindex="-1"':`data-route="${item.id}"`}>${art}<strong>${title}</strong><small>${subtitle}</small></button>
+    ${editing?`<div class="tile-edit-controls">
+      <button type="button" class="tile-move" data-move="back" aria-label="Move ${title} earlier">‹</button>
+      <button type="button" class="tile-drag" aria-label="Drag ${title}">Move</button>
+      <button type="button" class="tile-size" data-size-tile="${item.id}">${item.size}</button>
+      <button type="button" class="tile-move" data-move="forward" aria-label="Move ${title} later">›</button>
+    </div>`:""}
+  </article>`;
+}
 
 function HomePage(){
+  ensureHomeLayout();
   const d=new Date();
   const hour=d.getHours();
   const greeting=hour<12?"Good morning":hour<18?"Good afternoon":"Good evening";
-  const weekday=d.toLocaleDateString("en-GB",{weekday:"long"});
-  const due=[];
-
-  if(weekday==="Thursday") due.push({emoji:"♻️",text:"Put recycling out",route:"house"});
-  const tanksNeedingFeed=(data.aquariums||[]).filter(tank=>!tankFeedToday(tank));
-  if(tanksNeedingFeed.length){
-    due.push({
-      emoji:"🐠",
-      text:tanksNeedingFeed.length===(data.aquariums||[]).length
-        ?"Feed both fish tanks"
-        :`Feed ${tanksNeedingFeed.map(t=>t.name).join(" & ")}`,
-      route:"pets"
-    });
-  }
-  if(data.checkins[today()]) due.push({emoji:"💜",text:"Today’s check-in saved",route:"journal"});
-
+  const editing=!!data.homeEditing;
   return shell(`
     <section class="hero">
       <div class="hero-row">
-        <div>
-          <div class="eyebrow">LinaHub</div>
-          <h1>${greeting},<br>Lina ✨</h1>
-          <p>A gentle overview of what needs your attention today.</p>
-        </div>
-        <button class="theme-btn" id="themeToggle">${data.theme==="dark"?"☀️":"🌙"}</button>
+        <div><div class="eyebrow">LinaHub</div><h1>${greeting},<br>Lina ✨</h1><p>A gentle overview of everything in your little hub.</p></div>
+        <div class="home-head-actions"><button class="secondary home-edit-toggle" id="homeEditToggle">${editing?"Done":"Arrange"}</button><button class="theme-btn" id="themeToggle">${data.theme==="dark"?"☀️":"🌙"}</button></div>
       </div>
+      ${editing?`<p class="home-edit-help">Drag tiles, use the arrows, and tap the size button to cycle through Small, Medium, Wide and Large.</p>`:""}
     </section>
-
-    <div class="grid">
-      ${[
-        [data.homeIcons?.journal||"📖","Daily Check-in","Pain, energy, sleep and your day","journal"],
-        [data.homeIcons?.health||"⚖️","Weight & Measures","Track weight and measurements","health"],
-        [data.homeIcons?.plants||"🌿","Plants","Care and watering","plants"],
-        [data.homeIcons?.medication||"💊","Medication","Doses and routines","medication"],
-        ["","Pokémon GO","Friendship, Vivillon and gifts","pokemon"],
-        [data.homeIcons?.pets||"🐠","Aquariums","Girls and boys tanks","pets"],
-        [data.homeIcons?.house||"🏡","House","Rooms and recurring tasks","house"],
-        [data.homeIcons?.settings||"⚙️","Settings","Theme and backup","settings"]
-      ].map(x=>`<button type="button" class="module module-${x[3]}" data-route="${x[3]}">${
-        data.homeImages?.[x[3]]
-          ? `<span class="module-image"><img src="${data.homeImages[x[3]]}" alt=""></span>`
-          : x[3]==="pokemon"
-            ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=110" alt="Poké Ball"></span>`
-            : `<span class="emoji">${x[0]}</span>`
-      }<strong>${x[1]}</strong><small>${x[2]}</small></button>`).join("")}
-    </div>
-
-    <section class="card" style="margin-top:14px">
-      <button class="today-heading" data-route="today"><span><h2>Today’s</h2><small>Open your full task list</small></span><b>›</b></button>
-      <div class="today-list">
-        ${due.map(item=>`<button class="reminder" data-route="${item.route}"><b>${item.emoji}</b><span>${item.text}</span></button>`).join("")}
-      </div>
-    </section>
+    <div class="grid home-layout ${editing?"editing":""}">${data.homeLayout.map(item=>homeTile(item,editing)).join("")}</div>
   `,"home");
 }
 
 function bindHome(){
-  const toggle=document.querySelector("#themeToggle");
-  if(toggle) toggle.onclick=()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()};
+  document.querySelector("#themeToggle")?.addEventListener("click",()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()});
+  document.querySelector("#homeEditToggle")?.addEventListener("click",()=>{data.homeEditing=!data.homeEditing;saveData();render()});
+  if(!data.homeEditing) return;
+  const saveRender=()=>{saveData();render()};
+  document.querySelectorAll("[data-size-tile]").forEach(btn=>btn.addEventListener("click",()=>{
+    const order=["small","medium","wide","large"], item=data.homeLayout.find(x=>x.id===btn.dataset.sizeTile);
+    if(item){item.size=order[(order.indexOf(item.size)+1)%order.length];saveRender()}
+  }));
+  document.querySelectorAll(".home-tile-wrap").forEach(tile=>{
+    tile.querySelectorAll("[data-move]").forEach(btn=>btn.addEventListener("click",()=>{
+      const i=data.homeLayout.findIndex(x=>x.id===tile.dataset.homeId); const step=btn.dataset.move==="back"?-1:1; const j=i+step;
+      if(i<0||j<0||j>=data.homeLayout.length)return;
+      [data.homeLayout[i],data.homeLayout[j]]=[data.homeLayout[j],data.homeLayout[i]];saveRender();
+    }));
+    tile.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",tile.dataset.homeId);tile.classList.add("dragging")});
+    tile.addEventListener("dragend",()=>tile.classList.remove("dragging"));
+    tile.addEventListener("dragover",e=>{e.preventDefault();tile.classList.add("drag-over")});
+    tile.addEventListener("dragleave",()=>tile.classList.remove("drag-over"));
+    tile.addEventListener("drop",e=>{e.preventDefault();tile.classList.remove("drag-over");const from=e.dataTransfer.getData("text/plain"),to=tile.dataset.homeId;if(!from||from===to)return;const fi=data.homeLayout.findIndex(x=>x.id===from),ti=data.homeLayout.findIndex(x=>x.id===to);const [moved]=data.homeLayout.splice(fi,1);data.homeLayout.splice(ti,0,moved);saveRender()});
+  });
 }

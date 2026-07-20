@@ -17,7 +17,7 @@ const CLOUD_MODULES={
   medication:["medications","medicationLog"],
   health:["weightEntries","measurements","healthPromptLog"],
   todo:["personalTasks"],
-  settings:["theme","homeIcons","homeImages","moduleBanners","v9CollapseDefaultsApplied"],
+  settings:["theme","homeIcons","homeImages","homeLayout","treasures","favoriteTreasures","moduleBanners","v9CollapseDefaultsApplied"],
   misc:["version"]
 };
 

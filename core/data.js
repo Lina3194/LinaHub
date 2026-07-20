@@ -14,9 +14,17 @@ const DEFAULT_DATA={
   journalTrendPeriod:"week",
   homeIcons:{
     journal:"📖",health:"⚖️",plants:"🌿",medication:"💊",
-    pokemon:"🔴",pets:"🐠",house:"🏡",settings:"⚙️"
+    pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",treasures:"✨",settings:"⚙️"
   },
   homeImages:{},
+  homeLayout:[
+    {id:"journal",size:"medium"},{id:"health",size:"medium"},{id:"plants",size:"medium"},{id:"medication",size:"medium"},
+    {id:"pokemon",size:"medium"},{id:"pets",size:"medium"},{id:"house",size:"medium"},{id:"period",size:"medium"},{id:"settings",size:"medium"},{id:"treasures",size:"wide"}
+  ],
+  homeEditing:false,
+  treasures:{},
+  favoriteTreasures:[],
+  periodEntries:{},periodCycles:[],periodOptions:[],periodSelectedDate:"",periodCalendarMonth:"",periodEditOptions:false,
   moduleBanners:{},
   checkinHidden:[],
   selfCareOptions:["Rest","Reading","Exercises","Warmth","Good food","Fresh air","Music","Gaming","Hobbies"],

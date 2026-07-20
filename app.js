@@ -18,7 +18,9 @@ function render(){
     pokemon:PokemonPage,
     pets:AquariumsPage,
     tank:AquariumTankPage,
-    house:HousePage
+    house:HousePage,
+    period:PeriodPage,
+    treasures:TreasureRoomPage
   };
 
   const pageFactory=pages[route]||HomePage;
@@ -58,6 +60,8 @@ function render(){
   if(route==="medication") bindMedication();
   if(route==="health") bindHealth();
   if(route==="settings") bindSimple();
+  if(route==="period") bindPeriod();
+  if(route==="treasures") bindTreasures();
   if(route==="pets"||route==="tank") bindAquariums();
 }
 

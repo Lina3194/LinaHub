@@ -1,4 +1,4 @@
-const CACHE="linahub-v16-11-budget-no-zoom";
+const CACHE="linahub-v16-17-targeted-fixes";
 const ASSETS=[
 "./","./index.html","./app.js?v=1616","./manifest.webmanifest?v=1616",
 "./core/pokemon-seed.js?v=1616","./core/data.js?v=1616","./core/router.js?v=1616","./core/cloud.js?v=1616",

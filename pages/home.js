@@ -24,7 +24,7 @@ const HOME_TILE_INFO={
   pets:["Aquariums","Girls and boys tanks","🐠"],
   house:["House","Rooms and recurring tasks","🏡"],
   period:["Period Tracker","Cycles, symptoms and history","🌸"],
-  budget:["Budget & Bills","Track bills, income and spending","💷"],
+  budget:["Budget & Bills","","💷"],
   treasures:["Treasure Room","Your collected memories","✨"]
 };
 
@@ -80,7 +80,7 @@ function homeTileStatus(id){
     return entries?`${entries} day${entries===1?"":"s"} tracked`:"Add today's cycle details";
   }
   if(id==="treasures"){
-    const unlocked=Object.values(data.treasures||{}).filter(Boolean).length;
+    const unlocked=typeof collectedTreasures==="function"?collectedTreasures().length:Object.values(data.treasures||{}).filter(x=>x?.collected).length;
     return `${unlocked} treasure${unlocked===1?"":"s"} discovered`;
   }
   return "";

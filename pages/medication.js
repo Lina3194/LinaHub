@@ -65,7 +65,7 @@ function medicationTodayTab(){
     ${meds.length?meds.map(m=>{
       const logs=medLogsFor(m.id,selected),defaultTime=m.time||medNowTime();
       return `<article class="card med-dose-card">
-        <div class="med-card-head">${medPhoto(m)}<div><h2>${esc(m.name)}</h2><p>${esc([m.dose,m.time||m.timeLabel,m.scheduleType==="prn"?"As needed":""].filter(Boolean).join(" · "))}</p></div><span class="med-status ${logs.length?"taken":"due"}">${logs.length?`✓ ${logs.length>1?`${logs.length} doses`:`Taken`}`:(m.scheduleType==="prn"?"As needed":"Due")}</span></div>
+        <div class="med-card-head">${medPhoto(m)}<div><h2>${esc(m.name)}</h2><p>${esc([m.dose,m.time||m.timeLabel,m.scheduleType==="prn"?"As needed":""].filter(Boolean).join(" · "))}</p></div><span class="med-status ${logs.length?"taken":"due"}">${logs.length?`✓ ${logs.length>1?`${logs.length} doses`:`Taken`}`:(m.scheduleType==="prn"?"As needed":"Due")}</span><button class="mini med-edit-existing" type="button" data-med-edit-today="${esc(m.id)}">Edit</button></div>
         ${m.instructions?`<p class="med-instructions">${esc(m.instructions)}</p>`:""}
         ${logs.length?`<div class="med-taken-list">${logs.map(log=>`<div><span>✓ Taken ${log.time?`at ${esc(log.time)}`:""}</span><button class="mini" data-med-log-edit="${esc(log.id)}">Edit</button></div>`).join("")}</div>`:""}
         <div class="med-mark-row">
@@ -190,6 +190,7 @@ function bindMedication(){
   });
   document.querySelector("#cancelMedEdit")?.addEventListener("click",()=>render());
   document.querySelectorAll("[data-med-edit]").forEach(b=>b.onclick=()=>{const m=data.medications.find(x=>x.id===b.dataset.medEdit);if(m)medFillForm(m)});
+  document.querySelectorAll("[data-med-edit-today]").forEach(b=>b.onclick=()=>{const id=b.dataset.medEditToday;data.medicationView.tab="schedule";saveData();render();requestAnimationFrame(()=>{const m=data.medications.find(x=>x.id===id);if(m)medFillForm(m)})});
   document.querySelectorAll("[data-med-delete]").forEach(b=>b.onclick=()=>{const m=data.medications.find(x=>x.id===b.dataset.medDelete);if(!m||!confirm(`Remove ${m.name}? Its dose history will be kept.`))return;data.medications=data.medications.filter(x=>x.id!==m.id);saveData();render()});
   document.querySelector("#medHistoryFilter")?.addEventListener("change",e=>{data.medicationView.historyMed=e.target.value;saveData();render()});
   document.querySelectorAll("[data-med-log-edit]").forEach(b=>b.onclick=()=>{const log=data.medicationHistory.find(x=>x.id===b.dataset.medLogEdit);if(log)medEditLog(log)});

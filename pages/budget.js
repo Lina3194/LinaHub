@@ -87,8 +87,14 @@ function bindBudget(){
   });
 
   document.querySelectorAll("[data-bill-id] .bill-paid-toggle").forEach(btn=>btn.addEventListener("click",()=>{
-    const id=btn.closest("[data-bill-id]")?.dataset.billId; const bill=data.bills.find(x=>x.id===id); if(!bill)return;
-    bill.paid=!bill.paid; saveData(); render();
+    const row=btn.closest("[data-bill-id]");
+    const id=row?.dataset.billId; const bill=data.bills.find(x=>x.id===id); if(!bill)return;
+    bill.paid=!bill.paid;
+    row?.classList.toggle("is-paid",bill.paid);
+    btn.textContent=bill.paid?"✓":"";
+    btn.setAttribute("aria-label",bill.paid?"Mark unpaid":"Mark paid");
+    saveData();
+    requestAnimationFrame(()=>render());
   }));
   document.querySelectorAll("[data-delete-bill]").forEach(btn=>btn.addEventListener("click",()=>{data.bills=data.bills.filter(x=>x.id!==btn.dataset.deleteBill);saveData();render()}));
   document.querySelectorAll("[data-delete-entry]").forEach(btn=>btn.addEventListener("click",()=>{data.budgetEntries=data.budgetEntries.filter(x=>x.id!==btn.dataset.deleteEntry);saveData();render()}));

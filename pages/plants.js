@@ -87,18 +87,26 @@ function PlantTile(p){
       <div class="plant-tile-art">${p.photo?`<img src="${p.photo}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div>
       <div class="plant-tile-copy"><h2>${esc(p.name)}</h2><p>${p.lastWatered?`Watered ${esc(formatDate(p.lastWatered))}`:"Not watered yet"}</p><em class="status-chip ${s.className}">${s.icon} ${s.text}</em></div>
     </button>
-    <button type="button" class="plant-quick-water ${p.lastWatered===today()?"watered-today":""}" data-quick-water="${esc(p.id)}" aria-label="${p.lastWatered===today()?"Watered today":"Mark as watered today"}" title="${p.lastWatered===today()?"Watered today":"Mark as watered today"}">💧</button>
+    <button type="button" class="plant-quick-water ${p.lastWatered===today()?"watered-today":""}" data-quick-water="${esc(p.id)}" aria-label="${p.lastWatered===today()?"Watered today":"Mark as watered today"}" title="${p.lastWatered===today()?"Watered today":"Mark as watered today"}">${p.lastWatered===today()?"✓":"💧"}</button>
   </article>`;
 }
 function quickWaterPlant(id){
   const p=data.plants.find(x=>x.id===id);if(!p)return;
+  const button=document.querySelector(`[data-quick-water="${CSS.escape(id)}"]`);
+  if(button){
+    button.classList.add("watered-today");
+    button.textContent="✓";
+    button.setAttribute("aria-label","Watered today");
+    button.setAttribute("title","Watered today");
+    button.disabled=true;
+  }
   p.history=Array.isArray(p.history)?p.history:[];
   const date=today();
   if(!p.history.includes(date))p.history.push(date);
   p.history.sort();p.lastWatered=date;saveData();
   const current=document.querySelector(`[data-plant-id="${CSS.escape(id)}"]`);
   if(current){current.outerHTML=PlantTile(p);bindPlantTileControls()}
-  toast(`${p.name} watered 💧`);
+  toast(`${p.name} watered and marked done ✓`);
 }
 function bindPlantTileControls(){
   document.querySelectorAll("[data-quick-water]").forEach(button=>button.onclick=e=>{e.preventDefault();e.stopPropagation();quickWaterPlant(button.dataset.quickWater)});

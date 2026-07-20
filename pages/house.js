@@ -363,8 +363,10 @@ function bindHouse(){
       const task=data.houseTasks.find(item=>String(item.id)===String(doneButton.dataset.houseDone));
       if(task){
         task.done=!task.done;
+        doneButton.classList.toggle("done",task.done);
+        doneButton.closest(".house-job")?.classList.toggle("completed-task",task.done);
         saveData();
-        render();
+        requestAnimationFrame(()=>render());
       }
       return;
     }

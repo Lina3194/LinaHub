@@ -31,66 +31,36 @@ function HomePage(){
   if(data.checkins[today()]) due.push({text:"Today’s check-in is safely tucked away",route:"journal"});
 
   return shell(`
-    <section class="sanctuary-heading">
-      <div><span class="section-kicker">LinaHub</span><h1>${greeting}, Lina</h1><p>Welcome home.</p></div>
+    <section class="sanctuary-hero">
+      <div class="sanctuary-copy"><span class="section-kicker">LinaHub</span><h1>${greeting}, Lina</h1><p>Welcome home.</p></div>
       <button class="theme-btn sanctuary-theme" id="themeToggle" aria-label="Change theme">${data.theme==="dark"?"Light":"Night"}</button>
+      <div class="moon-window" aria-hidden="true"><span></span><i></i><i></i><i></i></div>
+      <div class="hero-shelf" aria-label="Favourite treasures displayed in your Sanctuary">
+        <span class="shelf-candle" aria-hidden="true"></span>
+        ${sanctuaryFavouriteDecor() || `<span class="empty-shelf-note">Your favourite treasures will sit here</span>`}
+      </div>
     </section>
 
-    <section class="sanctuary-room" aria-label="Your magical sanctuary">
-      <div class="room-wall-glow"></div>
-      <div class="sanctuary-window"><span class="window-moon"></span><span class="window-stars"></span><span class="window-vine"></span></div>
-      <div class="ceiling-lamp"><i></i></div>
-
-      <button class="scene-hotspot bookshelf-object" data-route="journal" aria-label="Open Bookshelf">
-        <span class="wood-bookcase"><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span>
-        <span class="object-label">Bookshelf<small>Journal · Today · To-do</small></span>
-      </button>
-
-      <button class="scene-hotspot conservatory-object" data-route="plants" aria-label="Open Conservatory">
-        <span class="plant-stand"><i class="pot-one"></i><i class="pot-two"></i><i class="pot-three"></i></span>
-        <span class="object-label">Conservatory<small>${(data.plants||[]).length} plants growing</small></span>
-      </button>
-
-      <button class="scene-hotspot aquarium-object" data-route="pets" aria-label="Open Aquariums">
-        <span class="glass-aquarium"><i class="water"></i><i class="weed"></i><i class="fish-one"></i><i class="fish-two"></i></span>
-        <span class="object-label">Aquariums<small>${(data.aquariums||[]).length} cosy tanks</small></span>
-      </button>
-
-      <button class="scene-hotspot apothecary-object" data-route="medication" aria-label="Open Apothecary">
-        <span class="apothecary-desk"><i class="bottle tall"></i><i class="bottle round"></i><i class="mortar"></i></span>
-        <span class="object-label">Apothecary<small>Medication · Health</small></span>
-      </button>
-
-      <button class="scene-hotspot treasure-door-object" data-route="treasures" aria-label="Enter Treasure Room">
-        <span class="treasure-door"><i class="door-star"></i><i class="door-handle"></i></span>
-        <span class="object-label">Treasure Room<small>Enter your collection</small></span>
-      </button>
-
-      <button class="scene-hotspot writing-desk-object" data-route="today" aria-label="Open Today">
-        <span class="writing-desk"><i class="paper"></i><i class="ink"></i></span>
-        <span class="object-label">Writing Desk<small>Today</small></span>
-      </button>
-
-      <button class="scene-hotspot house-stairs-object" data-route="house" aria-label="Open House">
-        <span class="little-stairs"><i></i><i></i><i></i></span>
-        <span class="object-label">House<small>Rooms · Routines</small></span>
-      </button>
-
-      <button class="scene-hotspot spellbook-object" data-route="settings" aria-label="Open Spellbook settings">
-        <span class="spellbook"><i></i></span><span class="object-label">Spellbook<small>Settings</small></span>
-      </button>
-
-      <div class="sanctuary-favourites" aria-label="Favourite treasures displayed here">${sanctuaryFavouriteDecor()}</div>
-      <div class="room-rug-art"></div><div class="room-floor-lines"></div>
+    <section class="sanctuary-shelves" aria-label="LinaHub rooms">
+      <button class="shelf-tile" data-route="journal"><span class="small-icon icon-books">📚</span><span class="tile-copy"><b>Bookshelf</b><small>Journal, Today & To-do</small></span></button>
+      <button class="shelf-tile" data-route="plants"><span class="small-icon icon-plant">🪴</span><span class="tile-copy"><b>Conservatory</b><small>${(data.plants||[]).length} plants growing</small></span></button>
+      <button class="shelf-tile" data-route="medication"><span class="small-icon icon-potion">🧪</span><span class="tile-copy"><b>Apothecary</b><small>Medication & health</small></span></button>
+      <button class="shelf-tile" data-route="pets"><span class="small-icon icon-fish">🐠</span><span class="tile-copy"><b>Aquariums</b><small>${(data.aquariums||[]).length} cosy tanks</small></span></button>
+      <button class="shelf-tile treasure-tile" data-route="treasures"><span class="small-icon icon-treasure">✦</span><span class="tile-copy"><b>Treasure Room</b><small>Memories waiting inside</small></span></button>
+      <button class="shelf-tile" data-route="house"><span class="small-icon icon-house">🏡</span><span class="tile-copy"><b>House</b><small>Rooms & gentle routines</small></span></button>
     </section>
 
-    <nav class="sanctuary-secondary" aria-label="More rooms">
-      <button data-route="period"><span class="nav-mark bloom-mark"></span><b>Period</b></button>
-      <button data-route="pokemon"><span class="nav-mark pokeball-mark"></span><b>Pokémon</b></button>
-      <button data-route="health"><span class="nav-mark measures-mark"></span><b>Measures</b></button>
-    </nav>
+    <section class="little-shelf card">
+      <span class="section-kicker">More little corners</span>
+      <div class="little-shelf-row">
+        <button data-route="period"><span>🌸</span><b>Period</b></button>
+        <button data-route="pokemon"><span><img src="./icons/pokemon.svg?v=200" alt=""></span><b>Pokémon</b></button>
+        <button data-route="health"><span class="measure-icon">◒</span><b>Measures</b></button>
+        <button data-route="settings"><span class="spell-icon">◇</span><b>Spellbook</b></button>
+      </div>
+    </section>
 
-    ${due.length?`<section class="card sanctuary-note"><span class="section-kicker">A note on the desk</span>${due.map(item=>`<button class="reminder" data-route="${item.route}"><span>${item.text}</span><b>›</b></button>`).join("")}</section>`:""}
+    ${due.length?`<section class="card sanctuary-note"><span class="section-kicker">A note on the table</span><button class="today-heading" data-route="today"><h2>Today</h2><b>›</b></button><div class="today-list">${due.map(item=>`<button class="reminder" data-route="${item.route}"><span>${item.text}</span><b>›</b></button>`).join("")}</div></section>`:""}
   `,"home");
 }
 function bindHome(){

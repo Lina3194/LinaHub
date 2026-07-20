@@ -1,10 +1,10 @@
-const CACHE="linahub-v15-5-clean-rebuild";
+const CACHE="linahub-v16-1-smart-weekdays";
 const ASSETS=[
-"./","./index.html","./app.js?v=155","./manifest.webmanifest?v=155",
-"./core/pokemon-seed.js?v=155","./core/data.js?v=155","./core/router.js?v=155","./core/cloud.js?v=155",
-"./pages/home.js?v=155","./pages/today.js?v=155","./pages/todo.js?v=155","./pages/journal.js?v=155","./pages/plants.js?v=155","./pages/pokemon.js?v=155","./pages/house.js?v=155","./pages/medication.js?v=155","./pages/health.js?v=155","./pages/simple.js?v=155","./pages/aquariums.js?v=155",
-"./styles/base.css?v=155","./styles/home.css?v=155","./styles/journal.css?v=155","./styles/plants.css?v=155","./styles/modules.css?v=155",
-"./icons/icon-192.png?v=155","./icons/icon-512.png?v=155","./icons/apple-touch-icon.png?v=155"
+"./","./index.html","./app.js?v=161","./manifest.webmanifest?v=161",
+"./core/pokemon-seed.js?v=161","./core/data.js?v=161","./core/scheduler.js?v=161","./core/router.js?v=161","./core/cloud.js?v=161",
+"./pages/home.js?v=161","./pages/today.js?v=161","./pages/todo.js?v=161","./pages/journal.js?v=161","./pages/plants.js?v=161","./pages/pokemon.js?v=161","./pages/house.js?v=161","./pages/medication.js?v=161","./pages/health.js?v=161","./pages/simple.js?v=161","./pages/aquariums.js?v=161",
+"./styles/base.css?v=161","./styles/home.css?v=161","./styles/journal.css?v=161","./styles/plants.css?v=161","./styles/modules.css?v=161",
+"./icons/icon-192.png?v=161","./icons/icon-512.png?v=161","./icons/apple-touch-icon.png?v=161"
 ];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

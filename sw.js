@@ -1,4 +1,4 @@
-const CACHE="linahub-v17-treasure-room";
+const CACHE="linahub-v17-1-treasure-room";
 const ASSETS=[
 "./","./index.html","./app.js?v=170","./manifest.webmanifest?v=170",
 "./core/pokemon-seed.js?v=170","./core/data.js?v=170","./core/scheduler.js?v=170","./core/router.js?v=170","./core/cloud.js?v=170",

@@ -102,14 +102,19 @@ function bindTreasures(){
     data.treasures[next.id].collected=true; saveData();
     openTreasureModal(next.id,true);
   });
-  document.addEventListener("click",treasureClickHandler);
+  const root=document.querySelector("main")||document.body;
+  root.onclick=treasureClickHandler;
 }
 function treasureClickHandler(event){
   if(route!=="treasures") return;
-  const card=event.target.closest("[data-treasure]"); if(card){openTreasureModal(card.dataset.treasure);return;}
-  const close=event.target.closest("[data-close-treasure]"); if(close){document.querySelector("#treasureModal").innerHTML="";render();return;}
   const favButton=event.target.closest("[data-favourite]"); if(favButton){
     const id=favButton.dataset.favourite; const list=data.favoriteTreasures||[];
-    data.favoriteTreasures=list.includes(id)?list.filter(x=>x!==id):[...list,id].slice(-3); saveData(); openTreasureModal(id); return;
+    data.favoriteTreasures=list.includes(id)?list.filter(x=>x!==id):[...list,id].slice(-3); saveData();
+    openTreasureModal(id);
+    const btn=document.querySelector(`[data-favourite="${id}"]`);
+    if(btn) btn.textContent=(data.favoriteTreasures||[]).includes(id)?"★ Displayed in Sanctuary":"☆ Display in Sanctuary";
+    return;
   }
+  const card=event.target.closest("[data-treasure]"); if(card){openTreasureModal(card.dataset.treasure);return;}
+  const close=event.target.closest("[data-close-treasure]"); if(close){document.querySelector("#treasureModal").innerHTML="";render();return;}
 }

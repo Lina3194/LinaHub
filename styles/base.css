@@ -1201,3 +1201,9 @@ body:not(.dark)[data-color-theme="marble"]{--theme-bg-a:#fff7fb;--theme-bg-b:#f3
 
 /* Prevent iPhone Safari zooming when adding or editing jobs and other form data. */
 @media (max-width: 820px){input,textarea,select{font-size:16px!important}}
+
+/* v16.12 — keep uploaded tile images fully visible in previews too */
+.tab-art-preview img {
+  object-fit: contain;
+  object-position: center;
+}

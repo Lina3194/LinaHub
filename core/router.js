@@ -6,12 +6,12 @@ let suppressNextPageAnimation=true;
 const navigationHistory=[];
 
 function nav(active){
-  return `<nav class="bottom five-nav">
-    <button type="button" data-route="home" class="${active==="home"?"active":""}">⌂<small>Home</small></button>
-    <button type="button" data-route="period" class="${active==="period"?"active":""}">❀<small>Period</small></button>
-    <button type="button" data-route="pokemon" class="${active==="pokemon"?"active":""}"><span class="nav-pokeball"></span><small>Pokémon</small></button>
-    <button type="button" data-route="health" class="${active==="health"?"active":""}">◒<small>Measures</small></button>
-    <button type="button" data-route="settings" class="${active==="settings"?"active":""}">⚙<small>Settings</small></button>
+  const items=[
+    ["home","Home","nav-home"],["journal","Journal","nav-journal"],["today","Today","nav-today"],
+    ["todo","To-do","nav-todo"],["settings","Settings","nav-settings"]
+  ];
+  return `<nav class="bottom five-nav">${items.map(([key,label,icon])=>`
+    <button type="button" data-route="${key}" class="${active===key?"active":""}"><span class="nav-symbol ${icon}" aria-hidden="true"></span><small>${label}</small></button>`).join("")}
   </nav>`;
 }
 

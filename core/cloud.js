@@ -18,7 +18,7 @@ const CLOUD_MODULES={
   health:["weightEntries","measurements","healthPromptLog"],
   period:["periodEntries","periodCycles","periodOptions","periodSelectedDate","periodCalendarMonth","periodEditOptions"],
   todo:["personalTasks"],
-  settings:["theme","homeIcons","homeImages","moduleBanners","v9CollapseDefaultsApplied"],
+  settings:["theme","colorTheme","homeIcons","homeImages","moduleBanners","v9CollapseDefaultsApplied"],
   misc:["version"]
 };
 

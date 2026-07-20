@@ -38,10 +38,6 @@ function quickTile(routeKey,label){
   return `<button class="quick-tile" data-route="${routeKey}">${homeIcon(routeKey,label,true)}<b>${label}</b></button>`;
 }
 
-function compactTile(routeKey,label){
-  return `<button class="compact-home-tile" data-route="${routeKey}">${homeIcon(routeKey,label,true)}<b>${label}</b></button>`;
-}
-
 function treasureDecoration(id,index){
   const known={
     "golden-lemon":"decor-lemon","first-journal":"decor-book","gentle-heart":"decor-heart",
@@ -62,9 +58,10 @@ function HomePage(){
   const greeting=hour<12?"Good morning":hour<18?"Good afternoon":"Good evening";
   return shell(`
     <div class="home-scene">
+      <div class="magic-sky" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
       <section class="home-welcome">
-        <div><span class="section-kicker">LinaHub</span><h1>${greeting}, Lina</h1><p>Welcome home.</p></div>
-        <button class="theme-btn" id="themeToggle" aria-label="Change theme">${data.theme==="dark"?"Light":"Night"}</button>
+        <div><span class="section-kicker">LinaHub 3.0</span><h1>${greeting}, Lina</h1><p>Your enchanted sanctuary.</p></div>
+        <div class="welcome-crystal" aria-hidden="true"></div>
       </section>
 
       <section class="quick-row" aria-label="Journal, Today and To-do">
@@ -81,18 +78,13 @@ function HomePage(){
         ${homeTile("treasures","Treasure Room","Your collected memories",true)}
       </section>
 
-      <section class="compact-home-row card" aria-label="More sections">
-        ${compactTile("period","Period")}
-        ${compactTile("pokemon","Pokémon")}
-        ${compactTile("health","Measures")}
-        ${compactTile("settings","Settings")}
-      </section>
-
+      <div class="home-altar" aria-hidden="true">
+        <span class="altar-plant"></span><span class="altar-crystal crystal-left"></span>
+        <span class="altar-candle"><i></i></span><span class="altar-crystal crystal-right"></span>
+      </div>
       <div class="sanctuary-keepsakes" aria-label="Treasures displayed around your Sanctuary">${sanctuaryFavouriteDecor()}</div>
     </div>
   `,"home");
 }
 
-function bindHome(){
-  document.querySelector("#themeToggle")?.addEventListener("click",()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()});
-}
+function bindHome(){}

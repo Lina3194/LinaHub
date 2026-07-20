@@ -1,7 +1,8 @@
 
 function render(){
   resetSwipePreview();
-  document.body.classList.toggle("dark",data.theme==="dark");
+  document.body.classList.toggle("dark",data.theme!=="light");
+  document.body.dataset.theme=data.colorTheme||"amethyst";
   document.body.dataset.route=route; // Styling metadata only; navigation clicks are restricted to explicit controls.
   document.querySelectorAll(".route-atmosphere").forEach(el=>el.remove());
 

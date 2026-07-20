@@ -1,25 +1,17 @@
-LinaHub v16.2 — Period Tracker
+LinaHub 3.0 — Enchanted Sanctuary
 
-NEW
-- Period Tracker home tile
-- Start and end a period
-- Monthly calendar with logged flow and predicted next start
-- Spotting, light, medium and heavy flow
-- Cycle length, period length and cycle history
-- Journal connection for pain, mood, energy and sleep (no duplicate logging)
-- Fully editable period-specific items
-- Add, rename, change emoji, choose input type, reorder, hide, delete or restore defaults
-- Item types: Yes/No, one choice, several choices, number and short note
+UI redesign based on v17.4.
 
-TO PUBLISH
-1. Extract this ZIP.
-2. Copy everything into your LinaHub repository folder.
-3. Replace files when Windows asks.
-4. Open GitHub Desktop.
-5. Commit to main.
-6. Push origin.
+Preserved:
+- Existing storage key and saved data
+- All pages, modules, cloud sync, schedules and app logic
+- Existing custom icon and image settings
 
+Updated:
+- Premium magical Home design
+- Requested Home layout
+- Bottom navigation: Home, Journal, Today, To-do, Settings
+- Icon editing remains in Settings
+- Themes: Amethyst, Rose, Sage, Ocean, Autumn, Galaxy and Winter
 
-Version 16.5
-- Added predicted period, fertile-window and ovulation colours to the calendar.
-- Changed spotting and period-care toggles into compact Journal-style pills.
+Upload the contents of this folder to replace the current Netlify site.

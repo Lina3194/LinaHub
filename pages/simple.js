@@ -18,9 +18,15 @@ function SettingsPage(){
         <p class="settings-note">Your current data stays on this device until you sign in. The first signed-in device safely creates your cloud copy.</p>`}
     </section>
 
-    <section class="card">
-      <h2>Appearance</h2>
-      <button class="primary" id="themeToggle2">Switch to ${data.theme==="dark"?"light":"dark"} mode</button>
+    <section class="card theme-settings-card">
+      <div class="settings-section-head"><div><span class="section-kicker">Appearance</span><h2>Choose your magic</h2></div></div>
+      <div class="theme-choice-grid">
+        ${[["amethyst","Amethyst"],["rose","Rose"],["sage","Sage"],["ocean","Ocean"],["autumn","Autumn"],["galaxy","Galaxy"],["winter","Winter"]].map(([key,label])=>`
+          <button type="button" class="theme-choice ${data.colorTheme===key||(!data.colorTheme&&key==="amethyst")?"active":""}" data-color-theme="${key}">
+            <span class="theme-swatch swatch-${key}"><i></i></span><strong>${label}</strong>
+          </button>`).join("")}
+      </div>
+      <button class="secondary appearance-mode-toggle" id="themeToggle2">Use ${data.theme==="light"?"night":"light"} mode</button>
     </section>
 
     <section class="card">
@@ -71,7 +77,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v17.4 · Clean Tile Sanctuary</p>`,"settings");
+  <p class="app-version">LinaHub 3.0 · Enchanted Sanctuary</p>`,"settings");
 }
 
 function bindSimple(){
@@ -80,7 +86,10 @@ function bindSimple(){
   document.querySelector("#cloudUploadNow")?.addEventListener("click",forceCloudUpload);
   document.querySelector("#cloudDownloadNow")?.addEventListener("click",forceCloudDownload);
   const t=document.querySelector("#themeToggle2");
-  if(t) t.onclick=()=>{data.theme=data.theme==="dark"?"light":"dark";saveData();render()};
+  if(t) t.onclick=()=>{data.theme=data.theme==="light"?"dark":"light";saveData();render()};
+  document.querySelectorAll("[data-color-theme]").forEach(button=>{
+    button.onclick=()=>{data.colorTheme=button.dataset.colorTheme;saveData();render()};
+  });
 
   document.querySelector("#saveHomeIcons")?.addEventListener("click",()=>{
     data.homeIcons=data.homeIcons||{};

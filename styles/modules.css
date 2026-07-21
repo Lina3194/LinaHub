@@ -474,3 +474,9 @@ body[data-route="medication"] .med-dose-card{overflow:hidden}
 /* v16.31 keep health range changes stable without rebuilding the page */
 .health-chart-panel{transition:opacity .12s ease;min-height:1px}
 .health-chart-panel.is-updating{opacity:.72}
+
+/* v16.32 notification settings */
+.notification-permission{padding:6px 10px;border:1px solid var(--line);border-radius:999px;text-transform:capitalize;font-size:.78rem;color:var(--muted)}
+.settings-toggle{display:flex;gap:12px;align-items:flex-start;padding:12px 0}.settings-toggle input{width:20px;height:20px;margin-top:2px;accent-color:var(--accent)}.settings-toggle span{display:grid;gap:3px}.settings-toggle small{color:var(--muted)}
+.notification-options{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:4px 16px;align-items:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 0;margin:8px 0 14px}.notification-options.muted{opacity:.45;pointer-events:none}.compact-time{min-height:46px}
+@media(max-width:600px){.notification-options{grid-template-columns:minmax(0,1fr) 112px}.notification-settings-card .cloud-actions{display:grid;grid-template-columns:1fr 1fr}.notification-settings-card .cloud-actions button{width:100%}}

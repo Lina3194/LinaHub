@@ -1,7 +1,7 @@
 const SCALE_OPTIONS={
   sleep:[["😫","Awful"],["😟","Restless"],["😐","Okay"],["😊","Good"],["🤩","Amazing"]],
   energy:[["🥵","Very low"],["😟","Low"],["😐","Okay"],["😊","Good"],["🤩","Amazing"]],
-  mood:[["😭","Overwhelmed"],["😟","Anxious"],["😐","Okay"],["🙂","Calm"],["😊","Happy"]],
+  mood:[["😭","Stressed"],["😟","Anxious"],["😐","Okay"],["🙂","Calm"],["😊","Happy"]],
   pain:[["😭","Very severe"],["😣","Severe"],["😐","Moderate"],["🙂","Mild"],["😌","No pain"]]
 };
 const JOURNAL_ORDER=["sleep","energy","mood","pain","spoons","water","selfcare","supports"];

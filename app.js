@@ -244,13 +244,83 @@ function resetSwipePreview(){
   document.documentElement.style.removeProperty("--swipe-progress");
 }
 
+
+let linaNotificationTimer=null;
+function linaNotificationConfig(){
+  data.notifications=data.notifications||{enabled:false,medication:true,todayTasks:true,medicationTime:"09:00",todayTime:"09:15",lastSent:{}};
+  data.notifications.lastSent=data.notifications.lastSent||{};
+  return data.notifications;
+}
+async function linaRequestNotificationPermission(){
+  if(!("Notification" in window)){toast("Notifications are not supported on this device");return false}
+  if(Notification.permission==="granted") return true;
+  if(Notification.permission==="denied"){toast("Notifications are blocked in your browser settings");return false}
+  try{
+    const permission=await Notification.requestPermission();
+    document.querySelector("#notificationPermission")?.replaceChildren(document.createTextNode(permission));
+    if(permission!=="granted") toast("Notification permission was not allowed");
+    return permission==="granted";
+  }catch{toast("Notifications could not be enabled");return false}
+}
+async function linaShowNotification(title,options={}){
+  if(!("Notification" in window)||Notification.permission!=="granted") return false;
+  const payload={icon:"./icons/icon-192.png",badge:"./icons/icon-192.png",...options};
+  try{
+    const registration=await navigator.serviceWorker?.ready;
+    if(registration?.showNotification){await registration.showNotification(title,payload);return true}
+    new Notification(title,payload);return true;
+  }catch{return false}
+}
+function linaPendingMedicationCount(dateValue){
+  try{
+    ensureMedicationData();
+    return data.medications.filter(m=>medDueOn(m,dateValue)).reduce((sum,m)=>{
+      if(m.scheduleType==="prn") return sum;
+      return sum+Math.max(0,(Number(m.dosesPerDay)||1)-medLogsFor(m.id,dateValue).length);
+    },0);
+  }catch{return 0}
+}
+function linaPendingTodayTaskCount(dateValue){
+  return (data.personalTasks||[]).filter(task=>!task.done&&(task.deadline||task.date)===dateValue).length;
+}
+async function linaCheckNotifications(){
+  const cfg=linaNotificationConfig();
+  if(!cfg.enabled||Notification.permission!=="granted") return;
+  const now=new Date(),dateValue=medLocalDate(now),clock=now.toTimeString().slice(0,5);
+  if(cfg.medication!==false&&clock>=cfg.medicationTime&&cfg.lastSent.medication!==dateValue){
+    const count=linaPendingMedicationCount(dateValue);
+    if(count>0){
+      await linaShowNotification("Medication reminder",{body:`${count} ${count===1?"dose is":"doses are"} still due today.`,tag:`linahub-med-${dateValue}`,data:{route:"medication"}});
+      cfg.lastSent.medication=dateValue;saveData();
+    }
+  }
+  if(cfg.todayTasks!==false&&clock>=cfg.todayTime&&cfg.lastSent.today!==dateValue){
+    const count=linaPendingTodayTaskCount(dateValue);
+    if(count>0){
+      await linaShowNotification("Today in LinaHub",{body:`You have ${count} unfinished ${count===1?"task":"tasks"} due today.`,tag:`linahub-today-${dateValue}`,data:{route:"today"}});
+      cfg.lastSent.today=dateValue;saveData();
+    }
+  }
+}
+function linaStartNotificationChecks(){
+  clearInterval(linaNotificationTimer);
+  linaCheckNotifications();
+  linaNotificationTimer=setInterval(linaCheckNotifications,60000);
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")linaCheckNotifications()});
+window.addEventListener("focus",linaCheckNotifications);
+
 setupNavigation();
 setupSwipeBack();
+linaStartNotificationChecks();
+
+
+if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("message",event=>{if(event.data?.type==="LINAHUB_ROUTE")go(event.data.route||"home")});}
 
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1630",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1632",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

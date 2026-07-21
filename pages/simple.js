@@ -18,6 +18,19 @@ function SettingsPage(){
         <p class="settings-note">Your current data stays on this device until you sign in. The first signed-in device safely creates your cloud copy.</p>`}
     </section>
 
+    <section class="card notification-settings-card">
+      <div class="cloud-card-head"><div><h2>Notifications</h2><p>Medication and Today reminders while LinaHub is installed or open.</p></div><span class="notification-permission" id="notificationPermission">${typeof Notification!=="undefined"?Notification.permission:"unsupported"}</span></div>
+      <label class="settings-toggle"><input type="checkbox" id="notificationsEnabled" ${data.notifications?.enabled?"checked":""}><span><strong>Enable notifications</strong><small>Allow LinaHub to send reminders on this device.</small></span></label>
+      <div class="notification-options ${data.notifications?.enabled?"":"muted"}" id="notificationOptions">
+        <label class="settings-toggle"><input type="checkbox" id="medicationNotifications" ${data.notifications?.medication!==false?"checked":""}><span><strong>Medication reminder</strong><small>Remind me about any doses still due today.</small></span></label>
+        <label class="field-label">Reminder time<input class="field compact-time" id="medicationNotificationTime" type="time" value="${esc(data.notifications?.medicationTime||"09:00")}"></label>
+        <label class="settings-toggle"><input type="checkbox" id="todayNotifications" ${data.notifications?.todayTasks!==false?"checked":""}><span><strong>Today reminder</strong><small>Remind me about unfinished personal tasks due today.</small></span></label>
+        <label class="field-label">Reminder time<input class="field compact-time" id="todayNotificationTime" type="time" value="${esc(data.notifications?.todayTime||"09:15")}"></label>
+      </div>
+      <div class="cloud-actions"><button class="primary" id="saveNotifications">Save notifications</button><button class="secondary" id="testNotification">Send test</button></div>
+      <p class="settings-note">On iPhone, notifications require LinaHub to be added to your Home Screen. Timed reminders are checked whenever LinaHub is running; reliable reminders while it is fully closed would require a push-notification service.</p>
+    </section>
+
     <section class="card" id="appearanceSettings">
       <h2>Appearance</h2>
       <p>Choose a full LinaHub sanctuary. Each one changes the background, cards, buttons, navigation and atmosphere across the whole app.</p>
@@ -80,7 +93,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v16.0 · Garden & Theme Update</p>`,"settings");
+  <p class="app-version">LinaHub v16.32 · Stressed & Notifications</p>`,"settings");
 }
 
 function bindSimple(){
@@ -88,6 +101,24 @@ function bindSimple(){
   document.querySelector("#cloudSignOut")?.addEventListener("click",linaSignOut);
   document.querySelector("#cloudUploadNow")?.addEventListener("click",forceCloudUpload);
   document.querySelector("#cloudDownloadNow")?.addEventListener("click",forceCloudDownload);
+  const notificationEnabled=document.querySelector("#notificationsEnabled");
+  notificationEnabled?.addEventListener("change",async()=>{
+    if(notificationEnabled.checked){
+      const granted=await linaRequestNotificationPermission();
+      if(!granted) notificationEnabled.checked=false;
+    }
+    document.querySelector("#notificationOptions")?.classList.toggle("muted",!notificationEnabled.checked);
+  });
+  document.querySelector("#saveNotifications")?.addEventListener("click",async()=>{
+    const enabled=!!document.querySelector("#notificationsEnabled")?.checked;
+    if(enabled && !(await linaRequestNotificationPermission())) return;
+    data.notifications={...(data.notifications||{}),enabled,medication:!!document.querySelector("#medicationNotifications")?.checked,todayTasks:!!document.querySelector("#todayNotifications")?.checked,medicationTime:document.querySelector("#medicationNotificationTime")?.value||"09:00",todayTime:document.querySelector("#todayNotificationTime")?.value||"09:15",lastSent:data.notifications?.lastSent||{}};
+    saveData();linaStartNotificationChecks();toast(enabled?"Notifications saved":"Notifications switched off");render();
+  });
+  document.querySelector("#testNotification")?.addEventListener("click",async()=>{
+    if(!(await linaRequestNotificationPermission())) return;
+    await linaShowNotification("LinaHub notifications are working ✨",{body:"Your reminders can now appear on this device.",tag:"linahub-test"});
+  });
   const t=document.querySelector("#themeToggle2");
   if(t) t.onclick=()=>{
     data.theme=data.theme==="dark"?"light":"dark";

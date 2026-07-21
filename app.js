@@ -1,4 +1,11 @@
 
+
+document.addEventListener("linahub:house-completion",()=>{
+  if(route==="today"){
+    suppressNextPageAnimation=true;
+    render();
+  }
+});
 function render(){
   resetSwipePreview();
   document.body.classList.toggle("dark",data.theme==="dark");

@@ -60,7 +60,30 @@ function moduleChanged(name,before,after){
 }
 function applyModule(payload){
   if(!payload||typeof payload!=="object") return;
-  Object.keys(payload).forEach(key=>{if(key!=="updatedAt"&&key!=="deviceId"&&key!=="schemaVersion")data[key]=payload[key]});
+  Object.keys(payload).forEach(key=>{
+    if(key==="updatedAt"||key==="deviceId"||key==="schemaVersion") return;
+    if(key==="houseTasks"&&Array.isArray(payload.houseTasks)){
+      const localById=new Map((data.houseTasks||[]).map(task=>[String(task.id),task]));
+      data.houseTasks=payload.houseTasks.map(remoteTask=>{
+        const localTask=localById.get(String(remoteTask.id));
+        if(!localTask) return remoteTask;
+        const localStamp=Date.parse(localTask.completionUpdatedAt||"")||0;
+        const remoteStamp=Date.parse(remoteTask.completionUpdatedAt||"")||0;
+        // Never let a slower/stale device put a job back into Today after it was
+        // just completed on this device. Other task edits still come from cloud.
+        if(localStamp>remoteStamp){
+          return {...remoteTask,
+            completionHistory:Array.isArray(localTask.completionHistory)?localTask.completionHistory:[],
+            lastCompleted:localTask.lastCompleted||"",
+            completionUpdatedAt:localTask.completionUpdatedAt||""
+          };
+        }
+        return remoteTask;
+      });
+      return;
+    }
+    data[key]=payload[key];
+  });
 }
 function localSaveOnly(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}
 
@@ -76,7 +99,8 @@ saveData=function(){
 function queueCloudModule(name){
   clearTimeout(CLOUD_STATE.timers.get(name));
   setCloudStatus(navigator.onLine?"syncing":"offline");
-  CLOUD_STATE.timers.set(name,setTimeout(()=>pushCloudModule(name),900));
+  const delay=name==="house"?80:900;
+  CLOUD_STATE.timers.set(name,setTimeout(()=>pushCloudModule(name),delay));
 }
 async function pushCloudModule(name){
   if(!CLOUD_STATE.user||!navigator.onLine) return setCloudStatus("offline");

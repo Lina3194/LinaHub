@@ -124,6 +124,7 @@ function normalizeHouseTaskData(task,index){
     createdDate:task?.createdDate||today(),
     completionHistory:Array.isArray(task?.completionHistory)?[...new Set(task.completionHistory.filter(Boolean))].sort():[],
     lastCompleted:task?.lastCompleted||((Array.isArray(task?.completionHistory)&&task.completionHistory.length)?task.completionHistory.slice().sort().at(-1):""),
+    completionUpdatedAt:task?.completionUpdatedAt||"",
     done:false
   };
 }
@@ -158,6 +159,21 @@ function prepareHouseData(target){
       task.room=/oven|hob|fridge|freezer|dish|sink|counter|worktop|kitchen|laundry|washing|bin/i.test(task.task)?"Kitchen":"Living Room";
     });
   }
+
+  // Older builds could accidentally create duplicate task IDs. That made the visible
+  // row update one record while Today read another. Repair duplicates once on load.
+  const usedTaskIds=new Set();
+  target.houseTasks.forEach((task,index)=>{
+    let id=String(task.id||`house-${Date.now()}-${index}`);
+    if(usedTaskIds.has(id)){
+      const base=id;
+      let suffix=2;
+      while(usedTaskIds.has(`${base}-${suffix}`)) suffix++;
+      id=`${base}-${suffix}`;
+    }
+    task.id=id;
+    usedTaskIds.add(id);
+  });
 
   target.houseTasks.forEach(task=>{
     if(!target.houseRooms.some(room=>room.name===task.room)){

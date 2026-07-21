@@ -40,6 +40,7 @@ function normalizeHouseTask(task,index=0){
     createdDate:task?.createdDate||today(),
     completionHistory:[...new Set(history)].sort(),
     lastCompleted,
+    completionUpdatedAt:task?.completionUpdatedAt||"",
     done:false
   };
 }
@@ -96,7 +97,9 @@ function setHouseTaskCompleted(task,completed,date=today()){
     task.completionHistory.sort();
   }else task.completionHistory=task.completionHistory.filter(value=>value!==date);
   task.lastCompleted=task.completionHistory[task.completionHistory.length-1]||"";
+  task.completionUpdatedAt=new Date().toISOString();
   task.done=false;
+  document.dispatchEvent(new CustomEvent("linahub:house-completion",{detail:{taskId:String(task.id),completed,date}}));
 }
 
 function normalizeHouseRoom(room,index=0){

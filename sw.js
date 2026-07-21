@@ -1,4 +1,4 @@
-const CACHE="linahub-v16-34-recurring-chore-reset";
+const CACHE="linahub-v16-35-recurring-chore-reset";
 const ASSETS=[
 "./","./index.html","./app.js?v=1634","./manifest.webmanifest?v=1634",
 "./core/pokemon-seed.js?v=1634","./core/data.js?v=1634","./core/router.js?v=1634","./core/cloud.js?v=1634",

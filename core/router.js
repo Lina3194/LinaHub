@@ -7,10 +7,10 @@ const navigationHistory=[];
 
 function nav(active){
   return `<nav class="bottom four-nav">
-    <button type="button" data-route="home" class="${active==="home"?"active":""}">${esc(moduleIcon("home","⌂"))}<small>Home</small></button>
-    <button type="button" data-route="today" class="${active==="today"?"active":""}">${esc(moduleIcon("today","✅"))}<small>Today</small></button>
-    <button type="button" data-route="todo" class="${active==="todo"?"active":""}">${esc(moduleIcon("todo","📝"))}<small>To-do</small></button>
-    <button type="button" data-route="settings" class="${active==="settings"?"active":""}">${esc(moduleIcon("settings","⚙️"))}<small>Settings</small></button>
+    <button type="button" data-route="home" class="${active==="home"?"active":""}">${moduleVisual("home","⌂","bottom-nav-image")}<small>Home</small></button>
+    <button type="button" data-route="today" class="${active==="today"?"active":""}">${moduleVisual("today","✅","bottom-nav-image")}<small>Today</small></button>
+    <button type="button" data-route="todo" class="${active==="todo"?"active":""}">${moduleVisual("todo","📝","bottom-nav-image")}<small>To-do</small></button>
+    <button type="button" data-route="settings" class="${active==="settings"?"active":""}">${moduleVisual("settings","⚙️","bottom-nav-image")}<small>Settings</small></button>
   </nav>`;
 }
 

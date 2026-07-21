@@ -69,20 +69,17 @@ function SettingsPage(){
     </section>
 
     <section class="card settings-accordion${accordionClass("icons")}" data-settings-accordion="icons">
-      <button type="button" class="settings-accordion-toggle" aria-expanded="${accordionExpanded("icons")}"><span><strong>Home tab pictures & icons</strong><small>Change Home tile pictures and emoji</small></span><b aria-hidden="true">⌄</b></button>
+      <button type="button" class="settings-accordion-toggle" aria-expanded="${accordionExpanded("icons")}"><span><strong>Tile pictures</strong><small>Upload artwork for every tile</small></span><b aria-hidden="true">⌄</b></button>
       <div class="settings-collapse-body"${accordionHidden("icons")}>
-      <p>Change the emoji used for every main tile and feature. Home tiles with custom pictures will keep showing the picture.</p>
       <div class="icon-setting-groups">
         ${[
           ["Bottom navigation",[["home","Home","⌂"],["today","Today","✅"],["todo","To-do","📝"],["settings","Settings","⚙️"]]],
-          ["Main tiles",[["journal","Daily Check-in","📖"],["health","Health","❤️"],["plants","Garden","🌿"],["pokemon","Pokémon GO","🔴"],["pets","Aquariums","🐠"],["house","House","🏡"],["budget","Budget & Bills","💷"],["treasures","Treasure Room","✨"]]],
-          ["Health",[["healthOverview","Overview","❤️"],["sleep","Sleep","😴"],["medication","Medication","💊"],["period","Period","🌸"],["weight","Weight","⚖️"],["measurements","Measurements","📏"],["journey","Journey check-in","✨"]]],
+          ["Main tiles",[["journal","Daily Check-in","📖"],["health","Health","❤️"],["plants","Garden","🌿"],["pokemon","Pokémon GO","🔴"],["pets","Aquariums","🐠"],["house","House","🏡"],["budget","Budget & Bills","💷"],["treasures","Treasure Room","✨"],["journey","Today's Journey","✨"]]],
+          ["Health",[["healthOverview","Overview","❤️"],["sleep","Sleep","😴"],["medication","Medication","💊"],["period","Period","🌸"],["weight","Weight","⚖️"],["measurements","Measurements","📏"]]],
           ["House & Aquariums",[["rooms","Rooms","🏠"],["shopping","Shopping","🛒"],["inventory","Inventory","📦"],["girlsTank","Girls Tank","🩷"],["boysTank","Boys Tank","💙"],["aquariumMaintenance","Maintenance","🫧"]]],
           ["Budget",[["bills","Bills","🧾"],["savings","Savings","💰"],["income","Income","💷"],["expenses","Expenses","💸"]]]
-        ].map(([group,items])=>`<section class="icon-setting-group"><h3>${group}</h3><div class="all-icon-grid">${items.map(([key,label,fallback])=>`<label class="all-icon-row"><span>${label}</span><input class="field home-icon-input" data-icon-key="${key}" value="${esc(moduleIcon(key,fallback))}" maxlength="12"></label>`).join("")}</div></section>`).join("")}
+        ].map(([group,items])=>`<section class="icon-setting-group"><h3>${group}</h3><div class="tab-art-grid">${items.map(([key,label,fallback])=>`<article class="tab-art-setting"><div class="tab-art-preview">${data.homeImages?.[key]?`<img src="${data.homeImages[key]}" alt="">`:`<span>${esc(moduleIcon(key,fallback))}</span>`}</div><div class="tab-art-copy"><strong>${label}</strong></div><div class="tab-art-actions"><button type="button" class="secondary compact-upload" data-pick-tab-image="${key}">${data.homeImages?.[key]?"Change":"Add image"}</button><input type="file" accept="image/*" data-tab-image="${key}" hidden>${data.homeImages?.[key]?`<button type="button" class="mini danger" data-remove-tab-image="${key}">Remove</button>`:""}</div></article>`).join("")}</div></section>`).join("")}
       </div>
-      <button class="primary" id="saveHomeIcons" style="margin-top:12px">Save emojis</button>
-      <p class="settings-note">Pictures are resized before being saved so LinaHub stays fast. They are included in your LinaHub backup.</p>
       </div>
     </section>
     <section class="card settings-accordion${accordionClass("banners")}" data-settings-accordion="banners">
@@ -112,7 +109,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v16.51 · Navigation & Settings Polish</p>`,"settings");
+  <p class="app-version">LinaHub v16.52 · Picture Controls Fix</p>`,"settings");
 }
 
 function bindSimple(){
@@ -204,20 +201,6 @@ function bindSimple(){
     if(appearanceBody&&appearanceToggle){appearanceBody.hidden=false;appearanceToggle.setAttribute("aria-expanded","true");appearance.classList.add("is-open");rememberOpenAccordions();}
     setTimeout(()=>appearance?.scrollIntoView({behavior:"smooth",block:"start"}),60);
   }
-
-  document.querySelector("#saveHomeIcons")?.addEventListener("click",()=>{
-    data.homeIcons=data.homeIcons||{};
-    data.moduleIcons=data.moduleIcons||{};
-    const homeKeys=new Set((data.homeLayout||[]).map(item=>item.id));
-    document.querySelectorAll("[data-icon-key]").forEach(input=>{
-      const key=input.dataset.iconKey;
-      const value=input.value.trim();
-      if(!value) return;
-      data.moduleIcons[key]=value;
-      if(homeKeys.has(key)) data.homeIcons[key]=value;
-    });
-    rememberSettingsPosition();rememberOpenAccordions();saveData();toast("Icons updated ✨");render();
-  });
 
 
   function resizeTabImage(file){

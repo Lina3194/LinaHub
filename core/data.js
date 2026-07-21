@@ -309,6 +309,10 @@ function loadData(){
 function moduleIcon(key,fallback="✨"){
   return String(data?.moduleIcons?.[key]||data?.homeIcons?.[key]||fallback);
 }
+function moduleVisual(key,fallback="✨",className="module-tile-image"){
+  const src=data?.homeImages?.[key];
+  return src?`<img class="${className}" src="${src}" alt="">`:esc(moduleIcon(key,fallback));
+}
 
 let data=loadData();
 if(!data.v9CollapseDefaultsApplied){

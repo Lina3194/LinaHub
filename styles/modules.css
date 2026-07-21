@@ -573,3 +573,5 @@ body[data-route="health"] .health-feeling,body[data-route="health"] .health-circ
 .health-feeling.active span{transform:scale(1.16);filter:drop-shadow(0 2px 5px rgba(0,0,0,.16))}
 .health-feeling.active:after{content:"✓";position:absolute;right:5px;top:4px;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:white;font-size:.62rem;font-weight:900}
 .health-dashboard-stats>div>small:last-child{margin-top:2px;font-size:.68rem;color:var(--muted)}
+.module-tile-image{width:52px;height:52px;object-fit:cover;border-radius:15px;display:block;margin-bottom:8px}
+.bottom-nav-image{width:30px;height:30px;object-fit:cover;border-radius:9px;display:block;margin:0 auto 3px}

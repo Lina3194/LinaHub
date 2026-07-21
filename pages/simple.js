@@ -4,6 +4,12 @@ function SimplePage(title,emoji,text,active=""){
 }
 
 function SettingsPage(){
+  let rememberedOpen=[];
+  try{rememberedOpen=JSON.parse(sessionStorage.getItem("linahub-settings-open")||"[]")}catch{}
+  const settingsOpen=new Set(Array.isArray(rememberedOpen)?rememberedOpen:[]);
+  const accordionClass=key=>settingsOpen.has(key)?" is-open":"";
+  const accordionExpanded=key=>settingsOpen.has(key)?"true":"false";
+  const accordionHidden=key=>settingsOpen.has(key)?"":" hidden";
   return shell(`${head("Settings","Appearance and your data")}
     <section class="card cloud-account-card">
       <div class="cloud-card-head">
@@ -18,9 +24,9 @@ function SettingsPage(){
         <p class="settings-note">Your current data stays on this device until you sign in. The first signed-in device safely creates your cloud copy.</p>`}
     </section>
 
-    <section class="card settings-accordion notification-settings-card" data-settings-accordion="notifications">
-      <button type="button" class="settings-accordion-toggle" aria-expanded="false"><span><strong>Notifications</strong><small>Medication, Today and other reminders</small></span><b aria-hidden="true">⌄</b></button>
-      <div class="settings-collapse-body" hidden>
+    <section class="card settings-accordion notification-settings-card${accordionClass("notifications")}" data-settings-accordion="notifications">
+      <button type="button" class="settings-accordion-toggle" aria-expanded="${accordionExpanded("notifications")}"><span><strong>Notifications</strong><small>Medication, Today and other reminders</small></span><b aria-hidden="true">⌄</b></button>
+      <div class="settings-collapse-body"${accordionHidden("notifications")}>
       <div class="cloud-card-head"><div><h2>Notification settings</h2><p>Medication and Today reminders while LinaHub is installed or open.</p></div><span class="notification-permission" id="notificationPermission">${typeof Notification!=="undefined"?Notification.permission:"unsupported"}</span></div>
       <label class="settings-toggle"><input type="checkbox" id="notificationsEnabled" ${data.notifications?.enabled?"checked":""}><span><strong>Enable notifications</strong><small>Allow LinaHub to send reminders on this device.</small></span></label>
       <div class="notification-options ${data.notifications?.enabled?"":"muted"}" id="notificationOptions">
@@ -45,9 +51,9 @@ function SettingsPage(){
       </div>
     </section>
 
-    <section class="card settings-accordion" id="appearanceSettings" data-settings-accordion="appearance">
-      <button type="button" class="settings-accordion-toggle" aria-expanded="false"><span><strong>Themes & appearance</strong><small>Colours, sanctuary theme and light or dark mode</small></span><b aria-hidden="true">⌄</b></button>
-      <div class="settings-collapse-body" hidden>
+    <section class="card settings-accordion${accordionClass("appearance")}" id="appearanceSettings" data-settings-accordion="appearance">
+      <button type="button" class="settings-accordion-toggle" aria-expanded="${accordionExpanded("appearance")}"><span><strong>Themes & appearance</strong><small>Colours, sanctuary theme and light or dark mode</small></span><b aria-hidden="true">⌄</b></button>
+      <div class="settings-collapse-body"${accordionHidden("appearance")}>
       <h2>Appearance</h2>
       <p>Choose a full LinaHub sanctuary. Each one changes the background, cards, buttons, navigation and atmosphere across the whole app.</p>
       <div class="theme-choice-grid">
@@ -62,28 +68,26 @@ function SettingsPage(){
       </div>
     </section>
 
-    <section class="card settings-accordion" data-settings-accordion="icons">
-      <button type="button" class="settings-accordion-toggle" aria-expanded="false"><span><strong>Tile pictures</strong><small>Change pictures throughout LinaHub</small></span><b aria-hidden="true">⌄</b></button>
-      <div class="settings-collapse-body" hidden>
-      <div class="tile-picture-groups">
+    <section class="card settings-accordion${accordionClass("icons")}" data-settings-accordion="icons">
+      <button type="button" class="settings-accordion-toggle" aria-expanded="${accordionExpanded("icons")}"><span><strong>Home tab pictures & icons</strong><small>Change Home tile pictures and emoji</small></span><b aria-hidden="true">⌄</b></button>
+      <div class="settings-collapse-body"${accordionHidden("icons")}>
+      <p>Change the emoji used for every main tile and feature. Home tiles with custom pictures will keep showing the picture.</p>
+      <div class="icon-setting-groups">
         ${[
           ["Bottom navigation",[["home","Home","⌂"],["today","Today","✅"],["todo","To-do","📝"],["settings","Settings","⚙️"]]],
           ["Main tiles",[["journal","Daily Check-in","📖"],["health","Health","❤️"],["plants","Garden","🌿"],["pokemon","Pokémon GO","🔴"],["pets","Aquariums","🐠"],["house","House","🏡"],["budget","Budget & Bills","💷"],["treasures","Treasure Room","✨"]]],
           ["Health",[["healthOverview","Overview","❤️"],["sleep","Sleep","😴"],["medication","Medication","💊"],["period","Period","🌸"],["weight","Weight","⚖️"],["measurements","Measurements","📏"],["journey","Journey check-in","✨"]]],
           ["House & Aquariums",[["rooms","Rooms","🏠"],["shopping","Shopping","🛒"],["inventory","Inventory","📦"],["girlsTank","Girls Tank","🩷"],["boysTank","Boys Tank","💙"],["aquariumMaintenance","Maintenance","🫧"]]],
           ["Budget",[["bills","Bills","🧾"],["savings","Savings","💰"],["income","Income","💷"],["expenses","Expenses","💸"]]]
-        ].map(([group,items])=>`<section class="tile-picture-group"><h3>${group}</h3><div class="tile-picture-list">${items.map(([key,label,fallback])=>`
-          <article class="tab-art-setting tile-picture-setting">
-            <div class="tab-art-preview">${moduleImage(key)?`<img src="${moduleImage(key)}" alt="">`:`<span>${esc(moduleIcon(key,fallback))}</span>`}</div>
-            <strong>${label}</strong>
-            <div class="tab-art-actions"><button type="button" class="secondary compact-upload" data-pick-module-image="${key}">${moduleImage(key)?"Change":"Add"}</button><input type="file" accept="image/*" data-module-image="${key}" hidden>${moduleImage(key)?`<button type="button" class="mini danger" data-remove-module-image="${key}">×</button>`:""}</div>
-          </article>`).join("")}</div></section>`).join("")}
+        ].map(([group,items])=>`<section class="icon-setting-group"><h3>${group}</h3><div class="all-icon-grid">${items.map(([key,label,fallback])=>`<label class="all-icon-row"><span>${label}</span><input class="field home-icon-input" data-icon-key="${key}" value="${esc(moduleIcon(key,fallback))}" maxlength="12"></label>`).join("")}</div></section>`).join("")}
       </div>
+      <button class="primary" id="saveHomeIcons" style="margin-top:12px">Save emojis</button>
+      <p class="settings-note">Pictures are resized before being saved so LinaHub stays fast. They are included in your LinaHub backup.</p>
       </div>
     </section>
-    <section class="card settings-accordion" data-settings-accordion="banners">
-      <button type="button" class="settings-accordion-toggle" aria-expanded="false"><span><strong>Banners</strong><small>Section header pictures</small></span><b aria-hidden="true">⌄</b></button>
-      <div class="settings-collapse-body" hidden>
+    <section class="card settings-accordion${accordionClass("banners")}" data-settings-accordion="banners">
+      <button type="button" class="settings-accordion-toggle" aria-expanded="${accordionExpanded("banners")}"><span><strong>Banners</strong><small>Section header pictures</small></span><b aria-hidden="true">⌄</b></button>
+      <div class="settings-collapse-body"${accordionHidden("banners")}>
       <div class="banner-art-grid">
         ${[
           ["journal","Daily Check-in"],["today","Today"],["todo","To-do"],["health","Health"],
@@ -108,10 +112,17 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v16.51 · Picture Pickers & Compact Rooms</p>`,"settings");
+  <p class="app-version">LinaHub v16.51 · Navigation & Settings Polish</p>`,"settings");
 }
 
 function bindSimple(){
+  const rememberSettingsPosition=()=>{
+    try{sessionStorage.setItem("linahub-settings-scroll",String(window.scrollY||0))}catch{}
+  };
+  const rememberOpenAccordions=()=>{
+    const open=[...document.querySelectorAll("[data-settings-accordion].is-open")].map(section=>section.dataset.settingsAccordion);
+    try{sessionStorage.setItem("linahub-settings-open",JSON.stringify(open))}catch{}
+  };
   document.querySelectorAll("[data-settings-accordion]").forEach(section=>{
     const toggle=section.querySelector(".settings-accordion-toggle");
     const body=section.querySelector(".settings-collapse-body");
@@ -121,7 +132,13 @@ function bindSimple(){
       body.hidden=!opening;
       toggle.setAttribute("aria-expanded",String(opening));
       section.classList.toggle("is-open",opening);
+      rememberOpenAccordions();
+      rememberSettingsPosition();
     });
+  });
+  requestAnimationFrame(()=>{
+    let saved=0;try{saved=Number(sessionStorage.getItem("linahub-settings-scroll")||0)}catch{}
+    if(saved>0) window.scrollTo({top:saved,left:0,behavior:"auto"});
   });
   document.querySelector("#cloudSignIn")?.addEventListener("click",linaSignIn);
   document.querySelector("#cloudSignOut")?.addEventListener("click",linaSignOut);
@@ -184,9 +201,23 @@ function bindSimple(){
     const appearance=document.querySelector("#appearanceSettings");
     const appearanceBody=appearance?.querySelector(".settings-collapse-body");
     const appearanceToggle=appearance?.querySelector(".settings-accordion-toggle");
-    if(appearanceBody&&appearanceToggle){appearanceBody.hidden=false;appearanceToggle.setAttribute("aria-expanded","true");appearance.classList.add("is-open");}
+    if(appearanceBody&&appearanceToggle){appearanceBody.hidden=false;appearanceToggle.setAttribute("aria-expanded","true");appearance.classList.add("is-open");rememberOpenAccordions();}
     setTimeout(()=>appearance?.scrollIntoView({behavior:"smooth",block:"start"}),60);
   }
+
+  document.querySelector("#saveHomeIcons")?.addEventListener("click",()=>{
+    data.homeIcons=data.homeIcons||{};
+    data.moduleIcons=data.moduleIcons||{};
+    const homeKeys=new Set((data.homeLayout||[]).map(item=>item.id));
+    document.querySelectorAll("[data-icon-key]").forEach(input=>{
+      const key=input.dataset.iconKey;
+      const value=input.value.trim();
+      if(!value) return;
+      data.moduleIcons[key]=value;
+      if(homeKeys.has(key)) data.homeIcons[key]=value;
+    });
+    rememberSettingsPosition();rememberOpenAccordions();saveData();toast("Icons updated ✨");render();
+  });
 
 
   function resizeTabImage(file){
@@ -215,6 +246,7 @@ function bindSimple(){
 
   document.querySelectorAll("[data-pick-tab-image]").forEach(button=>{
     button.onclick=()=>{
+      rememberSettingsPosition();rememberOpenAccordions();
       const input=document.querySelector(`[data-tab-image="${button.dataset.pickTabImage}"]`);
       if(input){
         input.value="";
@@ -233,7 +265,7 @@ function bindSimple(){
         data.homeImages[input.dataset.tabImage]=await resizeTabImage(file);
         try{
           saveData();
-          toast("Tab picture added 🌸");
+          toast("Tab picture added 🌸");rememberSettingsPosition();rememberOpenAccordions();
           const card=input.closest(".tab-art-setting");
           const preview=card?.querySelector(".tab-art-preview");
           if(preview) preview.innerHTML=`<img src="${data.homeImages[input.dataset.tabImage]}" alt="">`;
@@ -261,26 +293,6 @@ function bindSimple(){
   });
 
 
-  document.querySelectorAll("[data-pick-module-image]").forEach(button=>{
-    button.onclick=()=>{const input=document.querySelector(`[data-module-image="${button.dataset.pickModuleImage}"]`);if(input){input.value="";input.click();}};
-  });
-  document.querySelectorAll("[data-module-image]").forEach(input=>{
-    input.onchange=async e=>{
-      const file=e.target.files?.[0]; if(!file)return;
-      if(!file.type.startsWith("image/")){toast("Choose an image file");return}
-      try{
-        data.moduleImages=data.moduleImages||{};
-        data.moduleImages[input.dataset.moduleImage]=await resizeTabImage(file);
-        const homeKeys=new Set((data.homeLayout||[]).map(item=>item.id));
-        if(homeKeys.has(input.dataset.moduleImage)){data.homeImages=data.homeImages||{};data.homeImages[input.dataset.moduleImage]=data.moduleImages[input.dataset.moduleImage];}
-        saveData();toast("Picture updated ✨");render();
-      }catch{toast("That picture could not be added")}
-    };
-  });
-  document.querySelectorAll("[data-remove-module-image]").forEach(button=>{
-    button.onclick=()=>{const key=button.dataset.removeModuleImage;if(data.moduleImages)delete data.moduleImages[key];if(data.homeImages)delete data.homeImages[key];saveData();toast("Picture removed");render();};
-  });
-
   function resizeBannerImage(file){
     return new Promise((resolve,reject)=>{
       const reader=new FileReader();
@@ -307,6 +319,7 @@ function bindSimple(){
 
   document.querySelectorAll("[data-pick-banner-image]").forEach(button=>{
     button.onclick=()=>{
+      rememberSettingsPosition();rememberOpenAccordions();
       const input=document.querySelector(`[data-banner-image="${button.dataset.pickBannerImage}"]`);
       if(input){
         input.value="";
@@ -325,7 +338,7 @@ function bindSimple(){
         data.moduleBanners[input.dataset.bannerImage]=await resizeBannerImage(file);
         try{
           saveData();
-          toast("Banner picture added 🌙");
+          toast("Banner picture added 🌙");rememberSettingsPosition();rememberOpenAccordions();
           const card=input.closest(".banner-art-setting");
           const preview=card?.querySelector(".banner-art-preview");
           if(preview) preview.innerHTML=`<img src="${data.moduleBanners[input.dataset.bannerImage]}" alt="">`;

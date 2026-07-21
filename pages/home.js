@@ -20,7 +20,7 @@ function ensureHomeLayout(){
 const HOME_TILE_INFO={
   journal:["Daily Check-in","Pain, energy, sleep and your day","📖"],
   health:["Health","Sleep, medication, cycle and measurements","❤️"],
-  flowers:["Today’s Journey","Energy, mood and pain through the day","✨"],
+  flowers:["Today’s Journey","","✨"],
   plants:["Garden","Care and watering","🌿"],
   pokemon:["Pokémon GO","Friendship, Vivillon and gifts","🔴"],
   pets:["Aquariums","Girls and boys tanks","🐠"],
@@ -120,8 +120,9 @@ function homeTile(item,editing){
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const accent=data.homeTileAccents?.[item.id]||"";
   const style=accent?` style="--tile-accent:${esc(accent)}"`:"";
+  const tileDetails=item.id==="flowers"?"":`<small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span>`;
   return `<article class="home-tile-wrap size-${item.size}" draggable="${editing}" data-home-id="${item.id}"${style}>
-    <button type="button" class="module module-${item.id}" ${editing?'tabindex="-1"':item.id==="flowers"?'data-route="health" data-route-id="garden"':`data-route="${item.id}"`}>${art}<strong>${esc(title)}</strong><small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span></button>
+    <button type="button" class="module module-${item.id}" ${editing?'tabindex="-1"':item.id==="flowers"?'data-route="health" data-route-id="garden"':`data-route="${item.id}"`}>${art}<strong>${esc(title)}</strong>${tileDetails}</button>
     ${editing?`<div class="tile-edit-controls">
       <button type="button" class="tile-move" data-move="back" aria-label="Move ${esc(title)} earlier">‹</button>
       <button type="button" class="tile-drag" aria-label="Drag ${esc(title)}">☰</button>

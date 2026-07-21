@@ -1282,3 +1282,10 @@ body[data-route="health"] .compact-measure-date{margin-bottom:8px!important}
 .settings-accordion.is-open>.settings-accordion-toggle b{transform:rotate(180deg)}
 .settings-accordion .settings-collapse-body[hidden]{display:none!important}
 @media(max-width:520px){.settings-accordion-toggle{padding:14px 15px;min-height:58px}.settings-accordion-toggle strong{font-size:.96rem}.settings-accordion-toggle small{font-size:.72rem}}
+
+
+/* v16.51 centred bottom navigation */
+.bottom.four-nav{grid-template-columns:repeat(4,minmax(0,1fr));align-items:stretch}
+.bottom.four-nav button{width:100%;min-width:0;display:grid;grid-template-rows:auto auto;place-items:center;align-content:center;justify-content:center;text-align:center;line-height:1;gap:5px;margin:0}
+.bottom.four-nav button small{width:100%;text-align:center;line-height:1.2}
+.bottom.four-nav button>img,.bottom.four-nav button>svg{margin-inline:auto}

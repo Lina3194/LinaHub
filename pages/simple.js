@@ -32,6 +32,11 @@ function SettingsPage(){
           <div class="notification-time-list" id="todayNotificationTimes">${(data.notifications?.todayTimes||[data.notifications?.todayTime||"09:15"]).map((time,index)=>`<div class="notification-time-row"><input class="field compact-time" type="time" value="${esc(time)}"><button type="button" class="mini danger" data-remove-notification-time="today" ${index===0?"disabled":""}>×</button></div>`).join("")}</div>
           <button type="button" class="secondary add-notification-time" data-add-notification-time="today">+ Add another time</button>
         </div>
+        <div class="notification-kind-block">
+          <label class="settings-toggle"><input type="checkbox" id="flowerNotifications" ${data.notifications?.dayCheckins?"checked":""}><span><strong>Flower check-ins</strong><small>Remind yourself to log energy, mood and pain.</small></span></label>
+          <div class="flower-reminder-grid"><label>From<input class="field" id="flowerReminderStart" type="time" value="${esc(data.notifications?.dayCheckinStart||"08:00")}"></label><label>Until<input class="field" id="flowerReminderEnd" type="time" value="${esc(data.notifications?.dayCheckinEnd||"22:00")}"></label><label>Every<select class="field" id="flowerReminderFrequency"><option value="1" ${(data.notifications?.dayCheckinEvery||1)==1?"selected":""}>1 hour</option><option value="2" ${(data.notifications?.dayCheckinEvery||1)==2?"selected":""}>2 hours</option><option value="3" ${(data.notifications?.dayCheckinEvery||1)==3?"selected":""}>3 hours</option></select></label></div>
+        </div>
+        <div class="notification-module-grid">${[["plants","🌿 Plants"],["house","🏠 Chores"],["aquariums","🐠 Aquariums"],["sleep","😴 Sleep"],["period","🌸 Period"],["journal","📖 Journal"]].map(([key,label])=>`<label class="settings-toggle compact"><input type="checkbox" data-module-reminder="${key}" ${data.notifications?.modules?.[key]?"checked":""}><span><strong>${label}</strong><small>Include in reminders</small></span></label>`).join("")}</div>
       </div>
       <div class="cloud-actions"><button class="primary" id="saveNotifications">Save notifications</button><button class="secondary" id="testNotification">Send test</button></div>
       <p class="settings-note">On iPhone, notifications require LinaHub to be added to your Home Screen. Timed reminders are checked whenever LinaHub is running; reliable reminders while it is fully closed would require a push-notification service.</p>
@@ -56,7 +61,7 @@ function SettingsPage(){
       <p>Add your own picture to any home tab. When a picture is set, it replaces that tab’s emoji. Removing it brings the emoji back.</p>
       <div class="tab-art-grid">
         ${[
-          ["journal","Daily Check-in"],["health","Weight & Measures"],["plants","Plants"],["medication","Medication"],
+          ["journal","Daily Check-in"],["health","Health"],["plants","Plants"],["medication","Medication"],
           ["pokemon","Pokémon GO"],["pets","Aquariums"],["house","House"],["period","Period Tracker"],["treasures","Treasure Room"]
         ].map(([key,label])=>`
           <article class="tab-art-setting">
@@ -77,7 +82,7 @@ function SettingsPage(){
       <p>Add a wide banner to the top of each section. These are separate from the square Home tab pictures.</p>
       <div class="banner-art-grid">
         ${[
-          ["journal","Daily Check-in"],["today","Today"],["todo","To-do"],["health","Weight & Measures"],
+          ["journal","Daily Check-in"],["today","Today"],["todo","To-do"],["health","Health"],
           ["plants","Plants"],["medication","Medication"],["pokemon","Pokémon GO"],["pets","Aquariums"],["house","House"],["period","Period Tracker"],["treasures","Treasure Room"]
         ].map(([key,label])=>`
           <article class="banner-art-setting">
@@ -99,7 +104,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v16.36 · Sleep & Flower Garden</p>`,"settings");
+  <p class="app-version">LinaHub v16.37 · Health Hub & Smart Plant Care</p>`,"settings");
 }
 
 function bindSimple(){
@@ -131,7 +136,8 @@ function bindSimple(){
     const enabled=!!document.querySelector("#notificationsEnabled")?.checked;
     if(enabled && !(await linaRequestNotificationPermission())) return;
     const readTimes=selector=>[...document.querySelectorAll(`${selector} input[type=time]`)].map(input=>input.value).filter(Boolean);
-    data.notifications={...(data.notifications||{}),enabled,medication:!!document.querySelector("#medicationNotifications")?.checked,todayTasks:!!document.querySelector("#todayNotifications")?.checked,medicationTimes:readTimes("#medicationNotificationTimes"),todayTimes:readTimes("#todayNotificationTimes"),lastSent:data.notifications?.lastSent||{}};
+    const modules={};document.querySelectorAll("[data-module-reminder]").forEach(x=>modules[x.dataset.moduleReminder]=x.checked);
+    data.notifications={...(data.notifications||{}),enabled,medication:!!document.querySelector("#medicationNotifications")?.checked,todayTasks:!!document.querySelector("#todayNotifications")?.checked,dayCheckins:!!document.querySelector("#flowerNotifications")?.checked,dayCheckinStart:document.querySelector("#flowerReminderStart")?.value||"08:00",dayCheckinEnd:document.querySelector("#flowerReminderEnd")?.value||"22:00",dayCheckinEvery:Number(document.querySelector("#flowerReminderFrequency")?.value)||1,modules,medicationTimes:readTimes("#medicationNotificationTimes"),todayTimes:readTimes("#todayNotificationTimes"),lastSent:data.notifications?.lastSent||{}};
     saveData();linaStartNotificationChecks();toast(enabled?"Notifications saved":"Notifications switched off");
   });
   document.querySelector("#testNotification")?.addEventListener("click",async()=>{

@@ -17,7 +17,7 @@ function ensureHomeLayout(){
 
 const HOME_TILE_INFO={
   journal:["Daily Check-in","Pain, energy, sleep and your day","📖"],
-  health:["Weight & Measures","Track weight and measurements","⚖️"],
+  health:["Health","Sleep, medication, cycle and measurements","❤️"],
   plants:["Garden","Care and watering","🌿"],
   medication:["Medication","Doses and routines","💊"],
   pokemon:["Pokémon GO","Friendship, Vivillon and gifts","🔴"],
@@ -78,7 +78,8 @@ function homeTileStatus(id){
   }
   if(id==="health"){
     const latest=(data.weightEntries||[]).slice().sort((a,b)=>{const av=a.createdAt||`${a.date||""}T${a.time||"00:00"}`,bv=b.createdAt||`${b.date||""}T${b.time||"00:00"}`;return String(bv).localeCompare(String(av))})[0];
-    return latest?`Latest weight: ${latest.weight??latest.value??"saved"} kg`:"Add your first measurement";
+    const sleep=(data.sleepEntries||[]).slice().sort((a,b)=>String(b.createdAt||b.date).localeCompare(String(a.createdAt||a.date)))[0];
+    return sleep?`Last sleep: ${Math.floor((sleep.totalMinutes||0)/60)}h ${(sleep.totalMinutes||0)%60}m`:latest?`Latest weight: ${latest.weight??latest.value??"saved"} kg`:"Open your health dashboard";
   }
   if(id==="period"){
     if(typeof periodStats==="function"){

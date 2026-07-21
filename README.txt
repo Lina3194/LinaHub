@@ -1,9 +1,3 @@
-LinaHub v16.26
+LinaHub v16.37
 
-Changes:
-- Removed the redundant plant Overview tab.
-- Plant profiles now open on Care by default.
-- Moved last-watered and watering-count summaries into Care.
-- Made the profile photo preview substantially smaller and uncropped.
-
-All other functionality and data remain unchanged.
+Health dashboard, grouped health modules, clickable flower check-ins, central reminder settings, medication stock, and smart plant watering guidance.

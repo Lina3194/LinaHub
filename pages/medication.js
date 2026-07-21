@@ -11,7 +11,7 @@ function ensureMedicationData(){
   data.medications=Array.isArray(data.medications)?data.medications:[];
   data.medicationHistory=Array.isArray(data.medicationHistory)?data.medicationHistory:[];
   data.medicationView=data.medicationView||{tab:"today",date:medLocalDate(),historyMed:"all"};
-  data.medicationView.tab=["today","schedule","history"].includes(data.medicationView.tab)?data.medicationView.tab:"today";
+  data.medicationView.tab=["today","schedule","history","stock"].includes(data.medicationView.tab)?data.medicationView.tab:"today";
   if(!medicationDateTouched) data.medicationView.date=medLocalDate();
   else data.medicationView.date=data.medicationView.date||medLocalDate();
   data.medications=data.medications.map((m,i)=>({
@@ -117,16 +117,21 @@ function medicationHistoryTab(){
   return `<section class="card med-history-controls"><div><span class="section-kicker">📖 Dose history</span><h2>${logs.length} recorded ${logs.length===1?"dose":"doses"}</h2></div><select class="field" id="medHistoryFilter"><option value="all">All medication</option>${data.medications.map(m=>`<option value="${esc(m.id)}" ${filter===m.id?"selected":""}>${esc(m.name)}</option>`).join("")}</select></section>
   <section class="med-history-list">${logs.length?logs.map(log=>{const m=data.medications.find(x=>x.id===log.medId);return `<article class="card med-history-row">${m?medPhoto(m):`<span class="med-photo med-photo-placeholder">💊</span>`}<div><h2>${esc(m?.name||"Removed medication")}</h2><p>${medDateLabel(log.date)}${log.time?` · ${esc(log.time)}`:""}${log.notes?` · ${esc(log.notes)}`:""}</p></div><button class="mini" data-med-log-edit="${esc(log.id)}">Edit</button><button class="mini danger" data-med-log-delete="${esc(log.id)}">×</button></article>`}).join(""):`<section class="card empty"><h2>No doses recorded</h2><p>Marked doses will appear here with their exact date and time.</p></section>`}</section>`;
 }
+
+function medicationStockTab(){
+  return `<section class="card"><div class="section-title"><div><span class="section-kicker">📦 Stock</span><h2>Tablet stock</h2></div></div>${data.medications.length?`<div class="med-stock-list">${data.medications.map(m=>`<article><div><strong>${esc(m.name)}</strong><small>${esc(m.dose||"")}</small></div><span class="med-stock-count">${Number(m.stock)||0} left</span><button class="mini" data-med-stock="${esc(m.id)}">Update</button></article>`).join("")}</div>`:`<p>Add medication first.</p>`}</section>`;
+}
 function MedicationPage(){
   ensureMedicationData();
   const tab=data.medicationView.tab;
-  const content=tab==="schedule"?medicationScheduleTab():tab==="history"?medicationHistoryTab():medicationTodayTab();
+  const content=tab==="schedule"?medicationScheduleTab():tab==="history"?medicationHistoryTab():tab==="stock"?medicationStockTab():medicationTodayTab();
   return shell(`${head("Medication","Medication centre · v15.5")}
     <div class="med-page">${content}</div>
     <nav class="med-bottom-tabs" aria-label="Medication sections">
       <button class="${tab==="today"?"active":""}" data-med-tab="today">✓<small>Day</small></button>
       <button class="${tab==="schedule"?"active":""}" data-med-tab="schedule">＋<small>Medication</small></button>
       <button class="${tab==="history"?"active":""}" data-med-tab="history">◷<small>History</small></button>
+      <button class="${tab==="stock"?"active":""}" data-med-tab="stock">▣<small>Stock</small></button>
     </nav>`,"medication");
 }
 function medCompressPhoto(file){
@@ -178,6 +183,7 @@ function medEditLog(log){
 }
 function bindMedication(){
   ensureMedicationData();
+  document.querySelectorAll("[data-med-stock]").forEach(b=>b.onclick=()=>{const m=data.medications.find(x=>x.id===b.dataset.medStock);if(!m)return;const value=prompt(`How many ${m.name} are left?`,String(Number(m.stock)||0));if(value===null)return;const n=Number(value);if(!Number.isFinite(n)||n<0){toast("Enter a valid amount");return}m.stock=Math.floor(n);saveData();render()});
   document.querySelectorAll("[data-med-tab]").forEach(b=>b.onclick=()=>{data.medicationView.tab=b.dataset.medTab;saveData();render()});
   document.querySelector("#medSelectedDate")?.addEventListener("change",e=>{medicationDateTouched=true;data.medicationView.date=e.target.value||medLocalDate();saveData();render()});
   document.querySelectorAll("[data-med-take]").forEach(b=>b.onclick=()=>{

@@ -86,9 +86,8 @@ function SettingsPage(){
       </div>
     </section>
     <section class="card settings-accordion" data-settings-accordion="banners">
-      <button type="button" class="settings-accordion-toggle" aria-expanded="false"><span><strong>Module banner pictures</strong><small>Add or remove the wide pictures shown inside sections</small></span><b aria-hidden="true">⌄</b></button>
+      <button type="button" class="settings-accordion-toggle" aria-expanded="false"><span><strong>Banners</strong><small>Section header pictures</small></span><b aria-hidden="true">⌄</b></button>
       <div class="settings-collapse-body" hidden>
-      <p>Add a wide banner to the top of each section. These are separate from the square Home tab pictures.</p>
       <div class="banner-art-grid">
         ${[
           ["journal","Daily Check-in"],["today","Today"],["todo","To-do"],["health","Health"],
@@ -97,14 +96,13 @@ function SettingsPage(){
           <article class="banner-art-setting">
             <div class="banner-art-preview">${data.moduleBanners?.[key]?`<img src="${data.moduleBanners[key]}" alt="">`:`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`}</div>
             <strong>${label}</strong>
-            <div class="tab-art-actions">
-              <button type="button" class="secondary compact-upload" data-pick-banner-image="${key}">Add banner</button>
+            <div class="banner-art-actions">
+              <button type="button" class="secondary compact-upload" data-pick-banner-image="${key}">${data.moduleBanners?.[key]?"Change":"Add"}</button>
               <input type="file" accept="image/*" data-banner-image="${key}" hidden>
-              ${data.moduleBanners?.[key]?`<button class="mini danger" data-remove-banner-image="${key}">Remove</button>`:""}
+              ${data.moduleBanners?.[key]?`<button class="mini danger" data-remove-banner-image="${key}" aria-label="Remove ${label} banner">×</button>`:""}
             </div>
           </article>`).join("")}
       </div>
-      <p class="settings-note">Banner images are resized before saving and are included in your backup.</p>
       </div>
     </section>
 
@@ -114,7 +112,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v16.48 · Aquarium Today Tasks</p>`,"settings");
+  <p class="app-version">LinaHub v16.49 · Compact Banners</p>`,"settings");
 }
 
 function bindSimple(){
@@ -218,7 +216,7 @@ function bindSimple(){
           canvas.width=size;canvas.height=size;
           const ctx=canvas.getContext("2d");
           ctx.drawImage(img,(size-width)/2,(size-height)/2,width,height);
-          resolve(canvas.toDataURL("image/jpeg",0.78));
+          resolve(canvas.toDataURL("image/jpeg",0.86));
         };
         img.src=reader.result;
       };
@@ -283,14 +281,14 @@ function bindSimple(){
         const img=new Image();
         img.onerror=()=>reject(new Error("Could not open image"));
         img.onload=()=>{
-          const width=1200,height=420;
+          const width=1400,height=560;
           const scale=Math.max(width/img.width,height/img.height);
           const drawW=img.width*scale,drawH=img.height*scale;
           const canvas=document.createElement("canvas");
           canvas.width=width;canvas.height=height;
           const ctx=canvas.getContext("2d");
           ctx.drawImage(img,(width-drawW)/2,(height-drawH)/2,drawW,drawH);
-          resolve(canvas.toDataURL("image/jpeg",0.78));
+          resolve(canvas.toDataURL("image/jpeg",0.86));
         };
         img.src=reader.result;
       };

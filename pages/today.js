@@ -50,10 +50,14 @@ function getTodayItems(){
     }
   });
 
-  const tanksNeedingFeed=(data.aquariums||[]).filter(tank=>!tankFeedToday(tank));
-  if(tanksNeedingFeed.length){
-    items.push({emoji:"🐠",title:tanksNeedingFeed.length===(data.aquariums||[]).length?"Feed the fish tanks":`Feed ${tanksNeedingFeed.map(t=>t.name).join(" & ")}`,detail:tanksNeedingFeed.map(t=>t.name).join(" · "),route:"pets",kind:"Aquariums"});
-  }
+  const aquariumOrder=["boys-tank","girls-tank"];
+  [...(data.aquariums||[])]
+    .sort((a,b)=>aquariumOrder.indexOf(a.id)-aquariumOrder.indexOf(b.id))
+    .forEach(tank=>{
+      if(tankFeedToday(tank)) return;
+      const label=tank.id==="boys-tank"?"Feed boys’ tank":tank.id==="girls-tank"?"Feed girls’ tank":`Feed ${tank.name}`;
+      items.push({emoji:tank.emoji||"🐠",title:label,detail:"Tap ✓ when fed",route:"tank",routeId:tank.id,kind:"Aquariums",completeType:"aquarium-feed",completeId:tank.id});
+    });
 
   items.push({emoji:"💜",title:data.checkins[today()]?"Review today’s check-in":"Complete today’s check-in",detail:data.checkins[today()]?"Saved for today":"Not completed yet",route:"journal",kind:"Journal"});
   return items;
@@ -118,6 +122,12 @@ function bindToday(){
       data.medicationHistory=Array.isArray(data.medicationHistory)?data.medicationHistory:[];
       data.medicationHistory.push({id:`dose-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,medId:med.id,date:today(),time:`${pad(now.getHours())}:${pad(now.getMinutes())}`,notes:'',createdAt:now.toISOString()});
       message=`${med.name} marked as taken 💊`;
+    }else if(type==='aquarium-feed'){
+      const tank=(data.aquariums||[]).find(item=>String(item.id)===id);
+      if(!tank)return;
+      tank.feeds=Array.isArray(tank.feeds)?tank.feeds:[];
+      if(!tankFeedToday(tank)) tank.feeds.push({id:`feed-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,food:"Fed from Today",createdAt:new Date().toISOString()});
+      message=`${tank.name} fed 🐠`;
     }else return;
 
     saveData();

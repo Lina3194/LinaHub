@@ -554,3 +554,11 @@ body[data-route="health"] .health-feeling,body[data-route="health"] .health-circ
 .journey-empty small{margin-top:4px}
 .empty-journey:before{display:none}
 @media(max-width:600px){.journey-entry{grid-template-columns:42px 30px 1fr;gap:7px}.journey-timeline:before{left:56px}.journey-values{gap:3px;padding:8px 5px}.journey-values small{font-size:.56rem}.journey-orb{width:28px;height:28px}.journey-orb span{width:16px;height:16px}.journey-time{font-size:.68rem}}
+
+
+/* 16.41 Health selection and back-flow polish */
+.health-feeling{position:relative}
+.health-feeling.active{border-color:var(--accent);outline:3px solid color-mix(in srgb,var(--accent) 42%,transparent);background:var(--accent-soft);box-shadow:0 0 0 2px var(--card) inset}
+.health-feeling.active span{transform:scale(1.16);filter:drop-shadow(0 2px 5px rgba(0,0,0,.16))}
+.health-feeling.active:after{content:"✓";position:absolute;right:5px;top:4px;width:16px;height:16px;border-radius:50%;display:grid;place-items:center;background:var(--accent);color:white;font-size:.62rem;font-weight:900}
+.health-dashboard-stats>div>small:last-child{margin-top:2px;font-size:.68rem;color:var(--muted)}

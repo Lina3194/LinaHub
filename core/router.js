@@ -121,6 +121,14 @@ function go(next,id="",direction="forward",options={}){
 }
 
 function goBack(fallback="home"){
+  if(route==="health" && data.healthView && data.healthView.tab && data.healthView.tab!=="dashboard"){
+    data.healthView.tab="dashboard";
+    saveData();
+    navDirection="back";
+    render();
+    try{window.scrollTo({top:0,left:0,behavior:"auto"})}catch{window.scrollTo(0,0)}
+    return;
+  }
   const previous=navigationHistory.pop();
   if(previous){
     go(previous.route,previous.routeId,"back",{replace:true});

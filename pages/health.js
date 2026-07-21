@@ -40,27 +40,42 @@ function healthRangeStart(range){
   return d;
 }
 function healthRangeButtons(kind,current){
-  return `<div class="health-range-tabs" aria-label="Graph range">${[["1m","Month"],["3m","3 months"],["6m","6 months"],["1y","Year"],["all","Longer"]].map(([value,label])=>`<button type="button" class="${current===value?"active":""}" data-health-range="${kind}" data-range-value="${value}">${label}</button>`).join("")}</div>`;
+  return `<div class="health-range-tabs" aria-label="Graph range">${[["1m","1M"],["3m","3M"],["6m","6M"],["1y","1Y"],["all","All"]].map(([value,label])=>`<button type="button" class="${current===value?"active":""}" data-health-range="${kind}" data-range-value="${value}">${label}</button>`).join("")}</div>`;
+}
+function healthPointDate(entry){
+  if(entry?.createdAt){const d=new Date(entry.createdAt);if(!Number.isNaN(d.getTime()))return d}
+  if(!entry?.date)return null;
+  const time=entry.time||"12:00";
+  const d=new Date(`${entry.date}T${time}:00`);
+  return Number.isNaN(d.getTime())?healthDateValue(entry):d;
 }
 function healthGraph(entries,series,range){
   const start=healthRangeStart(range);
-  const filtered=entries.filter(entry=>{const d=healthDateValue(entry);return d&&(!start||d>=start)}).sort((a,b)=>healthSortValue(a).localeCompare(healthSortValue(b)));
-  const points=[];
-  filtered.forEach(entry=>series.forEach(item=>{const value=Number(item.get(entry));if(Number.isFinite(value))points.push({entry,item,value,date:healthDateValue(entry)})}));
-  if(!points.length)return `<div class="health-graph-empty">Not enough entries in this range yet.</div>`;
-  const min=Math.min(...points.map(p=>p.value)),max=Math.max(...points.map(p=>p.value));
-  const padValue=Math.max((max-min)*.12,1),low=min-padValue,high=max+padValue;
-  const dates=filtered.map(healthDateValue).filter(Boolean),minTime=Math.min(...dates.map(d=>d.getTime())),maxTime=Math.max(...dates.map(d=>d.getTime()));
-  const x=d=>maxTime===minTime?50:8+((d.getTime()-minTime)/(maxTime-minTime))*84;
-  const y=v=>88-((v-low)/(high-low))*76;
+  const filtered=entries.filter(entry=>{const d=healthPointDate(entry);return d&&(!start||d>=start)}).sort((a,b)=>healthSortValue(a).localeCompare(healthSortValue(b)));
+  const allPoints=[];
+  filtered.forEach(entry=>series.forEach(item=>{const value=Number(item.get(entry));if(Number.isFinite(value))allPoints.push({entry,item,value,date:healthPointDate(entry)})}));
+  if(!allPoints.length)return `<div class="health-graph-empty">Not enough entries in this range yet.</div>`;
+  const min=Math.min(...allPoints.map(p=>p.value)),max=Math.max(...allPoints.map(p=>p.value));
+  const spread=Math.max(max-min,.4),padValue=Math.max(spread*.22,.25),low=min-padValue,high=max+padValue;
+  const dates=filtered.map(healthPointDate).filter(Boolean),minTime=Math.min(...dates.map(d=>d.getTime())),maxTime=Math.max(...dates.map(d=>d.getTime()));
+  const x=d=>maxTime===minTime?55:14+((d.getTime()-minTime)/(maxTime-minTime))*80;
+  const y=v=>84-((v-low)/(high-low))*66;
+  const grid=[0,.25,.5,.75,1].map((fraction,index)=>{const gy=84-fraction*66;const value=low+fraction*(high-low);return `<line x1="14" y1="${gy.toFixed(2)}" x2="94" y2="${gy.toFixed(2)}" class="health-chart-grid"></line><text x="11" y="${(gy+1.5).toFixed(2)}" class="health-chart-y-label" text-anchor="end">${value.toFixed(series.length===1?1:0)}</text>`}).join("");
   const lines=series.map((item,index)=>{
-    const itemPoints=filtered.map(entry=>({entry,date:healthDateValue(entry),value:Number(item.get(entry))})).filter(p=>p.date&&Number.isFinite(p.value));
+    const itemPoints=filtered.map(entry=>({entry,date:healthPointDate(entry),value:Number(item.get(entry))})).filter(p=>p.date&&Number.isFinite(p.value));
     if(!itemPoints.length)return "";
     const path=itemPoints.map((p,i)=>`${i?"L":"M"} ${x(p.date).toFixed(2)} ${y(p.value).toFixed(2)}`).join(" ");
-    return `<path class="health-chart-line series-${index+1}" d="${path}" vector-effect="non-scaling-stroke"></path>${itemPoints.map(p=>`<circle class="health-chart-dot series-${index+1}" cx="${x(p.date).toFixed(2)}" cy="${y(p.value).toFixed(2)}" r="1.7"><title>${item.label}: ${p.value} ${item.unit} · ${formatDate(p.entry.date)}</title></circle>`).join("")}`;
+    return `<path class="health-chart-line series-${index+1}" d="${path}" vector-effect="non-scaling-stroke"></path>${itemPoints.map(p=>`<circle class="health-chart-dot series-${index+1}" cx="${x(p.date).toFixed(2)}" cy="${y(p.value).toFixed(2)}" r="2.1"><title>${item.label}: ${p.value} ${item.unit} · ${formatDate(p.entry.date)}${healthEntryTime(p.entry)?` · ${healthEntryTime(p.entry)}`:""}</title></circle>`).join("")}`;
+  }).join("");
+  const summaries=series.map((item,index)=>{
+    const vals=filtered.map(entry=>Number(item.get(entry))).filter(Number.isFinite);
+    if(!vals.length)return "";
+    const change=vals[vals.length-1]-vals[0],average=vals.reduce((a,b)=>a+b,0)/vals.length;
+    const arrow=change<0?"↓":change>0?"↑":"→";
+    return `<div class="health-trend-stat series-${index+1}"><span>${item.label}</span><strong>${arrow} ${change>0?"+":""}${change.toFixed(1)} ${item.unit}</strong><small>${average.toFixed(1)} ${item.unit} average</small></div>`;
   }).join("");
   const first=dates[0],last=dates[dates.length-1];
-  return `<div class="health-chart-wrap"><svg class="health-chart" viewBox="0 0 100 100" role="img" aria-label="History graph"><line x1="8" y1="88" x2="92" y2="88" class="health-chart-axis"></line><line x1="8" y1="12" x2="8" y2="88" class="health-chart-axis"></line>${lines}</svg><div class="health-chart-dates"><span>${first?first.toLocaleDateString("en-GB",{day:"numeric",month:"short"}):""}</span><span>${last?last.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):""}</span></div><div class="health-chart-legend">${series.map((item,i)=>`<span class="series-${i+1}"><i></i>${item.label}</span>`).join("")}</div></div>`;
+  return `<div class="health-trend-summary">${summaries}</div><div class="health-chart-wrap"><svg class="health-chart" viewBox="0 0 100 100" role="img" aria-label="History line chart">${grid}<line x1="14" y1="84" x2="94" y2="84" class="health-chart-axis"></line>${lines}</svg><div class="health-chart-dates"><span>${first?first.toLocaleDateString("en-GB",{day:"numeric",month:"short"}):""}</span><span>${last?last.toLocaleDateString("en-GB",{day:"numeric",month:"short",year:"numeric"}):""}</span></div><div class="health-chart-legend">${series.map((item,i)=>`<span class="series-${i+1}"><i></i>${item.label}</span>`).join("")}</div></div>`;
 }
 function HealthPage(){
  ensureHealthView();

@@ -452,3 +452,21 @@ body[data-route="medication"] .med-dose-card{overflow:hidden}
 .health-chart-wrap{margin-top:13px}.health-chart{display:block;width:100%;height:auto;max-height:260px;background:color-mix(in srgb,var(--soft) 75%,transparent);border:1px solid var(--line);border-radius:18px;padding:8px}.health-chart-axis{stroke:color-mix(in srgb,var(--muted) 45%,transparent);stroke-width:.5}.health-chart-line{fill:none;stroke:var(--accent);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}.health-chart-dot{fill:var(--accent);stroke:var(--card);stroke-width:.7}.health-chart-line.series-2{stroke:var(--gold)}.health-chart-dot.series-2{fill:var(--gold)}
 .health-chart-dates,.health-chart-legend{display:flex;align-items:center;justify-content:space-between;color:var(--muted);font-size:.73rem;margin-top:5px}.health-chart-legend{justify-content:center;gap:18px}.health-chart-legend span{display:flex;align-items:center;gap:5px}.health-chart-legend i{width:10px;height:10px;border-radius:50%;background:var(--accent)}.health-chart-legend .series-2 i{background:var(--gold)}.health-graph-empty{padding:30px 12px;text-align:center;color:var(--muted)}
 @media(max-width:520px){.health-tabs{grid-template-columns:.55fr 1fr 1fr}.health-tabs button{font-size:.72rem;padding:10px 4px}.med-date-card{padding:14px!important}.med-quick-list{padding:8px!important}.med-quick-row{padding:9px}.health-chart{max-height:220px}}
+
+/* v16.30 connected health trend charts */
+.health-range-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;overflow:visible}
+.health-range-tabs button{min-width:0;padding:8px 4px;font-size:.75rem}
+.health-trend-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;margin:13px 0 10px}
+.health-trend-stat{padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:color-mix(in srgb,var(--soft) 82%,transparent);display:grid;gap:2px}
+.health-trend-stat span,.health-trend-stat small{font-size:.7rem;color:var(--muted)}
+.health-trend-stat strong{font-size:.93rem;color:var(--purple)}
+.health-trend-stat.series-2 strong{color:var(--gold)}
+.health-chart{height:230px;max-height:none;padding:7px 6px 5px;overflow:visible}
+.health-chart-grid{stroke:color-mix(in srgb,var(--muted) 20%,transparent);stroke-width:.45;stroke-dasharray:2 2}
+.health-chart-axis{stroke:color-mix(in srgb,var(--muted) 55%,transparent);stroke-width:.7}
+.health-chart-y-label{fill:var(--muted);font-size:3.4px;font-weight:700}
+.health-chart-line{stroke:var(--purple);stroke-width:3;filter:drop-shadow(0 0 2px color-mix(in srgb,var(--purple) 55%,transparent))}
+.health-chart-dot{fill:var(--card);stroke:var(--purple);stroke-width:1.25}
+.health-chart-line.series-2{stroke:var(--gold)}
+.health-chart-dot.series-2{fill:var(--card);stroke:var(--gold)}
+@media(max-width:520px){.health-chart{height:190px}.health-trend-summary{grid-template-columns:1fr 1fr}.health-trend-stat{padding:8px 10px}.health-chart-y-label{font-size:3.8px}}

@@ -18,8 +18,10 @@ function SettingsPage(){
         <p class="settings-note">Your current data stays on this device until you sign in. The first signed-in device safely creates your cloud copy.</p>`}
     </section>
 
-    <section class="card notification-settings-card">
-      <div class="cloud-card-head"><div><h2>Notifications</h2><p>Medication and Today reminders while LinaHub is installed or open.</p></div><span class="notification-permission" id="notificationPermission">${typeof Notification!=="undefined"?Notification.permission:"unsupported"}</span></div>
+    <details class="card settings-collapse notification-settings-card">
+      <summary><span><strong>Notifications</strong><small>Medication, Today and other reminders</small></span><b aria-hidden="true">⌄</b></summary>
+      <div class="settings-collapse-body">
+      <div class="cloud-card-head"><div><h2>Notification settings</h2><p>Medication and Today reminders while LinaHub is installed or open.</p></div><span class="notification-permission" id="notificationPermission">${typeof Notification!=="undefined"?Notification.permission:"unsupported"}</span></div>
       <label class="settings-toggle"><input type="checkbox" id="notificationsEnabled" ${data.notifications?.enabled?"checked":""}><span><strong>Enable notifications</strong><small>Allow LinaHub to send reminders on this device.</small></span></label>
       <div class="notification-options ${data.notifications?.enabled?"":"muted"}" id="notificationOptions">
         <div class="notification-kind-block">
@@ -40,9 +42,12 @@ function SettingsPage(){
       </div>
       <div class="cloud-actions"><button class="primary" id="saveNotifications">Save notifications</button><button class="secondary" id="testNotification">Send test</button></div>
       <p class="settings-note">On iPhone, notifications require LinaHub to be added to your Home Screen. Timed reminders are checked whenever LinaHub is running; reliable reminders while it is fully closed would require a push-notification service.</p>
-    </section>
+      </div>
+    </details>
 
-    <section class="card" id="appearanceSettings">
+    <details class="card settings-collapse" id="appearanceSettings">
+      <summary><span><strong>Themes & appearance</strong><small>Colours, sanctuary theme and light or dark mode</small></span><b aria-hidden="true">⌄</b></summary>
+      <div class="settings-collapse-body">
       <h2>Appearance</h2>
       <p>Choose a full LinaHub sanctuary. Each one changes the background, cards, buttons, navigation and atmosphere across the whole app.</p>
       <div class="theme-choice-grid">
@@ -54,7 +59,8 @@ function SettingsPage(){
         ].map(([key,label])=>`<button type="button" class="theme-choice ${data.colorTheme===key?"active":""}" data-color-theme="${key}"><span class="theme-swatch swatch-${key}"></span><strong>${label}</strong></button>`).join("")}
       </div>
       <button class="secondary" id="themeToggle2" style="margin-top:12px">Switch to ${data.theme==="dark"?"light":"dark"} mode</button>
-    </section>
+      </div>
+    </details>
 
     <details class="card settings-collapse">
       <summary><span><strong>Home tab pictures & icons</strong><small>Change Home tile pictures and emoji</small></span><b aria-hidden="true">⌄</b></summary>
@@ -108,7 +114,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v16.44 · Long-press & Compact Settings</p>`,"settings");
+  <p class="app-version">LinaHub v16.45 · Compact Settings</p>`,"settings");
 }
 
 function bindSimple(){
@@ -165,7 +171,9 @@ function bindSimple(){
   });
   if(data.settingsSection==="appearance"){
     data.settingsSection="";
-    setTimeout(()=>document.querySelector("#appearanceSettings")?.scrollIntoView({behavior:"smooth",block:"start"}),60);
+    const appearance=document.querySelector("#appearanceSettings");
+    if(appearance) appearance.open=true;
+    setTimeout(()=>appearance?.scrollIntoView({behavior:"smooth",block:"start"}),60);
   }
 
   document.querySelector("#saveHomeIcons")?.addEventListener("click",()=>{

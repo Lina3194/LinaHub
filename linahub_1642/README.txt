@@ -1,2 +1,3 @@
-LinaHub v16.44
-Long-press tile editing fixed for phones. Home pictures/icons and module banners are collapsed in Settings.
+LinaHub v16.45
+
+Removed the unreliable long-press tile editor. Settings now uses collapsed sections for Notifications, Themes, Home icons and Module banners.

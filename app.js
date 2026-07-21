@@ -247,6 +247,10 @@ function linaNotificationConfig(){
   cfg.enabled=!!cfg.enabled;
   cfg.medication=cfg.medication!==false;
   cfg.todayTasks=cfg.todayTasks!==false;
+  cfg.dayCheckins=!!cfg.dayCheckins;
+  cfg.dayCheckinStart=cfg.dayCheckinStart||"08:00";
+  cfg.dayCheckinEnd=cfg.dayCheckinEnd||"22:00";
+  cfg.dayCheckinEvery=Math.max(1,Number(cfg.dayCheckinEvery)||1);
   cfg.medicationTimes=Array.isArray(cfg.medicationTimes)&&cfg.medicationTimes.length?cfg.medicationTimes:[cfg.medicationTime||"09:00"];
   cfg.todayTimes=Array.isArray(cfg.todayTimes)&&cfg.todayTimes.length?cfg.todayTimes:[cfg.todayTime||"09:15"];
   cfg.medicationTimes=[...new Set(cfg.medicationTimes.filter(Boolean))].sort();
@@ -306,6 +310,20 @@ async function linaCheckNotifications(){
       const count=linaPendingTodayTaskCount(dateValue);
       if(count>0) await linaShowNotification("Today in LinaHub",{body:`You have ${count} unfinished ${count===1?"task":"tasks"} due today.`,tag:`linahub-today-${dateValue}-${reminderTime}`,data:{route:"today"}});
       cfg.lastSent[sentKey]=true; saveData();
+    }
+  }
+  if(cfg.dayCheckins){
+    const toMinutes=value=>{const [h,m]=String(value||"00:00").split(":").map(Number);return h*60+m};
+    const nowMinutes=now.getHours()*60+now.getMinutes(),startMinutes=toMinutes(cfg.dayCheckinStart),endMinutes=toMinutes(cfg.dayCheckinEnd),step=cfg.dayCheckinEvery*60;
+    if(nowMinutes>=startMinutes&&nowMinutes<=endMinutes){
+      const slot=startMinutes+Math.floor((nowMinutes-startMinutes)/step)*step;
+      const slotHour=String(Math.floor(slot/60)).padStart(2,"0"),slotMinute=String(slot%60).padStart(2,"0"),slotTime=`${slotHour}:${slotMinute}`;
+      const sentKey=`flower:${dateValue}:${slotTime}`;
+      const alreadyLogged=(data.dayCheckins||[]).some(entry=>entry.date===dateValue&&String(entry.time||"")>=slotTime&&toMinutes(entry.time)<slot+step);
+      if(nowMinutes-slot<=15&&!alreadyLogged&&!cfg.lastSent[sentKey]){
+        await linaShowNotification("How are your energy and mood? 🌸",{body:"Add a quick check-in and grow today’s bouquet.",tag:`linahub-flower-${dateValue}-${slotTime}`,data:{route:"health"}});
+        cfg.lastSent[sentKey]=true;saveData();
+      }
     }
   }
 }

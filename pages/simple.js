@@ -99,7 +99,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v16.34 · Recurring Chore Reset</p>`,"settings");
+  <p class="app-version">LinaHub v16.36 · Sleep & Flower Garden</p>`,"settings");
 }
 
 function bindSimple(){

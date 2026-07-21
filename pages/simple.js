@@ -18,8 +18,10 @@ function SettingsPage(){
         <p class="settings-note">Your current data stays on this device until you sign in. The first signed-in device safely creates your cloud copy.</p>`}
     </section>
 
-    <section class="card notification-settings-card">
-      <div class="cloud-card-head"><div><h2>Notifications</h2><p>Medication and Today reminders while LinaHub is installed or open.</p></div><span class="notification-permission" id="notificationPermission">${typeof Notification!=="undefined"?Notification.permission:"unsupported"}</span></div>
+    <section class="card settings-accordion notification-settings-card" data-settings-accordion="notifications">
+      <button type="button" class="settings-accordion-toggle" aria-expanded="false"><span><strong>Notifications</strong><small>Medication, Today and other reminders</small></span><b aria-hidden="true">⌄</b></button>
+      <div class="settings-collapse-body" hidden>
+      <div class="cloud-card-head"><div><h2>Notification settings</h2><p>Medication and Today reminders while LinaHub is installed or open.</p></div><span class="notification-permission" id="notificationPermission">${typeof Notification!=="undefined"?Notification.permission:"unsupported"}</span></div>
       <label class="settings-toggle"><input type="checkbox" id="notificationsEnabled" ${data.notifications?.enabled?"checked":""}><span><strong>Enable notifications</strong><small>Allow LinaHub to send reminders on this device.</small></span></label>
       <div class="notification-options ${data.notifications?.enabled?"":"muted"}" id="notificationOptions">
         <div class="notification-kind-block">
@@ -40,9 +42,12 @@ function SettingsPage(){
       </div>
       <div class="cloud-actions"><button class="primary" id="saveNotifications">Save notifications</button><button class="secondary" id="testNotification">Send test</button></div>
       <p class="settings-note">On iPhone, notifications require LinaHub to be added to your Home Screen. Timed reminders are checked whenever LinaHub is running; reliable reminders while it is fully closed would require a push-notification service.</p>
+      </div>
     </section>
 
-    <section class="card" id="appearanceSettings">
+    <section class="card settings-accordion" id="appearanceSettings" data-settings-accordion="appearance">
+      <button type="button" class="settings-accordion-toggle" aria-expanded="false"><span><strong>Themes & appearance</strong><small>Colours, sanctuary theme and light or dark mode</small></span><b aria-hidden="true">⌄</b></button>
+      <div class="settings-collapse-body" hidden>
       <h2>Appearance</h2>
       <p>Choose a full LinaHub sanctuary. Each one changes the background, cards, buttons, navigation and atmosphere across the whole app.</p>
       <div class="theme-choice-grid">
@@ -54,10 +59,12 @@ function SettingsPage(){
         ].map(([key,label])=>`<button type="button" class="theme-choice ${data.colorTheme===key?"active":""}" data-color-theme="${key}"><span class="theme-swatch swatch-${key}"></span><strong>${label}</strong></button>`).join("")}
       </div>
       <button class="secondary" id="themeToggle2" style="margin-top:12px">Switch to ${data.theme==="dark"?"light":"dark"} mode</button>
+      </div>
     </section>
 
-    <section class="card">
-      <h2>Home tab pictures & icons</h2>
+    <section class="card settings-accordion" data-settings-accordion="icons">
+      <button type="button" class="settings-accordion-toggle" aria-expanded="false"><span><strong>Home tab pictures & icons</strong><small>Change Home tile pictures and emoji</small></span><b aria-hidden="true">⌄</b></button>
+      <div class="settings-collapse-body" hidden>
       <p>Add your own picture to any home tab. When a picture is set, it replaces that tab’s emoji. Removing it brings the emoji back.</p>
       <div class="tab-art-grid">
         ${[
@@ -76,9 +83,11 @@ function SettingsPage(){
       </div>
       <button class="primary" id="saveHomeIcons" style="margin-top:12px">Save emojis</button>
       <p class="settings-note">Pictures are resized before being saved so LinaHub stays fast. They are included in your LinaHub backup.</p>
+      </div>
     </section>
-    <section class="card">
-      <h2>Module banner pictures</h2>
+    <section class="card settings-accordion" data-settings-accordion="banners">
+      <button type="button" class="settings-accordion-toggle" aria-expanded="false"><span><strong>Module banner pictures</strong><small>Add or remove the wide pictures shown inside sections</small></span><b aria-hidden="true">⌄</b></button>
+      <div class="settings-collapse-body" hidden>
       <p>Add a wide banner to the top of each section. These are separate from the square Home tab pictures.</p>
       <div class="banner-art-grid">
         ${[
@@ -96,6 +105,7 @@ function SettingsPage(){
           </article>`).join("")}
       </div>
       <p class="settings-note">Banner images are resized before saving and are included in your backup.</p>
+      </div>
     </section>
 
     <section class="card">
@@ -104,10 +114,21 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v16.40 · Navigation & Health Fix</p>`,"settings");
+  <p class="app-version">LinaHub v16.46 · Working Settings Accordions</p>`,"settings");
 }
 
 function bindSimple(){
+  document.querySelectorAll("[data-settings-accordion]").forEach(section=>{
+    const toggle=section.querySelector(".settings-accordion-toggle");
+    const body=section.querySelector(".settings-collapse-body");
+    if(!toggle||!body)return;
+    toggle.addEventListener("click",()=>{
+      const opening=body.hidden;
+      body.hidden=!opening;
+      toggle.setAttribute("aria-expanded",String(opening));
+      section.classList.toggle("is-open",opening);
+    });
+  });
   document.querySelector("#cloudSignIn")?.addEventListener("click",linaSignIn);
   document.querySelector("#cloudSignOut")?.addEventListener("click",linaSignOut);
   document.querySelector("#cloudUploadNow")?.addEventListener("click",forceCloudUpload);
@@ -161,7 +182,11 @@ function bindSimple(){
   });
   if(data.settingsSection==="appearance"){
     data.settingsSection="";
-    setTimeout(()=>document.querySelector("#appearanceSettings")?.scrollIntoView({behavior:"smooth",block:"start"}),60);
+    const appearance=document.querySelector("#appearanceSettings");
+    const appearanceBody=appearance?.querySelector(".settings-collapse-body");
+    const appearanceToggle=appearance?.querySelector(".settings-accordion-toggle");
+    if(appearanceBody&&appearanceToggle){appearanceBody.hidden=false;appearanceToggle.setAttribute("aria-expanded","true");appearance.classList.add("is-open");}
+    setTimeout(()=>appearance?.scrollIntoView({behavior:"smooth",block:"start"}),60);
   }
 
   document.querySelector("#saveHomeIcons")?.addEventListener("click",()=>{

@@ -120,3 +120,17 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .home-tile-wrap .tile-status{font-size:.63rem}
   .home-tile-wrap.size-wide .module{min-height:100px}
 }
+
+
+/* v16.43 — long press any dashboard tile to customise it */
+.customisable-tile{position:relative;-webkit-touch-callout:none;user-select:none;transition:transform .16s ease,filter .16s ease,border-color .16s ease;background-color .16s ease}
+.customisable-tile.tile-longpress-active{transform:scale(.965);filter:brightness(1.08)}
+.customisable-tile.has-custom-accent{border-color:color-mix(in srgb,var(--universal-tile-accent) 52%,var(--line))!important;background:linear-gradient(145deg,color-mix(in srgb,var(--universal-tile-accent) 13%,var(--card)) 0%,var(--card) 78%)!important}
+.customisable-tile.has-custom-accent::after{content:"";position:absolute;top:12px;right:12px;width:8px;height:8px;border-radius:50%;background:var(--universal-tile-accent);box-shadow:0 0 14px color-mix(in srgb,var(--universal-tile-accent) 78%,transparent)}
+.universal-tile-editor-backdrop{z-index:9000}
+.universal-tile-preview{display:flex;align-items:center;gap:12px;margin:4px 0 16px;padding:14px;border:1px solid color-mix(in srgb,var(--universal-tile-accent) 52%,var(--line));border-radius:18px;background:linear-gradient(145deg,color-mix(in srgb,var(--universal-tile-accent) 14%,var(--card)),var(--card))}
+.universal-tile-preview span{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:color-mix(in srgb,var(--universal-tile-accent) 20%,transparent);font-size:1.8rem}
+.universal-tile-preview strong{font-size:1rem}
+.emoji-quick-picks{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin:8px 0 16px}
+.emoji-quick-picks button{aspect-ratio:1;border:1px solid var(--line);border-radius:12px;background:var(--soft);font-size:1.25rem;color:var(--ink)}
+@media(max-width:520px){.emoji-quick-picks{grid-template-columns:repeat(6,minmax(0,1fr))}.universal-tile-editor{max-height:84vh}.universal-tile-preview{padding:12px}}

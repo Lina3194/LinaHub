@@ -1246,3 +1246,35 @@ body[data-route="health"] .compact-measure-date{margin-bottom:8px!important}
 /* v16.33 stable navigation */
 .page-enter,.page-enter.from-right,.page-enter.from-left,.button-back-exit{animation:none!important;transform:none!important;opacity:1!important}
 .shell,.card,[data-health-tab],[data-route],.profile-tabs button,.health-tabs button,.home-tile{transition:none!important}
+
+
+/* v16.44 — dependable long-press editing on phones */
+.customisable-tile{-webkit-touch-callout:none;-webkit-user-select:none;user-select:none;touch-action:pan-y;position:relative}
+.customisable-tile.tile-longpress-active{transform:scale(.975)!important;filter:brightness(1.08);outline:2px solid color-mix(in srgb,var(--universal-tile-accent,var(--purple)) 70%,transparent);outline-offset:2px}
+.customisable-tile.has-custom-accent{box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--universal-tile-accent) 55%,transparent),0 12px 28px rgba(0,0,0,.13)!important}
+
+/* v16.44 — compact collapsed picture settings */
+.settings-collapse{padding:0!important;overflow:hidden}
+.settings-collapse>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:14px;cursor:pointer;padding:17px 18px;min-height:64px;-webkit-tap-highlight-color:transparent}
+.settings-collapse>summary::-webkit-details-marker{display:none}
+.settings-collapse>summary span{display:grid;gap:3px;min-width:0}
+.settings-collapse>summary strong{font-size:1.02rem}
+.settings-collapse>summary small{color:var(--muted);font-size:.78rem;font-weight:500}
+.settings-collapse>summary b{font-size:1.25rem;color:var(--muted);transition:transform .2s ease}
+.settings-collapse[open]>summary b{transform:rotate(180deg)}
+.settings-collapse[open]>summary{border-bottom:1px solid var(--line)}
+.settings-collapse-body{padding:16px 18px 18px}
+.settings-collapse-body>p:first-child{margin-top:0}
+@media(max-width:520px){.settings-collapse>summary{padding:14px 15px;min-height:58px}.settings-collapse-body{padding:14px}.settings-collapse>summary strong{font-size:.96rem}.settings-collapse>summary small{font-size:.72rem}}
+
+/* v16.46 reliable Settings accordions */
+.settings-accordion{padding:0!important;overflow:hidden}
+.settings-accordion-toggle{appearance:none;-webkit-appearance:none;border:0;background:transparent;color:inherit;width:100%;display:flex;align-items:center;justify-content:space-between;gap:14px;text-align:left;cursor:pointer;padding:17px 18px;min-height:64px;font:inherit;-webkit-tap-highlight-color:transparent}
+.settings-accordion-toggle span{display:grid;gap:3px;min-width:0}
+.settings-accordion-toggle strong{font-size:1.02rem}
+.settings-accordion-toggle small{color:var(--muted);font-size:.78rem;font-weight:500}
+.settings-accordion-toggle b{font-size:1.25rem;color:var(--muted);transition:transform .18s ease}
+.settings-accordion.is-open>.settings-accordion-toggle{border-bottom:1px solid var(--line)}
+.settings-accordion.is-open>.settings-accordion-toggle b{transform:rotate(180deg)}
+.settings-accordion .settings-collapse-body[hidden]{display:none!important}
+@media(max-width:520px){.settings-accordion-toggle{padding:14px 15px;min-height:58px}.settings-accordion-toggle strong{font-size:.96rem}.settings-accordion-toggle small{font-size:.72rem}}

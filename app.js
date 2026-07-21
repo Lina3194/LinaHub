@@ -75,6 +75,7 @@ function render(){
   if(route==="pets"||route==="tank") bindAquariums();
 }
 
+
 function setupNavigation(){
   if(window.__linaNavigationReady) return;
   window.__linaNavigationReady=true;

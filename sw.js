@@ -1,4 +1,4 @@
-const CACHE="linahub-v16-30-health-line-charts";
+const CACHE="linahub-v16-31-stable-health-range-switching";
 const ASSETS=[
 "./","./index.html","./app.js?v=1630","./manifest.webmanifest?v=1630",
 "./core/pokemon-seed.js?v=1630","./core/data.js?v=1630","./core/router.js?v=1630","./core/cloud.js?v=1630",

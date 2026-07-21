@@ -470,3 +470,7 @@ body[data-route="medication"] .med-dose-card{overflow:hidden}
 .health-chart-line.series-2{stroke:var(--gold)}
 .health-chart-dot.series-2{fill:var(--card);stroke:var(--gold)}
 @media(max-width:520px){.health-chart{height:190px}.health-trend-summary{grid-template-columns:1fr 1fr}.health-trend-stat{padding:8px 10px}.health-chart-y-label{font-size:3.8px}}
+
+/* v16.31 keep health range changes stable without rebuilding the page */
+.health-chart-panel{transition:opacity .12s ease;min-height:1px}
+.health-chart-panel.is-updating{opacity:.72}

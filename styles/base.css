@@ -1207,3 +1207,38 @@ body:not(.dark)[data-color-theme="marble"]{--theme-bg-a:#fff7fb;--theme-bg-b:#f3
   object-fit: contain;
   object-position: center;
 }
+
+
+/* v16.29 compact side-by-side health entry cards on phones */
+body[data-route="health"] .health-overview{padding:14px!important}
+body[data-route="health"] .health-overview .stat-grid{gap:10px}
+body[data-route="health"] .health-overview .stat{padding:12px!important;min-height:0}
+body[data-route="health"] .health-overview .stat span{font-size:.78rem}
+body[data-route="health"] .health-overview .stat strong{font-size:1.5rem;line-height:1.1}
+body[data-route="health"] .health-overview .stat small{font-size:.72rem}
+body[data-route="health"] .compact-health-card{padding:14px!important;margin-bottom:0!important}
+body[data-route="health"] .compact-health-card .section-title{min-height:0!important;margin-bottom:12px!important}
+body[data-route="health"] .compact-health-card .section-title:after{bottom:-5px;width:38px}
+body[data-route="health"] .compact-health-card .section-kicker{font-size:.7rem}
+body[data-route="health"] .compact-health-card h2{font-size:1.05rem;line-height:1.15;margin-top:2px}
+body[data-route="health"] .compact-health-fields{gap:8px!important}
+body[data-route="health"] .compact-health-card .field{min-height:46px!important;padding:10px 11px!important;font-size:.9rem!important;border-radius:15px!important}
+body[data-route="health"] .compact-health-save{min-height:44px!important;padding:9px 8px!important;margin-top:9px!important;font-size:.88rem!important;border-radius:15px!important}
+body[data-route="health"] .compact-measure-date{margin-bottom:8px!important}
+@media (max-width:760px){
+  body[data-route="health"] .health-form-grid{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:10px!important;align-items:start!important}
+  body[data-route="health"] .health-form-grid>.card{width:auto!important;max-width:none!important;padding:12px!important;overflow:visible!important}
+  body[data-route="health"] .compact-health-card .section-title{display:block!important}
+  body[data-route="health"] .compact-health-fields,
+  body[data-route="health"] .health-measure-fields{display:grid!important;grid-template-columns:1fr!important;gap:8px!important}
+  body[data-route="health"] .compact-health-card input.field,
+  body[data-route="health"] .compact-health-card input.date-field,
+  body[data-route="health"] .compact-health-card button.primary{font-size:.82rem!important;padding-left:8px!important;padding-right:8px!important}
+}
+@media (max-width:370px){
+  body[data-route="health"] .health-form-grid{gap:7px!important}
+  body[data-route="health"] .health-form-grid>.card{padding:10px!important}
+  body[data-route="health"] .compact-health-card h2{font-size:.94rem}
+  body[data-route="health"] .compact-health-card .field{font-size:.76rem!important}
+  body[data-route="health"] .compact-health-save{font-size:.76rem!important}
+}

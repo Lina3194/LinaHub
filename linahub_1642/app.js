@@ -80,7 +80,10 @@ function render(){
 const UNIVERSAL_TILE_SELECTOR=[
   ".home-tile-wrap .module",
   ".health-module-grid > button",
-  ".tank-grid > .tank-card"
+  ".tank-grid > .tank-card",
+  ".house-room-tile",
+  ".plant-tile-open",
+  ".vivillon-tile"
 ].join(",");
 
 function ensureUniversalTileData(){
@@ -92,13 +95,16 @@ function universalTileKey(tile){
   const homeId=tile.closest(".home-tile-wrap")?.dataset.homeId;
   if(homeId) return `home:${homeId}`;
   if(tile.dataset.healthOpen) return `health:${tile.dataset.healthOpen}`;
+  if(tile.dataset.toggleRoom) return `house:room:${tile.dataset.toggleRoom}`;
+  if(tile.dataset.route==="plant") return `plants:plant:${tile.dataset.routeId||tile.closest("[data-plant-id]")?.dataset.plantId||""}`;
+  if(tile.dataset.vivillonJump) return `pokemon:vivillon:${tile.dataset.vivillonJump}`;
   if(tile.dataset.route) return `${route}:route:${tile.dataset.route}:${tile.dataset.routeId||""}`;
-  return `${route}:tile:${(tile.querySelector("strong")?.textContent||tile.textContent||"").trim().toLowerCase().replace(/\s+/g,"-")}`;
+  return `${route}:tile:${(tile.querySelector("strong,h2,h3")?.textContent||tile.textContent||"").trim().toLowerCase().replace(/\s+/g,"-")}`;
 }
 
 function universalTileParts(tile){
-  const icon=tile.querySelector(":scope > span:not(.tile-longpress-hint), .emoji, .module-image");
-  const title=tile.querySelector(":scope > strong");
+  const icon=tile.querySelector(":scope > span:not(.tile-longpress-hint), .emoji, .module-image, .plant-tile-art > span");
+  const title=tile.querySelector(":scope > strong, h2, h3, .plant-tile-copy h2");
   return {icon,title};
 }
 
@@ -118,6 +124,7 @@ function applyUniversalTileCustomisation(tile){
 }
 
 function universalTileEditor(tile){
+  if(document.querySelector("#universalTileEditorMount,.tile-editor-backdrop")) return;
   const key=universalTileKey(tile);
   if(key.startsWith("home:")&&typeof bindTileEditor==="function"){
     bindTileEditor(key.slice(5));
@@ -134,7 +141,7 @@ function universalTileEditor(tile){
   mount.id="universalTileEditorMount";
   mount.innerHTML=`<div class="tile-editor-backdrop universal-tile-editor-backdrop" data-close-universal-tile-editor>
     <section class="tile-editor universal-tile-editor" role="dialog" aria-modal="true" aria-labelledby="universalTileEditorTitle">
-      <div class="tile-editor-head"><div><span class="eyebrow">Long-press tile</span><h2 id="universalTileEditorTitle">Edit ${esc(currentName)}</h2></div><button type="button" data-close-universal-tile-editor aria-label="Close">×</button></div>
+      <div class="tile-editor-head"><div><span class="eyebrow">Edit tile</span><h2 id="universalTileEditorTitle">${esc(currentName)}</h2></div><button type="button" data-close-universal-tile-editor aria-label="Close">×</button></div>
       <div class="universal-tile-preview" style="--universal-tile-accent:${esc(currentAccent)}"><span>${esc(currentIcon)}</span><strong>${esc(currentName)}</strong></div>
       <label>Tile name<input class="field" id="universalTileName" value="${esc(currentName)}" maxlength="40"></label>
       <label>Icon or emoji<input class="field" id="universalTileIcon" value="${esc(currentIcon)}" maxlength="12" inputmode="text"></label>
@@ -166,28 +173,50 @@ function universalTileEditor(tile){
 
 function setupUniversalTileCustomisation(){
   document.querySelectorAll(UNIVERSAL_TILE_SELECTOR).forEach(tile=>{
+    applyUniversalTileCustomisation(tile);
     if(tile.dataset.longpressReady==="1") return;
     tile.dataset.longpressReady="1";
-    applyUniversalTileCustomisation(tile);
-    let timer=null,startX=0,startY=0,longPressed=false;
-    const clear=()=>{if(timer){clearTimeout(timer);timer=null}tile.classList.remove("tile-longpress-active")};
-    const start=event=>{
-      if(event.pointerType==="mouse"&&event.button!==0)return;
-      startX=event.clientX;startY=event.clientY;longPressed=false;
-      tile.classList.add("tile-longpress-active");
-      timer=setTimeout(()=>{
-        timer=null;longPressed=true;tile.dataset.blockNextClick="1";
-        navigator.vibrate?.(25);
-        tile.classList.remove("tile-longpress-active");
-        universalTileEditor(tile);
-      },520);
+    let timer=0,startX=0,startY=0,opened=false;
+    const cancel=()=>{
+      if(timer){clearTimeout(timer);timer=0}
+      tile.classList.remove("tile-longpress-active");
     };
-    tile.addEventListener("pointerdown",start);
-    tile.addEventListener("pointermove",event=>{if(Math.abs(event.clientX-startX)>10||Math.abs(event.clientY-startY)>10)clear()});
-    tile.addEventListener("pointerup",clear);tile.addEventListener("pointercancel",clear);tile.addEventListener("pointerleave",clear);
-    tile.addEventListener("contextmenu",event=>{event.preventDefault();clear();tile.dataset.blockNextClick="1";universalTileEditor(tile)});
+    const openEditor=()=>{
+      cancel();
+      opened=true;
+      tile.dataset.suppressTileClick=String(Date.now()+900);
+      navigator.vibrate?.(25);
+      universalTileEditor(tile);
+    };
+    const begin=(x,y)=>{
+      cancel();opened=false;startX=x;startY=y;
+      tile.classList.add("tile-longpress-active");
+      timer=setTimeout(openEditor,620);
+    };
+    tile.addEventListener("touchstart",event=>{
+      const touch=event.touches?.[0];if(!touch)return;
+      begin(touch.clientX,touch.clientY);
+    },{passive:true});
+    tile.addEventListener("touchmove",event=>{
+      const touch=event.touches?.[0];if(!touch)return;
+      if(Math.abs(touch.clientX-startX)>12||Math.abs(touch.clientY-startY)>12)cancel();
+    },{passive:true});
+    tile.addEventListener("touchend",cancel,{passive:true});
+    tile.addEventListener("touchcancel",cancel,{passive:true});
+    tile.addEventListener("mousedown",event=>{if(event.button===0)begin(event.clientX,event.clientY)});
+    tile.addEventListener("mousemove",event=>{if(timer&&(Math.abs(event.clientX-startX)>12||Math.abs(event.clientY-startY)>12))cancel()});
+    tile.addEventListener("mouseup",cancel);
+    tile.addEventListener("mouseleave",cancel);
+    tile.addEventListener("contextmenu",event=>{
+      event.preventDefault();
+      if(!opened) openEditor();
+    });
     tile.addEventListener("click",event=>{
-      if(tile.dataset.blockNextClick==="1"||longPressed){event.preventDefault();event.stopImmediatePropagation();delete tile.dataset.blockNextClick;longPressed=false}
+      const until=Number(tile.dataset.suppressTileClick||0);
+      if(opened||Date.now()<until){
+        event.preventDefault();event.stopImmediatePropagation();
+        opened=false;delete tile.dataset.suppressTileClick;
+      }
     },true);
   });
 }

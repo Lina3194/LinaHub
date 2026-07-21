@@ -56,8 +56,9 @@ function SettingsPage(){
       <button class="secondary" id="themeToggle2" style="margin-top:12px">Switch to ${data.theme==="dark"?"light":"dark"} mode</button>
     </section>
 
-    <section class="card">
-      <h2>Home tab pictures & icons</h2>
+    <details class="card settings-collapse">
+      <summary><span><strong>Home tab pictures & icons</strong><small>Change Home tile pictures and emoji</small></span><b aria-hidden="true">⌄</b></summary>
+      <div class="settings-collapse-body">
       <p>Add your own picture to any home tab. When a picture is set, it replaces that tab’s emoji. Removing it brings the emoji back.</p>
       <div class="tab-art-grid">
         ${[
@@ -76,9 +77,11 @@ function SettingsPage(){
       </div>
       <button class="primary" id="saveHomeIcons" style="margin-top:12px">Save emojis</button>
       <p class="settings-note">Pictures are resized before being saved so LinaHub stays fast. They are included in your LinaHub backup.</p>
-    </section>
-    <section class="card">
-      <h2>Module banner pictures</h2>
+      </div>
+    </details>
+    <details class="card settings-collapse">
+      <summary><span><strong>Module banner pictures</strong><small>Add or remove the wide pictures shown inside sections</small></span><b aria-hidden="true">⌄</b></summary>
+      <div class="settings-collapse-body">
       <p>Add a wide banner to the top of each section. These are separate from the square Home tab pictures.</p>
       <div class="banner-art-grid">
         ${[
@@ -96,7 +99,8 @@ function SettingsPage(){
           </article>`).join("")}
       </div>
       <p class="settings-note">Banner images are resized before saving and are included in your backup.</p>
-    </section>
+      </div>
+    </details>
 
     <section class="card">
       <h2>Backup</h2>
@@ -104,7 +108,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v16.40 · Navigation & Health Fix</p>`,"settings");
+  <p class="app-version">LinaHub v16.44 · Long-press & Compact Settings</p>`,"settings");
 }
 
 function bindSimple(){

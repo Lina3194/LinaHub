@@ -1,3 +1,2 @@
-LinaHub v16.38
-
-Health opens on Overview, morning check-ins auto-save without screen refreshes, period opens on the correct local date, mobile medication layout is cleaner, and Today’s Journey replaces Period and Medication on Home.
+LinaHub v16.44
+Long-press tile editing fixed for phones. Home pictures/icons and module banners are collapsed in Settings.

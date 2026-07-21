@@ -16,7 +16,13 @@ const DEFAULT_DATA={
   journalTrendPeriod:"week",
   homeIcons:{
     journal:"📖",health:"⚖️",plants:"🌿",medication:"💊",
-    pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",treasures:"✨",settings:"⚙️"
+    pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",budget:"💷",treasures:"✨",settings:"⚙️"
+  },
+  moduleIcons:{
+    home:"⌂",today:"✅",todo:"📝",settings:"⚙️",journal:"📖",health:"❤️",plants:"🌿",medication:"💊",pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",budget:"💷",treasures:"✨",
+    sleep:"😴",weight:"⚖️",measurements:"📏",healthOverview:"❤️",journey:"✨",
+    rooms:"🏠",shopping:"🛒",inventory:"📦",girlsTank:"🩷",boysTank:"💙",aquariumMaintenance:"🫧",
+    bills:"🧾",savings:"💰",income:"💷",expenses:"💸"
   },
   homeImages:{},
   homeTileNames:{plants:"Garden"},
@@ -298,6 +304,10 @@ function loadData(){
   }catch{
     return structuredClone(DEFAULT_DATA);
   }
+}
+
+function moduleIcon(key,fallback="✨"){
+  return String(data?.moduleIcons?.[key]||data?.homeIcons?.[key]||fallback);
 }
 
 let data=loadData();

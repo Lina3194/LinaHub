@@ -6,10 +6,11 @@ let suppressNextPageAnimation=true;
 const navigationHistory=[];
 
 function nav(active){
-  return `<nav class="bottom three-nav">
+  return `<nav class="bottom four-nav">
     <button type="button" data-route="home" class="${active==="home"?"active":""}">⌂<small>Home</small></button>
     <button type="button" data-route="today" class="${active==="today"?"active":""}">✅<small>Today</small></button>
     <button type="button" data-route="todo" class="${active==="todo"?"active":""}">📝<small>To-do</small></button>
+    <button type="button" data-route="settings" class="${active==="settings"?"active":""}">⚙<small>Settings</small></button>
   </nav>`;
 }
 
@@ -17,7 +18,7 @@ function moduleBanner(active){
   const image=data.moduleBanners?.[active];
   if(!image||active==="home"||active==="settings") return "";
   const names={
-    journal:"Daily Check-in",today:"Today",todo:"To-do",health:"Weight & Measures",
+    journal:"Daily Check-in",today:"Today",todo:"To-do",health:"Health",
     plants:"Plants",medication:"Medication",pokemon:"Pokémon GO",pets:"Aquariums",house:"House",period:"Period Tracker",budget:"Budget & Bills",treasures:"Treasure Room"
   };
   return `<section class="module-banner">
@@ -58,10 +59,6 @@ function resetModuleLanding(next){
     data.medicationView.tab="today";
     data.medicationView.date=typeof medLocalDate==="function"?medLocalDate():today();
     medicationDateTouched=false;
-  }
-  if(next==="health"){
-    data.healthView=data.healthView||{};
-    data.healthView.tab="log";
   }
   if(next==="journal"){
     data.journalTab="today";

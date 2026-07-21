@@ -3,6 +3,8 @@ function ensureHomeLayout(){
   if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
   if(!Array.isArray(data.homeHidden)) data.homeHidden=[];
   data.homeTileAccents=data.homeTileAccents||{};
+  data.homeTileNames=data.homeTileNames||{};
+  if(["Mood Flowers","Flower Garden","Mood Garden"].includes(data.homeTileNames.flowers)) delete data.homeTileNames.flowers;
   const seen=new Set();
   data.homeLayout=data.homeLayout.filter(item=>{
     const id=typeof item==="string"?item:item?.id;
@@ -173,7 +175,6 @@ function HomePage(){
           <div class="home-menu" id="homeMenu" hidden>
             <button type="button" id="homeEditToggle"><span aria-hidden="true">✎</span><span>${editing?"Finish editing":"Edit Home"}</span></button>
             <button type="button" id="homeThemes"><span aria-hidden="true">◈</span><span>Themes</span></button>
-            <button type="button" id="homeSettings"><span aria-hidden="true">⚙</span><span>Settings</span></button>
           </div>
         </div>
       </div>
@@ -246,7 +247,6 @@ function bindHome(){
   menuToggle?.addEventListener("click",event=>{event.stopPropagation();const opening=menu.hidden;menu.hidden=!opening;menuToggle.setAttribute("aria-expanded",String(opening))});
   document.addEventListener("click",event=>{if(!event.target.closest(".home-menu-wrap")) closeMenu()},{once:true});
   document.querySelector("#homeThemes")?.addEventListener("click",()=>{data.settingsSection="appearance";saveData();go("settings")});
-  document.querySelector("#homeSettings")?.addEventListener("click",()=>go("settings"));
   document.querySelector("#homeEditToggle")?.addEventListener("click",()=>{data.homeEditing=!data.homeEditing;saveData();render()});
   if(!data.homeEditing) return;
   const saveRender=()=>{saveData();render()};

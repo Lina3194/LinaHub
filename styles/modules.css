@@ -532,3 +532,25 @@ body[data-route="health"] .health-feeling,body[data-route="health"] .health-circ
   body[data-route="medication"] .med-history-row .med-photo{width:44px;height:44px}
   body[data-route="medication"] .med-history-row .danger{grid-column:3;grid-row:2}
 }
+
+
+/* 16.39 Today's Journey mood tracker */
+.journey-checkin-card h3{margin:18px 0 8px;font-size:.95rem}
+.journey-direction{margin:-2px 0 14px;color:var(--muted);font-size:.78rem;text-align:center}
+.journey-checkin-card>.primary{width:100%;margin-top:18px}
+.journey-timeline{position:relative;padding:8px 0 2px}
+.journey-timeline:before{content:"";position:absolute;left:74px;top:18px;bottom:18px;width:2px;background:linear-gradient(180deg,transparent,var(--line) 8%,var(--accent-soft) 92%,transparent)}
+.journey-entry{position:relative;display:grid;grid-template-columns:54px 38px 1fr;align-items:center;gap:10px;min-height:76px}
+.journey-time{font-size:.75rem;font-weight:800;text-align:right;color:var(--muted)}
+.journey-orb{position:relative;width:34px;height:34px;border:0;background:transparent;padding:0;z-index:1}
+.journey-orb span{display:block;width:18px;height:18px;margin:auto;border-radius:50%;background:var(--journey-glow);border:3px solid color-mix(in srgb,var(--journey-glow) 55%,white);box-shadow:0 0 0 6px color-mix(in srgb,var(--journey-glow) 18%,transparent),0 0 18px color-mix(in srgb,var(--journey-glow) 55%,transparent)}
+.journey-values{display:grid;grid-template-columns:repeat(3,1fr);gap:7px;padding:9px;border:1px solid var(--line);border-radius:16px;background:var(--card-soft)}
+.journey-values span{display:flex;flex-direction:column;align-items:center;min-width:0}
+.journey-values b{font-size:1.25rem;line-height:1.1}
+.journey-values small{margin-top:3px;font-size:.62rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+.journey-empty{display:flex;min-height:170px;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:var(--muted)}
+.journey-empty>span{font-size:2rem;margin-bottom:8px}
+.journey-empty strong{color:var(--text)}
+.journey-empty small{margin-top:4px}
+.empty-journey:before{display:none}
+@media(max-width:600px){.journey-entry{grid-template-columns:42px 30px 1fr;gap:7px}.journey-timeline:before{left:56px}.journey-values{gap:3px;padding:8px 5px}.journey-values small{font-size:.56rem}.journey-orb{width:28px;height:28px}.journey-orb span{width:16px;height:16px}.journey-time{font-size:.68rem}}

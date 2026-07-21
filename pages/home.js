@@ -18,7 +18,7 @@ function ensureHomeLayout(){
 const HOME_TILE_INFO={
   journal:["Daily Check-in","Pain, energy, sleep and your day","📖"],
   health:["Health","Sleep, medication, cycle and measurements","❤️"],
-  flowers:["Mood Flowers","Energy, mood and pain through the day","🌷"],
+  flowers:["Today’s Journey","Energy, mood and pain through the day","✨"],
   plants:["Garden","Care and watering","🌿"],
   pokemon:["Pokémon GO","Friendship, Vivillon and gifts","🔴"],
   pets:["Aquariums","Girls and boys tanks","🐠"],
@@ -32,7 +32,7 @@ function homeTileStatus(id){
   const todayKey=typeof today==="function"?today():now.toISOString().slice(0,10);
   if(id==="flowers"){
     const entries=(data.dayCheckins||[]).filter(entry=>entry.date===todayKey);
-    return entries.length?`${entries.length} flower${entries.length===1?"":"s"} in today’s bouquet`:`Add your first flower today`;
+    return entries.length?`${entries.length} check-in${entries.length===1?"":"s"} today`:`Add your first check-in`;
   }
   if(id==="plants"){
     const due=(data.plants||[]).filter(p=>{

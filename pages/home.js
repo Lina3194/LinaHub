@@ -77,8 +77,8 @@ function homeTileStatus(id){
     return count?`${count} check-in${count===1?"":"s"} saved`:"Start today's check-in";
   }
   if(id==="health"){
-    const latest=(data.weightEntries||[]).slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")))[0];
-    return latest?`Latest weight: ${latest.weight||latest.value||"saved"}`:"Add your first measurement";
+    const latest=(data.weightEntries||[]).slice().sort((a,b)=>{const av=a.createdAt||`${a.date||""}T${a.time||"00:00"}`,bv=b.createdAt||`${b.date||""}T${b.time||"00:00"}`;return String(bv).localeCompare(String(av))})[0];
+    return latest?`Latest weight: ${latest.weight??latest.value??"saved"} kg`:"Add your first measurement";
   }
   if(id==="period"){
     if(typeof periodStats==="function"){

@@ -1,10 +1,10 @@
-const CACHE="linahub-v16-27-plant-profile-final";
+const CACHE="linahub-v16-28-health-medication-history";
 const ASSETS=[
-"./","./index.html","./app.js?v=1627","./manifest.webmanifest?v=1627",
-"./core/pokemon-seed.js?v=1627","./core/data.js?v=1627","./core/router.js?v=1627","./core/cloud.js?v=1627",
-"./pages/home.js?v=1627","./pages/today.js?v=1627","./pages/todo.js?v=1627","./pages/journal.js?v=1627","./pages/plants.js?v=1627","./pages/pokemon.js?v=1627","./pages/house.js?v=1627","./pages/medication.js?v=1627","./pages/health.js?v=1627","./pages/simple.js?v=1627","./pages/aquariums.js?v=1627","./pages/period.js?v=1627","./pages/treasures.js?v=1627","./pages/budget.js?v=1627",
-"./styles/base.css?v=1627","./styles/home.css?v=1627","./styles/journal.css?v=1627","./styles/plants.css?v=1627","./styles/modules.css?v=1627","./styles/period.css?v=1627","./styles/treasures.css?v=1627",
-"./icons/icon-192.png?v=1627","./icons/icon-512.png?v=1627","./icons/apple-touch-icon.png?v=1627"
+"./","./index.html","./app.js?v=1628","./manifest.webmanifest?v=1628",
+"./core/pokemon-seed.js?v=1628","./core/data.js?v=1628","./core/router.js?v=1628","./core/cloud.js?v=1628",
+"./pages/home.js?v=1628","./pages/today.js?v=1628","./pages/todo.js?v=1628","./pages/journal.js?v=1628","./pages/plants.js?v=1628","./pages/pokemon.js?v=1628","./pages/house.js?v=1628","./pages/medication.js?v=1628","./pages/health.js?v=1628","./pages/simple.js?v=1628","./pages/aquariums.js?v=1628","./pages/period.js?v=1628","./pages/treasures.js?v=1628","./pages/budget.js?v=1628",
+"./styles/base.css?v=1628","./styles/home.css?v=1628","./styles/journal.css?v=1628","./styles/plants.css?v=1628","./styles/modules.css?v=1628","./styles/period.css?v=1628","./styles/treasures.css?v=1628",
+"./icons/icon-192.png?v=1628","./icons/icon-512.png?v=1628","./icons/apple-touch-icon.png?v=1628"
 ];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

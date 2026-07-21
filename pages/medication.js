@@ -55,30 +55,32 @@ function medLogsFor(medId,dateValue){
 function medPhoto(m,large=false){
   return m.photo?`<img class="med-photo ${large?"large":""}" src="${m.photo}" alt="${esc(m.name)}">`:`<span class="med-photo med-photo-placeholder ${large?"large":""}">💊</span>`;
 }
+function medDosePeriod(m,index){
+  if(m.time&&/^\d{2}:\d{2}$/.test(m.time))return Number(m.time.slice(0,2))<12?"AM":"PM";
+  if(m.dosesPerDay===1)return "AM";
+  if(m.dosesPerDay===2)return index===0?"AM":"PM";
+  return `Dose ${index+1}`;
+}
 function medicationTodayTab(){
   const selected=data.medicationView.date||medLocalDate();
   const scheduled=data.medications.filter(m=>medDueOn(m,selected));
-  const meds=scheduled.filter(m=>m.scheduleType==="prn"||medLogsFor(m.id,selected).length<m.dosesPerDay);
+  const dueRows=[];
+  scheduled.forEach(m=>{
+    const logs=medLogsFor(m.id,selected);
+    const required=m.scheduleType==="prn"?Math.max(1,logs.length+1):m.dosesPerDay;
+    for(let index=logs.length;index<required;index++)dueRows.push({m,index,logs});
+  });
   const completed=scheduled.filter(m=>m.scheduleType!=="prn"&&medLogsFor(m.id,selected).length>=m.dosesPerDay);
   return `<section class="med-date-card card">
     <div><span class="section-kicker">📅 Selected day</span><h2>${medDateLabel(selected)}</h2></div>
     <input class="field med-day-picker" id="medSelectedDate" type="date" value="${esc(selected)}">
   </section>
-  <section class="med-dose-list">
-    ${meds.length?meds.map(m=>{
-      const logs=medLogsFor(m.id,selected),defaultTime=m.time||medNowTime(),remaining=Math.max(0,m.dosesPerDay-logs.length);
-      const status=m.scheduleType==="prn"?(logs.length?`${logs.length} taken today`:"As needed"):`${logs.length} of ${m.dosesPerDay} taken`;
-      return `<article class="card med-dose-card">
-        <div class="med-card-head">${medPhoto(m)}<div><h2>${esc(m.name)}</h2><p>${esc([m.dose,m.time||m.timeLabel,m.scheduleType==="prn"?"As needed":`${m.dosesPerDay} ${m.dosesPerDay===1?"dose":"doses"} daily`].filter(Boolean).join(" · "))}</p></div><span class="med-status ${logs.length?"taken":"due"}">${esc(status)}</span><button class="mini med-edit-existing" type="button" data-med-edit-today="${esc(m.id)}">Edit</button></div>
-        ${m.instructions?`<p class="med-instructions">${esc(m.instructions)}</p>`:""}
-        ${logs.length?`<div class="med-taken-list">${logs.map(log=>`<div><span>✓ Taken ${log.time?`at ${esc(log.time)}`:""}</span><span class="med-log-actions"><button class="mini" data-med-log-edit="${esc(log.id)}">Edit</button><button class="mini danger" data-med-log-delete="${esc(log.id)}" aria-label="Delete dose">×</button></span></div>`).join("")}</div>`:""}
-        <div class="med-mark-row">
-          <label class="med-dose-field"><span>Date taken</span><input class="field" id="doseDate-${m.id}" type="date" value="${esc(selected)}" aria-label="Dose date"></label>
-          <label class="med-dose-field"><span>Time taken</span><input class="field" id="doseTime-${m.id}" type="time" value="${esc(defaultTime)}" aria-label="Dose time"></label>
-          <button class="primary med-taken-button" data-med-take="${esc(m.id)}">✓ Mark ${m.scheduleType==="prn"?"taken":remaining===1?"final dose":"next dose"}</button>
-        </div>
-      </article>`;
-    }).join(""):`<section class="card empty"><h2>All medication completed</h2><p>${scheduled.length?"Everything scheduled for this day has been taken.":"No medication is scheduled on this day."}</p></section>`}
+  <section class="card med-quick-list">
+    ${dueRows.length?dueRows.map(({m,index})=>`<article class="med-quick-row">
+      ${medPhoto(m)}
+      <div class="med-quick-copy"><strong>${esc(m.name)}</strong><span>${esc([medDosePeriod(m,index),String(index+1),m.dose].filter(Boolean).join(" · "))}</span></div>
+      <button type="button" class="med-quick-tick" data-med-take="${esc(m.id)}" data-dose-index="${index}" aria-label="Mark ${esc(m.name)} taken">✓</button>
+    </article>`).join(""):`<div class="empty"><h2>All medication completed</h2><p>${scheduled.length?"Everything scheduled for this day has been taken.":"No medication is scheduled on this day."}</p></div>`}
   </section>
   ${completed.length?`<details class="card med-completed"><summary>Completed today · ${completed.length}</summary><div>${completed.map(m=>`<div class="med-completed-row">${medPhoto(m)}<span><strong>${esc(m.name)}</strong><small>${medLogsFor(m.id,selected).length} of ${m.dosesPerDay} taken</small></span><button class="mini" data-med-open-history="${esc(m.id)}">View doses</button></div>`).join("")}</div></details>`:""}`;
 }
@@ -179,9 +181,9 @@ function bindMedication(){
   document.querySelectorAll("[data-med-tab]").forEach(b=>b.onclick=()=>{data.medicationView.tab=b.dataset.medTab;saveData();render()});
   document.querySelector("#medSelectedDate")?.addEventListener("change",e=>{medicationDateTouched=true;data.medicationView.date=e.target.value||medLocalDate();saveData();render()});
   document.querySelectorAll("[data-med-take]").forEach(b=>b.onclick=()=>{
-    const medId=b.dataset.medTake,date=document.querySelector(`#doseDate-${CSS.escape(medId)}`)?.value||data.medicationView.date,time=document.querySelector(`#doseTime-${CSS.escape(medId)}`)?.value||"";
+    const medId=b.dataset.medTake,date=data.medicationView.date||medLocalDate(),time=medNowTime();
     data.medicationHistory.push({id:medUid("dose"),medId,date,time,notes:"",createdAt:new Date().toISOString()});
-    data.medicationView.date=date;saveData();render();toast("Dose marked as taken");
+    data.medicationView.date=date;saveData();b.classList.add("done");toast("Dose marked as taken");setTimeout(()=>render(),160);
   });
   document.querySelector("#medScheduleType")?.addEventListener("change",e=>document.querySelector("#medWeekdays").classList.toggle("hidden",e.target.value!=="weekdays"));
   document.querySelector("#medPhotoInput")?.addEventListener("change",async e=>{

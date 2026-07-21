@@ -26,7 +26,11 @@ function getTodayItems(){
     const due=active && (m.scheduleType==="daily" || (m.scheduleType==="weekdays"&&(m.weekdays||[]).includes(shortDay)));
     const taken=(data.medicationHistory||[]).filter(log=>log.medId===m.id&&log.date===todayValue).length;
     const required=Math.max(1,Number(m.dosesPerDay)||1);
-    if(due&&taken<required) items.push({emoji:"💊",title:`Take ${m.name}`,detail:[m.dose,m.time,required>1?`${taken} of ${required} taken`:null].filter(Boolean).join(" · "),route:"medication",kind:"Medication"});
+    if(due&&taken<required){
+      const doseNumber=taken+1;
+      const period=(m.time&&/^\d{2}:\d{2}$/.test(m.time))?(Number(m.time.slice(0,2))<12?"AM":"PM"):(required===1?"AM":required===2?(doseNumber===1?"AM":"PM"):`Dose ${doseNumber}`);
+      items.push({emoji:"💊",title:m.name,detail:[period,String(doseNumber),m.dose].filter(Boolean).join(" · "),route:"medication",kind:"Medication",completeType:"medication",completeId:m.id});
+    }
   });
 
   (data.houseTasks||[]).forEach(t=>{
@@ -109,6 +113,13 @@ function bindToday(){
       plant.history.sort();
       plant.lastWatered=today();
       message=`${plant.name} watered 💧`;
+    }else if(type==='medication'){
+      const med=(data.medications||[]).find(item=>String(item.id)===id);
+      if(!med)return;
+      const now=new Date(),pad=n=>String(n).padStart(2,'0');
+      data.medicationHistory=Array.isArray(data.medicationHistory)?data.medicationHistory:[];
+      data.medicationHistory.push({id:`dose-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,medId:med.id,date:today(),time:`${pad(now.getHours())}:${pad(now.getMinutes())}`,notes:'',createdAt:now.toISOString()});
+      message=`${med.name} marked as taken 💊`;
     }else return;
 
     saveData();

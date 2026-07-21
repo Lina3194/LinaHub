@@ -486,3 +486,11 @@ body[data-route="medication"] .med-dose-card{overflow:hidden}
 .notification-kind-block{display:grid;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
 .notification-kind-block:last-child{border-bottom:0}
 .notification-time-list{display:grid;gap:7px}.notification-time-row{display:grid;grid-template-columns:minmax(0,150px) 36px;gap:8px;align-items:center}.notification-time-row .field{width:100%;min-width:0}.notification-time-row button{width:36px;height:36px;padding:0}.add-notification-time{justify-self:start;padding:8px 12px!important;min-height:36px!important}
+
+/* v16.34 recurring house jobs */
+.house-completed-today{margin-top:12px;border-top:1px solid var(--line);padding-top:10px}
+.house-completed-today>summary,.today-completed-card>summary{cursor:pointer;font-weight:800;list-style:none;color:var(--muted);padding:6px 2px}
+.house-completed-today>summary::-webkit-details-marker,.today-completed-card>summary::-webkit-details-marker{display:none}
+.today-completed-list{display:grid;gap:8px;margin-top:10px}
+.today-completed-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025)}
+.today-completed-row span{display:grid;gap:3px;min-width:0}.today-completed-row small{color:var(--muted)}

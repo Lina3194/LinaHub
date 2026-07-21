@@ -120,7 +120,11 @@ function normalizeHouseTaskData(task,index){
     frequency:String(task?.frequency||"As needed"),
     energy:["Low","Medium","High"].includes(task?.energy)?task.energy:"Medium",
     priority:[1,2,3].includes(Number(task?.priority))?Number(task.priority):1,
-    done:task?.done===true
+    weekdays:Array.isArray(task?.weekdays)?task.weekdays:[],
+    createdDate:task?.createdDate||today(),
+    completionHistory:Array.isArray(task?.completionHistory)?[...new Set(task.completionHistory.filter(Boolean))].sort():[],
+    lastCompleted:task?.lastCompleted||((Array.isArray(task?.completionHistory)&&task.completionHistory.length)?task.completionHistory.slice().sort().at(-1):""),
+    done:false
   };
 }
 

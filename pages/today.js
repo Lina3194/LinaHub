@@ -34,12 +34,7 @@ function getTodayItems(){
   });
 
   (data.houseTasks||[]).forEach(t=>{
-    const frequency=(t.frequency||"").toLowerCase();
-    const selectedWeekday=(["Specific weekdays","Every week on selected days"].includes(t.frequency)&&(t.weekdays||[]).includes(shortDay));
-    const dueToday=frequency==="daily"||frequency==="every other day"||selectedWeekday||frequency.includes(weekday.toLowerCase())||(weekday==="Thursday"&&t.id==="recycling");
-    if(dueToday&&!t.done){
-      items.push({emoji:t.id==="recycling"?"♻️":"🏡",title:t.task,detail:`${t.room} · ${t.frequency}`,route:"house",kind:"House",completeType:"house",completeId:t.id});
-    }
+    if(houseTaskDue(t,todayValue)) items.push({emoji:t.id==="recycling"?"♻️":"🏡",title:t.task,detail:`${t.room} · ${t.frequency}`,route:"house",kind:"House",completeType:"house",completeId:t.id});
   });
 
   (data.personalTasks||[]).forEach(task=>{
@@ -66,6 +61,7 @@ function getTodayItems(){
 
 function TodayPage(){
   const items=getTodayItems(),groups={};
+  const completedHouse=(data.houseTasks||[]).filter(task=>houseCompletedToday(task));
   items.forEach(item=>{groups[item.kind]=groups[item.kind]||[];groups[item.kind].push(item)});
   return shell(`${head("Today’s Tasks",niceDate())}
     <section class="card">
@@ -79,7 +75,8 @@ function TodayPage(){
         </button>
         ${item.completeType?`<button type="button" class="check-task today-quick-done" data-today-complete="${esc(item.completeType)}" data-today-id="${esc(item.completeId)}" aria-label="Mark ${esc(item.title)} done">✓</button>`:""}
       </article>`).join("")}
-    </div>`).join("")}`,'today');
+    </div>`).join("")}
+    ${completedHouse.length?`<details class="card today-completed-card"><summary>✓ Completed today · ${completedHouse.length}</summary><div class="today-completed-list">${completedHouse.map(task=>`<div class="today-completed-row"><span><strong>${esc(task.task)}</strong><small>${esc(task.room)} · ${esc(task.frequency)}</small></span><button type="button" class="mini" data-today-complete="house" data-today-id="${esc(task.id)}">Undo</button></div>`).join("")}</div></details>`:""}`,'today');
 }
 
 function bindToday(){
@@ -97,8 +94,9 @@ function bindToday(){
     if(type==='house'){
       const task=(data.houseTasks||[]).find(item=>String(item.id)===id);
       if(!task)return;
-      task.done=true;
-      message='House job completed 🏡';
+      const completed=!houseCompletedToday(task);
+      setHouseTaskCompleted(task,completed);
+      message=completed?'House job completed 🏡':'House completion removed';
     }else if(type==='todo'){
       const task=(data.personalTasks||[]).find(item=>String(item.id)===id);
       if(!task)return;

@@ -27,6 +27,8 @@ function houseScheduleLabel(task){
 }
 
 function normalizeHouseTask(task,index=0){
+  const history=Array.isArray(task?.completionHistory)?task.completionHistory.filter(Boolean):[];
+  const lastCompleted=task?.lastCompleted||history[history.length-1]||"";
   return {
     id:String(task?.id||`house-${Date.now()}-${index}`),
     task:String(task?.task||task?.title||"Untitled job"),
@@ -35,8 +37,66 @@ function normalizeHouseTask(task,index=0){
     weekdays:Array.isArray(task?.weekdays)?task.weekdays.filter(day=>HOUSE_WEEKDAYS.includes(day)):[],
     energy:["Low","Medium","High"].includes(task?.energy)?task.energy:"Medium",
     priority:[1,2,3].includes(Number(task?.priority))?Number(task.priority):1,
-    done:task?.done===true
+    createdDate:task?.createdDate||today(),
+    completionHistory:[...new Set(history)].sort(),
+    lastCompleted,
+    done:false
   };
+}
+
+function houseDateAtNoon(value){ return value?new Date(`${value}T12:00:00`):null; }
+function houseDaysBetween(a,b){
+  const da=houseDateAtNoon(a),db=houseDateAtNoon(b);
+  return da&&db?Math.floor((db-da)/86400000):Infinity;
+}
+function houseCompletedToday(task,date=today()){
+  return (task.completionHistory||[]).includes(date)||task.lastCompleted===date;
+}
+function houseWeekdayShort(value){
+  return ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][houseDateAtNoon(value).getDay()];
+}
+function houseHasScheduledDaySince(task,fromDate,toDate){
+  const selected=(task.weekdays||[]).length?task.weekdays:
+    HOUSE_WEEKDAYS.filter(day=>(task.frequency||"").toLowerCase().includes(({Mon:"monday",Tue:"tuesday",Wed:"wednesday",Thu:"thursday",Fri:"friday",Sat:"saturday",Sun:"sunday"})[day]));
+  if(!selected.length) return false;
+  let cursor=houseDateAtNoon(fromDate||task.createdDate||toDate);
+  const end=houseDateAtNoon(toDate);
+  if(!cursor||!end) return false;
+  if(task.lastCompleted) cursor.setDate(cursor.getDate()+1);
+  for(let guard=0;cursor<=end&&guard<400;guard++,cursor.setDate(cursor.getDate()+1)){
+    const iso=`${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,"0")}-${String(cursor.getDate()).padStart(2,"0")}`;
+    if(selected.includes(houseWeekdayShort(iso))) return true;
+  }
+  return false;
+}
+function houseTaskDue(task,date=today()){
+  if(houseCompletedToday(task,date)) return false;
+  const frequency=(task.frequency||"As needed").toLowerCase().trim();
+  const last=task.lastCompleted||((task.completionHistory||[]).slice(-1)[0])||"";
+  if(frequency==="as needed") return false;
+  if(["specific weekdays","every week on selected days"].includes(frequency)||HOUSE_WEEKDAYS.some(day=>frequency.includes(({Mon:"monday",Tue:"tuesday",Wed:"wednesday",Thu:"thursday",Fri:"friday",Sat:"saturday",Sun:"sunday"})[day]))){
+    return houseHasScheduledDaySince(task,last||task.createdDate,date);
+  }
+  if(frequency==="daily") return true;
+  if(frequency.includes("every other day")||frequency.includes("daily / every other day")) return !last||houseDaysBetween(last,date)>=2;
+  if(frequency==="weekly") return !last||houseDaysBetween(last,date)>=7;
+  if(frequency==="fortnightly") return !last||houseDaysBetween(last,date)>=14;
+  if(frequency==="seasonally") return !last||houseDaysBetween(last,date)>=90;
+  if(frequency==="monthly"){
+    if(!last) return true;
+    const d=houseDateAtNoon(last); d.setMonth(d.getMonth()+1);
+    return houseDateAtNoon(date)>=d;
+  }
+  return false;
+}
+function setHouseTaskCompleted(task,completed,date=today()){
+  task.completionHistory=Array.isArray(task.completionHistory)?task.completionHistory:[];
+  if(completed){
+    if(!task.completionHistory.includes(date)) task.completionHistory.push(date);
+    task.completionHistory.sort();
+  }else task.completionHistory=task.completionHistory.filter(value=>value!==date);
+  task.lastCompleted=task.completionHistory[task.completionHistory.length-1]||"";
+  task.done=false;
 }
 
 function normalizeHouseRoom(room,index=0){
@@ -130,8 +190,8 @@ function HousePage(){
   ensureHouseRooms();
 
   const tasks=data.houseTasks;
-  const doneCount=tasks.filter(task=>task.done).length;
-  const remainingCount=tasks.length-doneCount;
+  const doneCount=tasks.filter(task=>houseCompletedToday(task)).length;
+  const remainingCount=tasks.filter(task=>houseTaskDue(task)).length;
 
   return shell(`${head("House","Rooms and recurring jobs")}
 
@@ -215,25 +275,21 @@ function HousePage(){
               <span class="house-room-icon">${esc(room.icon)}</span>
               <span class="house-room-copy">
                 <strong>${esc(room.name)}</strong>
-                <small>${roomTasks.length} ${roomTasks.length===1?"job":"jobs"} · ${roomTasks.filter(task=>!task.done).length} remaining</small>
+                <small>${roomTasks.length} ${roomTasks.length===1?"job":"jobs"} · ${roomTasks.filter(task=>houseTaskDue(task)).length} due</small>
               </span>
               <span class="house-room-arrow">${isOpen?"⌃":"⌄"}</span>
             </button>
 
             ${isOpen?`<div class="house-room-jobs">
-              ${roomTasks.length?roomTasks.map(task=>`
-                <article class="item-row house-job ${task.done?"completed-task":""}">
-                  <div>
-                    <h3>${esc(task.task)}</h3>
-                    <p>${task.energy==="Low"?"🟢":task.energy==="High"?"🔴":"🟡"} ${esc(task.energy)} · ${"⭐".repeat(task.priority)} · ${esc(houseScheduleLabel(task))}</p>
-                  </div>
-                  <div class="item-actions">
-                    <button type="button" class="check-task ${task.done?"done":""}" data-house-done="${esc(task.id)}">✓</button>
-                    <button type="button" class="mini" data-house-edit="${esc(task.id)}">Edit</button>
-                    <button type="button" class="mini danger" data-house-delete="${esc(task.id)}">Delete</button>
-                  </div>
-                </article>
-              `).join(""):`<p class="empty-room">No jobs in this room yet.</p>`}
+              ${roomTasks.length?(()=>{
+                const active=roomTasks.filter(task=>!houseCompletedToday(task));
+                const completed=roomTasks.filter(task=>houseCompletedToday(task));
+                const row=task=>`<article class="item-row house-job ${houseCompletedToday(task)?"completed-task":""}">
+                  <div><h3>${esc(task.task)}</h3><p>${task.energy==="Low"?"🟢":task.energy==="High"?"🔴":"🟡"} ${esc(task.energy)} · ${"⭐".repeat(task.priority)} · ${esc(houseScheduleLabel(task))}${houseTaskDue(task)?" · Due now":""}</p></div>
+                  <div class="item-actions"><button type="button" class="check-task ${houseCompletedToday(task)?"done":""}" data-house-done="${esc(task.id)}">✓</button><button type="button" class="mini" data-house-edit="${esc(task.id)}">Edit</button><button type="button" class="mini danger" data-house-delete="${esc(task.id)}">Delete</button></div>
+                </article>`;
+                return `${active.map(row).join("")}${completed.length?`<details class="house-completed-today" open><summary>✓ Completed today · ${completed.length}</summary>${completed.map(row).join("")}</details>`:""}`;
+              })():`<p class="empty-room">No jobs in this room yet.</p>`}
             </div>`:""}
           </article>
         `;
@@ -350,7 +406,7 @@ function bindHouse(){
         weekdays,
         energy:page.querySelector("#addHouseEnergy")?.value||"Medium",
         priority:Number(page.querySelector("#addHousePriority")?.value)||1,
-        done:false
+        createdDate:today(),completionHistory:[],lastCompleted:"",done:false
       });
       saveData();
       toast("House job added 🏡");
@@ -362,11 +418,11 @@ function bindHouse(){
     if(doneButton){
       const task=data.houseTasks.find(item=>String(item.id)===String(doneButton.dataset.houseDone));
       if(task){
-        task.done=!task.done;
-        doneButton.classList.toggle("done",task.done);
-        doneButton.closest(".house-job")?.classList.toggle("completed-task",task.done);
+        const completed=!houseCompletedToday(task);
+        setHouseTaskCompleted(task,completed);
         saveData();
-        requestAnimationFrame(()=>render());
+        toast(completed?"Completed for today ✓":"Completion removed");
+        render();
       }
       return;
     }

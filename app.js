@@ -91,20 +91,8 @@ function setupNavigation(){
 }
 
 function animateBackNavigation(fallback="home"){
-  const page=document.querySelector(".shell");
-  if(!page){
-    goBack(fallback);
-    return;
-  }
-
-  page.classList.add("button-back-exit");
-  const finish=()=>{
-    page.removeEventListener("animationend",finish);
-    suppressNextPageAnimation=true;
-    goBack(fallback);
-  };
-  page.addEventListener("animationend",finish,{once:true});
-  setTimeout(finish,230);
+  suppressNextPageAnimation=true;
+  goBack(fallback);
 }
 
 function setupSwipeBack(){
@@ -247,10 +235,20 @@ function resetSwipePreview(){
 
 let linaNotificationTimer=null;
 function linaNotificationConfig(){
-  data.notifications=data.notifications||{enabled:false,medication:true,todayTasks:true,medicationTime:"09:00",todayTime:"09:15",lastSent:{}};
-  data.notifications.lastSent=data.notifications.lastSent||{};
-  return data.notifications;
+  data.notifications=data.notifications||{};
+  const cfg=data.notifications;
+  cfg.enabled=!!cfg.enabled;
+  cfg.medication=cfg.medication!==false;
+  cfg.todayTasks=cfg.todayTasks!==false;
+  cfg.medicationTimes=Array.isArray(cfg.medicationTimes)&&cfg.medicationTimes.length?cfg.medicationTimes:[cfg.medicationTime||"09:00"];
+  cfg.todayTimes=Array.isArray(cfg.todayTimes)&&cfg.todayTimes.length?cfg.todayTimes:[cfg.todayTime||"09:15"];
+  cfg.medicationTimes=[...new Set(cfg.medicationTimes.filter(Boolean))].sort();
+  cfg.todayTimes=[...new Set(cfg.todayTimes.filter(Boolean))].sort();
+  cfg.lastSent=cfg.lastSent||{};
+  delete cfg.medicationTime; delete cfg.todayTime;
+  return cfg;
 }
+
 async function linaRequestNotificationPermission(){
   if(!("Notification" in window)){toast("Notifications are not supported on this device");return false}
   if(Notification.permission==="granted") return true;
@@ -287,21 +285,24 @@ async function linaCheckNotifications(){
   const cfg=linaNotificationConfig();
   if(!cfg.enabled||Notification.permission!=="granted") return;
   const now=new Date(),dateValue=medLocalDate(now),clock=now.toTimeString().slice(0,5);
-  if(cfg.medication!==false&&clock>=cfg.medicationTime&&cfg.lastSent.medication!==dateValue){
-    const count=linaPendingMedicationCount(dateValue);
-    if(count>0){
-      await linaShowNotification("Medication reminder",{body:`${count} ${count===1?"dose is":"doses are"} still due today.`,tag:`linahub-med-${dateValue}`,data:{route:"medication"}});
-      cfg.lastSent.medication=dateValue;saveData();
+  for(const reminderTime of cfg.medicationTimes){
+    const sentKey=`medication:${dateValue}:${reminderTime}`;
+    if(cfg.medication!==false&&clock>=reminderTime&&!cfg.lastSent[sentKey]){
+      const count=linaPendingMedicationCount(dateValue);
+      if(count>0) await linaShowNotification("Medication reminder",{body:`${count} ${count===1?"dose is":"doses are"} still due today.`,tag:`linahub-med-${dateValue}-${reminderTime}`,data:{route:"medication"}});
+      cfg.lastSent[sentKey]=true; saveData();
     }
   }
-  if(cfg.todayTasks!==false&&clock>=cfg.todayTime&&cfg.lastSent.today!==dateValue){
-    const count=linaPendingTodayTaskCount(dateValue);
-    if(count>0){
-      await linaShowNotification("Today in LinaHub",{body:`You have ${count} unfinished ${count===1?"task":"tasks"} due today.`,tag:`linahub-today-${dateValue}`,data:{route:"today"}});
-      cfg.lastSent.today=dateValue;saveData();
+  for(const reminderTime of cfg.todayTimes){
+    const sentKey=`today:${dateValue}:${reminderTime}`;
+    if(cfg.todayTasks!==false&&clock>=reminderTime&&!cfg.lastSent[sentKey]){
+      const count=linaPendingTodayTaskCount(dateValue);
+      if(count>0) await linaShowNotification("Today in LinaHub",{body:`You have ${count} unfinished ${count===1?"task":"tasks"} due today.`,tag:`linahub-today-${dateValue}-${reminderTime}`,data:{route:"today"}});
+      cfg.lastSent[sentKey]=true; saveData();
     }
   }
 }
+
 function linaStartNotificationChecks(){
   clearInterval(linaNotificationTimer);
   linaCheckNotifications();
@@ -320,7 +321,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1632",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1633",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

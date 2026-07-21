@@ -1242,3 +1242,7 @@ body[data-route="health"] .compact-measure-date{margin-bottom:8px!important}
   body[data-route="health"] .compact-health-card .field{font-size:.76rem!important}
   body[data-route="health"] .compact-health-save{font-size:.76rem!important}
 }
+
+/* v16.33 stable navigation */
+.page-enter,.page-enter.from-right,.page-enter.from-left,.button-back-exit{animation:none!important;transform:none!important;opacity:1!important}
+.shell,.card,[data-health-tab],[data-route],.profile-tabs button,.health-tabs button,.home-tile{transition:none!important}

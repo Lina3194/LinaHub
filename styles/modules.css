@@ -480,3 +480,9 @@ body[data-route="medication"] .med-dose-card{overflow:hidden}
 .settings-toggle{display:flex;gap:12px;align-items:flex-start;padding:12px 0}.settings-toggle input{width:20px;height:20px;margin-top:2px;accent-color:var(--accent)}.settings-toggle span{display:grid;gap:3px}.settings-toggle small{color:var(--muted)}
 .notification-options{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:4px 16px;align-items:center;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:8px 0;margin:8px 0 14px}.notification-options.muted{opacity:.45;pointer-events:none}.compact-time{min-height:46px}
 @media(max-width:600px){.notification-options{grid-template-columns:minmax(0,1fr) 112px}.notification-settings-card .cloud-actions{display:grid;grid-template-columns:1fr 1fr}.notification-settings-card .cloud-actions button{width:100%}}
+
+/* v16.33 multiple reminder times */
+.notification-options{display:grid!important;grid-template-columns:1fr!important;gap:12px!important}
+.notification-kind-block{display:grid;gap:8px;padding:10px 0;border-bottom:1px solid var(--line)}
+.notification-kind-block:last-child{border-bottom:0}
+.notification-time-list{display:grid;gap:7px}.notification-time-row{display:grid;grid-template-columns:minmax(0,150px) 36px;gap:8px;align-items:center}.notification-time-row .field{width:100%;min-width:0}.notification-time-row button{width:36px;height:36px;padding:0}.add-notification-time{justify-self:start;padding:8px 12px!important;min-height:36px!important}

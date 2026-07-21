@@ -27,8 +27,8 @@ function moduleBanner(active){
 }
 
 function shell(content,active){
-  const animationClass=suppressNextPageAnimation?"page-settled":`page-enter ${navDirection==="back"?"from-left":"from-right"}`;
-  suppressNextPageAnimation=false;
+  const animationClass="page-settled";
+  suppressNextPageAnimation=true;
   return `<main class="shell ${animationClass}">
     ${moduleBanner(active)}
     ${content}
@@ -58,6 +58,10 @@ function resetModuleLanding(next){
     data.medicationView.tab="today";
     data.medicationView.date=typeof medLocalDate==="function"?medLocalDate():today();
     medicationDateTouched=false;
+  }
+  if(next==="health"){
+    data.healthView=data.healthView||{};
+    data.healthView.tab="log";
   }
   if(next==="journal"){
     data.journalTab="today";

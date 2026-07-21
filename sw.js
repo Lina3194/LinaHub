@@ -1,4 +1,4 @@
-const CACHE="linahub-v16-32-stressed-notifications";
+const CACHE="linahub-v16-33-multi-notifications-smooth-ui";
 const ASSETS=[
 "./","./index.html","./app.js?v=1632","./manifest.webmanifest?v=1632",
 "./core/pokemon-seed.js?v=1632","./core/data.js?v=1632","./core/router.js?v=1632","./core/cloud.js?v=1632",

@@ -6,7 +6,7 @@ const DEFAULT_DATA={
   version:5,
   theme:"dark",
   colorTheme:"amethyst",
-  notifications:{enabled:false,medication:true,todayTasks:true,medicationTime:"09:00",todayTime:"09:15",lastSent:{}},
+  notifications:{enabled:false,medication:true,todayTasks:true,medicationTimes:["09:00"],todayTimes:["09:15"],lastSent:{}},
   checkins:{},
   checkinLayout:["sleep","energy","mood","pain","spoons","water","selfcare","supports"],
   checkinFilter:"all",

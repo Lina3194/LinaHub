@@ -25,6 +25,7 @@ const DEFAULT_DATA={
     bills:"🧾",savings:"💰",income:"💷",expenses:"💸"
   },
   homeImages:{},
+  moduleImages:{},
   homeTileNames:{plants:"Garden"},
   homeTileAccents:{},
   homeHidden:[],
@@ -308,6 +309,13 @@ function loadData(){
 
 function moduleIcon(key,fallback="✨"){
   return String(data?.moduleIcons?.[key]||data?.homeIcons?.[key]||fallback);
+}
+function moduleImage(key){
+  return data?.moduleImages?.[key]||data?.homeImages?.[key]||"";
+}
+function moduleArt(key,fallback="✨",className="feature-art"){
+  const image=moduleImage(key);
+  return image?`<span class="${className}"><img src="${image}" alt=""></span>`:`<span class="${className} emoji-fallback">${esc(moduleIcon(key,fallback))}</span>`;
 }
 
 let data=loadData();

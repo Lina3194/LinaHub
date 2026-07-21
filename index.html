@@ -8,20 +8,20 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
   <meta name="apple-mobile-web-app-title" content="LinaHub">
   <title>LinaHub</title>
-  <link rel="manifest" href="./manifest.webmanifest?v=1650">
+  <link rel="manifest" href="./manifest.webmanifest?v=1651">
   <link rel="icon" href="./icons/favicon.png?v=1638" type="image/png">
   <link rel="apple-touch-icon" href="./icons/apple-touch-icon.png?v=1638">
 
-  <link rel="stylesheet" href="./styles/base.css?v=1650">
-  <link rel="stylesheet" href="./styles/home.css?v=1650">
-  <link rel="stylesheet" href="./styles/journal.css?v=1650">
-  <link rel="stylesheet" href="./styles/plants.css?v=1650">
-  <link rel="stylesheet" href="./styles/modules.css?v=1650">
-  <link rel="stylesheet" href="./styles/period.css?v=1650">
-  <link rel="stylesheet" href="./styles/treasures.css?v=1650">
+  <link rel="stylesheet" href="./styles/base.css?v=1651">
+  <link rel="stylesheet" href="./styles/home.css?v=1651">
+  <link rel="stylesheet" href="./styles/journal.css?v=1651">
+  <link rel="stylesheet" href="./styles/plants.css?v=1651">
+  <link rel="stylesheet" href="./styles/modules.css?v=1651">
+  <link rel="stylesheet" href="./styles/period.css?v=1651">
+  <link rel="stylesheet" href="./styles/treasures.css?v=1651">
 <script>
 (function(){
-  const BUILD="16.50";
+  const BUILD="16.51";
   const KEY="linahub-clean-build";
   if(localStorage.getItem(KEY)!==BUILD){
     localStorage.setItem(KEY,BUILD);
@@ -29,10 +29,10 @@
     if("serviceWorker" in navigator){cleanup.push(navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))).catch(()=>{}));}
     if("caches" in window){cleanup.push(caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{}));}
     Promise.all(cleanup).finally(()=>{
-      if(!sessionStorage.getItem("linahub-reloaded-16.50")){
-        sessionStorage.setItem("linahub-reloaded-16.50","1");
+      if(!sessionStorage.getItem("linahub-reloaded-16.51")){
+        sessionStorage.setItem("linahub-reloaded-16.51","1");
         const url=new URL(location.href);
-        url.searchParams.set("build","1650");
+        url.searchParams.set("build","1651");
         location.replace(url.toString());
       }
     });
@@ -45,28 +45,28 @@
   <div id="toast" role="status" aria-live="polite"></div>
 
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-  <script src="./core/pokemon-seed.js?v=1650"></script>
-  <script src="./core/data.js?v=1650"></script>
-  <script src="./core/media.js?v=1650"></script>
+  <script src="./core/pokemon-seed.js?v=1651"></script>
+  <script src="./core/data.js?v=1651"></script>
+  <script src="./core/media.js?v=1651"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore-compat.js"></script>
-  <script src="./core/router.js?v=1650"></script>
-  <script src="./core/cloud.js?v=1650"></script>
-  <script src="./pages/home.js?v=1650"></script>
-  <script src="./pages/today.js?v=1650"></script>
-  <script src="./pages/todo.js?v=1650"></script>
-  <script src="./pages/journal.js?v=1650"></script>
-  <script src="./pages/plants.js?v=1650"></script>
-  <script src="./pages/pokemon.js?v=1650"></script>
-  <script src="./pages/house.js?v=1650"></script>
-  <script src="./pages/medication.js?v=1650"></script>
-  <script src="./pages/health.js?v=1650"></script>
-  <script src="./pages/simple.js?v=1650"></script>
-  <script src="./pages/aquariums.js?v=1650"></script>
-  <script src="./pages/period.js?v=1650"></script>
-  <script src="./pages/treasures.js?v=1650"></script>
-  <script src="./pages/budget.js?v=1650"></script>
-  <script src="./app.js?v=1650"></script>
+  <script src="./core/router.js?v=1651"></script>
+  <script src="./core/cloud.js?v=1651"></script>
+  <script src="./pages/home.js?v=1651"></script>
+  <script src="./pages/today.js?v=1651"></script>
+  <script src="./pages/todo.js?v=1651"></script>
+  <script src="./pages/journal.js?v=1651"></script>
+  <script src="./pages/plants.js?v=1651"></script>
+  <script src="./pages/pokemon.js?v=1651"></script>
+  <script src="./pages/house.js?v=1651"></script>
+  <script src="./pages/medication.js?v=1651"></script>
+  <script src="./pages/health.js?v=1651"></script>
+  <script src="./pages/simple.js?v=1651"></script>
+  <script src="./pages/aquariums.js?v=1651"></script>
+  <script src="./pages/period.js?v=1651"></script>
+  <script src="./pages/treasures.js?v=1651"></script>
+  <script src="./pages/budget.js?v=1651"></script>
+  <script src="./app.js?v=1651"></script>
 </body>
 </html>

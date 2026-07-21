@@ -63,20 +63,22 @@ function SettingsPage(){
     </section>
 
     <section class="card settings-accordion" data-settings-accordion="icons">
-      <button type="button" class="settings-accordion-toggle" aria-expanded="false"><span><strong>Home tab pictures & icons</strong><small>Change Home tile pictures and emoji</small></span><b aria-hidden="true">⌄</b></button>
+      <button type="button" class="settings-accordion-toggle" aria-expanded="false"><span><strong>Tile pictures</strong><small>Change pictures throughout LinaHub</small></span><b aria-hidden="true">⌄</b></button>
       <div class="settings-collapse-body" hidden>
-      <p>Change the emoji used for every main tile and feature. Home tiles with custom pictures will keep showing the picture.</p>
-      <div class="icon-setting-groups">
+      <div class="tile-picture-groups">
         ${[
           ["Bottom navigation",[["home","Home","⌂"],["today","Today","✅"],["todo","To-do","📝"],["settings","Settings","⚙️"]]],
           ["Main tiles",[["journal","Daily Check-in","📖"],["health","Health","❤️"],["plants","Garden","🌿"],["pokemon","Pokémon GO","🔴"],["pets","Aquariums","🐠"],["house","House","🏡"],["budget","Budget & Bills","💷"],["treasures","Treasure Room","✨"]]],
           ["Health",[["healthOverview","Overview","❤️"],["sleep","Sleep","😴"],["medication","Medication","💊"],["period","Period","🌸"],["weight","Weight","⚖️"],["measurements","Measurements","📏"],["journey","Journey check-in","✨"]]],
           ["House & Aquariums",[["rooms","Rooms","🏠"],["shopping","Shopping","🛒"],["inventory","Inventory","📦"],["girlsTank","Girls Tank","🩷"],["boysTank","Boys Tank","💙"],["aquariumMaintenance","Maintenance","🫧"]]],
           ["Budget",[["bills","Bills","🧾"],["savings","Savings","💰"],["income","Income","💷"],["expenses","Expenses","💸"]]]
-        ].map(([group,items])=>`<section class="icon-setting-group"><h3>${group}</h3><div class="all-icon-grid">${items.map(([key,label,fallback])=>`<label class="all-icon-row"><span>${label}</span><input class="field home-icon-input" data-icon-key="${key}" value="${esc(moduleIcon(key,fallback))}" maxlength="12"></label>`).join("")}</div></section>`).join("")}
+        ].map(([group,items])=>`<section class="tile-picture-group"><h3>${group}</h3><div class="tile-picture-list">${items.map(([key,label,fallback])=>`
+          <article class="tab-art-setting tile-picture-setting">
+            <div class="tab-art-preview">${moduleImage(key)?`<img src="${moduleImage(key)}" alt="">`:`<span>${esc(moduleIcon(key,fallback))}</span>`}</div>
+            <strong>${label}</strong>
+            <div class="tab-art-actions"><button type="button" class="secondary compact-upload" data-pick-module-image="${key}">${moduleImage(key)?"Change":"Add"}</button><input type="file" accept="image/*" data-module-image="${key}" hidden>${moduleImage(key)?`<button type="button" class="mini danger" data-remove-module-image="${key}">×</button>`:""}</div>
+          </article>`).join("")}</div></section>`).join("")}
       </div>
-      <button class="primary" id="saveHomeIcons" style="margin-top:12px">Save emojis</button>
-      <p class="settings-note">Pictures are resized before being saved so LinaHub stays fast. They are included in your LinaHub backup.</p>
       </div>
     </section>
     <section class="card settings-accordion" data-settings-accordion="banners">
@@ -106,7 +108,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v16.50 · All Icons & Compact Rooms</p>`,"settings");
+  <p class="app-version">LinaHub v16.51 · Picture Pickers & Compact Rooms</p>`,"settings");
 }
 
 function bindSimple(){
@@ -186,20 +188,6 @@ function bindSimple(){
     setTimeout(()=>appearance?.scrollIntoView({behavior:"smooth",block:"start"}),60);
   }
 
-  document.querySelector("#saveHomeIcons")?.addEventListener("click",()=>{
-    data.homeIcons=data.homeIcons||{};
-    data.moduleIcons=data.moduleIcons||{};
-    const homeKeys=new Set((data.homeLayout||[]).map(item=>item.id));
-    document.querySelectorAll("[data-icon-key]").forEach(input=>{
-      const key=input.dataset.iconKey;
-      const value=input.value.trim();
-      if(!value) return;
-      data.moduleIcons[key]=value;
-      if(homeKeys.has(key)) data.homeIcons[key]=value;
-    });
-    saveData();toast("Icons updated ✨");render();
-  });
-
 
   function resizeTabImage(file){
     return new Promise((resolve,reject)=>{
@@ -272,6 +260,26 @@ function bindSimple(){
     };
   });
 
+
+  document.querySelectorAll("[data-pick-module-image]").forEach(button=>{
+    button.onclick=()=>{const input=document.querySelector(`[data-module-image="${button.dataset.pickModuleImage}"]`);if(input){input.value="";input.click();}};
+  });
+  document.querySelectorAll("[data-module-image]").forEach(input=>{
+    input.onchange=async e=>{
+      const file=e.target.files?.[0]; if(!file)return;
+      if(!file.type.startsWith("image/")){toast("Choose an image file");return}
+      try{
+        data.moduleImages=data.moduleImages||{};
+        data.moduleImages[input.dataset.moduleImage]=await resizeTabImage(file);
+        const homeKeys=new Set((data.homeLayout||[]).map(item=>item.id));
+        if(homeKeys.has(input.dataset.moduleImage)){data.homeImages=data.homeImages||{};data.homeImages[input.dataset.moduleImage]=data.moduleImages[input.dataset.moduleImage];}
+        saveData();toast("Picture updated ✨");render();
+      }catch{toast("That picture could not be added")}
+    };
+  });
+  document.querySelectorAll("[data-remove-module-image]").forEach(button=>{
+    button.onclick=()=>{const key=button.dataset.removeModuleImage;if(data.moduleImages)delete data.moduleImages[key];if(data.homeImages)delete data.homeImages[key];saveData();toast("Picture removed");render();};
+  });
 
   function resizeBannerImage(file){
     return new Promise((resolve,reject)=>{

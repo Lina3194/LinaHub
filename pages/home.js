@@ -1,5 +1,5 @@
 function ensureHomeLayout(){
-  const defaults=["journal","health","plants","medication","pokemon","pets","house","period","budget","treasures"];
+  const defaults=["journal","health","flowers","plants","pokemon","pets","house","budget","treasures"];
   if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
   if(!Array.isArray(data.homeHidden)) data.homeHidden=[];
   data.homeTileAccents=data.homeTileAccents||{};
@@ -18,12 +18,11 @@ function ensureHomeLayout(){
 const HOME_TILE_INFO={
   journal:["Daily Check-in","Pain, energy, sleep and your day","📖"],
   health:["Health","Sleep, medication, cycle and measurements","❤️"],
+  flowers:["Mood Flowers","Energy, mood and pain through the day","🌷"],
   plants:["Garden","Care and watering","🌿"],
-  medication:["Medication","Doses and routines","💊"],
   pokemon:["Pokémon GO","Friendship, Vivillon and gifts","🔴"],
   pets:["Aquariums","Girls and boys tanks","🐠"],
   house:["House","Rooms and recurring tasks","🏡"],
-  period:["Period Tracker","Cycles, symptoms and history","🌸"],
   budget:["Budget & Bills","","💷"],
   treasures:["Treasure Room","Your collected memories","✨"]
 };
@@ -31,6 +30,10 @@ const HOME_TILE_INFO={
 function homeTileStatus(id){
   const now=new Date();
   const todayKey=typeof today==="function"?today():now.toISOString().slice(0,10);
+  if(id==="flowers"){
+    const entries=(data.dayCheckins||[]).filter(entry=>entry.date===todayKey);
+    return entries.length?`${entries.length} flower${entries.length===1?"":"s"} in today’s bouquet`:`Add your first flower today`;
+  }
   if(id==="plants"){
     const due=(data.plants||[]).filter(p=>{
       const days=Number(p.wateringDays)||0;
@@ -116,7 +119,7 @@ function homeTile(item,editing){
   const accent=data.homeTileAccents?.[item.id]||"";
   const style=accent?` style="--tile-accent:${esc(accent)}"`:"";
   return `<article class="home-tile-wrap size-${item.size}" draggable="${editing}" data-home-id="${item.id}"${style}>
-    <button type="button" class="module module-${item.id}" ${editing?'tabindex="-1"':`data-route="${item.id}"`}>${art}<strong>${esc(title)}</strong><small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span></button>
+    <button type="button" class="module module-${item.id}" ${editing?'tabindex="-1"':item.id==="flowers"?'data-route="health" data-route-id="garden"':`data-route="${item.id}"`}>${art}<strong>${esc(title)}</strong><small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span></button>
     ${editing?`<div class="tile-edit-controls">
       <button type="button" class="tile-move" data-move="back" aria-label="Move ${esc(title)} earlier">‹</button>
       <button type="button" class="tile-drag" aria-label="Drag ${esc(title)}">☰</button>

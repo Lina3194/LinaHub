@@ -509,3 +509,26 @@ body[data-route="medication"] .med-dose-card{overflow:hidden}
 .health-circle-scale{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}.health-circle-scale button{border:0;background:transparent;padding:4px;min-width:0}.health-circle-scale button span{display:grid;place-items:center;width:54px;height:54px;margin:auto;border-radius:50%;background:var(--card-soft);border:2px solid var(--line);font-size:1.55rem}.health-circle-scale button small{display:block;margin-top:5px;font-size:.68rem}.health-circle-scale button.active span{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft);background:var(--accent-soft)}
 .med-stock-list article{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line)}.med-stock-list small{display:block}.med-stock-count{font-weight:800}.notification-module-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.settings-toggle.compact{margin:0}.care-summary{grid-template-columns:repeat(2,1fr)!important}
 @media(max-width:600px){.health-dashboard-stats{grid-template-columns:repeat(2,1fr)}.health-circle-scale{gap:3px}.health-circle-scale button span{width:45px;height:45px}.health-circle-scale button small{font-size:.58rem}.notification-module-grid{grid-template-columns:1fr}.health-module-grid button{min-height:112px}}
+
+/* v16.38: stable Health interactions and cleaner mobile medication */
+.health-auto-save-note{margin:14px 0 2px;text-align:center;color:var(--muted);font-size:.78rem}
+body[data-route="health"] .health-feeling,body[data-route="health"] .health-circle-scale button{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media(max-width:600px){
+  body[data-route="medication"] .content{padding-inline:12px!important}
+  body[data-route="medication"] .med-page{padding-bottom:96px}
+  body[data-route="medication"] .med-date-card{display:grid;grid-template-columns:1fr;gap:10px}
+  body[data-route="medication"] .med-day-picker{width:100%!important;max-width:none}
+  body[data-route="medication"] .med-quick-row{grid-template-columns:42px minmax(0,1fr) 42px;gap:9px;padding:9px}
+  body[data-route="medication"] .med-quick-row .med-photo{width:42px;height:42px;min-width:42px}
+  body[data-route="medication"] .med-quick-copy strong{font-size:.92rem}
+  body[data-route="medication"] .med-quick-copy span{font-size:.74rem;line-height:1.25;white-space:normal}
+  body[data-route="medication"] .med-quick-tick{width:40px;height:40px;border-radius:13px}
+  body[data-route="medication"] .med-bottom-tabs{bottom:76px;width:calc(100% - 24px);grid-template-columns:repeat(4,1fr);border-radius:18px;padding:5px}
+  body[data-route="medication"] .med-bottom-tabs button{padding:7px 2px;font-size:.92rem}
+  body[data-route="medication"] .med-bottom-tabs button small{font-size:.56rem}
+  body[data-route="medication"] .med-stock-list article{grid-template-columns:minmax(0,1fr) auto;gap:7px}
+  body[data-route="medication"] .med-stock-list article button{grid-column:1/-1;width:100%}
+  body[data-route="medication"] .med-history-row{display:grid;grid-template-columns:44px minmax(0,1fr) auto;gap:8px;align-items:center}
+  body[data-route="medication"] .med-history-row .med-photo{width:44px;height:44px}
+  body[data-route="medication"] .med-history-row .danger{grid-column:3;grid-row:2}
+}

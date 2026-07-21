@@ -1,10 +1,10 @@
-const CACHE="linahub-v16-37";
+const CACHE="linahub-v16-38";
 const ASSETS=[
-"./","./index.html","./app.js?v=1636","./manifest.webmanifest?v=1636",
-"./core/pokemon-seed.js?v=1636","./core/data.js?v=1636","./core/router.js?v=1636","./core/cloud.js?v=1636",
-"./pages/home.js?v=1636","./pages/today.js?v=1636","./pages/todo.js?v=1636","./pages/journal.js?v=1636","./pages/plants.js?v=1636","./pages/pokemon.js?v=1636","./pages/house.js?v=1636","./pages/medication.js?v=1636","./pages/health.js?v=1636","./pages/simple.js?v=1636","./pages/aquariums.js?v=1636","./pages/period.js?v=1636","./pages/treasures.js?v=1636","./pages/budget.js?v=1636",
-"./styles/base.css?v=1636","./styles/home.css?v=1636","./styles/journal.css?v=1636","./styles/plants.css?v=1636","./styles/modules.css?v=1636","./styles/period.css?v=1636","./styles/treasures.css?v=1636",
-"./icons/icon-192.png?v=1636","./icons/icon-512.png?v=1636","./icons/apple-touch-icon.png?v=1636"
+"./","./index.html","./app.js?v=1638","./manifest.webmanifest?v=1638",
+"./core/pokemon-seed.js?v=1638","./core/data.js?v=1638","./core/router.js?v=1638","./core/cloud.js?v=1638",
+"./pages/home.js?v=1638","./pages/today.js?v=1638","./pages/todo.js?v=1638","./pages/journal.js?v=1638","./pages/plants.js?v=1638","./pages/pokemon.js?v=1638","./pages/house.js?v=1638","./pages/medication.js?v=1638","./pages/health.js?v=1638","./pages/simple.js?v=1638","./pages/aquariums.js?v=1638","./pages/period.js?v=1638","./pages/treasures.js?v=1638","./pages/budget.js?v=1638",
+"./styles/base.css?v=1638","./styles/home.css?v=1638","./styles/journal.css?v=1638","./styles/plants.css?v=1638","./styles/modules.css?v=1638","./styles/period.css?v=1638","./styles/treasures.css?v=1638",
+"./icons/icon-192.png?v=1638","./icons/icon-512.png?v=1638","./icons/apple-touch-icon.png?v=1638"
 ];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

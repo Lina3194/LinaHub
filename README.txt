@@ -1,3 +1,3 @@
-LinaHub v16.37
+LinaHub v16.38
 
-Health dashboard, grouped health modules, clickable flower check-ins, central reminder settings, medication stock, and smart plant watering guidance.
+Health opens on Overview, morning check-ins auto-save without screen refreshes, period opens on the correct local date, mobile medication layout is cleaner, and Mood Flowers replaces Period and Medication on Home.

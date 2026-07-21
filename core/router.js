@@ -86,6 +86,17 @@ function go(next,id="",direction="forward",options={}){
   if(!next) return;
   const destination={route:String(next),routeId:id?String(id):""};
   const current=currentLocation();
+  if(destination.route==="health" && direction!=="back") {
+    data.healthView=data.healthView||{};
+    data.healthView.tab=destination.routeId==="garden"?"garden":"dashboard";
+    destination.routeId="";
+  }
+  if(destination.route==="period" && direction!=="back" && current.route!=="period") {
+    const localToday=typeof today==="function"?today():new Date().toLocaleDateString("en-CA");
+    data.periodSelectedDate=localToday;
+    data.periodCalendarMonth=localToday.slice(0,7);
+    data.periodTab="today";
+  }
   const topLevelTiles=new Set(["journal","today","todo","plants","health","medication","pokemon","pets","house","period","budget","treasures","settings"]);
   if(direction!=="back" && !id && topLevelTiles.has(destination.route) && (current.route==="home" || current.route!==destination.route)){
     resetModuleLanding(destination.route);

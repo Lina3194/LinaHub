@@ -1,3 +1,2 @@
-LinaHub v16.45
-
-Removed the unreliable long-press tile editor. Settings now uses collapsed sections for Notifications, Themes, Home icons and Module banners.
+LinaHub v16.47
+Fixed repeated Theme updated toast. It now appears only after a genuine user tap selects a different theme.

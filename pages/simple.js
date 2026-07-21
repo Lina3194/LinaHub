@@ -114,7 +114,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v16.46 · Working Settings Accordions</p>`,"settings");
+  <p class="app-version">LinaHub v16.47 · Theme Toast Fix</p>`,"settings");
 }
 
 function bindSimple(){
@@ -173,13 +173,18 @@ function bindSimple(){
     t.textContent=`Switch to ${data.theme==="dark"?"light":"dark"} mode`;
     toast(`${data.theme==="dark"?"Dark":"Light"} mode selected`);
   };
-  document.querySelectorAll("[data-color-theme]").forEach(button=>button.onclick=()=>{
-    data.colorTheme=button.dataset.colorTheme;
+  document.querySelectorAll("[data-color-theme]").forEach(button=>button.addEventListener("click",event=>{
+    // Only a genuine user tap on a different theme should show the confirmation.
+    // Restoring the saved theme during startup or re-rendering Settings stays silent.
+    if(!event.isTrusted) return;
+    const nextTheme=button.dataset.colorTheme;
+    if(!nextTheme || nextTheme===data.colorTheme) return;
+    data.colorTheme=nextTheme;
     saveData();
     document.body.dataset.colorTheme=data.colorTheme;
     document.querySelectorAll("[data-color-theme]").forEach(b=>b.classList.toggle("active",b===button));
     toast("Theme updated ✨");
-  });
+  }));
   if(data.settingsSection==="appearance"){
     data.settingsSection="";
     const appearance=document.querySelector("#appearanceSettings");

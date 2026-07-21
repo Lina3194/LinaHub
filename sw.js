@@ -1,4 +1,4 @@
-const CACHE="linahub-v16-46";
+const CACHE="linahub-v16-47";
 const ASSETS=[
 "./","./index.html","./app.js?v=1646","./manifest.webmanifest?v=1646",
 "./core/pokemon-seed.js?v=1646","./core/data.js?v=1646","./core/router.js?v=1646","./core/cloud.js?v=1646",

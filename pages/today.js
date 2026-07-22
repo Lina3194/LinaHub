@@ -24,7 +24,9 @@ function getTodayItems(){
   (data.medications||[]).forEach(m=>{
     const active=m.active!==false && (!m.startDate||todayValue>=m.startDate) && (!m.endDate||todayValue<=m.endDate);
     const due=active && (m.scheduleType==="daily" || (m.scheduleType==="weekdays"&&(m.weekdays||[]).includes(shortDay)));
-    const taken=(data.medicationHistory||[]).filter(log=>log.medId===m.id&&log.date===todayValue).length;
+    const historyTaken=(data.medicationHistory||[]).filter(log=>log.medId===m.id&&log.date===todayValue).length;
+    const legacyTaken=Boolean(data.medicationLog?.[todayValue]?.[m.id]);
+    const taken=historyTaken||legacyTaken?Math.max(historyTaken,legacyTaken?1:0):0;
     const required=Math.max(1,Number(m.dosesPerDay)||1);
     if(due&&taken<required){
       const doseNumber=taken+1;
@@ -120,7 +122,11 @@ function bindToday(){
       if(!med)return;
       const now=new Date(),pad=n=>String(n).padStart(2,'0');
       data.medicationHistory=Array.isArray(data.medicationHistory)?data.medicationHistory:[];
-      data.medicationHistory.push({id:`dose-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,medId:med.id,date:today(),time:`${pad(now.getHours())}:${pad(now.getMinutes())}`,notes:'',createdAt:now.toISOString()});
+      const doseDate=today();
+      data.medicationHistory.push({id:`dose-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,medId:med.id,date:doseDate,time:`${pad(now.getHours())}:${pad(now.getMinutes())}`,notes:'',createdAt:now.toISOString()});
+      data.medicationLog=data.medicationLog&&typeof data.medicationLog==='object'?data.medicationLog:{};
+      data.medicationLog[doseDate]=data.medicationLog[doseDate]&&typeof data.medicationLog[doseDate]==='object'?data.medicationLog[doseDate]:{};
+      data.medicationLog[doseDate][med.id]=true;
       message=`${med.name} marked as taken 💊`;
     }else if(type==='aquarium-feed'){
       const tank=(data.aquariums||[]).find(item=>String(item.id)===id);

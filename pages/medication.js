@@ -189,6 +189,11 @@ function bindMedication(){
   document.querySelectorAll("[data-med-take]").forEach(b=>b.onclick=()=>{
     const medId=b.dataset.medTake,date=data.medicationView.date||medLocalDate(),time=medNowTime();
     data.medicationHistory.push({id:medUid("dose"),medId,date,time,notes:"",createdAt:new Date().toISOString()});
+    // Keep the original daily completion map in sync so Today and Medication
+    // always agree, including for data created by older LinaHub versions.
+    data.medicationLog=data.medicationLog&&typeof data.medicationLog==="object"?data.medicationLog:{};
+    data.medicationLog[date]=data.medicationLog[date]&&typeof data.medicationLog[date]==="object"?data.medicationLog[date]:{};
+    data.medicationLog[date][medId]=true;
     data.medicationView.date=date;saveData();b.classList.add("done");toast("Dose marked as taken");setTimeout(()=>render(),160);
   });
   document.querySelector("#medScheduleType")?.addEventListener("change",e=>document.querySelector("#medWeekdays").classList.toggle("hidden",e.target.value!=="weekdays"));

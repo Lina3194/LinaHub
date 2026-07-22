@@ -1,5 +1,5 @@
-const BUILD_VERSION = 'linahub-v16.54';
-/* LinaHub 16.54 */
+const BUILD_VERSION = 'linahub-v16.55';
+/* LinaHub 16.55 */
 const CACHE="linahub-v16-51";
 const ASSETS=[
 "./","./index.html","./app.js?v=1652","./manifest.webmanifest?v=1652",

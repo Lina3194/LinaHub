@@ -1291,7 +1291,7 @@ body[data-route="health"] .compact-measure-date{margin-bottom:8px!important}
 .bottom.four-nav button>img,.bottom.four-nav button>svg{margin-inline:auto}
 
 
-/* v16.53: prevent iOS focus zoom on form fields */
+/* v16.54: prevent iOS focus zoom on form fields */
 @media (max-width: 900px) {
   input,
   select,
@@ -1299,4 +1299,32 @@ body[data-route="health"] .compact-measure-date{margin-bottom:8px!important}
   .field {
     font-size: 16px !important;
   }
+}
+
+/* v16.54: hard stop iPhone focus zoom */
+html, body {
+  -webkit-text-size-adjust: 100%;
+}
+input,
+select,
+textarea,
+button {
+  touch-action: manipulation;
+}
+input[type="number"],
+input[type="date"],
+input[type="text"],
+input[type="time"],
+input[type="email"],
+input[type="search"],
+input[type="tel"],
+textarea,
+select,
+.field,
+#weightValue,
+#weightDate {
+  font-size: 17px !important;
+  line-height: 1.25 !important;
+  min-height: 44px;
+  transform: none !important;
 }

@@ -1289,3 +1289,14 @@ body[data-route="health"] .compact-measure-date{margin-bottom:8px!important}
 .bottom.four-nav button{width:100%;min-width:0;display:grid;grid-template-rows:auto auto;place-items:center;align-content:center;justify-content:center;text-align:center;line-height:1;gap:5px;margin:0}
 .bottom.four-nav button small{width:100%;text-align:center;line-height:1.2}
 .bottom.four-nav button>img,.bottom.four-nav button>svg{margin-inline:auto}
+
+
+/* v16.53: prevent iOS focus zoom on form fields */
+@media (max-width: 900px) {
+  input,
+  select,
+  textarea,
+  .field {
+    font-size: 16px !important;
+  }
+}

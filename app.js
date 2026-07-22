@@ -23,6 +23,7 @@ function render(){
     settings:SettingsPage,
     health:HealthPage,
     medication:MedicationPage,
+    shopping:ShoppingPage,
     pokemon:PokemonPage,
     pets:AquariumsPage,
     tank:AquariumTankPage,
@@ -67,6 +68,7 @@ function render(){
   if(route==="pokemon") bindPokemon();
   if(route==="house") bindHouse();
   if(route==="medication") bindMedication();
+  if(route==="shopping") bindShopping();
   if(route==="health") bindHealth();
   if(route==="settings") bindSimple();
   if(route==="period") bindPeriod();

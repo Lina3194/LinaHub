@@ -15,7 +15,7 @@ const DEFAULT_DATA={
   journalSelectedDate:"",
   journalTrendPeriod:"week",
   homeIcons:{
-    journal:"📖",health:"⚖️",plants:"🌿",medication:"💊",
+    journal:"📖",health:"⚖️",plants:"🌿",medication:"💊",shopping:"🛒",
     pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",budget:"💷",treasures:"✨",settings:"⚙️"
   },
   moduleIcons:{
@@ -55,6 +55,8 @@ const DEFAULT_DATA={
   dayCheckins:[],
   healthPromptLog:{},
   personalTasks:[],
+  shoppingItems:[],
+  shoppingCategories:["Fruit & Veg","Fridge","Freezer","Cupboard","Household","Toiletries","Other"],
   houseControlsCollapsed:true,
   houseOpenRooms:[],
   houseRooms:[

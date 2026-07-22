@@ -1,12 +1,12 @@
-const BUILD_VERSION = 'linahub-v16.56';
-/* LinaHub 16.56 */
-const CACHE="linahub-v16-51";
+const BUILD_VERSION = 'linahub-v16.57';
+/* LinaHub 16.57 */
+const CACHE="linahub-v16-57";
 const ASSETS=[
-"./","./index.html","./app.js?v=1652","./manifest.webmanifest?v=1652",
-"./core/pokemon-seed.js?v=1652","./core/data.js?v=1652","./core/router.js?v=1652","./core/cloud.js?v=1652",
-"./pages/home.js?v=1652","./pages/today.js?v=1652","./pages/todo.js?v=1652","./pages/journal.js?v=1652","./pages/plants.js?v=1652","./pages/pokemon.js?v=1652","./pages/house.js?v=1652","./pages/medication.js?v=1652","./pages/health.js?v=1652","./pages/simple.js?v=1652","./pages/aquariums.js?v=1652","./pages/period.js?v=1652","./pages/treasures.js?v=1652","./pages/budget.js?v=1652",
-"./styles/base.css?v=1652","./styles/home.css?v=1652","./styles/journal.css?v=1652","./styles/plants.css?v=1652","./styles/modules.css?v=1652","./styles/period.css?v=1652","./styles/treasures.css?v=1652",
-"./icons/icon-192.png?v=1652","./icons/icon-512.png?v=1652","./icons/apple-touch-icon.png?v=1652"
+"./","./index.html","./app.js?v=1657","./manifest.webmanifest?v=1657",
+"./core/pokemon-seed.js?v=1657","./core/data.js?v=1657","./core/router.js?v=1657","./core/cloud.js?v=1657",
+"./pages/home.js?v=1657","./pages/today.js?v=1657","./pages/todo.js?v=1657","./pages/shopping.js?v=1657","./pages/journal.js?v=1657","./pages/plants.js?v=1657","./pages/pokemon.js?v=1657","./pages/house.js?v=1657","./pages/medication.js?v=1657","./pages/health.js?v=1657","./pages/simple.js?v=1657","./pages/aquariums.js?v=1657","./pages/period.js?v=1657","./pages/treasures.js?v=1657","./pages/budget.js?v=1657",
+"./styles/base.css?v=1657","./styles/home.css?v=1657","./styles/journal.css?v=1657","./styles/plants.css?v=1657","./styles/modules.css?v=1657","./styles/period.css?v=1657","./styles/treasures.css?v=1657",
+"./icons/icon-192.png?v=1657","./icons/icon-512.png?v=1657","./icons/apple-touch-icon.png?v=1657"
 ];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

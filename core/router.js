@@ -19,7 +19,7 @@ function moduleBanner(active){
   if(!image||active==="home"||active==="settings") return "";
   const names={
     journal:"Daily Check-in",today:"Today",todo:"To-do",health:"Health",
-    plants:"Plants",medication:"Medication",pokemon:"Pokémon GO",pets:"Aquariums",house:"House",period:"Period Tracker",budget:"Budget & Bills",treasures:"Treasure Room"
+    plants:"Plants",medication:"Medication",shopping:"Shopping List",pokemon:"Pokémon GO",pets:"Aquariums",house:"House",period:"Period Tracker",budget:"Budget & Bills",treasures:"Treasure Room"
   };
   return `<section class="module-banner">
     <img src="${image}" alt="">
@@ -94,7 +94,7 @@ function go(next,id="",direction="forward",options={}){
     data.periodCalendarMonth=localToday.slice(0,7);
     data.periodTab="today";
   }
-  const topLevelTiles=new Set(["journal","today","todo","plants","health","medication","pokemon","pets","house","period","budget","treasures","settings"]);
+  const topLevelTiles=new Set(["journal","today","todo","plants","health","medication","shopping","pokemon","pets","house","period","budget","treasures","settings"]);
   if(direction!=="back" && !id && topLevelTiles.has(destination.route) && (current.route==="home" || current.route!==destination.route)){
     resetModuleLanding(destination.route);
   }

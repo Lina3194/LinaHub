@@ -1,6 +1,6 @@
-const BUILD_VERSION = 'linahub-v16.59';
-/* LinaHub 16.59 */
-const CACHE="linahub-v16-59";
+const BUILD_VERSION = 'linahub-v16.60';
+/* LinaHub 16.60 */
+const CACHE="linahub-v16-60";
 const ASSETS=[
 "./","./index.html","./app.js?v=1659","./manifest.webmanifest?v=1659",
 "./core/pokemon-seed.js?v=1659","./core/data.js?v=1659","./core/router.js?v=1659","./core/cloud.js?v=1659",

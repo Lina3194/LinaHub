@@ -15,7 +15,7 @@ const DEFAULT_DATA={
   journalSelectedDate:"",
   journalTrendPeriod:"week",
   homeIcons:{
-    journal:"📖",health:"⚖️",hobbies:"🎮",plants:"🌿",medication:"💊",shopping:"🛒",
+    journal:"📖",health:"⚖️",hobbies:"🎮",plants:"🌿",medication:"💊",shopping:"🛒",shoppingFridge:"❄️",shoppingFreezer:"🧊",shoppingPantry:"🥫",shoppingCleaning:"🧽",shoppingToiletries:"🧴",
     pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",budget:"💷",treasures:"✨",settings:"⚙️"
   },
   moduleIcons:{

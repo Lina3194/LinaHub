@@ -653,3 +653,21 @@ body[data-route="health"] .health-feeling,body[data-route="health"] .health-circ
   .book-cover{width:52px;height:72px}
   .book-actions{grid-column:2;display:flex;justify-content:flex-end}
 }
+
+/* LinaHub 16.60 — Shopping hub polish */
+.shopping-overview-card{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;margin-bottom:14px;background:linear-gradient(145deg,var(--card),color-mix(in srgb,var(--purple-soft) 58%,var(--card)));overflow:hidden;position:relative}
+.shopping-overview-card:after{content:"";position:absolute;width:120px;height:120px;border-radius:50%;right:-48px;top:-55px;background:color-mix(in srgb,var(--gold) 13%,transparent)}
+.shopping-overview-card h2{margin:5px 0 4px;font-size:1.16rem}.shopping-overview-card p{margin:0;color:var(--muted);font-size:.82rem;max-width:38ch}
+.shopping-overview-count{width:64px;height:64px;border-radius:21px;display:grid;place-items:center;background:var(--purple-soft);border:1px solid color-mix(in srgb,var(--purple) 35%,var(--line));color:var(--purple);font-size:1.55rem;font-weight:900;z-index:1}
+.shopping-category-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:0 0 14px}
+.shopping-category-tile{grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px;min-height:104px;padding:14px;border-radius:22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.shopping-category-tile:after{content:"";position:absolute;inset:auto -28px -38px auto;width:86px;height:86px;border-radius:50%;background:color-mix(in srgb,var(--purple-soft) 65%,transparent)}
+.shopping-category-art{display:grid;place-items:center;width:52px;height:52px;border-radius:17px;background:var(--card-soft);border:1px solid var(--line);font-size:1.7rem;overflow:hidden;z-index:1}
+.shopping-category-art .module-tile-image{width:100%;height:100%;margin:0;border-radius:16px;object-fit:cover}
+.shopping-category-copy{min-width:0;z-index:1}.shopping-category-copy strong,.shopping-category-copy small{display:block}.shopping-category-copy strong{font-size:.96rem}.shopping-category-copy small{margin-top:4px;font-size:.69rem;line-height:1.25;color:var(--muted)}
+.shopping-category-tile>b{display:grid;place-items:center;min-width:30px;height:30px;padding:0 8px;border-radius:999px;background:var(--purple-soft);color:var(--purple);font-size:.78rem;z-index:1}
+.shopping-category-tile.active{transform:none}.shopping-category-tile.active .shopping-category-art{border-color:var(--purple);box-shadow:0 0 0 3px color-mix(in srgb,var(--purple) 14%,transparent)}
+.shopping-category-grid .shopping-category-tile:last-child{grid-column:1/-1}
+.shopping-quick-card{margin-top:0}.shopping-empty span{display:grid;place-items:center;width:38px;height:38px;border-radius:50%;margin:0 auto 8px;background:var(--purple-soft);color:var(--purple);font-weight:900}
+body[data-route="shopping"] .shell{padding-bottom:104px}
+@media(max-width:480px){.shopping-category-tile{min-height:96px;padding:12px;gap:9px}.shopping-category-art{width:46px;height:46px}.shopping-category-copy strong{font-size:.9rem}.shopping-category-copy small{font-size:.63rem}.shopping-overview-count{width:56px;height:56px;border-radius:18px}.shopping-options{grid-template-columns:.9fr 1.1fr}}

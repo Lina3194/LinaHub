@@ -25,8 +25,8 @@ function getTodayItems(){
     const active=m.active!==false && (!m.startDate||todayValue>=m.startDate) && (!m.endDate||todayValue<=m.endDate);
     const due=active && (m.scheduleType==="daily" || (m.scheduleType==="weekdays"&&(m.weekdays||[]).includes(shortDay)));
     const historyTaken=(data.medicationHistory||[]).filter(log=>log.medId===m.id&&log.date===todayValue).length;
-    const legacyTaken=Boolean(data.medicationLog?.[todayValue]?.[m.id]);
-    const taken=historyTaken||legacyTaken?Math.max(historyTaken,legacyTaken?1:0):0;
+    const legacyTaken=!data.medicationHistoryMigrated&&Boolean(data.medicationLog?.[todayValue]?.[m.id]);
+    const taken=Math.max(historyTaken,legacyTaken?1:0);
     const required=Math.max(1,Number(m.dosesPerDay)||1);
     if(due&&taken<required){
       const doseNumber=taken+1;

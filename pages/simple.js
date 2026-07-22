@@ -109,7 +109,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">LinaHub v16.52 · Picture Controls Fix</p>`,"settings");
+  <p class="app-version">Version 16.56<br><br>22 Jul 2026<br>10:51</p>`,"settings");
 }
 
 function bindSimple(){

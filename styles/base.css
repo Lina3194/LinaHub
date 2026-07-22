@@ -1328,3 +1328,30 @@ select,
   min-height: 44px;
   transform: none !important;
 }
+
+
+/* v16.56: keep Health inputs at a true iOS-safe size and inside the viewport */
+@supports (-webkit-touch-callout: none) {
+  body[data-route="health"] input.field,
+  body[data-route="health"] input[type="number"],
+  body[data-route="health"] input[type="date"],
+  body[data-route="health"] #weightValue,
+  body[data-route="health"] #weightDate,
+  body[data-route="health"] #measureDate,
+  body[data-route="health"] #measureWaist,
+  body[data-route="health"] #measureTummy {
+    font-size:16px !important;
+    line-height:1.25 !important;
+    width:100% !important;
+    max-width:100% !important;
+    min-width:0 !important;
+    box-sizing:border-box !important;
+    transform:none !important;
+    -webkit-appearance:none;
+  }
+  body[data-route="health"] .compact-health-fields,
+  body[data-route="health"] .compact-health-card {
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+}

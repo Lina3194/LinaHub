@@ -114,6 +114,19 @@ function HealthPage(){
  return shell(`${head("Health","Your wellbeing in one gentle dashboard")}<nav class="health-tabs"><button class="${tab==='dashboard'?'active':''}" data-health-tab="dashboard">Overview</button>${tab!=='dashboard'?`<button class="active">${({sleep:'Sleep',garden:'Journey',weight:'Weight',measurements:'Measurements',log:'Add'})[tab]||'Health'}</button>`:''}</nav>${content}`,"health");
 }
 function selectedHealthFeeling(name){const el=document.querySelector(`[data-health-feeling="${name}"].active`);return el?Number(el.dataset.value):null}
+function markHealthTodayPrompt(date){
+  if(date!==today()) return;
+  data.healthPromptLog=data.healthPromptLog&&typeof data.healthPromptLog==="object"?data.healthPromptLog:{};
+  data.healthPromptLog[date]=data.healthPromptLog[date]&&typeof data.healthPromptLog[date]==="object"?data.healthPromptLog[date]:{};
+  const key=new Date().getHours()>=17?"evening":"morning";
+  data.healthPromptLog[date][key]=true;
+}
+function releaseHealthInputZoom(){
+  const active=document.activeElement;
+  if(active&&/^(INPUT|SELECT|TEXTAREA)$/.test(active.tagName)) active.blur();
+  requestAnimationFrame(()=>window.scrollTo({top:window.scrollY,left:0,behavior:"auto"}));
+}
+
 function bindHealth(){
  ensureHealthView();
  document.querySelectorAll('[data-health-open]').forEach(b=>b.onclick=()=>{data.healthView.tab=b.dataset.healthOpen;saveData();render()});
@@ -147,8 +160,8 @@ function bindHealth(){
    if(['sleep','pain','energy','mood'].includes(b.dataset.healthFeeling)) saveMorningAutomatically();
  });
  ['#sleepDate','#sleepHours','#sleepMinutes','#deepHours','#deepMinutes'].forEach(selector=>document.querySelector(selector)?.addEventListener('change',saveMorningAutomatically));
- document.querySelector('#addWeight')?.addEventListener('click',()=>{const weight=document.querySelector('#weightValue').value;if(!weight){toast('Enter a weight');return}data.weightEntries.push({...entryTimestamp(document.querySelector('#weightDate').value),weight});saveData();toast('Weight saved ✨');render()});
- document.querySelector('#addMeasure')?.addEventListener('click',()=>{const waist=document.querySelector('#measureWaist').value,tummy=document.querySelector('#measureTummy').value;if(!waist&&!tummy){toast('Add at least one measurement');return}data.measurements.push({...entryTimestamp(document.querySelector('#measureDate').value),waist,tummy});saveData();toast('Measurements saved ✨');render()});
+ document.querySelector('#addWeight')?.addEventListener('click',()=>{const input=document.querySelector('#weightValue'),weight=input.value;if(!weight){toast('Enter a weight');return}const date=document.querySelector('#weightDate').value;data.weightEntries.push({...entryTimestamp(date),weight});markHealthTodayPrompt(date);releaseHealthInputZoom();saveData();toast('Weight saved ✨');render()});
+ document.querySelector('#addMeasure')?.addEventListener('click',()=>{const waist=document.querySelector('#measureWaist').value,tummy=document.querySelector('#measureTummy').value;if(!waist&&!tummy){toast('Add at least one measurement');return}const date=document.querySelector('#measureDate').value;data.measurements.push({...entryTimestamp(date),waist,tummy});markHealthTodayPrompt(date);releaseHealthInputZoom();saveData();toast('Measurements saved ✨');render()});
  document.querySelectorAll('[data-sleep-delete]').forEach(b=>b.onclick=()=>{data.sleepEntries=data.sleepEntries.filter(e=>e.id!==b.dataset.sleepDelete);saveData();render()});
  document.querySelector('#saveDayJourney')?.addEventListener('click',()=>{const energy=selectedHealthFeeling('dayEnergy'),mood=selectedHealthFeeling('dayMood'),pain=selectedHealthFeeling('dayPain');if(energy===null||mood===null||pain===null){toast('Choose your energy, mood and pain');return}const stamp=entryTimestamp(today());data.dayCheckins=data.dayCheckins||[];data.dayCheckins.push({id:`journey-${Date.now()}`,...stamp,energy,mood,pain});saveData();toast('Check-in saved ✨');render()});
  document.querySelectorAll('[data-day-checkin-id]').forEach(b=>b.onclick=()=>{if(confirm('Remove this check-in?')){data.dayCheckins=data.dayCheckins.filter(e=>e.id!==b.dataset.dayCheckinId);saveData();render()}});

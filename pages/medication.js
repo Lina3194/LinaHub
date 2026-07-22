@@ -171,6 +171,16 @@ function medFillForm(m){
   document.querySelector("#cancelMedEdit").classList.remove("hidden");
   window.scrollTo({top:0,behavior:"smooth"});
 }
+
+function syncMedicationCompletionMap(medId,date){
+  data.medicationLog=data.medicationLog&&typeof data.medicationLog==="object"?data.medicationLog:{};
+  data.medicationLog[date]=data.medicationLog[date]&&typeof data.medicationLog[date]==="object"?data.medicationLog[date]:{};
+  const hasDose=(data.medicationHistory||[]).some(log=>String(log.medId)===String(medId)&&log.date===date);
+  if(hasDose) data.medicationLog[date][medId]=true;
+  else delete data.medicationLog[date][medId];
+  if(!Object.keys(data.medicationLog[date]).length) delete data.medicationLog[date];
+}
+
 function medEditLog(log){
   const med=data.medications.find(m=>m.id===log.medId);
   const date=prompt(`Date for ${med?.name||"dose"} (YYYY-MM-DD)`,log.date);
@@ -179,7 +189,11 @@ function medEditLog(log){
   const time=prompt("Time taken (HH:MM)",log.time||"");if(time===null)return;
   if(time&&!/^\d{2}:\d{2}$/.test(time)){toast("Use a time like 21:30");return}
   const notes=prompt("Optional note",log.notes||"");if(notes===null)return;
-  Object.assign(log,{date,time,notes});saveData();render();
+  const oldDate=log.date,medId=log.medId;
+  Object.assign(log,{date,time,notes});
+  syncMedicationCompletionMap(medId,oldDate);
+  syncMedicationCompletionMap(medId,date);
+  saveData();render();
 }
 function bindMedication(){
   ensureMedicationData();
@@ -216,5 +230,5 @@ function bindMedication(){
   document.querySelector("#medHistoryFilter")?.addEventListener("change",e=>{data.medicationView.historyMed=e.target.value;saveData();render()});
   document.querySelectorAll("[data-med-log-edit]").forEach(b=>b.onclick=()=>{const log=data.medicationHistory.find(x=>x.id===b.dataset.medLogEdit);if(log)medEditLog(log)});
   document.querySelectorAll("[data-med-open-history]").forEach(b=>b.onclick=()=>{data.medicationView.tab="history";data.medicationView.historyMed=b.dataset.medOpenHistory;saveData();render()});
-  document.querySelectorAll("[data-med-log-delete]").forEach(b=>b.onclick=()=>{if(!confirm("Delete this dose record?"))return;data.medicationHistory=data.medicationHistory.filter(x=>x.id!==b.dataset.medLogDelete);saveData();render()});
+  document.querySelectorAll("[data-med-log-delete]").forEach(b=>b.onclick=()=>{if(!confirm("Delete this dose record?"))return;const log=data.medicationHistory.find(x=>x.id===b.dataset.medLogDelete);data.medicationHistory=data.medicationHistory.filter(x=>x.id!==b.dataset.medLogDelete);if(log)syncMedicationCompletionMap(log.medId,log.date);saveData();render()});
 }

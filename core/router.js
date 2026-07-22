@@ -6,10 +6,11 @@ let suppressNextPageAnimation=true;
 const navigationHistory=[];
 
 function nav(active){
-  return `<nav class="bottom four-nav">
+  return `<nav class="bottom five-nav">
     <button type="button" data-route="home" class="${active==="home"?"active":""}">${moduleVisual("home","⌂","bottom-nav-image")}<small>Home</small></button>
     <button type="button" data-route="today" class="${active==="today"?"active":""}">${moduleVisual("today","✅","bottom-nav-image")}<small>Today</small></button>
     <button type="button" data-route="todo" class="${active==="todo"?"active":""}">${moduleVisual("todo","📝","bottom-nav-image")}<small>To-do</small></button>
+    <button type="button" data-route="shopping" class="${active==="shopping"?"active":""}">${moduleVisual("shopping","🛒","bottom-nav-image")}<small>Shopping</small></button>
     <button type="button" data-route="settings" class="${active==="settings"?"active":""}">${moduleVisual("settings","⚙️","bottom-nav-image")}<small>Settings</small></button>
   </nav>`;
 }
@@ -18,7 +19,7 @@ function moduleBanner(active){
   const image=data.moduleBanners?.[active];
   if(!image||active==="home"||active==="settings") return "";
   const names={
-    journal:"Daily Check-in",today:"Today",todo:"To-do",health:"Health",
+    journal:"Daily Check-in",today:"Today",todo:"To-do",shopping:"Shopping",health:"Health",hobbies:"Hobbies",books:"Books",gaming:"Gaming",
     plants:"Plants",medication:"Medication",shopping:"Shopping List",pokemon:"Pokémon GO",pets:"Aquariums",house:"House",period:"Period Tracker",budget:"Budget & Bills",treasures:"Treasure Room"
   };
   return `<section class="module-banner">
@@ -94,7 +95,7 @@ function go(next,id="",direction="forward",options={}){
     data.periodCalendarMonth=localToday.slice(0,7);
     data.periodTab="today";
   }
-  const topLevelTiles=new Set(["journal","today","todo","plants","health","medication","shopping","pokemon","pets","house","period","budget","treasures","settings"]);
+  const topLevelTiles=new Set(["journal","today","todo","plants","health","hobbies","books","gaming","medication","shopping","pokemon","pets","house","period","budget","treasures","settings"]);
   if(direction!=="back" && !id && topLevelTiles.has(destination.route) && (current.route==="home" || current.route!==destination.route)){
     resetModuleLanding(destination.route);
   }

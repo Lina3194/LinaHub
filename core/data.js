@@ -15,11 +15,11 @@ const DEFAULT_DATA={
   journalSelectedDate:"",
   journalTrendPeriod:"week",
   homeIcons:{
-    journal:"📖",health:"⚖️",plants:"🌿",medication:"💊",shopping:"🛒",
+    journal:"📖",health:"⚖️",hobbies:"🎮",plants:"🌿",medication:"💊",shopping:"🛒",
     pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",budget:"💷",treasures:"✨",settings:"⚙️"
   },
   moduleIcons:{
-    home:"⌂",today:"✅",todo:"📝",settings:"⚙️",journal:"📖",health:"❤️",plants:"🌿",medication:"💊",pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",budget:"💷",treasures:"✨",
+    home:"⌂",today:"✅",todo:"📝",shopping:"🛒",settings:"⚙️",journal:"📖",health:"❤️",hobbies:"🎮",plants:"🌿",medication:"💊",pokemon:"🔴",pets:"🐠",books:"📚",gaming:"🎮",house:"🏡",period:"🌸",budget:"💷",treasures:"✨",
     sleep:"😴",weight:"⚖️",measurements:"📏",healthOverview:"❤️",journey:"✨",
     rooms:"🏠",shopping:"🛒",inventory:"📦",girlsTank:"🩷",boysTank:"💙",aquariumMaintenance:"🫧",
     bills:"🧾",savings:"💰",income:"💷",expenses:"💸"
@@ -32,8 +32,8 @@ const DEFAULT_DATA={
   budgetEntries:[],
   savingsEntries:[],
   homeLayout:[
-    {id:"journal",size:"medium"},{id:"health",size:"medium"},{id:"plants",size:"medium"},{id:"medication",size:"medium"},
-    {id:"pokemon",size:"medium"},{id:"pets",size:"medium"},{id:"house",size:"medium"},{id:"period",size:"medium"},{id:"budget",size:"medium"},{id:"settings",size:"medium"},{id:"treasures",size:"wide"}
+    {id:"journal",size:"medium"},{id:"health",size:"medium"},{id:"hobbies",size:"medium"},{id:"shopping",size:"medium"},
+    {id:"house",size:"medium"},{id:"budget",size:"medium"},{id:"treasures",size:"wide"}
   ],
   homeEditing:false,
   treasures:{},
@@ -56,6 +56,9 @@ const DEFAULT_DATA={
   healthPromptLog:{},
   personalTasks:[],
   shoppingItems:[],
+  shoppingView:{category:"all"},
+  books:[],
+  booksView:{tab:"reading"},
   shoppingCategories:["Fruit & Veg","Fridge","Freezer","Cupboard","Household","Toiletries","Other"],
   houseControlsCollapsed:true,
   houseOpenRooms:[],

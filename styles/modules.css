@@ -604,3 +604,52 @@ body[data-route="health"] .health-feeling,body[data-route="health"] .health-circ
 @media(max-width:420px){
   .shopping-options{grid-template-columns:1fr 1fr}
 }
+
+
+/* LinaHub 16.59 — Hobbies, Books and refined Shopping */
+.five-nav{grid-template-columns:repeat(5,1fr)}
+.five-nav button{min-width:0;padding-inline:4px}
+.five-nav small{font-size:.68rem}
+
+.hobbies-hero{margin-bottom:14px}
+.hobbies-hero h2{margin:5px 0 6px}
+.hobbies-hero p{margin:0;color:var(--muted)}
+.hobbies-module-grid button:last-child{grid-column:1/-1}
+
+.shopping-quick-card{display:grid;gap:10px}
+.shopping-category-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin:14px 0}
+.shopping-category-tile{border:1px solid var(--line);border-radius:21px;padding:15px;background:var(--card);color:var(--ink);text-align:left;display:grid;gap:5px;min-height:120px}
+.shopping-category-tile span{font-size:1.8rem}
+.shopping-category-tile strong{font-size:1rem}
+.shopping-category-tile small{color:var(--muted)}
+.shopping-category-tile.active{border-color:var(--purple);background:var(--purple-soft);box-shadow:0 0 0 2px color-mix(in srgb,var(--purple) 16%,transparent)}
+.shopping-category-grid .shopping-category-tile:last-child{grid-column:1/-1}
+.shopping-bought-details{margin-top:18px}
+.shopping-bought-details summary{cursor:pointer;font-weight:800;color:var(--purple)}
+.shopping-bought-details .shopping-list{margin-top:12px}
+.shopping-clear{margin-top:12px}
+
+.book-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
+.book-tabs button{border:1px solid var(--line);border-radius:15px;padding:10px 6px;background:var(--card);color:var(--ink);font-size:.78rem;display:grid;gap:3px}
+.book-tabs button b{color:var(--purple)}
+.book-tabs button.active{background:var(--purple-soft);border-color:var(--purple)}
+.book-add-card{display:grid;gap:10px;margin-bottom:15px}
+.book-add-card h2{margin:0}
+.book-form-actions{display:flex;gap:9px}
+.book-list{display:grid;gap:11px}
+.book-card{display:grid;grid-template-columns:62px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px}
+.book-cover{width:62px;height:82px;border-radius:12px;background:var(--purple-soft);display:grid;place-items:center;font-size:1.8rem;overflow:hidden}
+.book-cover img{width:100%;height:100%;object-fit:cover}
+.book-copy{min-width:0}
+.book-copy h3{margin:0 0 3px;font-size:1rem}
+.book-copy p,.book-copy small{margin:0;color:var(--muted);font-size:.78rem}
+.book-progress{height:7px;border-radius:999px;background:var(--line);overflow:hidden;margin:9px 0 5px}
+.book-progress span{display:block;height:100%;background:var(--purple);border-radius:inherit}
+.book-actions{display:grid;gap:6px}
+@media(max-width:480px){
+  .five-nav small{font-size:.62rem}
+  .shopping-category-tile{min-height:105px;padding:13px}
+  .book-card{grid-template-columns:52px minmax(0,1fr)}
+  .book-cover{width:52px;height:72px}
+  .book-actions{grid-column:2;display:flex;justify-content:flex-end}
+}

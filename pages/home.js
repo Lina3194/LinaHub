@@ -1,5 +1,5 @@
 function ensureHomeLayout(){
-  const defaults=["journal","health","flowers","plants","shopping","pokemon","pets","house","budget","treasures"];
+  const defaults=["journal","health","flowers","hobbies","shopping","house","budget","treasures"];
   if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
   if(!Array.isArray(data.homeHidden)) data.homeHidden=[];
   data.homeTileAccents=data.homeTileAccents||{};
@@ -21,7 +21,7 @@ const HOME_TILE_INFO={
   journal:["Daily Check-in","Pain, energy, sleep and your day","📖"],
   health:["Health","Sleep, medication, cycle and measurements","❤️"],
   flowers:["Today’s Journey","","✨"],
-  plants:["Garden","Care and watering","🌿"],
+  hobbies:["Hobbies","Plants, aquariums, Pokémon, books and gaming","🎮"],
   shopping:["Shopping List","Things to pick up","🛒"],
   pokemon:["Pokémon GO","Friendship, Vivillon and gifts","🔴"],
   pets:["Aquariums","Girls and boys tanks","🐠"],
@@ -68,6 +68,10 @@ function homeTileStatus(id){
     const unpaid=(data.bills||[]).filter(b=>!b.paid && (!b.dueDate || String(b.dueDate).slice(0,7)===month));
     const total=unpaid.reduce((sum,b)=>sum+(Number(b.amount)||0),0);
     return unpaid.length?`£${total.toFixed(2)} due · ${unpaid.length} unpaid`:"✓ No unpaid bills this month";
+  }
+  if(id==="hobbies"){
+    const total=(data.plants||[]).length+(data.aquariums||[]).length+(data.books||[]).length;
+    return `${total} saved across your hobbies`;
   }
   if(id==="shopping"){
     const items=Array.isArray(data.shoppingItems)?data.shoppingItems:[];

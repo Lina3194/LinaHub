@@ -22,6 +22,9 @@ function render(){
     plant:PlantProfilePage,
     settings:SettingsPage,
     health:HealthPage,
+    hobbies:HobbiesPage,
+    books:BooksPage,
+    gaming:()=>SimplePage("Gaming","🎮","Your games and progress","gaming"),
     medication:MedicationPage,
     shopping:ShoppingPage,
     pokemon:PokemonPage,
@@ -69,6 +72,8 @@ function render(){
   if(route==="house") bindHouse();
   if(route==="medication") bindMedication();
   if(route==="shopping") bindShopping();
+  if(route==="hobbies") bindHobbies();
+  if(route==="books") bindBooks();
   if(route==="health") bindHealth();
   if(route==="settings") bindSimple();
   if(route==="period") bindPeriod();

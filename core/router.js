@@ -51,7 +51,6 @@ function shell(content,active,options={}){
   const selected=options.section||"today";
   return `<main class="shell ${animationClass}">
     ${moduleBanner(active)}
-    ${moduleSectionTabs(active,selected,options.historyKey||"")}
     ${content}
   </main>${nav(active)}`;
 }

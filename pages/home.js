@@ -16,7 +16,7 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
-  // 16.67: remove the old Potions & Remedies Home tile and always restore Period to Home.
+  // 16.68: remove the old Potions & Remedies Home tile and always restore Period to Home.
   data.homeLayout=data.homeLayout.filter(item=>(typeof item==="string"?item:item?.id)!=="hobbies");
   data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="period");
 
@@ -143,7 +143,7 @@ function homeTile(item,editing){
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1667" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1668" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const accent=data.homeTileAccents?.[item.id]||"";
   const style=accent?` style="--tile-accent:${esc(accent)}"`:"";

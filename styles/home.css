@@ -135,7 +135,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
 .emoji-quick-picks button{aspect-ratio:1;border:1px solid var(--line);border-radius:12px;background:var(--soft);font-size:1.25rem;color:var(--ink)}
 @media(max-width:520px){.emoji-quick-picks{grid-template-columns:repeat(6,minmax(0,1fr))}.universal-tile-editor{max-height:84vh}.universal-tile-preview{padding:12px}}
 
-/* LinaHub 16.67 — compact four-across mobile dashboard */
+/* LinaHub 16.68 — compact four-across mobile dashboard */
 .home-dashboard-hero{padding-bottom:8px}
 .home-dashboard-hero h1{margin:0;font-size:clamp(1.65rem,4vw,2.25rem)}
 .home-dashboard-hero p{margin:.45rem 0 0;color:var(--muted)}
@@ -187,7 +187,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
 }
 
 
-/* LinaHub 16.67 — full-tile accents and compact mobile editor */
+/* LinaHub 16.68 — full-tile accents and compact mobile editor */
 .home-tile-wrap[style] .module{
   border-color:color-mix(in srgb,var(--tile-accent) 66%,var(--line))!important;
   background:linear-gradient(145deg,color-mix(in srgb,var(--tile-accent) 30%,var(--card)) 0%,color-mix(in srgb,var(--tile-accent) 14%,var(--card)) 58%,var(--card) 100%)!important;

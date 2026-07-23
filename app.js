@@ -82,6 +82,7 @@ function render(){
   if(route==="treasures") bindTreasures();
   if(route==="history") bindHistory();
   if(route==="pets"||route==="tank") bindAquariums();
+  linaMaybeOpenDailyCheckin();
 }
 
 
@@ -346,8 +347,8 @@ function linaStartNotificationChecks(){
   linaCheckNotifications();
   linaNotificationTimer=setInterval(linaCheckNotifications,60000);
 }
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")linaCheckNotifications()});
-window.addEventListener("focus",linaCheckNotifications);
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){linaCheckNotifications();linaMaybeOpenDailyCheckin();}});
+window.addEventListener("focus",()=>{linaCheckNotifications();linaMaybeOpenDailyCheckin();});
 
 setupNavigation();
 setupSwipeBack();

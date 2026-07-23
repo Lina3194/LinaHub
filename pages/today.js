@@ -69,22 +69,7 @@ function TodayPage(){
   const items=getTodayItems(),groups={};
   const completedHouse=(data.houseTasks||[]).filter(task=>houseCompletedToday(task));
   items.forEach(item=>{groups[item.kind]=groups[item.kind]||[];groups[item.kind].push(item)});
-  const morning=(data.morningCheckins||{})[today()];
   return shell(`${head("Today",niceDate())}
-    <details class="card morning-checkin" ${morning?'':'open'}><summary><span><strong>☀️ Morning Check-in</strong><small>${morning?'Saved for today':'Weight, sleep, mood, energy, pain and your morning notes'}</small></span><b>${morning?'✓':'›'}</b></summary>
-      <div class="morning-grid">
-        <label>Weight<input class="field" id="morningWeight" type="number" step="0.1" value="${esc(morning?.weight||'')}" placeholder="kg"></label>
-        <label>Sleep<input class="field" id="morningSleep" type="number" step="0.25" value="${esc(morning?.sleep||'')}" placeholder="hours"></label>
-        <label>Mood<input class="field" id="morningMood" type="range" min="1" max="5" value="${morning?.mood||3}"></label>
-        <label>Energy<input class="field" id="morningEnergy" type="range" min="1" max="5" value="${morning?.energy||3}"></label>
-        <label>Pain<input class="field" id="morningPain" type="range" min="1" max="5" value="${morning?.pain||3}"></label>
-        <label>Water<input class="field" id="morningWater" type="number" min="0" value="${esc(morning?.water||0)}" placeholder="glasses"></label>
-        <label class="morning-wide">Medication notes<input class="field" id="morningMedication" value="${esc(morning?.medication||'')}" placeholder="Taken, due, or anything to remember"></label>
-        <label class="morning-wide">What do I need today?<textarea class="field" id="morningPrompt1">${esc(morning?.prompt1||'')}</textarea></label>
-        <label class="morning-wide">One gentle priority<textarea class="field" id="morningPrompt2">${esc(morning?.prompt2||'')}</textarea></label>
-        <button type="button" class="primary morning-wide" id="saveMorningCheckin">Save morning check-in</button>
-      </div>
-    </details>
     <section class="card"><div class="stat-grid"><div class="stat"><strong>${items.length}</strong><span>Remaining today</span></div><div class="stat"><strong>${(data.personalTasks||[]).filter(t=>!t.done).length}</strong><span>Open to-dos</span></div></div></section>
     ${Object.entries(groups).map(([group,groupItems])=>`<details class="card today-group"><summary><span><strong>${esc(group)}</strong><small>${groupItems.length} remaining</small></span><b>⌄</b></summary><div class="today-task-list">${groupItems.map(item=>`<article class="item-row today-task" data-today-item><button type="button" class="today-task-main" data-route="${item.route}" ${item.routeId?`data-route-id="${esc(item.routeId)}"`:""}><span class="today-task-icon">${item.emoji}</span><span><h3>${esc(item.title)}</h3><p>${esc(item.detail)}</p></span><span class="plant-arrow">›</span></button>${item.completeType?`<button type="button" class="check-task today-quick-done" data-today-complete="${esc(item.completeType)}" data-today-id="${esc(item.completeId)}">✓</button>`:""}</article>`).join("")}</div></details>`).join("")}
     ${completedHouse.length?`<details class="card today-completed-card"><summary>✓ Completed today · ${completedHouse.length}</summary><div class="today-completed-list">${completedHouse.map(task=>`<div class="today-completed-row"><span><strong>${esc(task.task)}</strong><small>${esc(task.room)} · ${esc(task.frequency)}</small></span><button type="button" class="mini" data-today-complete="house" data-today-id="${esc(task.id)}">Undo</button></div>`).join("")}</div></details>`:""}`,'today');
@@ -93,16 +78,6 @@ function TodayPage(){
 function bindToday(){
   const page=document.querySelector('.shell');
   if(!page)return;
-  page.querySelector('#saveMorningCheckin')?.addEventListener('click',()=>{
-    const value=id=>page.querySelector(id)?.value||'';
-    const entry={date:today(),createdAt:new Date().toISOString(),weight:value('#morningWeight'),sleep:value('#morningSleep'),mood:Number(value('#morningMood')),energy:Number(value('#morningEnergy')),pain:Number(value('#morningPain')),water:Number(value('#morningWater')||0),medication:value('#morningMedication'),prompt1:value('#morningPrompt1'),prompt2:value('#morningPrompt2')};
-    data.morningCheckins=data.morningCheckins||{};data.morningCheckins[today()]=entry;
-    if(entry.weight){data.weightEntries=data.weightEntries||[];data.weightEntries=data.weightEntries.filter(x=>!(x.date===today()&&x.source==='morning-checkin'));data.weightEntries.push({id:`weight-${Date.now()}`,date:today(),value:Number(entry.weight),unit:'kg',source:'morning-checkin'});}
-    if(entry.sleep){data.sleepEntries=data.sleepEntries||[];data.sleepEntries=data.sleepEntries.filter(x=>!(x.date===today()&&x.source==='morning-checkin'));data.sleepEntries.push({id:`sleep-${Date.now()}`,date:today(),hours:Number(entry.sleep),source:'morning-checkin'});}
-    data.checkins=data.checkins||{};data.checkins[today()]={...(data.checkins[today()]||{}),mood:entry.mood,energy:entry.energy,pain:entry.pain,water:entry.water,savedAt:entry.createdAt};
-    data.journalTimeline=data.journalTimeline||[];data.journalTimeline=data.journalTimeline.filter(x=>!(x.date===today()&&x.source==='morning-checkin'));data.journalTimeline.push({id:`journal-${Date.now()}`,date:today(),time:new Date().toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'}),prompt:'Morning Check-in',text:[entry.prompt1,entry.prompt2,entry.medication].filter(Boolean).join(' · '),source:'morning-checkin',createdAt:entry.createdAt});
-    saveData();toast('Morning check-in saved ☀️');render();
-  });
   page.addEventListener('click',event=>{
     const button=event.target.closest('[data-today-complete]');
     if(!button)return;

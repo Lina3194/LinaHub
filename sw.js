@@ -1,12 +1,12 @@
-const BUILD_VERSION = 'linahub-v16.62';
-/* LinaHub 16.62 */
+const BUILD_VERSION = 'linahub-v16.63';
+/* LinaHub 16.63 */
 const CACHE="linahub-v16-61-tabs";
 const ASSETS=[
-"./","./index.html","./app.js?v=1662","./manifest.webmanifest?v=1662",
-"./core/pokemon-seed.js?v=1662","./core/data.js?v=1662","./core/router.js?v=1662","./core/cloud.js?v=1662",
-"./pages/home.js?v=1662","./pages/today.js?v=1662","./pages/todo.js?v=1662","./pages/shopping.js?v=1662","./pages/hobbies.js?v=1662","./pages/books.js?v=1662","./pages/journal.js?v=1662","./pages/plants.js?v=1662","./pages/pokemon.js?v=1662","./pages/house.js?v=1662","./pages/medication.js?v=1662","./pages/health.js?v=1662","./pages/simple.js?v=1662","./pages/aquariums.js?v=1662","./pages/period.js?v=1662","./pages/treasures.js?v=1662","./pages/budget.js?v=1662",
-"./styles/base.css?v=1662","./styles/home.css?v=1662","./styles/journal.css?v=1662","./styles/plants.css?v=1662","./styles/modules.css?v=1662","./styles/period.css?v=1662","./styles/treasures.css?v=1662",
-"./icons/icon-192.png?v=1662","./icons/icon-512.png?v=1662","./icons/apple-touch-icon.png?v=1662"
+"./","./index.html","./app.js?v=1663","./manifest.webmanifest?v=1663",
+"./core/pokemon-seed.js?v=1663","./core/data.js?v=1663","./core/router.js?v=1663","./core/cloud.js?v=1663",
+"./pages/home.js?v=1663","./pages/today.js?v=1663","./pages/todo.js?v=1663","./pages/shopping.js?v=1663","./pages/hobbies.js?v=1663","./pages/books.js?v=1663","./pages/journal.js?v=1663","./pages/plants.js?v=1663","./pages/pokemon.js?v=1663","./pages/house.js?v=1663","./pages/medication.js?v=1663","./pages/health.js?v=1663","./pages/simple.js?v=1663","./pages/aquariums.js?v=1663","./pages/period.js?v=1663","./pages/treasures.js?v=1663","./pages/budget.js?v=1663",
+"./styles/base.css?v=1663","./styles/home.css?v=1663","./styles/journal.css?v=1663","./styles/plants.css?v=1663","./styles/modules.css?v=1663","./styles/period.css?v=1663","./styles/treasures.css?v=1663",
+"./icons/icon-192.png?v=1663","./icons/icon-512.png?v=1663","./icons/apple-touch-icon.png?v=1663"
 ];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

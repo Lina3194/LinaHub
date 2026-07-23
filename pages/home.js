@@ -16,7 +16,7 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
-  // 16.68: remove the old Potions & Remedies Home tile and always restore Period to Home.
+  // 16.69: remove the old Potions & Remedies Home tile and always restore Period to Home.
   data.homeLayout=data.homeLayout.filter(item=>(typeof item==="string"?item:item?.id)!=="hobbies");
   data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="period");
 

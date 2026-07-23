@@ -82,9 +82,26 @@ function render(){
   if(route==="treasures") bindTreasures();
   if(route==="history") bindHistory();
   if(route==="pets"||route==="tank") bindAquariums();
+  bindBottomNavigation();
   linaMaybeOpenDailyCheckin();
 }
 
+
+
+function bindBottomNavigation(){
+  document.querySelectorAll(".bottom button[data-route]").forEach(button=>{
+    button.addEventListener("click",event=>{
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      go(button.dataset.route,button.dataset.routeId||"");
+    });
+    button.addEventListener("touchend",event=>{
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      go(button.dataset.route,button.dataset.routeId||"");
+    },{passive:false});
+  });
+}
 
 function setupNavigation(){
   if(window.__linaNavigationReady) return;
@@ -369,7 +386,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1668",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1669",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

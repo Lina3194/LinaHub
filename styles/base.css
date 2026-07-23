@@ -1355,3 +1355,34 @@ select,
     max-width:100% !important;
   }
 }
+
+/* LinaHub 16.69 — restore fully interactive bottom navigation */
+.bottom,
+#app > .bottom{
+  position:fixed!important;
+  left:50%!important;
+  right:auto!important;
+  bottom:max(12px,env(safe-area-inset-bottom))!important;
+  transform:translateX(-50%)!important;
+  z-index:20000!important;
+  pointer-events:auto!important;
+  touch-action:manipulation;
+  isolation:isolate;
+}
+.bottom button,
+.bottom button *{
+  pointer-events:auto!important;
+  touch-action:manipulation;
+}
+.bottom button{
+  position:relative;
+  z-index:1;
+  cursor:pointer;
+  -webkit-tap-highlight-color:transparent;
+}
+.route-atmosphere,
+.route-atmosphere *,
+.card::after,
+.hero::after{
+  pointer-events:none!important;
+}

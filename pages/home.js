@@ -2,7 +2,7 @@ function ensureHomeLayout(){
   const defaults=[
     "journal","today","todo","plants",
     "pets","house","shopping","medication","measurements",
-    "health","period","pokemon","books","budget","gaming","treasures"
+    "period","pokemon","books","budget","gaming","treasures"
   ];
   if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
   if(!Array.isArray(data.homeHidden)) data.homeHidden=[];
@@ -16,9 +16,9 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
-  // 16.69: remove the old Potions & Remedies Home tile and always restore Period to Home.
-  data.homeLayout=data.homeLayout.filter(item=>(typeof item==="string"?item:item?.id)!=="hobbies");
-  data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="period");
+  // 16.70: keep Period on Home and remove the redundant Health dashboard tile.
+  data.homeLayout=data.homeLayout.filter(item=>!["hobbies","health"].includes(typeof item==="string"?item:item?.id));
+  data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="health"&&id!=="period");
 
   const seen=new Set();
   data.homeLayout=data.homeLayout.filter(item=>{
@@ -49,8 +49,7 @@ const HOME_TILE_INFO={
   shopping:["Shopping","Lists and essentials","🛒"],
   medication:["Medication","Tablets and schedule","💊"],
   measurements:["Weight & Measurements","Track weight and body measurements","⚖️"],
-  health:["Health","Sleep, weight, mood and pain","❤️"],
-  period:["Period","Cycle and symptom tracking","🌙"],
+  period:["Period","Cycle and symptom tracking","🌸"],
   pokemon:["Pokémon GO","Friends, gifts and Vivillon","🔴"],
   books:["Books","Reading list and progress","📚"],
   budget:["Budget & Bills","Money, bills and planning","💷"],
@@ -143,7 +142,7 @@ function homeTile(item,editing){
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1668" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1670" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const accent=data.homeTileAccents?.[item.id]||"";
   const style=accent?` style="--tile-accent:${esc(accent)}"`:"";

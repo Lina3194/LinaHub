@@ -243,6 +243,7 @@ function linaDailyCheckinMarkup(dateValue){
         <label>Waist <span>cm</span><input class="field" id="dailyWaist" type="number" step="0.1" value="${esc(saved.waist||'')}" placeholder="Optional"></label>
         <label>Tummy <span>cm</span><input class="field" id="dailyTummy" type="number" step="0.1" value="${esc(saved.tummy||'')}" placeholder="Optional"></label>
       </div>
+      ${feelings("sleep","How was your sleep?",HEALTH_FEELINGS.sleep,saved.sleepQuality)}
       ${feelings("energy","Energy",HEALTH_FEELINGS.energy,saved.energy)}
       ${feelings("mood","Mood",HEALTH_FEELINGS.mood,saved.mood)}
       ${feelings("pain","Pain",HEALTH_FEELINGS.pain,saved.pain)}
@@ -254,12 +255,12 @@ function linaDailyCheckinMarkup(dateValue){
 function linaSaveDailyCheckin(backdrop,dateValue,complete){
   const val=id=>backdrop.querySelector(id)?.value||"";
   const selected=name=>{const b=backdrop.querySelector(`[data-daily-feeling="${name}"].active`);return b?Number(b.dataset.value):null};
-  const entry={date:dateValue,updatedAt:new Date().toISOString(),sleep:val("#dailySleep"),deepSleep:val("#dailyDeepSleep"),weight:val("#dailyWeight"),waist:val("#dailyWaist"),tummy:val("#dailyTummy"),energy:selected("energy"),mood:selected("mood"),pain:selected("pain"),tablets:[...backdrop.querySelectorAll("[data-daily-med]:checked")].map(x=>String(x.dataset.dailyMed))};
+  const entry={date:dateValue,updatedAt:new Date().toISOString(),sleep:val("#dailySleep"),deepSleep:val("#dailyDeepSleep"),sleepQuality:selected("sleep"),weight:val("#dailyWeight"),waist:val("#dailyWaist"),tummy:val("#dailyTummy"),energy:selected("energy"),mood:selected("mood"),pain:selected("pain"),tablets:[...backdrop.querySelectorAll("[data-daily-med]:checked")].map(x=>String(x.dataset.dailyMed))};
   data.morningCheckins=data.morningCheckins||{};data.morningCheckins[dateValue]=entry;
   if(entry.weight){data.weightEntries=Array.isArray(data.weightEntries)?data.weightEntries:[];data.weightEntries=data.weightEntries.filter(x=>!(x.date===dateValue&&x.source==="daily-checkin"));data.weightEntries.push({id:`weight-${Date.now()}`,date:dateValue,weight:Number(entry.weight),value:Number(entry.weight),unit:"kg",source:"daily-checkin",createdAt:entry.updatedAt});}
   if(entry.sleep||entry.deepSleep){data.sleepEntries=Array.isArray(data.sleepEntries)?data.sleepEntries:[];data.sleepEntries=data.sleepEntries.filter(x=>!(x.date===dateValue&&x.source==="daily-checkin"));data.sleepEntries.push({id:`sleep-${Date.now()}`,date:dateValue,totalMinutes:Math.round(Number(entry.sleep||0)*60),deepMinutes:Math.round(Number(entry.deepSleep||0)*60),source:"daily-checkin",createdAt:entry.updatedAt});}
   if(entry.waist||entry.tummy){data.measurements=Array.isArray(data.measurements)?data.measurements:[];data.measurements=data.measurements.filter(x=>!(x.date===dateValue&&x.source==="daily-checkin"));data.measurements.push({id:`measure-${Date.now()}`,date:dateValue,waist:entry.waist,tummy:entry.tummy,source:"daily-checkin",createdAt:entry.updatedAt});}
-  data.checkins=data.checkins||{};data.checkins[dateValue]={...(data.checkins[dateValue]||{}),energy:entry.energy,mood:entry.mood,pain:entry.pain,savedAt:entry.updatedAt};
+  data.checkins=data.checkins||{};data.checkins[dateValue]={...(data.checkins[dateValue]||{}),sleep:entry.sleepQuality,energy:entry.energy,mood:entry.mood,pain:entry.pain,savedAt:entry.updatedAt};
   data.medicationHistory=Array.isArray(data.medicationHistory)?data.medicationHistory:[];
   entry.tablets.forEach(medId=>{if(!data.medicationHistory.some(x=>String(x.medId)===medId&&x.date===dateValue)){data.medicationHistory.push({id:`dose-${Date.now()}-${Math.random().toString(36).slice(2,6)}`,medId,date:dateValue,time:new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}),notes:"Daily check-in",source:"daily-checkin",createdAt:entry.updatedAt});}});
   if(complete){data.dailyCheckinCompleted=data.dailyCheckinCompleted||{};data.dailyCheckinCompleted[dateValue]=entry.updatedAt;delete data.dailyCheckinRemindAt?.[dateValue];}

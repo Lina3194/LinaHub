@@ -1,4 +1,4 @@
-LinaHub 16.69
+LinaHub 16.70
 
 Fixes:
 - Corrected the displayed Settings version and all build/cache references.

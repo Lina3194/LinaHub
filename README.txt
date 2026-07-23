@@ -1,4 +1,4 @@
-LinaHub 16.65
+LinaHub 16.66
 
 Changes:
 - Removed the global Today / History / Settings bar from the top of module pages.

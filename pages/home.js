@@ -1,6 +1,6 @@
 function ensureHomeLayout(){
   const defaults=[
-    "journal","today","todo","plants","hobbies",
+    "journal","today","todo","plants",
     "pets","house","shopping","medication","measurements",
     "health","period","pokemon","books","budget","gaming","treasures"
   ];
@@ -16,6 +16,9 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
+  // 16.66: remove the old Potions & Remedies Home tile and always restore Period to Home.
+  data.homeLayout=data.homeLayout.filter(item=>(typeof item==="string"?item:item?.id)!=="hobbies");
+  data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="period");
 
   const seen=new Set();
   data.homeLayout=data.homeLayout.filter(item=>{
@@ -41,7 +44,6 @@ const HOME_TILE_INFO={
   today:["Today","Plan, focus and track","🗓️"],
   todo:["To-do","Tasks and reminders","📝"],
   plants:["Plants","Care, water and track","🌱"],
-  hobbies:["Potions & Remedies","Natural healing and hobbies","🧪"],
   pets:["Aquariums","Care, feed and track","🐠"],
   house:["House","Home, jobs and supplies","🏡"],
   shopping:["Shopping","Lists and essentials","🛒"],
@@ -124,7 +126,6 @@ function homeTileStatus(id){
     const unpaid=(data.bills||[]).filter(b=>!b.paid);
     return `${unpaid.length} unpaid`;
   }
-  if(id==="hobbies") return "Open collection";
   if(id==="gaming") return "Open games";
   if(id==="treasures"){
     const unlocked=typeof collectedTreasures==="function"?collectedTreasures().length:Object.values(data.treasures||{}).filter(x=>x?.collected).length;
@@ -139,7 +140,7 @@ function homeTile(item,editing){
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1665" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1666" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const accent=data.homeTileAccents?.[item.id]||"";
   const style=accent?` style="--tile-accent:${esc(accent)}"`:"";

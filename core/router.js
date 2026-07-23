@@ -19,12 +19,13 @@ function moduleBanner(active){
   const image=data.moduleBanners?.[active];
   if(!image||active==="home"||active==="settings") return "";
   const names={
-    journal:"Daily Check-in",today:"Today",todo:"To-do",shopping:"Shopping",health:"Health",hobbies:"Hobbies",books:"Books",gaming:"Gaming",
-    plants:"Plants",medication:"Medication",shopping:"Shopping List",pokemon:"Pokémon GO",pets:"Aquariums",house:"House",period:"Period Tracker",budget:"Budget & Bills",treasures:"Treasure Room"
+    journal:"Journal",today:"Today",todo:"To-do",shopping:"Shopping",health:"Health",hobbies:"Hobbies",books:"Books",gaming:"Gaming",
+    plants:"Plants",medication:"Medication",pokemon:"Pokémon GO",pets:"Aquariums",house:"House",period:"Period Tracker",budget:"Budget & Bills",treasures:"Treasure Room"
   };
   return `<section class="module-banner">
     <img src="${image}" alt="">
     <span>${esc(names[active]||active)}</span>
+    ${({journal:'journal',shopping:'shopping',plants:'plants',pokemon:'pokemon',pets:'aquariums',house:'house',books:'books',medication:'medication',todo:'todo',health:'journal'}[active])?`<button type="button" class="banner-history" data-route="history" data-route-id="${({journal:'journal',shopping:'shopping',plants:'plants',pokemon:'pokemon',pets:'aquariums',house:'house',books:'books',medication:'medication',todo:'todo',health:'journal'}[active])}">History</button>`:""}
   </section>`;
 }
 
@@ -95,7 +96,7 @@ function go(next,id="",direction="forward",options={}){
     data.periodCalendarMonth=localToday.slice(0,7);
     data.periodTab="today";
   }
-  const topLevelTiles=new Set(["journal","today","todo","plants","health","hobbies","books","gaming","medication","shopping","pokemon","pets","house","period","budget","treasures","settings"]);
+  const topLevelTiles=new Set(["journal","today","todo","plants","health","hobbies","books","gaming","medication","shopping","pokemon","pets","house","period","budget","treasures","settings","history"]);
   if(direction!=="back" && !id && topLevelTiles.has(destination.route) && (current.route==="home" || current.route!==destination.route)){
     resetModuleLanding(destination.route);
   }

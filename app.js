@@ -33,7 +33,8 @@ function render(){
     house:HousePage,
     period:PeriodPage,
     budget:BudgetPage,
-    treasures:TreasureRoomPage
+    treasures:TreasureRoomPage,
+    history:HistoryPage
   };
 
   const pageFactory=pages[route]||HomePage;
@@ -79,6 +80,7 @@ function render(){
   if(route==="period") bindPeriod();
   if(route==="budget") bindBudget();
   if(route==="treasures") bindTreasures();
+  if(route==="history") bindHistory();
   if(route==="pets"||route==="tank") bindAquariums();
 }
 

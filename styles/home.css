@@ -135,7 +135,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
 .emoji-quick-picks button{aspect-ratio:1;border:1px solid var(--line);border-radius:12px;background:var(--soft);font-size:1.25rem;color:var(--ink)}
 @media(max-width:520px){.emoji-quick-picks{grid-template-columns:repeat(6,minmax(0,1fr))}.universal-tile-editor{max-height:84vh}.universal-tile-preview{padding:12px}}
 
-/* LinaHub 16.66 — compact four-across mobile dashboard */
+/* LinaHub 16.67 — compact four-across mobile dashboard */
 .home-dashboard-hero{padding-bottom:8px}
 .home-dashboard-hero h1{margin:0;font-size:clamp(1.65rem,4vw,2.25rem)}
 .home-dashboard-hero p{margin:.45rem 0 0;color:var(--muted)}
@@ -184,4 +184,28 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .home-tile-wrap .module .emoji,.home-tile-wrap .module .module-image{width:34px;height:34px;flex-basis:34px;margin-bottom:6px;font-size:1.2rem}
   .home-tile-wrap .module strong{font-size:.62rem}
   .home-tile-wrap .tile-status{font-size:.52rem;padding-top:5px;padding-right:9px}
+}
+
+
+/* LinaHub 16.67 — full-tile accents and compact mobile editor */
+.home-tile-wrap[style] .module{
+  border-color:color-mix(in srgb,var(--tile-accent) 66%,var(--line))!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--tile-accent) 30%,var(--card)) 0%,color-mix(in srgb,var(--tile-accent) 14%,var(--card)) 58%,var(--card) 100%)!important;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tile-accent) 22%,transparent),0 10px 24px color-mix(in srgb,var(--tile-accent) 12%,transparent)!important;
+}
+.home-tile-wrap[style] .module .emoji,.home-tile-wrap[style] .module .module-image{
+  background:color-mix(in srgb,var(--tile-accent) 24%,var(--soft))!important;
+  border-color:color-mix(in srgb,var(--tile-accent) 42%,var(--line))!important;
+}
+.home-tile-wrap[style] .tile-status{color:color-mix(in srgb,var(--tile-accent) 88%,white)!important}
+.customisable-tile.has-custom-accent::after{display:none!important}
+.customisable-tile.has-custom-accent{
+  border-color:color-mix(in srgb,var(--universal-tile-accent) 66%,var(--line))!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--universal-tile-accent) 30%,var(--card)) 0%,color-mix(in srgb,var(--universal-tile-accent) 14%,var(--card)) 58%,var(--card) 100%)!important;
+}
+@media(max-width:520px){
+  .tile-editor-backdrop{align-items:center;padding:12px}
+  .tile-editor{max-height:82vh;border-radius:22px;padding:16px}
+  .tile-cover-row{grid-template-columns:70px 1fr}
+  .tile-cover-preview{width:70px;height:70px}
 }

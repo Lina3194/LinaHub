@@ -16,7 +16,7 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
-  // 16.66: remove the old Potions & Remedies Home tile and always restore Period to Home.
+  // 16.67: remove the old Potions & Remedies Home tile and always restore Period to Home.
   data.homeLayout=data.homeLayout.filter(item=>(typeof item==="string"?item:item?.id)!=="hobbies");
   data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="period");
 
@@ -48,7 +48,7 @@ const HOME_TILE_INFO={
   house:["House","Home, jobs and supplies","🏡"],
   shopping:["Shopping","Lists and essentials","🛒"],
   medication:["Medication","Tablets and schedule","💊"],
-  measurements:["Measurements","Track your progress","📏"],
+  measurements:["Weight & Measurements","Track weight and body measurements","⚖️"],
   health:["Health","Sleep, weight, mood and pain","❤️"],
   period:["Period","Cycle and symptom tracking","🌙"],
   pokemon:["Pokémon GO","Friends, gifts and Vivillon","🔴"],
@@ -102,8 +102,11 @@ function homeTileStatus(id){
     return remaining?`${remaining} today`:`All taken`;
   }
   if(id==="measurements"){
-    const latest=(data.measurements||[]).slice().sort((a,b)=>String(b.createdAt||b.date||"").localeCompare(String(a.createdAt||a.date||"")))[0];
-    return latest?.date?`Latest ${new Date(`${latest.date}T12:00:00`).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}`:"Add first entry";
+    const latestMeasure=(data.measurements||[]).slice().sort((a,b)=>String(b.createdAt||b.date||"").localeCompare(String(a.createdAt||a.date||"")))[0];
+    const latestWeight=(data.weightEntries||[]).slice().sort((a,b)=>String(b.createdAt||b.date||"").localeCompare(String(a.createdAt||a.date||"")))[0];
+    const weight=latestWeight?.weight??latestWeight?.value;
+    if(weight!==undefined&&weight!==null&&weight!=="") return `${weight} kg`;
+    return latestMeasure?.date?`Updated ${new Date(`${latestMeasure.date}T12:00:00`).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}`:"Add first entry";
   }
   if(id==="health"){
     const latest=(data.weightEntries||[]).slice().sort((a,b)=>String(b.createdAt||b.date||"").localeCompare(String(a.createdAt||a.date||"")))[0];
@@ -140,12 +143,12 @@ function homeTile(item,editing){
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1666" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1667" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const accent=data.homeTileAccents?.[item.id]||"";
   const style=accent?` style="--tile-accent:${esc(accent)}"`:"";
   const route=item.id==="measurements"?"health":item.id;
-  const extra=item.id==="measurements"?' data-health-tab="measurements"':"";
+  const extra=item.id==="measurements"?' data-route-id="log"':"";
   return `<article class="home-tile-wrap size-${item.size}" draggable="${editing}" data-home-id="${item.id}"${style}>
     <button type="button" class="module module-${item.id}" ${editing?'tabindex="-1"':`data-route="${route}"${extra}`}>${art}<strong>${esc(title)}</strong><small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span><span class="home-tile-chevron">›</span></button>
     ${editing?`<div class="tile-edit-controls">

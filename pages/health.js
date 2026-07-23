@@ -92,7 +92,7 @@ function journeyEntry(entry,index){
   const mood=HEALTH_FEELINGS.mood[entry.mood]||["—","Unknown"];
   const pain=HEALTH_FEELINGS.pain[entry.pain]||["—","Unknown"];
   const glow=JOURNEY_LEVELS[Math.max(0,Math.min(4,Number(entry.energy)||0))];
-  return `<article class="journey-entry" data-day-checkin-id="${esc(entry.id)}" style="--journey-glow:${glow}"><div class="journey-time">${esc(entry.time||"")}</div><button type="button" class="journey-orb" aria-label="Open or remove ${esc(entry.time||"check-in")}"><span></span></button><div class="journey-values"><span title="Energy"><b>${energy[0]}</b><small>${energy[1]}</small></span><span title="Mood"><b>${mood[0]}</b><small>${mood[1]}</small></span><span title="Pain"><b>${pain[0]}</b><small>${pain[1]}</small></span></div></article>`;
+  return `<article class="journey-entry" data-day-checkin-id="${esc(entry.id)}" style="--journey-glow:${glow}"><div class="journey-time">${esc(entry.time||"")}</div><button type="button" class="journey-orb" aria-label="Open or remove ${esc(entry.time||"check-in")}"><span></span></button><div class="journey-values"><span title="Energy"><b>${energy[0]}</b><small>${energy[1]}</small></span><span title="Mood"><b>${mood[0]}</b><small>${mood[1]}</small></span><span title="Pain"><b>${pain[0]}</b><small>${pain[1]}</small></span></div>${entry.note?`<p class="journey-note">${esc(entry.note)}</p>`:""}</article>`;
 }
 function dayEntries(dateValue){return (data.dayCheckins||[]).filter(e=>e.date===dateValue).sort((a,b)=>(a.createdAt||"").localeCompare(b.createdAt||""))}
 function HealthPage(){
@@ -167,4 +167,50 @@ function bindHealth(){
  document.querySelectorAll('[data-day-checkin-id]').forEach(b=>b.onclick=()=>{if(confirm('Remove this check-in?')){data.dayCheckins=data.dayCheckins.filter(e=>e.id!==b.dataset.dayCheckinId);saveData();render()}});
  document.querySelector('#saveFlowerReminder')?.addEventListener('click',async()=>{const enabled=document.querySelector('#flowerReminderEnabled').checked;if(enabled&&!(await linaRequestNotificationPermission()))return;data.notifications={...(data.notifications||{}),enabled:data.notifications?.enabled||enabled,dayCheckins:enabled,dayCheckinStart:document.querySelector('#flowerReminderStart').value,dayCheckinEnd:document.querySelector('#flowerReminderEnd').value,dayCheckinEvery:Number(document.querySelector('#flowerReminderFrequency').value)||1,lastSent:data.notifications?.lastSent||{}};saveData();linaStartNotificationChecks();toast('Flower reminder saved')});
  document.querySelectorAll('[data-health-range]').forEach(button=>button.onclick=()=>{const kind=button.dataset.healthRange,range=button.dataset.rangeValue;if(kind==='weight')data.healthView.weightRange=range;else data.healthView.measureRange=range;saveData();render()});
+}
+
+function hourlyCheckinMarkup(){
+  const scale=(name,label,items)=>`<div class="hourly-popup-group"><h3>${label}</h3><div class="health-circle-scale">${items.map((item,index)=>`<button type="button" data-hourly-feeling="${name}" data-value="${index}" aria-label="${item[1]}"><span>${item[0]}</span><small>${item[1]}</small></button>`).join("")}</div></div>`;
+  return `<div class="hourly-checkin-backdrop" data-close-hourly-checkin>
+    <section class="hourly-checkin-modal" role="dialog" aria-modal="true" aria-labelledby="hourlyCheckinTitle">
+      <div class="hourly-checkin-head"><div><span class="section-kicker">✨ Hourly journal</span><h2 id="hourlyCheckinTitle">How are you right now?</h2><p>${new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</p></div><button type="button" data-close-hourly-checkin aria-label="Close">×</button></div>
+      <p class="journey-direction">Worst on the left · best on the right</p>
+      ${scale("energy","Energy",HEALTH_FEELINGS.energy)}
+      ${scale("mood","Mood",HEALTH_FEELINGS.mood)}
+      ${scale("pain","Pain",HEALTH_FEELINGS.pain)}
+      <label class="hourly-note-label">Anything you want to remember? <span>Optional</span><textarea class="field" id="hourlyCheckinNote" maxlength="500" placeholder="A thought, symptom, win, worry or quick note…"></textarea></label>
+      <button type="button" class="primary" id="saveHourlyCheckin">Save check-in</button>
+    </section>
+  </div>`;
+}
+function openHourlyCheckin(){
+  document.querySelector(".hourly-checkin-backdrop")?.remove();
+  document.body.insertAdjacentHTML("beforeend",hourlyCheckinMarkup());
+  const backdrop=document.querySelector(".hourly-checkin-backdrop");
+  const close=()=>backdrop?.remove();
+  backdrop?.addEventListener("click",event=>{
+    if(event.target.matches("[data-close-hourly-checkin]")) close();
+    const feeling=event.target.closest("[data-hourly-feeling]");
+    if(feeling){
+      backdrop.querySelectorAll(`[data-hourly-feeling="${feeling.dataset.hourlyFeeling}"]`).forEach(button=>button.classList.remove("active"));
+      feeling.classList.add("active");
+    }
+  });
+  backdrop?.querySelector("#saveHourlyCheckin")?.addEventListener("click",()=>{
+    const selected=name=>{const button=backdrop.querySelector(`[data-hourly-feeling="${name}"].active`);return button?Number(button.dataset.value):null};
+    const energy=selected("energy"),mood=selected("mood"),pain=selected("pain");
+    if(energy===null||mood===null||pain===null){toast("Choose energy, mood and pain first");return;}
+    const stamp=entryTimestamp(today());
+    const note=(backdrop.querySelector("#hourlyCheckinNote")?.value||"").trim();
+    const entry={id:`day-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,...stamp,energy,mood,pain,note,source:"hourly-journal"};
+    data.dayCheckins=Array.isArray(data.dayCheckins)?data.dayCheckins:[];
+    data.dayCheckins.push(entry);
+    data.checkins=data.checkins&&typeof data.checkins==="object"?data.checkins:{};
+    data.checkins[stamp.date]={...(data.checkins[stamp.date]||{}),energy,mood,pain,savedAt:stamp.createdAt};
+    data.journalTimeline=Array.isArray(data.journalTimeline)?data.journalTimeline:[];
+    data.journalTimeline.push({id:`journal-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,date:stamp.date,time:stamp.time,prompt:"Hourly Check-in",text:note,energy,mood,pain,source:"hourly-journal",createdAt:stamp.createdAt});
+    saveData();close();toast("Hourly check-in saved ✨");
+    if(route==="journal"||(route==="health"&&data.healthView?.tab==="garden")) render();
+  });
+  setTimeout(()=>backdrop?.querySelector('[data-hourly-feeling="energy"]')?.focus(),20);
 }

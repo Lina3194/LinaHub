@@ -16,16 +16,24 @@ function historySources(){
     pokemon:(data.pokemonFriends||[]).flatMap(f=>[...(f.giftSentDates||[]).map(date=>({date,title:f.name,detail:"Gift sent"})),...(f.giftReceivedDates||[]).map(date=>({date,title:f.name,detail:"Gift received"}))]),
     books:(data.books||[]).flatMap(b=>(b.history||[]).map(e=>({date:e.date||String(e.createdAt||"").slice(0,10),title:b.title||"Book",detail:e.note||e.status||"Updated"}))),
     house:(data.houseTasks||[]).flatMap(t=>(t.completionHistory||[]).map(date=>({date,title:t.task,detail:`Completed · ${t.room}`}))),
-    todo:(data.personalTasks||[]).filter(t=>t.completed).map(t=>({date:t.completed,title:t.title,detail:"Completed"}))
+    todo:(data.personalTasks||[]).filter(t=>t.completed).map(t=>({date:t.completed,title:t.title,detail:"Completed"})),
+    today:[],
+    hobbies:[],
+    gaming:[],
+    period:(data.periodEntries||data.periodHistory||[]).map(e=>({date:e.date||String(e.createdAt||"").slice(0,10),time:e.time,title:e.title||"Period entry",detail:e.note||e.notes||e.flow||"Saved entry"})),
+    budget:(data.bills||[]).flatMap(b=>(b.paymentHistory||[]).map(e=>({date:e.date||String(e.createdAt||"").slice(0,10),time:e.time,title:b.name||b.title||"Bill",detail:e.note||"Payment recorded"}))),
+    treasures:(data.treasures||[]).flatMap(t=>(t.history||[]).map(e=>({date:e.date||String(e.createdAt||"").slice(0,10),time:e.time,title:t.name||t.title||"Treasure",detail:e.note||e.action||"Updated"})))
   };
+  sources.health=[...sources.weight,...sources.sleep,...sources.measurements,...sources.medication,...sources.mood,...sources.energy,...sources.pain,...sources.journal];
   return sources;
 }
-function historyLabel(key){return ({weight:'Weight',sleep:'Sleep',measurements:'Measurements',medication:'Medication',mood:'Mood',energy:'Energy',pain:'Pain',journal:'Journal',shopping:'Shopping',plants:'Plants',aquariums:'Aquariums',pokemon:'Pokémon GO',books:'Books',house:'House',todo:'To-do'})[key]||'History'}
+function historyLabel(key){return ({weight:'Weight',sleep:'Sleep',measurements:'Measurements',medication:'Medication',mood:'Mood',energy:'Energy',pain:'Pain',health:'Health',journal:'Journal',shopping:'Shopping',plants:'Plants',aquariums:'Aquariums',pokemon:'Pokémon GO',books:'Books',house:'House',todo:'To-do',today:'Today',hobbies:'Hobbies',gaming:'Gaming',period:'Period',budget:'Budget & Bills',treasures:'Treasure Room'})[key]||'History'}
 function HistoryPage(){
  const sources=historySources(),key=(routeId&&sources[routeId])?routeId:'journal';
  const entries=[...(sources[key]||[])].filter(e=>e.date).sort((a,b)=>`${b.date||''}${b.time||''}`.localeCompare(`${a.date||''}${a.time||''}`));
- return shell(`${head(`${historyLabel(key)} History`,`All saved activity and entries`,key==='aquariums'?'pets':key)}
+ const active=moduleRouteForHistoryKey(key);
+ return shell(`${head(`${historyLabel(key)} History`,`All saved activity and entries`,active)}
  <section class="card history-controls"><label class="field-label">Tracker<select class="field" id="historyTracker">${Object.keys(sources).map(k=>`<option value="${k}" ${k===key?'selected':''}>${historyLabel(k)}</option>`).join('')}</select></label><strong>${entries.length} entr${entries.length===1?'y':'ies'}</strong></section>
- <section class="history-list">${entries.length?entries.map(e=>`<article class="card history-entry"><div class="history-date"><strong>${esc(formatDate(e.date))}</strong>${e.time?`<small>${esc(e.time)}</small>`:''}</div><div><h3>${esc(e.title||historyLabel(key))}</h3><p>${esc(e.detail||'Saved entry')}</p></div></article>`).join(''):`<section class="card empty-history"><h2>No history yet</h2><p>Saved activity for ${esc(historyLabel(key))} will appear here.</p></section>`}</section>`, 'history');
+ <section class="history-list">${entries.length?entries.map(e=>`<article class="card history-entry"><div class="history-date"><strong>${esc(formatDate(e.date))}</strong>${e.time?`<small>${esc(e.time)}</small>`:''}</div><div><h3>${esc(e.title||historyLabel(key))}</h3><p>${esc(e.detail||'Saved entry')}</p></div></article>`).join(''):`<section class="card empty-history"><h2>No history yet</h2><p>Saved activity for ${esc(historyLabel(key))} will appear here.</p></section>`}</section>`, active,{section:'history',historyKey:key});
 }
 function bindHistory(){document.querySelector('#historyTracker')?.addEventListener('change',e=>go('history',e.target.value,'forward',{replace:true}));}

@@ -90,6 +90,9 @@ function setupNavigation(){
   window.__linaNavigationReady=true;
 
   document.addEventListener("click",event=>{
+    const hourlyButton=event.target.closest("[data-open-hourly-checkin]");
+    if(hourlyButton){event.preventDefault();event.stopPropagation();openHourlyCheckin();return;}
+
     const backButton=event.target.closest("[data-back]");
     if(backButton){
       event.preventDefault();
@@ -331,7 +334,7 @@ async function linaCheckNotifications(){
       const sentKey=`flower:${dateValue}:${slotTime}`;
       const alreadyLogged=(data.dayCheckins||[]).some(entry=>entry.date===dateValue&&String(entry.time||"")>=slotTime&&toMinutes(entry.time)<slot+step);
       if(nowMinutes-slot<=15&&!alreadyLogged&&!cfg.lastSent[sentKey]){
-        await linaShowNotification("How are your energy and mood? 🌸",{body:"Add a quick check-in and grow today’s bouquet.",tag:`linahub-flower-${dateValue}-${slotTime}`,data:{route:"health"}});
+        await linaShowNotification("How are your energy and mood? 🌸",{body:"Add a quick check-in and grow today’s bouquet.",tag:`linahub-flower-${dateValue}-${slotTime}`,data:{route:"journal"}});
         cfg.lastSent[sentKey]=true;saveData();
       }
     }

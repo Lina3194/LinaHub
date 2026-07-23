@@ -25,15 +25,33 @@ function moduleBanner(active){
   return `<section class="module-banner">
     <img src="${image}" alt="">
     <span>${esc(names[active]||active)}</span>
-    ${({journal:'journal',shopping:'shopping',plants:'plants',pokemon:'pokemon',pets:'aquariums',house:'house',books:'books',medication:'medication',todo:'todo',health:'journal'}[active])?`<button type="button" class="banner-history" data-route="history" data-route-id="${({journal:'journal',shopping:'shopping',plants:'plants',pokemon:'pokemon',pets:'aquariums',house:'house',books:'books',medication:'medication',todo:'todo',health:'journal'}[active])}">History</button>`:""}
   </section>`;
 }
 
-function shell(content,active){
+function moduleHistoryKey(active){
+  if(active==="health"){
+    const tab=data.healthView?.tab||"dashboard";
+    return ({sleep:"sleep",garden:"journal",weight:"weight",measurements:"measurements"})[tab]||"health";
+  }
+  return ({journal:"journal",today:"today",todo:"todo",shopping:"shopping",plants:"plants",plant:"plants",hobbies:"hobbies",books:"books",gaming:"gaming",medication:"medication",pokemon:"pokemon",pets:"aquariums",tank:"aquariums",house:"house",period:"period",budget:"budget",treasures:"treasures"})[active]||active;
+}
+function moduleRouteForHistoryKey(key){
+  return ({weight:"health",sleep:"health",measurements:"health",mood:"health",energy:"health",pain:"health",health:"health",aquariums:"pets"})[key]||key;
+}
+function moduleSectionTabs(active,selected="today",historyKey=""){
+  const supported=new Set(["journal","today","todo","shopping","plants","plant","health","hobbies","books","gaming","medication","pokemon","pets","tank","house","period","budget","treasures"]);
+  if(!supported.has(active)) return "";
+  const key=historyKey||moduleHistoryKey(active);
+  const landing=active==="plant"?"plants":active==="tank"?"pets":active;
+  return `<nav class="module-section-tabs" aria-label="Module sections"><button type="button" class="${selected==="today"?"active":""}" data-route="${landing}">Today</button><button type="button" class="${selected==="history"?"active":""}" data-route="history" data-route-id="${key}">History</button><button type="button" class="${selected==="settings"?"active":""}" data-route="settings">Settings</button></nav>`;
+}
+function shell(content,active,options={}){
   const animationClass="page-settled";
   suppressNextPageAnimation=true;
+  const selected=options.section||"today";
   return `<main class="shell ${animationClass}">
     ${moduleBanner(active)}
+    ${moduleSectionTabs(active,selected,options.historyKey||"")}
     ${content}
   </main>${nav(active)}`;
 }

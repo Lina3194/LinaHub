@@ -104,7 +104,8 @@ function go(next,id="",direction="forward",options={}){
   const current=currentLocation();
   if(destination.route==="health" && direction!=="back") {
     data.healthView=data.healthView||{};
-    data.healthView.tab=destination.routeId==="garden"?"garden":"dashboard";
+    const requested=["dashboard","sleep","garden","log","weight","measurements"].includes(destination.routeId)?destination.routeId:"dashboard";
+    data.healthView.tab=requested;
     destination.routeId="";
   }
   if(destination.route==="period" && direction!=="back" && current.route!=="period") {

@@ -94,6 +94,15 @@ function setupNavigation(){
     const hourlyButton=event.target.closest("[data-open-hourly-checkin]");
     if(hourlyButton){event.preventDefault();event.stopPropagation();openHourlyCheckin();return;}
 
+    const dailyButton=event.target.closest("[data-open-daily-checkin]");
+    if(dailyButton){event.preventDefault();event.stopPropagation();openDailyCheckin(true);return;}
+
+    const healthTabButton=event.target.closest("[data-health-tab]");
+    if(healthTabButton){
+      event.preventDefault();event.stopPropagation();
+      go("health",healthTabButton.dataset.healthTab||"dashboard");return;
+    }
+
     const backButton=event.target.closest("[data-back]");
     if(backButton){
       event.preventDefault();

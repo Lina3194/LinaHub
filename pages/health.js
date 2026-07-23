@@ -273,8 +273,8 @@ function openDailyCheckin(force=false){
   document.body.insertAdjacentHTML("beforeend",linaDailyCheckinMarkup(dateValue));
   const backdrop=document.querySelector(".daily-checkin-backdrop");
   backdrop?.addEventListener("click",event=>{const feeling=event.target.closest("[data-daily-feeling]");if(feeling){backdrop.querySelectorAll(`[data-daily-feeling="${feeling.dataset.dailyFeeling}"]`).forEach(x=>x.classList.remove("active"));feeling.classList.add("active");}});
-  backdrop?.querySelector("#completeDailyCheckin")?.addEventListener("click",()=>{linaSaveDailyCheckin(backdrop,dateValue,true);backdrop.remove();toast("Daily check-in complete ☀️");if(route==="health"||route==="today")render();});
-  backdrop?.querySelector("#laterDailyCheckin")?.addEventListener("click",()=>{linaSaveDailyCheckin(backdrop,dateValue,false);backdrop.remove();toast("Saved — I’ll remind you later 💜");window.clearTimeout(window.__linaDailyReminderTimer);window.__linaDailyReminderTimer=window.setTimeout(()=>openDailyCheckin(),60*60*1000);if(route==="health"||route==="today")render();});
+  backdrop?.querySelector("#completeDailyCheckin")?.addEventListener("click",()=>{linaSaveDailyCheckin(backdrop,dateValue,true);backdrop.remove();toast("Daily check-in complete ☀️");if(route==="health"||route==="today"||route==="home")render();});
+  backdrop?.querySelector("#laterDailyCheckin")?.addEventListener("click",()=>{linaSaveDailyCheckin(backdrop,dateValue,false);backdrop.remove();toast("Saved — I’ll remind you later 💜");window.clearTimeout(window.__linaDailyReminderTimer);window.__linaDailyReminderTimer=window.setTimeout(()=>openDailyCheckin(),60*60*1000);if(route==="health"||route==="today"||route==="home")render();});
 }
 function linaMaybeOpenDailyCheckin(){
   const key=linaDailyDayKey();

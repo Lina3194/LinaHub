@@ -1,57 +1,91 @@
 function ensureHomeLayout(){
-  const defaults=["journal","health","flowers","hobbies","house","budget","treasures"];
+  const defaults=[
+    "journal","today","todo","plants","hobbies",
+    "pets","house","shopping","medication","measurements",
+    "health","period","pokemon","books","budget","gaming","treasures"
+  ];
   if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
   if(!Array.isArray(data.homeHidden)) data.homeHidden=[];
-  data.homeLayout=data.homeLayout.filter(item=>(typeof item==="string"?item:item?.id)!=="shopping");
-  data.homeHidden=data.homeHidden.filter(id=>id!=="shopping");
   data.homeTileAccents=data.homeTileAccents||{};
   data.homeTileNames=data.homeTileNames||{};
-  if(["Mood Flowers","Flower Garden","Mood Garden"].includes(data.homeTileNames.flowers)) delete data.homeTileNames.flowers;
+
+  // Older versions used "flowers" for the hourly Journal tile.
+  data.homeLayout=data.homeLayout.map(item=>{
+    const value=typeof item==="string"?{id:item,size:"medium"}:{...item};
+    if(value.id==="flowers") value.id="journal";
+    return value;
+  });
+  data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
+
   const seen=new Set();
   data.homeLayout=data.homeLayout.filter(item=>{
-    const id=typeof item==="string"?item:item?.id;
+    const id=item?.id;
     if(!defaults.includes(id)||seen.has(id)) return false;
-    seen.add(id); return true;
-  }).map(item=>typeof item==="string"?{id:item,size:item==="treasures"?"wide":"medium"}:{id:item.id,size:["small","medium","wide","large"].includes(item.size)?item.size:"medium"});
+    seen.add(id);
+    return true;
+  }).map(item=>({
+    id:item.id,
+    size:item.id==="treasures"?"wide":"medium"
+  }));
+
   defaults.forEach(id=>{
-    if(!seen.has(id) && !data.homeHidden.includes(id)) data.homeLayout.push({id,size:id==="treasures"?"wide":"medium"});
+    if(!seen.has(id)&&!data.homeHidden.includes(id)){
+      data.homeLayout.push({id,size:id==="treasures"?"wide":"medium"});
+    }
   });
-  data.homeHidden=[...new Set(data.homeHidden.filter(id=>defaults.includes(id) && !data.homeLayout.some(item=>item.id===id)))];
+  data.homeHidden=[...new Set(data.homeHidden.filter(id=>defaults.includes(id)&&!data.homeLayout.some(item=>item.id===id)))];
 }
 
 const HOME_TILE_INFO={
-  journal:["Daily Check-in","Pain, energy, sleep and your day","📖"],
-  health:["Health","Sleep, medication, cycle and measurements","❤️"],
-  flowers:["Journal","Hourly mood, energy and pain check-ins","✨"],
-  hobbies:["Hobbies","Plants, aquariums, Pokémon, books and gaming","🎮"],
-  shopping:["Shopping List","Things to pick up","🛒"],
-  pokemon:["Pokémon GO","Friendship, Vivillon and gifts","🔴"],
-  pets:["Aquariums","Girls and boys tanks","🐠"],
-  house:["House","Rooms and recurring tasks","🏡"],
-  budget:["Budget & Bills","","💷"],
-  treasures:["Treasure Room","Your collected memories","✨"]
+  journal:["Journal","Every-hour check-ins","📖"],
+  today:["Today","Plan, focus and track","🗓️"],
+  todo:["To-do","Tasks and reminders","📝"],
+  plants:["Plants","Care, water and track","🌱"],
+  hobbies:["Potions & Remedies","Natural healing and hobbies","🧪"],
+  pets:["Aquariums","Care, feed and track","🐠"],
+  house:["House","Home, jobs and supplies","🏡"],
+  shopping:["Shopping","Lists and essentials","🛒"],
+  medication:["Medication","Tablets and schedule","💊"],
+  measurements:["Measurements","Track your progress","📏"],
+  health:["Health","Sleep, weight, mood and pain","❤️"],
+  period:["Period","Cycle and symptom tracking","🌙"],
+  pokemon:["Pokémon GO","Friends, gifts and Vivillon","🔴"],
+  books:["Books","Reading list and progress","📚"],
+  budget:["Budget & Bills","Money, bills and planning","💷"],
+  gaming:["Gaming","Games and progress","🎮"],
+  treasures:["Treasure Room","Collected treasures and keepsakes","✨"]
 };
 
 function homeTileStatus(id){
   const now=new Date();
   const todayKey=typeof today==="function"?today():now.toISOString().slice(0,10);
-  if(id==="flowers"){
+  if(id==="journal"){
     const entries=(data.dayCheckins||[]).filter(entry=>entry.date===todayKey);
-    return entries.length?`${entries.length} check-in${entries.length===1?"":"s"} today`:`Add your first check-in`;
+    return entries.length?`${entries.length} today`:`Start today`;
+  }
+  if(id==="today"){
+    const tasks=[...(data.todos||[]),...(data.houseTasks||[])].filter(item=>!item.done);
+    return `${tasks.length} remaining`;
+  }
+  if(id==="todo"){
+    const tasks=(data.todos||[]).filter(item=>!item.done);
+    return `${tasks.length} task${tasks.length===1?"":"s"}`;
   }
   if(id==="plants"){
-    const due=(data.plants||[]).filter(p=>{
-      const days=Number(p.wateringDays)||0;
-      if(!days) return false;
-      if(!p.lastWatered) return true;
-      const elapsed=Math.floor((new Date(todayKey+"T12:00:00")-new Date(p.lastWatered+"T12:00:00"))/86400000);
-      return elapsed>=days;
-    }).length;
-    return due?`💧 ${due} plant${due===1?"":"s"} need watering`:"✓ All plants are happy today";
+    const count=(data.plants||[]).length;
+    return `${count} plant${count===1?"":"s"}`;
+  }
+  if(id==="pets"){
+    const count=(data.aquariums||[]).length;
+    return `${count} tank${count===1?"":"s"}`;
   }
   if(id==="house"){
-    const tasks=(data.houseTasks||[]).filter(t=>!t.done);
-    return tasks.length?`${tasks.length} job${tasks.length===1?"":"s"} still to do`:"✓ House jobs complete";
+    const count=(data.houseTasks||[]).filter(item=>!item.done).length;
+    return `${count} job${count===1?"":"s"}`;
+  }
+  if(id==="shopping"){
+    const count=(data.shoppingItems||[]).filter(item=>!item.done).length;
+    return `${count} item${count===1?"":"s"}`;
   }
   if(id==="medication"){
     const shortDay=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date(`${todayKey}T12:00:00`).getDay()];
@@ -63,61 +97,38 @@ function homeTileStatus(id){
       const taken=(data.medicationHistory||[]).filter(x=>x.medId===m.id&&x.date===todayKey).length;
       remaining+=Math.max(0,(Number(m.dosesPerDay)||1)-taken);
     });
-    return remaining?`💊 ${remaining} dose${remaining===1?"":"s"} left today`:"✓ Medication complete";
+    return remaining?`${remaining} today`:`All taken`;
   }
-  if(id==="budget"){
-    const month=todayKey.slice(0,7);
-    const unpaid=(data.bills||[]).filter(b=>!b.paid && (!b.dueDate || String(b.dueDate).slice(0,7)===month));
-    const total=unpaid.reduce((sum,b)=>sum+(Number(b.amount)||0),0);
-    return unpaid.length?`£${total.toFixed(2)} due · ${unpaid.length} unpaid`:"✓ No unpaid bills this month";
-  }
-  if(id==="hobbies"){
-    const total=(data.plants||[]).length+(data.aquariums||[]).length+(data.books||[]).length;
-    return `${total} saved across your hobbies`;
-  }
-  if(id==="shopping"){
-    const items=Array.isArray(data.shoppingItems)?data.shoppingItems:[];
-    const left=items.filter(item=>!item.done).length;
-    return left?`${left} item${left===1?"":"s"} left to buy`:"✓ Nothing left to buy";
-  }
-  if(id==="pokemon"){
-    const friends=data.pokemonFriends||[];
-    const active=friends.filter(f=>f.active!==false).length;
-    return `${active} active friend${active===1?"":"s"}`;
-  }
-  if(id==="pets"){
-    const tanks=data.aquariums||[];
-    return `${tanks.length} aquarium${tanks.length===1?"":"s"} to care for`;
-  }
-  if(id==="journal"){
-    const count=Object.keys(data.checkins||{}).length;
-    return count?`${count} check-in${count===1?"":"s"} saved`:"Start today's check-in";
+  if(id==="measurements"){
+    const latest=(data.measurements||[]).slice().sort((a,b)=>String(b.createdAt||b.date||"").localeCompare(String(a.createdAt||a.date||"")))[0];
+    return latest?.date?`Latest ${new Date(`${latest.date}T12:00:00`).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}`:"Add first entry";
   }
   if(id==="health"){
-    const latest=(data.weightEntries||[]).slice().sort((a,b)=>{const av=a.createdAt||`${a.date||""}T${a.time||"00:00"}`,bv=b.createdAt||`${b.date||""}T${b.time||"00:00"}`;return String(bv).localeCompare(String(av))})[0];
-    const sleep=(data.sleepEntries||[]).slice().sort((a,b)=>String(b.createdAt||b.date).localeCompare(String(a.createdAt||a.date)))[0];
-    return sleep?`Last sleep: ${Math.floor((sleep.totalMinutes||0)/60)}h ${(sleep.totalMinutes||0)%60}m`:latest?`Latest weight: ${latest.weight??latest.value??"saved"} kg`:"Open your health dashboard";
+    const latest=(data.weightEntries||[]).slice().sort((a,b)=>String(b.createdAt||b.date||"").localeCompare(String(a.createdAt||a.date||"")))[0];
+    return latest?`${latest.weight??latest.value??"Saved"} kg`:`Open dashboard`;
   }
   if(id==="period"){
     if(typeof periodStats==="function"){
       const stats=periodStats();
-      if(stats.active){
-        const day=periodDaysBetween(stats.active.start,today())+1;
-        return `Period day ${day}`;
-      }
+      if(stats.active) return `Day ${periodDaysBetween(stats.active.start,today())+1}`;
       if(stats.predicted){
         const days=periodDaysBetween(today(),stats.predicted);
-        if(days>1) return `${days} days until your period`;
-        if(days===1) return `1 day until your period`;
-        if(days===0) return `Period predicted today`;
-        return `Period is ${Math.abs(days)} day${Math.abs(days)===1?"":"s"} late`;
+        return days>=0?`${days} day${days===1?"":"s"} away`:`${Math.abs(days)} day${Math.abs(days)===1?"":"s"} late`;
       }
     }
-    return "Start a cycle to see your prediction";
+    return "Track cycle";
   }
+  if(id==="pokemon") return `${(data.pokemonFriends||[]).length} friends`;
+  if(id==="books") return `${(data.books||[]).length} book${(data.books||[]).length===1?"":"s"}`;
+  if(id==="budget"){
+    const unpaid=(data.bills||[]).filter(b=>!b.paid);
+    return `${unpaid.length} unpaid`;
+  }
+  if(id==="hobbies") return "Open collection";
+  if(id==="gaming") return "Open games";
   if(id==="treasures"){
     const unlocked=typeof collectedTreasures==="function"?collectedTreasures().length:Object.values(data.treasures||{}).filter(x=>x?.collected).length;
-    return `${unlocked} treasure${unlocked===1?"":"s"} discovered`;
+    return `${unlocked} item${unlocked===1?"":"s"}`;
   }
   return "";
 }
@@ -128,13 +139,14 @@ function homeTile(item,editing){
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1615" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1665" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const accent=data.homeTileAccents?.[item.id]||"";
   const style=accent?` style="--tile-accent:${esc(accent)}"`:"";
-  const tileDetails=`<small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span>`;
+  const route=item.id==="measurements"?"health":item.id;
+  const extra=item.id==="measurements"?' data-health-tab="measurements"':"";
   return `<article class="home-tile-wrap size-${item.size}" draggable="${editing}" data-home-id="${item.id}"${style}>
-    <button type="button" class="module module-${item.id}" ${editing?'tabindex="-1"':item.id==="flowers"?'data-open-hourly-checkin':`data-route="${item.id}"`}>${art}<strong>${esc(title)}</strong>${tileDetails}</button>
+    <button type="button" class="module module-${item.id}" ${editing?'tabindex="-1"':`data-route="${route}"${extra}`}>${art}<strong>${esc(title)}</strong><small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span><span class="home-tile-chevron">›</span></button>
     ${editing?`<div class="tile-edit-controls">
       <button type="button" class="tile-move" data-move="back" aria-label="Move ${esc(title)} earlier">‹</button>
       <button type="button" class="tile-drag" aria-label="Drag ${esc(title)}">☰</button>
@@ -165,12 +177,35 @@ function tileEditor(id){
       <div class="tile-editor-head"><div><span class="eyebrow">Edit Home tile</span><h2 id="tileEditorTitle">${esc(title)}</h2></div><button type="button" data-close-tile-editor aria-label="Close">×</button></div>
       <label>Tile name<input class="field" id="tileEditorName" value="${esc(title)}" maxlength="40"></label>
       <label>Icon or emoji<input class="field" id="tileEditorIcon" value="${esc(icon)}" maxlength="12"></label>
-      <label>Tile size<select class="field" id="tileEditorSize"><option value="small" ${item.size==="small"?"selected":""}>1×1 compact</option><option value="medium" ${item.size==="medium"?"selected":""}>1×1 standard</option><option value="wide" ${item.size==="wide"?"selected":""}>2×1 wide</option><option value="large" ${item.size==="large"?"selected":""}>2×2 large</option></select></label>
+      <label>Tile size<select class="field" id="tileEditorSize"><option value="medium" selected>Standard tile</option><option value="wide" ${item.size==="wide"?"selected":""}>Wide tile</option></select></label>
       <label class="tile-colour-label">Accent colour<input type="color" id="tileEditorAccent" value="${esc(accent)}"></label>
       <div class="tile-cover-row"><div class="tile-cover-preview">${data.homeImages?.[id]?`<img src="${data.homeImages[id]}" alt="">`:`<span>${esc(icon)}</span>`}</div><div><strong>Custom cover image</strong><p>Shows the whole picture without cropping.</p><button type="button" class="secondary" id="tilePickImage">Choose image</button><input type="file" id="tileImageInput" accept="image/*" hidden>${data.homeImages?.[id]?`<button type="button" class="mini danger" id="tileRemoveImage">Remove image</button>`:""}</div></div>
       <div class="tile-editor-actions"><button type="button" class="danger secondary" id="tileHide">Hide tile</button><button type="button" class="primary" id="tileSave">Save changes</button></div>
     </section>
   </div>`;
+}
+
+function homeQuickOverview(){
+  const dateKey=typeof today==="function"?today():new Date().toISOString().slice(0,10);
+  const checkins=(data.dayCheckins||[]).filter(entry=>entry.date===dateKey);
+  const latest=checkins.slice().sort((a,b)=>String(b.createdAt||b.time||"").localeCompare(String(a.createdAt||a.time||"")))[0]||{};
+  const daily=data.morningCheckins?.[dateKey]||{};
+  const sleepHours=Number(daily.sleep||0);
+  const items=[
+    ["⚡","Energy",latest.energy?`${latest.energy}/5`:daily.energy?`${daily.energy}/5`:"—"],
+    ["🙂","Mood",latest.mood?`${latest.mood}/5`:daily.mood?`${daily.mood}/5`:"—"],
+    ["😣","Pain",latest.pain?`${latest.pain}/5`:daily.pain?`${daily.pain}/5`:"—"],
+    ["🌙","Sleep",sleepHours?`${sleepHours}h`:"—"]
+  ];
+  return `<section class="home-overview"><h2>Quick overview</h2><div class="home-overview-grid">${items.map(([icon,label,value])=>`<article><span>${icon}</span><div><strong>${label}</strong><b>${value}</b></div></article>`).join("")}</div></section>`;
+}
+
+function homeMedicationReminder(){
+  const dateKey=typeof today==="function"?today():new Date().toISOString().slice(0,10);
+  const shortDay=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][new Date(`${dateKey}T12:00:00`).getDay()];
+  const med=(data.medications||[]).find(m=>m.active!==false&&(m.scheduleType==="daily"||(m.scheduleType==="weekdays"&&(m.weekdays||[]).includes(shortDay)))&&!(data.medicationHistory||[]).some(x=>x.medId===m.id&&x.date===dateKey));
+  if(!med) return "";
+  return `<section class="home-reminders"><h2>Reminders</h2><button type="button" class="home-reminder-card" data-route="medication"><span>✓</span><div><strong>${esc(med.name||"Take medication")}</strong><small>${esc(med.times?.[0]||med.time||"Today")}</small></div><b>Open</b><i>›</i></button></section>`;
 }
 
 function HomePage(){
@@ -179,10 +214,12 @@ function HomePage(){
   const hour=d.getHours();
   const greeting=hour<12?"Good morning":hour<18?"Good afternoon":"Good evening";
   const editing=!!data.homeEditing;
+  const dayKey=typeof linaDailyDayKey==="function"?linaDailyDayKey():today();
+  const complete=!!data.dailyCheckinCompleted?.[dayKey];
   return shell(`
-    <section class="hero">
+    <section class="hero home-dashboard-hero">
       <div class="hero-row">
-        <div><div class="eyebrow">LinaHub</div><h1>${greeting},<br>Lina ✨</h1><p>A gentle overview of everything in your little hub.</p></div>
+        <div><h1>${greeting}, Lina 💜</h1><p>Take it one step at a time ✨</p></div>
         <div class="home-menu-wrap">
           <button type="button" class="home-menu-toggle" id="homeMenuToggle" aria-label="Open Home menu" aria-expanded="false">⌄</button>
           <div class="home-menu" id="homeMenu" hidden>
@@ -191,10 +228,15 @@ function HomePage(){
           </div>
         </div>
       </div>
-      ${editing?`<p class="home-edit-help">Drag tiles using ☰, use the arrows, or tap Edit to rename, resize, hide, recolour or add a cover image.</p>`:""}
+      ${editing?`<p class="home-edit-help">Drag tiles using ☰, use the arrows, or tap Edit to rename, hide, recolour or add a cover image.</p>`:""}
     </section>
-    <div class="grid home-layout ${editing?"editing":""}">${data.homeLayout.map(item=>homeTile(item,editing)).join("")}</div>
+    <button type="button" class="home-daily-checkin ${complete?"complete":""}" data-open-daily-checkin>
+      <span class="home-checkin-icon">☀️</span><span><strong>Daily check-in</strong><small>${complete?"Completed for today":"Track sleep, mood, energy and more"}</small></span><b>${complete?"Completed":"Complete now"}</b>
+    </button>
+    <section class="home-journey"><h2>Your journey</h2><div class="grid home-layout ${editing?"editing":""}">${data.homeLayout.map(item=>homeTile(item,editing)).join("")}</div></section>
     ${editing?hiddenHomeTiles():""}
+    ${homeQuickOverview()}
+    ${homeMedicationReminder()}
     <div id="tileEditorMount"></div>
   `,"home");
 }

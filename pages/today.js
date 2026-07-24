@@ -53,23 +53,57 @@ function getTodayItems(){
       items.push({emoji:tank.emoji||"🐠",title:label,detail:"Tap ✓ when fed",route:"tank",routeId:tank.id,kind:"Aquariums",completeType:"aquarium-feed",completeId:tank.id});
     });
 
-  items.push({emoji:"💜",title:data.checkins[today()]?"Review today’s check-in":"Complete today’s check-in",detail:data.checkins[today()]?"Saved for today":"Not completed yet",route:"journal",kind:"Journal"});
   return items;
+}
+
+function todayOpenGroups(){
+  try{
+    const saved=JSON.parse(sessionStorage.getItem("linahub-today-open-groups")||"[]");
+    return new Set(Array.isArray(saved)?saved:[]);
+  }catch{return new Set();}
+}
+
+function todayTaskRow(item){
+  return `<article class="item-row today-task" data-today-item><button type="button" class="today-task-main" data-route="${item.route}" ${item.routeId?`data-route-id="${esc(item.routeId)}"`:""}><span class="today-task-icon">${item.emoji}</span><span><h3>${esc(item.title)}</h3><p>${esc(item.detail)}</p></span><span class="plant-arrow">›</span></button>${item.completeType?`<button type="button" class="check-task today-quick-done" data-today-complete="${esc(item.completeType)}" data-today-id="${esc(item.completeId)}">✓</button>`:""}</article>`;
+}
+
+function todayHouseRooms(items){
+  const rooms={};
+  items.forEach(item=>{
+    const task=(data.houseTasks||[]).find(t=>String(t.id)===String(item.completeId));
+    const room=task?.room||"Whole House";
+    (rooms[room] ||= []).push(item);
+  });
+  const roomOrder=(data.houseRooms||[]).map(room=>room.name);
+  return Object.entries(rooms).sort(([a],[b])=>{
+    const ai=roomOrder.indexOf(a),bi=roomOrder.indexOf(b);
+    return (ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b);
+  }).map(([room,roomItems])=>{
+    const icon=(data.houseRooms||[]).find(r=>r.name===room)?.icon||"🏠";
+    return `<section class="today-room-group"><h3><span>${icon}</span>${esc(room)}<small>${roomItems.length}</small></h3><div class="today-task-list">${roomItems.map(todayTaskRow).join("")}</div></section>`;
+  }).join("");
 }
 
 function TodayPage(){
   const items=getTodayItems(),groups={};
+  const openGroups=todayOpenGroups();
   const completedHouse=(data.houseTasks||[]).filter(task=>houseCompletedToday(task));
   items.forEach(item=>{groups[item.kind]=groups[item.kind]||[];groups[item.kind].push(item)});
   return shell(`${head("Today",niceDate())}
     <section class="card"><div class="stat-grid"><div class="stat"><strong>${items.length}</strong><span>Remaining today</span></div><div class="stat"><strong>${(data.personalTasks||[]).filter(t=>!t.done).length}</strong><span>Open to-dos</span></div></div></section>
-    ${Object.entries(groups).map(([group,groupItems])=>`<details class="card today-group"><summary><span><strong>${esc(group)}</strong><small>${groupItems.length} remaining</small></span><b>⌄</b></summary><div class="today-task-list">${groupItems.map(item=>`<article class="item-row today-task" data-today-item><button type="button" class="today-task-main" data-route="${item.route}" ${item.routeId?`data-route-id="${esc(item.routeId)}"`:""}><span class="today-task-icon">${item.emoji}</span><span><h3>${esc(item.title)}</h3><p>${esc(item.detail)}</p></span><span class="plant-arrow">›</span></button>${item.completeType?`<button type="button" class="check-task today-quick-done" data-today-complete="${esc(item.completeType)}" data-today-id="${esc(item.completeId)}">✓</button>`:""}</article>`).join("")}</div></details>`).join("")}
-    ${completedHouse.length?`<details class="card today-completed-card"><summary>✓ Completed today · ${completedHouse.length}</summary><div class="today-completed-list">${completedHouse.map(task=>`<div class="today-completed-row"><span><strong>${esc(task.task)}</strong><small>${esc(task.room)} · ${esc(task.frequency)}</small></span><button type="button" class="mini" data-today-complete="house" data-today-id="${esc(task.id)}">Undo</button></div>`).join("")}</div></details>`:""}`,'today');
+    ${Object.entries(groups).map(([group,groupItems])=>`<details class="card today-group" data-today-group="${esc(group)}" ${openGroups.has(group)?"open":""}><summary><span><strong>${esc(group)}</strong><small>${groupItems.length} remaining</small></span><b>⌄</b></summary>${group==="House"?`<div class="today-house-rooms">${todayHouseRooms(groupItems)}</div>`:`<div class="today-task-list">${groupItems.map(todayTaskRow).join("")}</div>`}</details>`).join("")}
+    ${completedHouse.length?`<details class="card today-completed-card" data-today-group="Completed House" ${openGroups.has("Completed House")?"open":""}><summary>✓ Completed today · ${completedHouse.length}</summary><div class="today-completed-list">${completedHouse.map(task=>`<div class="today-completed-row"><span><strong>${esc(task.task)}</strong><small>${esc(task.room)} · ${esc(task.frequency)}</small></span><button type="button" class="mini" data-today-complete="house" data-today-id="${esc(task.id)}">Undo</button></div>`).join("")}</div></details>`:""}`,'today');
 }
 
 function bindToday(){
   const page=document.querySelector('.shell');
   if(!page)return;
+  page.querySelectorAll('[data-today-group]').forEach(section=>{
+    section.addEventListener('toggle',()=>{
+      const open=new Set([...page.querySelectorAll('[data-today-group][open]')].map(el=>el.dataset.todayGroup));
+      sessionStorage.setItem('linahub-today-open-groups',JSON.stringify([...open]));
+    });
+  });
   page.addEventListener('click',event=>{
     const button=event.target.closest('[data-today-complete]');
     if(!button)return;
@@ -118,6 +152,8 @@ function bindToday(){
       message=`${tank.name} fed 🐠`;
     }else return;
 
+    const open=new Set([...page.querySelectorAll('[data-today-group][open]')].map(el=>el.dataset.todayGroup));
+    sessionStorage.setItem('linahub-today-open-groups',JSON.stringify([...open]));
     saveData();
     const row=button.closest('[data-today-item]');
     row?.classList.add('today-item-completing');
@@ -126,3 +162,5 @@ function bindToday(){
     setTimeout(()=>render(),180);
   });
 }
+
+

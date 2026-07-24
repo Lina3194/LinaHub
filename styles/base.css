@@ -1806,3 +1806,16 @@ body[data-route="house"] .shopping-household-card{display:none!important}
   body[data-route="medication"] .med-add-card .two-col{grid-template-columns:1fr!important}
   body[data-route="house"] .energy-choice,body[data-route="house"] .priority-choice{height:54px!important;min-height:54px!important}
 }
+
+/* LinaHub 17.1 — Today page room grouping and persistent open sections */
+.today-house-rooms{display:grid;gap:10px;padding-top:8px}
+.today-room-group{min-width:0}
+.today-room-group>h3{display:flex;align-items:center;gap:8px;margin:0 0 7px;padding:0 4px;color:var(--ink);font-size:.9rem}
+.today-room-group>h3 span{font-size:1rem}
+.today-room-group>h3 small{margin-left:auto;min-width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--line);border-radius:999px;font-size:.68rem;color:var(--muted)}
+.today-room-group+.today-room-group{border-top:1px solid color-mix(in srgb,var(--line) 55%,transparent);padding-top:10px}
+@media(max-width:600px){
+  .today-house-rooms{gap:8px}
+  .today-room-group>h3{font-size:.82rem;margin-bottom:5px}
+  .today-room-group+.today-room-group{padding-top:8px}
+}

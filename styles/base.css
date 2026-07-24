@@ -1533,3 +1533,5 @@ body[data-color-theme="plain"] .seasonal-atmosphere{display:none}
   .plant-dashboard-card{grid-template-columns:58px 1fr auto;gap:9px}.plant-dashboard-photo{width:54px;height:54px;border-radius:15px;font-size:2.2rem}.plant-dashboard-copy small{font-size:.72rem}
   .tank-dashboard-open{grid-template-columns:58px 1fr auto;gap:9px}.tank-dashboard-image{width:54px;height:54px;border-radius:15px;font-size:2.1rem}.tank-dashboard-rows small{grid-template-columns:76px 1fr;font-size:.71rem}
 }
+\n/* LinaHub 17.0.4 — restore dated aquarium feeding log */
+.feed-add-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.feed-add-grid label{display:grid;gap:5px}.feed-add-grid label>span{font-size:.75rem;color:var(--muted);font-weight:750}.feed-add-grid .feed-note-field{grid-column:1/-1}.feed-add-grid button{grid-column:1/-1}.compact-feed-row>span{display:grid;gap:2px}.compact-feed-row>span small{color:var(--muted)}.compact-feed-row{grid-template-columns:1fr auto}@media(max-width:430px){.feed-add-grid{grid-template-columns:1fr}.feed-add-grid .feed-note-field,.feed-add-grid button{grid-column:auto}}

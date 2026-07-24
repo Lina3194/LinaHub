@@ -9,3 +9,9 @@ Fixed behaviour:
 - Swipe from Medication overview -> previous main page
 
 Build cache: 17.0.3
+
+
+17.0.4 correction:
+- Restored aquarium feeding date picker and visible feeding dates/times
+- Preserves older feed records using either date/time or createdAt
+- Removed invented 'Tonight' feed status

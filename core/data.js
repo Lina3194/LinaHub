@@ -267,7 +267,8 @@ function normalizePlant(p,i){
   return {
     id:p.id||`plant-${i}`,name:p.name||"Plant",emoji:p.emoji||"🌿",notes:p.notes||"",
     lastWatered:p.lastWatered||"",history:Array.isArray(p.history)?p.history:[],photo:p.photo||"",
-    photoKey:p.photoKey||`plant:${p.id||`plant-${i}`}`,guideId:p.guideId||"",wateringDays:Number(p.wateringDays)||0
+    photoKey:p.photoKey||`plant:${p.id||`plant-${i}`}`,guideId:p.guideId||"",wateringDays:Number(p.wateringDays)||0,
+    light:p.light||"",lastFed:p.lastFed||""
   };
 }
 

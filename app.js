@@ -62,17 +62,100 @@ function bindHealth(){
     saveData();toast("Measurements saved ✨");render();};
 }
 function lina17Maintenance(tank){tank.maintenance=tank.maintenance||{};tank.maintenance.history=tank.maintenance.history||{};["waterChange","clean","spongeChange","filterChange"].forEach(k=>tank.maintenance.history[k]=Array.isArray(tank.maintenance.history[k])?tank.maintenance.history[k]:[]);return tank.maintenance}
+function lina17DaysBetween(fromDate,toDate){
+  if(!fromDate||!toDate)return null;
+  const a=new Date(`${fromDate}T12:00:00`),b=new Date(`${toDate}T12:00:00`);
+  if(Number.isNaN(a.getTime())||Number.isNaN(b.getTime()))return null;
+  return Math.round((b-a)/86400000);
+}
+function lina17RelativeCareDate(date,{futureLabel="Due",pastLabel="ago",empty="Not logged"}={}){
+  if(!date)return empty;
+  const diff=lina17DaysBetween(today(),date);
+  if(diff===0)return "Today";
+  if(diff===1)return "Due tomorrow";
+  if(diff>1)return `${futureLabel} in ${diff} days`;
+  if(diff===-1)return "Yesterday";
+  return `${Math.abs(diff)} days ${pastLabel}`;
+}
+function lina17MaintenanceDue(lastDate,cycleDays){
+  if(!lastDate)return "Not logged";
+  if(!cycleDays)return lina17RelativeCareDate(lastDate,{empty:"Not logged"});
+  const due=new Date(`${lastDate}T12:00:00`);due.setDate(due.getDate()+cycleDays);
+  return lina17RelativeCareDate(due.toISOString().slice(0,10));
+}
+function lina17LatestFeed(tank){
+  const feeds=(tank.feeds||[]).slice().sort((a,b)=>String(b.date||"").localeCompare(String(a.date||"")));
+  const latest=feeds[0];
+  if(!latest)return "Tonight";
+  if(latest.time)return latest.time;
+  return latest.date===today()?"Today":formatDate(latest.date);
+}
 function AquariumsPage(){return shell(`${head("Aquariums","Feeding and maintenance at a glance")}
-  <div class="aquarium-grid">${(data.aquariums||[]).map(tank=>{const m=lina17Maintenance(tank);return `<section class="card aquarium-overview-card"><button class="tank-open" data-route="tank" data-route-id="${esc(tank.id)}"><span class="tank-emoji">${tank.emoji||"🐠"}</span><span><strong>${esc(tank.name)}</strong><small>${(tank.livestock||[]).length} livestock groups</small></span><b>›</b></button><div class="maintenance-mini-grid">${[["waterChange","Water change"],["clean","Tank clean"],["spongeChange","Sponge clean"],["filterChange","Filter change"]].map(([k,label])=>`<span><small>${label}</small><strong>${m[k]?formatDate(m[k]):"Not logged"}</strong></span>`).join("")}</div></section>`}).join("")}</div>`,"pets")}
+  <div class="aquarium-grid">${(data.aquariums||[]).map(tank=>{const m=lina17Maintenance(tank);return `<section class="card aquarium-dashboard-card status-good"><button class="tank-dashboard-open" data-route="tank" data-route-id="${esc(tank.id)}"><span class="tank-dashboard-image">${tank.photo?`<img src="${tank.photo}" alt="">`:`<span>${tank.emoji||"🐠"}</span>`}</span><span class="tank-dashboard-main"><strong>${esc(tank.name)}</strong><span class="tank-dashboard-rows"><small><b>🌡️ Temp</b><em>${esc(tank.temperature||"Not set")}${tank.temperature&&!String(tank.temperature).includes("°")?"°C":""}</em></small><small><b>🐟 Feed</b><em>${esc(lina17LatestFeed(tank))}</em></small><small><b>💧 Water</b><em>${esc(lina17MaintenanceDue(m.waterChange,7))}</em></small><small><b>🧽 Sponge</b><em>${esc(m.spongeChange?lina17RelativeCareDate(m.spongeChange,{pastLabel:"ago"}):"Not logged")}</em></small><small><b>⚙️ Filter</b><em>${esc(m.filterChange?lina17RelativeCareDate(m.filterChange,{pastLabel:"ago"}):"Not logged")}</em></small></span></span><b class="tank-card-arrow">›</b></button></section>`}).join("")}</div>`,"pets")}
 function AquariumTankPage(){const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return AquariumsPage();const m=lina17Maintenance(tank);const jobs=[["waterChange","Water Change","💧"],["clean","Tank Clean","🫧"],["spongeChange","Sponge Clean","🧽"],["filterChange","Filter Change","⚙️"]];return shell(`${head(tank.name,"Aquarium care",true)}
   <section class="card aquarium-feeds"><details><summary><span><strong>🍽️ Feeding</strong><small>${(tank.feeds||[]).length} saved feed entries</small></span><b>⌄</b></summary><div class="feed-list">${(tank.feeds||[]).length?(tank.feeds||[]).map((f,i)=>`<div class="compact-feed-row"><span>${esc(f.food||f.name||"Feed")}</span><small>${esc(f.time||f.date||"")}</small><button class="mini danger" data-delete-feed="${i}">×</button></div>`).join(""):"<p class='muted-copy'>No feeding entries yet.</p>"}<div class="inline-add"><input class="field" id="feedName" placeholder="Food or feeding note"><button class="secondary" id="addFeed">Add</button></div></div></details></section>
   <section class="card aquarium-maintenance-card"><div class="section-title-row"><div><span class="section-kicker">Maintenance</span><h2>Care log</h2></div></div><div class="maintenance-rows">${jobs.map(([key,label,icon])=>`<article class="maintenance-row"><span class="maintenance-icon">${icon}</span><div><strong>${label}</strong><small>${m[key]?`Last: ${formatDate(m[key])}`:"Not logged yet"}</small></div><input class="field" type="date" data-maintenance-date="${key}" value="${m[key]||today()}"><button class="secondary" data-save-maintenance="${key}">Log</button></article>`).join("")}</div></section>
   <section class="aquarium-history-grid">${jobs.map(([key,label,icon])=>`<details class="card maintenance-history"><summary><span>${icon} ${label} history</span><b>${m.history[key].length}</b></summary><div>${lina17DateList(m.history[key]).length?lina17DateList(m.history[key]).map(date=>`<div class="history-date-row"><span>${formatDate(date)}</span><button class="mini danger" data-delete-maintenance="${key}" data-date="${date}">×</button></div>`).join(""):"<p class='muted-copy'>No history yet.</p>"}</div></details>`).join("")}</section>`,"pets")}
 function bindAquariums(){const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return;const m=lina17Maintenance(tank);document.querySelector("#addFeed")?.addEventListener("click",()=>{const input=document.querySelector("#feedName");if(!input?.value.trim())return;tank.feeds=tank.feeds||[];tank.feeds.push({food:input.value.trim(),date:today()});saveData();render()});document.querySelectorAll("[data-delete-feed]").forEach(b=>b.onclick=()=>{tank.feeds.splice(Number(b.dataset.deleteFeed),1);saveData();render()});document.querySelectorAll("[data-save-maintenance]").forEach(b=>b.onclick=()=>{const key=b.dataset.saveMaintenance,date=document.querySelector(`[data-maintenance-date='${key}']`).value||today();m[key]=date;if(!m.history[key].includes(date))m.history[key].push(date);saveData();toast("Maintenance logged");render()});document.querySelectorAll("[data-delete-maintenance]").forEach(b=>b.onclick=()=>{const a=m.history[b.dataset.deleteMaintenance];m.history[b.dataset.deleteMaintenance]=a.filter(x=>x!==b.dataset.date);saveData();render()})}
 
+function lina17PlantLight(plant){
+  if(plant.light)return plant.light;
+  const n=String(plant.name||"").toLowerCase();
+  if(n.includes("lemon")||n.includes("basil")||n.includes("oregano")||n.includes("nemesia"))return "Bright light / some sun";
+  if(n.includes("orchid")||n.includes("spider")||n.includes("prayer"))return "Bright indirect light";
+  return "Check care guide";
+}
+function lina17PlantWaterStatus(plant){
+  if(!plant.lastWatered)return "Watering not logged";
+  const cycle=Number(plant.wateringDays)||7;
+  const due=new Date(`${plant.lastWatered}T12:00:00`);due.setDate(due.getDate()+cycle);
+  const diff=lina17DaysBetween(today(),due.toISOString().slice(0,10));
+  if(diff===0)return "Water today";
+  if(diff===1)return "Water tomorrow";
+  if(diff>1)return `Water in ${diff} days`;
+  return `Water overdue by ${Math.abs(diff)} day${Math.abs(diff)===1?"":"s"}`;
+}
+function lina17PlantStatusClass(plant){
+  if(!plant.lastWatered)return "status-neutral";
+  const cycle=Number(plant.wateringDays)||7;
+  const due=new Date(`${plant.lastWatered}T12:00:00`);due.setDate(due.getDate()+cycle);
+  const diff=lina17DaysBetween(today(),due.toISOString().slice(0,10));
+  return diff<0?"status-overdue":diff<=1?"status-soon":"status-good";
+}
+function PlantsPage(){
+  return shell(`${head("Plants","Care for your green babies")}
+    <div class="plant-dashboard-list">${(data.plants||[]).map(plant=>`<button class="card plant-dashboard-card ${lina17PlantStatusClass(plant)}" data-route="plant" data-route-id="${esc(plant.id)}">
+      <span class="plant-dashboard-photo">${plant.photo?`<img src="${plant.photo}" alt="${esc(plant.name)}">`:`<span>${plant.emoji||"🌿"}</span>`}</span>
+      <span class="plant-dashboard-copy"><strong>${esc(plant.name)}</strong><small>💧 ${esc(lina17PlantWaterStatus(plant))}</small><small>☀️ ${esc(lina17PlantLight(plant))}</small><small>🌱 ${plant.lastFed?`Last fed ${formatDate(plant.lastFed)}`:"Feeding not logged"}</small><small>📷 ${plant.photo?"Photo added":"Add photo"}</small></span><b>›</b>
+    </button>`).join("")}</div>`,"plants");
+}
+
 render();
   }
 });
+function lina17HeaderIllustration(routeName){
+  const art={
+    plants:{emoji:"🪴",bits:["🌿","🌸","✨"]},
+    plant:{emoji:"🪴",bits:["🌿","🌸","✨"]},
+    pets:{emoji:"🐠",bits:["🫧","🌿","✨"]},
+    tank:{emoji:"🐠",bits:["🫧","🌿","✨"]},
+    todo:{emoji:"📋",bits:["🌸","✏️","✨"]},
+    journal:{emoji:"☕",bits:["📖","💜","✨"]},
+    today:{emoji:"☕",bits:["📖","💜","✨"]},
+    budget:{emoji:"👛",bits:["🪙","🌸","✨"]},
+    health:{emoji:"📏",bits:["💗","✨","〰️"]},
+    house:{emoji:"🏡",bits:["🌸","🪴","✨"]}
+  }[routeName];
+  if(!art)return;
+  const header=document.querySelector(".page-head");
+  if(!header||header.querySelector(".lina-header-art"))return;
+  const el=document.createElement("div");
+  el.className=`lina-header-art lina-header-art-${routeName}`;
+  el.setAttribute("aria-hidden","true");
+  el.innerHTML=`<span class="header-art-main">${art.emoji}</span>${art.bits.map((x,i)=>`<i style="--i:${i}">${x}</i>`).join("")}`;
+  header.appendChild(el);
+}
+
 function render(){
   resetSwipePreview();
   document.body.classList.toggle("dark",data.theme==="dark");
@@ -109,6 +192,7 @@ function render(){
 
   const pageFactory=pages[route]||HomePage;
   document.querySelector("#app").innerHTML=pageFactory();
+  lina17HeaderIllustration(route);
 
   const atmosphere=document.createElement("div");
   atmosphere.className=`route-atmosphere atmosphere-${route}`;

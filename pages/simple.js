@@ -18,8 +18,8 @@ function SettingsPage(){
       </div>
       ${cloudUser()?`
         <div class="cloud-user">${cloudUser().photoURL?`<img src="${esc(cloudUser().photoURL)}" alt="">`:`<span>☁️</span>`}<div><strong>${esc(cloudUser().displayName||"Google account")}</strong><small>${esc(cloudUser().email||"")}</small></div></div>
-        <div class="cloud-actions"><button class="primary" id="cloudUploadNow">Upload this device</button><button class="secondary" id="cloudDownloadNow">Download cloud copy</button><button class="mini danger" id="cloudSignOut">Sign out</button></div>
-        <p class="settings-note">Changes are saved locally first, then each LinaHub module syncs separately. Offline changes upload when your connection returns.</p>`:`
+        <div class="cloud-actions"><button class="primary" id="cloudUploadNow">Send this device to cloud</button><button class="secondary" id="cloudDownloadNow">Get cloud data on this device</button><button class="mini danger" id="cloudSignOut">Sign out</button></div>
+        <p class="settings-note">Changes sync automatically between devices signed into the same Google account. To move your phone data now, tap “Send this device to cloud” on the phone, then “Get cloud data on this device” on the laptop.</p>`:`
         <button class="google-signin" id="cloudSignIn"><span>G</span> Sign in with Google</button>
         <p class="settings-note">Your current data stays on this device until you sign in. The first signed-in device safely creates your cloud copy.</p>`}
     </section>
@@ -110,7 +110,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version 16.80<br><br>23 Jul 2026</p>`,"settings");
+  <p class="app-version">Version 16.82<br><br>24 Jul 2026</p>`,"settings");
 }
 
 function bindSimple(){

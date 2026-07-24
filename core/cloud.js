@@ -9,7 +9,7 @@ const LINAHUB_FIREBASE_CONFIG={
 };
 
 const CLOUD_MODULES={
-  journal:["checkins","checkinLayout","checkinFilter","journalControlsCollapsed","journalTab","journalSelectedDate","journalTrendPeriod","checkinHidden","checkinEditMode"],
+  journal:["checkins","checkinLayout","checkinFilter","journalControlsCollapsed","journalTab","journalSelectedDate","journalTrendPeriod","checkinHidden","checkinEditMode","dayCheckins","journalTimeline"],
   plants:["plants"],
   pokemon:["pokemonFriends","pokemonSeededVersion"],
   aquariums:["aquariums"],
@@ -17,7 +17,7 @@ const CLOUD_MODULES={
   medication:["medications","medicationLog","medicationHistory","medicationHistoryMigrated","medicationView"],
   period:["periodEntries","periodCycles","periodOptions","periodSelectedDate","periodCalendarMonth","periodEditOptions","periodTab","periodOpenYears"],
   budget:["bills","budgetEntries","savingsEntries"],
-  health:["weightEntries","measurements","healthPromptLog"],
+  health:["weightEntries","measurements","healthPromptLog","sleepEntries","healthSleepEntries"],
   todo:["personalTasks"],
   settings:["theme","colorTheme","homeIcons","homeImages","homeLayout","treasures","favoriteTreasures","moduleBanners","v9CollapseDefaultsApplied"],
   misc:["version"]
@@ -180,7 +180,7 @@ async function linaSignIn(){
   }
 }
 async function linaSignOut(){await firebase.auth().signOut()}
-async function forceCloudUpload(){if(!CLOUD_STATE.user)return toast("Sign in first");await uploadAllModules();toast("This device uploaded to LinaHub Cloud ☁️")}
+async function forceCloudUpload(){if(!CLOUD_STATE.user)return toast("Sign in first");CLOUD_STATE.timers.forEach(timer=>clearTimeout(timer));CLOUD_STATE.timers.clear();await uploadAllModules();toast("This device is now saved to LinaHub Cloud ☁️")}
 async function forceCloudDownload(){if(!CLOUD_STATE.user)return toast("Sign in first");if(!confirm("Replace this device's LinaHub data with the cloud copy?"))return;await downloadAllModules();toast("Cloud data downloaded ☁️")}
 
 function initLinaCloud(){
@@ -197,6 +197,6 @@ function initLinaCloud(){
     });
   }catch(error){console.error("Firebase startup",error);setCloudStatus("error")}
 }
-window.addEventListener("online",()=>{if(CLOUD_STATE.user){setCloudStatus("syncing");Object.keys(CLOUD_MODULES).forEach(pushCloudModule)}});
+window.addEventListener("online",async()=>{if(!CLOUD_STATE.user)return;setCloudStatus("syncing");try{await downloadAllModules();startCloudListeners()}catch(error){console.error("LinaHub reconnect sync",error);setCloudStatus("error")}});
 window.addEventListener("offline",()=>setCloudStatus("offline"));
 initLinaCloud();

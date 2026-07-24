@@ -210,7 +210,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .tile-cover-preview{width:70px;height:70px}
 }
 
-/* LinaHub 16.76 — phone-safe Home editing */
+/* LinaHub 16.77 — phone-safe Home editing */
 .home-tile-wrap.is-editing .module{
   outline:1px dashed color-mix(in srgb,var(--purple) 72%,transparent);
   outline-offset:2px;
@@ -231,7 +231,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .tile-position-controls{grid-template-columns:1fr 1fr}
 }
 
-/* LinaHub 16.76 — centred phone tile editor and premium Treasure Room */
+/* LinaHub 16.77 — centred phone tile editor and premium Treasure Room */
 .home-tile-wrap .module::after,
 .customisable-tile.has-custom-accent::after{display:none!important;content:none!important}
 .home-tile-wrap .module{
@@ -298,7 +298,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
 }
 
 
-/* LinaHub 16.76 — working phone edit buttons and shorter tiles */
+/* LinaHub 16.77 — working phone edit buttons and shorter tiles */
 .home-layout.editing .home-tile-wrap,
 .home-layout.editing .home-tile-wrap .module{pointer-events:auto!important}
 .home-layout.editing .home-tile-edit-button{
@@ -318,7 +318,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .home-tile-wrap.size-wide.is-editing .module{min-height:102px!important}
 }
 
-/* LinaHub 16.76 — keep the Home tile editor above the bottom navigation */
+/* LinaHub 16.77 — keep the Home tile editor above the bottom navigation */
 .tile-editor-backdrop{
   z-index:60000!important;
 }
@@ -348,7 +348,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   }
 }
 
-/* LinaHub 16.76 — touch drag-and-drop Home tiles in Edit mode */
+/* LinaHub 16.77 — touch drag-and-drop Home tiles in Edit mode */
 .home-layout.editing .home-tile-wrap{
   -webkit-user-select:none!important;
   user-select:none!important;
@@ -386,3 +386,27 @@ body.home-tile-dragging{
   overscroll-behavior:none;
 }
 body.home-tile-dragging .home-layout.editing .home-tile-wrap{cursor:grabbing}
+
+
+/* LinaHub 16.77 — remove persistent Home tile highlights */
+.home-tile-wrap .module,
+.home-tile-wrap[style] .module,
+.customisable-tile.has-custom-accent{
+  border-color:var(--line)!important;
+  background:var(--card)!important;
+  box-shadow:none!important;
+}
+.home-tile-wrap .module .emoji,
+.home-tile-wrap .module .module-image,
+.home-tile-wrap[style] .module .emoji,
+.home-tile-wrap[style] .module .module-image{
+  background:var(--soft)!important;
+  border-color:var(--line)!important;
+}
+.home-tile-wrap .tile-status,
+.home-tile-wrap[style] .tile-status{color:var(--purple)!important}
+.home-tile-wrap[data-home-id="treasures"] .module{
+  border:1px solid rgba(232,181,95,.72)!important;
+  background:radial-gradient(circle at 18% 30%,rgba(255,202,99,.16),transparent 28%),radial-gradient(circle at 82% 22%,rgba(173,94,255,.22),transparent 34%),linear-gradient(135deg,#25123f,#170c2e 54%,#32164f)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,219,142,.18),0 16px 34px rgba(0,0,0,.28),0 0 24px rgba(163,83,255,.15)!important;
+}

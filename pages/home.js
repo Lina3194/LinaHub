@@ -7,10 +7,10 @@ function ensureHomeLayout(){
   if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
   if(!Array.isArray(data.homeHidden)) data.homeHidden=[];
   data.homeTileNames=data.homeTileNames||{};
-  // 16.77: remove the Home highlight/accent feature and clear any saved tile highlights.
-  if(!data.homeTileHighlightsRemoved1677){
+  // 16.78: remove the Home highlight/accent feature and clear any saved tile highlights.
+  if(!data.homeTileHighlightsRemoved1678){
     data.homeTileAccents={};
-    data.homeTileHighlightsRemoved1677=true;
+    data.homeTileHighlightsRemoved1678=true;
   }
   if(data.homeTileNames.measurements==="Weight & Measurements"||data.homeTileNames.measurements==="Weight & Measurement"||data.homeTileNames.measurements==="Weight &\nMeasurements") data.homeTileNames.measurements="Measures";
 
@@ -21,7 +21,7 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
-  // 16.77: keep Period on Home and remove the redundant Health dashboard tile.
+  // 16.78: keep Period on Home and remove the redundant Health dashboard tile.
   data.homeLayout=data.homeLayout.filter(item=>!["hobbies","health"].includes(typeof item==="string"?item:item?.id));
   data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="health"&&id!=="period");
 
@@ -147,7 +147,7 @@ function homeTile(item,editing){
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1677" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1678" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const route=item.id==="measurements"?"health":item.id;
   const extra=item.id==="measurements"?' data-route-id="log"':"";
@@ -270,38 +270,45 @@ function resizeHomeCover(file){
 }
 
 function bindTileEditor(id){
-  const mount=document.querySelector("#tileEditorMount");
-  if(!mount) return;
-  mount.innerHTML=tileEditor(id);
-  const backdrop=mount.querySelector(".tile-editor-backdrop");
-  const close=()=>{mount.innerHTML=""};
+  document.querySelector("#globalTileEditor")?.remove();
+  const host=document.createElement("div");
+  host.id="globalTileEditor";
+  host.innerHTML=tileEditor(id);
+  document.body.appendChild(host);
+  document.body.classList.add("tile-editor-open");
+
+  const backdrop=host.querySelector(".tile-editor-backdrop");
+  const close=()=>{
+    host.remove();
+    document.body.classList.remove("tile-editor-open");
+  };
   backdrop?.addEventListener("click",e=>{if(e.target.matches("[data-close-tile-editor]"))close()});
-  mount.querySelector("#tilePickImage")?.addEventListener("click",()=>mount.querySelector("#tileImageInput")?.click());
-  mount.querySelector("#tileImageInput")?.addEventListener("change",async e=>{
+  host.querySelector("#tilePickImage")?.addEventListener("click",()=>host.querySelector("#tileImageInput")?.click());
+  host.querySelector("#tileImageInput")?.addEventListener("change",async e=>{
     const file=e.target.files?.[0]; if(!file) return;
-    try{data.homeImages=data.homeImages||{};data.homeImages[id]=await resizeHomeCover(file);saveData();bindTileEditor(id);toast("Cover image added ✨")}catch{toast("That image could not be added")}
+    try{data.homeImages=data.homeImages||{};data.homeImages[id]=await resizeHomeCover(file);saveData();close();bindTileEditor(id);toast("Cover image added ✨")}catch{toast("That image could not be added")}
   });
-  mount.querySelector("#tileRemoveImage")?.addEventListener("click",()=>{delete data.homeImages[id];saveData();bindTileEditor(id);toast("Cover image removed")});
+  host.querySelector("#tileRemoveImage")?.addEventListener("click",()=>{delete data.homeImages[id];saveData();close();bindTileEditor(id);toast("Cover image removed")});
   const moveTile=step=>{
     const i=data.homeLayout.findIndex(x=>x.id===id);const j=i+step;
     if(i<0||j<0||j>=data.homeLayout.length){toast(step<0?"This tile is already first":"This tile is already last");return;}
     [data.homeLayout[i],data.homeLayout[j]]=[data.homeLayout[j],data.homeLayout[i]];
-    saveData();bindTileEditor(id);toast(step<0?"Tile moved earlier":"Tile moved later");
+    saveData();close();bindTileEditor(id);toast(step<0?"Tile moved earlier":"Tile moved later");
   };
-  mount.querySelector("#tileMoveEarlier")?.addEventListener("click",()=>moveTile(-1));
-  mount.querySelector("#tileMoveLater")?.addEventListener("click",()=>moveTile(1));
-  mount.querySelector("#tileHide")?.addEventListener("click",()=>{
-    data.homeLayout=data.homeLayout.filter(x=>x.id!==id);data.homeHidden=data.homeHidden||[];if(!data.homeHidden.includes(id))data.homeHidden.push(id);saveData();render();
+  host.querySelector("#tileMoveEarlier")?.addEventListener("click",()=>moveTile(-1));
+  host.querySelector("#tileMoveLater")?.addEventListener("click",()=>moveTile(1));
+  host.querySelector("#tileHide")?.addEventListener("click",()=>{
+    data.homeLayout=data.homeLayout.filter(x=>x.id!==id);data.homeHidden=data.homeHidden||[];if(!data.homeHidden.includes(id))data.homeHidden.push(id);saveData();close();render();
   });
-  mount.querySelector("#tileSave")?.addEventListener("click",()=>{
-    const name=mount.querySelector("#tileEditorName").value.trim().slice(0,40);
-    const icon=mount.querySelector("#tileEditorIcon").value.trim().slice(0,12);
-    const size=mount.querySelector("#tileEditorSize").value;
+  host.querySelector("#tileSave")?.addEventListener("click",()=>{
+    const name=host.querySelector("#tileEditorName").value.trim().slice(0,40);
+    const icon=host.querySelector("#tileEditorIcon").value.trim().slice(0,12);
+    const size=host.querySelector("#tileEditorSize").value;
     data.homeTileNames=data.homeTileNames||{};data.homeIcons=data.homeIcons||{};
     if(name)data.homeTileNames[id]=name;else delete data.homeTileNames[id];
     if(icon)data.homeIcons[id]=icon;else delete data.homeIcons[id];
     const item=data.homeLayout.find(x=>x.id===id);if(item)item.size=size;
-    saveData();render();toast("Home tile updated ✨");
+    saveData();close();render();toast("Home tile updated ✨");
   });
 }
 
@@ -309,13 +316,18 @@ function bindHomeTileDragging(){
   const grid=document.querySelector(".home-layout.editing");
   if(!grid) return;
   let source=null,ghost=null,holdTimer=null,pointerId=null;
-  let startX=0,startY=0,offsetX=0,offsetY=0,active=false,lastTarget=null;
+  let startX=0,startY=0,offsetX=0,offsetY=0,active=false,lastTarget=null,lockedScrollY=0;
 
   const clearHold=()=>{if(holdTimer){clearTimeout(holdTimer);holdTimer=null}};
   const clearTarget=()=>{lastTarget?.classList.remove("drag-target");lastTarget=null};
   const cleanup=({save=false}={})=>{
     clearHold();clearTarget();
     document.body.classList.remove("home-tile-dragging");
+    if(document.body.classList.contains("home-tile-scroll-locked")){
+      document.body.classList.remove("home-tile-scroll-locked");
+      document.body.style.top="";
+      window.scrollTo(0,lockedScrollY);
+    }
     source?.classList.remove("drag-ready","drag-source");
     ghost?.remove();ghost=null;
     if(save&&source){
@@ -337,7 +349,9 @@ function bindHomeTileDragging(){
     active=true;
     source.classList.remove("drag-ready");
     source.classList.add("drag-source");
-    document.body.classList.add("home-tile-dragging");
+    lockedScrollY=window.scrollY;
+    document.body.style.top=`-${lockedScrollY}px`;
+    document.body.classList.add("home-tile-dragging","home-tile-scroll-locked");
     const rect=source.getBoundingClientRect();
     offsetX=event.clientX-rect.left;offsetY=event.clientY-rect.top;
     ghost=source.cloneNode(true);

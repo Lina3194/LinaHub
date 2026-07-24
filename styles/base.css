@@ -1807,15 +1807,68 @@ body[data-route="house"] .shopping-household-card{display:none!important}
   body[data-route="house"] .energy-choice,body[data-route="house"] .priority-choice{height:54px!important;min-height:54px!important}
 }
 
-/* LinaHub 17.1 — Today page room grouping and persistent open sections */
-.today-house-rooms{display:grid;gap:10px;padding-top:8px}
-.today-room-group{min-width:0}
-.today-room-group>h3{display:flex;align-items:center;gap:8px;margin:0 0 7px;padding:0 4px;color:var(--ink);font-size:.9rem}
-.today-room-group>h3 span{font-size:1rem}
-.today-room-group>h3 small{margin-left:auto;min-width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--line);border-radius:999px;font-size:.68rem;color:var(--muted)}
-.today-room-group+.today-room-group{border-top:1px solid color-mix(in srgb,var(--line) 55%,transparent);padding-top:10px}
-@media(max-width:600px){
-  .today-house-rooms{gap:8px}
-  .today-room-group>h3{font-size:.82rem;margin-bottom:5px}
-  .today-room-group+.today-room-group{padding-top:8px}
+/* LinaHub 17.1.1 — collapsible Today rooms + medication phone containment */
+.today-house-rooms{display:grid;gap:8px;padding-top:8px}
+.today-room-group{min-width:0;border:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-radius:14px;overflow:hidden;background:color-mix(in srgb,var(--card) 86%,transparent)}
+.today-room-group>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:44px;padding:8px 10px;cursor:pointer}
+.today-room-group>summary::-webkit-details-marker{display:none}
+.today-room-name,.today-room-meta{display:flex;align-items:center;gap:8px;min-width:0}
+.today-room-name i{font-style:normal;font-size:1rem}
+.today-room-name strong{font-size:.88rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.today-room-meta small{min-width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--line);border-radius:999px;font-size:.68rem;color:var(--muted)}
+.today-room-meta b{font-size:.8rem;transition:transform .2s ease}
+.today-room-group[open] .today-room-meta b{transform:rotate(180deg)}
+.today-room-group>.today-task-list{border-top:1px solid color-mix(in srgb,var(--line) 55%,transparent)}
+
+@media screen and (max-width:600px){
+  .today-house-rooms{gap:6px;padding-top:6px}
+  .today-room-group{border-radius:12px}
+  .today-room-group>summary{min-height:39px;padding:6px 8px}
+  .today-room-name strong{font-size:.79rem}
+  .today-room-name i{font-size:.9rem}
+  .today-room-meta small{min-width:20px;height:20px;font-size:.61rem}
+
+  /* Keep every Medication element inside the phone viewport. */
+  body[data-route="medication"]{overflow-x:hidden!important}
+  body[data-route="medication"] #app,
+  body[data-route="medication"] .shell,
+  body[data-route="medication"] main,
+  body[data-route="medication"] form,
+  body[data-route="medication"] fieldset,
+  body[data-route="medication"] .card,
+  body[data-route="medication"] .med-add-card,
+  body[data-route="medication"] .form-grid,
+  body[data-route="medication"] .two-col,
+  body[data-route="medication"] .med-photo-editor,
+  body[data-route="medication"] .med-photo-upload,
+  body[data-route="medication"] .med-schedule-list,
+  body[data-route="medication"] .med-schedule-row,
+  body[data-route="medication"] .med-instructions{
+    width:100%!important;max-width:100%!important;min-width:0!important;
+    box-sizing:border-box!important;
+  }
+  body[data-route="medication"] .card,
+  body[data-route="medication"] .med-add-card,
+  body[data-route="medication"] .med-photo-editor,
+  body[data-route="medication"] .med-photo-upload,
+  body[data-route="medication"] .med-schedule-row{overflow:hidden!important}
+  body[data-route="medication"] .form-grid>*,
+  body[data-route="medication"] .two-col>*,
+  body[data-route="medication"] .med-photo-upload>*,
+  body[data-route="medication"] .med-schedule-row>*{min-width:0!important;max-width:100%!important;box-sizing:border-box!important}
+  body[data-route="medication"] input,
+  body[data-route="medication"] select,
+  body[data-route="medication"] textarea,
+  body[data-route="medication"] button,
+  body[data-route="medication"] .field{
+    max-width:100%!important;min-width:0!important;box-sizing:border-box!important;
+  }
+  body[data-route="medication"] input,
+  body[data-route="medication"] select,
+  body[data-route="medication"] textarea{width:100%!important}
+  body[data-route="medication"] img{max-width:100%!important;height:auto}
+  body[data-route="medication"] .med-photo-upload b,
+  body[data-route="medication"] .med-photo-upload small,
+  body[data-route="medication"] .med-schedule-row strong,
+  body[data-route="medication"] .med-schedule-row small{overflow-wrap:anywhere;word-break:break-word}
 }

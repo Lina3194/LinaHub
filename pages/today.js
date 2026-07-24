@@ -63,6 +63,13 @@ function todayOpenGroups(){
   }catch{return new Set();}
 }
 
+function todayOpenRooms(){
+  try{
+    const saved=JSON.parse(sessionStorage.getItem("linahub-today-open-rooms")||"[]");
+    return new Set(Array.isArray(saved)?saved:[]);
+  }catch{return new Set();}
+}
+
 function todayTaskRow(item){
   return `<article class="item-row today-task" data-today-item><button type="button" class="today-task-main" data-route="${item.route}" ${item.routeId?`data-route-id="${esc(item.routeId)}"`:""}><span class="today-task-icon">${item.emoji}</span><span><h3>${esc(item.title)}</h3><p>${esc(item.detail)}</p></span><span class="plant-arrow">›</span></button>${item.completeType?`<button type="button" class="check-task today-quick-done" data-today-complete="${esc(item.completeType)}" data-today-id="${esc(item.completeId)}">✓</button>`:""}</article>`;
 }
@@ -75,12 +82,13 @@ function todayHouseRooms(items){
     (rooms[room] ||= []).push(item);
   });
   const roomOrder=(data.houseRooms||[]).map(room=>room.name);
+  const openRooms=todayOpenRooms();
   return Object.entries(rooms).sort(([a],[b])=>{
     const ai=roomOrder.indexOf(a),bi=roomOrder.indexOf(b);
     return (ai<0?999:ai)-(bi<0?999:bi)||a.localeCompare(b);
   }).map(([room,roomItems])=>{
     const icon=(data.houseRooms||[]).find(r=>r.name===room)?.icon||"🏠";
-    return `<section class="today-room-group"><h3><span>${icon}</span>${esc(room)}<small>${roomItems.length}</small></h3><div class="today-task-list">${roomItems.map(todayTaskRow).join("")}</div></section>`;
+    return `<details class="today-room-group" data-today-room="${esc(room)}" ${openRooms.has(room)?"open":""}><summary><span class="today-room-name"><i>${icon}</i><strong>${esc(room)}</strong></span><span class="today-room-meta"><small>${roomItems.length}</small><b>⌄</b></span></summary><div class="today-task-list">${roomItems.map(todayTaskRow).join("")}</div></details>`;
   }).join("");
 }
 
@@ -102,6 +110,12 @@ function bindToday(){
     section.addEventListener('toggle',()=>{
       const open=new Set([...page.querySelectorAll('[data-today-group][open]')].map(el=>el.dataset.todayGroup));
       sessionStorage.setItem('linahub-today-open-groups',JSON.stringify([...open]));
+    });
+  });
+  page.querySelectorAll('[data-today-room]').forEach(room=>{
+    room.addEventListener('toggle',()=>{
+      const open=new Set([...page.querySelectorAll('[data-today-room][open]')].map(el=>el.dataset.todayRoom));
+      sessionStorage.setItem('linahub-today-open-rooms',JSON.stringify([...open]));
     });
   });
   page.addEventListener('click',event=>{
@@ -154,6 +168,8 @@ function bindToday(){
 
     const open=new Set([...page.querySelectorAll('[data-today-group][open]')].map(el=>el.dataset.todayGroup));
     sessionStorage.setItem('linahub-today-open-groups',JSON.stringify([...open]));
+    const openRooms=new Set([...page.querySelectorAll('[data-today-room][open]')].map(el=>el.dataset.todayRoom));
+    sessionStorage.setItem('linahub-today-open-rooms',JSON.stringify([...openRooms]));
     saveData();
     const row=button.closest('[data-today-item]');
     row?.classList.add('today-item-completing');

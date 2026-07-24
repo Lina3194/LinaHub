@@ -1535,3 +1535,54 @@ body[data-color-theme="plain"] .seasonal-atmosphere{display:none}
 }
 \n/* LinaHub 17.0.4 — restore dated aquarium feeding log */
 .feed-add-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}.feed-add-grid label{display:grid;gap:5px}.feed-add-grid label>span{font-size:.75rem;color:var(--muted);font-weight:750}.feed-add-grid .feed-note-field{grid-column:1/-1}.feed-add-grid button{grid-column:1/-1}.compact-feed-row>span{display:grid;gap:2px}.compact-feed-row>span small{color:var(--muted)}.compact-feed-row{grid-template-columns:1fr auto}@media(max-width:430px){.feed-add-grid{grid-template-columns:1fr}.feed-add-grid .feed-note-field,.feed-add-grid button{grid-column:auto}}
+\n\n/* LinaHub 17.0.5 — compact care cards, visible aquarium bubbles and safe mobile nav */
+:root{--bottom-nav-clearance:118px}
+.shell{padding-bottom:calc(var(--bottom-nav-clearance) + env(safe-area-inset-bottom))!important}
+.bottom,#app>.bottom{
+  bottom:0!important;
+  width:min(728px,100%)!important;
+  border-radius:22px 22px 0 0!important;
+  padding:5px 8px calc(5px + env(safe-area-inset-bottom))!important;
+  min-height:72px!important;
+}
+.bottom button{padding:6px 3px!important;font-size:1.08rem!important;min-height:54px!important;gap:3px!important}
+.bottom small{font-size:.58rem!important}
+
+.plant-dashboard-list{gap:7px!important}
+.plant-dashboard-card{grid-template-columns:50px 1fr auto!important;gap:8px!important;padding:9px 10px!important;border-radius:18px!important;min-height:0!important}
+.plant-dashboard-photo{width:46px!important;height:46px!important;border-radius:13px!important;font-size:1.8rem!important}
+.plant-dashboard-copy{gap:1px!important}
+.plant-dashboard-copy strong{font-size:.91rem!important;margin-bottom:1px!important}
+.plant-dashboard-copy small{font-size:.65rem!important;line-height:1.23!important}
+.plant-dashboard-card>b{font-size:1.25rem!important}
+
+.aquarium-maintenance-card{padding:11px!important}
+.maintenance-rows{gap:0!important}
+.maintenance-row{grid-template-columns:24px minmax(0,1fr) 116px 54px!important;gap:6px!important;padding:6px 0!important}
+.maintenance-icon{font-size:1rem!important}
+.maintenance-row strong{font-size:.84rem!important}
+.maintenance-row small{font-size:.63rem!important;line-height:1.2!important}
+.maintenance-row .field{min-height:32px!important;height:32px!important;padding:5px 7px!important;border-radius:11px!important;font-size:.72rem!important}
+.maintenance-row .secondary{min-height:32px!important;height:32px!important;padding:5px 7px!important;border-radius:11px!important;font-size:.72rem!important}
+
+/* Keep bubbles visible down both sides of the aquarium overview and tank pages. */
+.route-atmosphere.aquarium-side-bubbles{display:block!important;position:fixed!important;inset:70px 0 calc(72px + env(safe-area-inset-bottom))!important;overflow:hidden!important;z-index:1!important;pointer-events:none!important}
+.route-atmosphere.aquarium-side-bubbles .aqua-bubble{display:block!important;opacity:.72!important}
+.route-atmosphere.aquarium-side-bubbles .aqua-bubble:nth-child(odd){left:calc(1% + (var(--i) % 3) * 4%)!important}
+.route-atmosphere.aquarium-side-bubbles .aqua-bubble:nth-child(even){left:auto!important;right:calc(1% + (var(--i) % 3) * 4%)!important}
+body[data-route="pets"] .shell,body[data-route="tank"] .shell{position:relative;z-index:2}
+
+@media(max-width:600px){
+  :root{--bottom-nav-clearance:108px}
+  .shell{padding-left:9px!important;padding-right:9px!important}
+  .plant-dashboard-card{grid-template-columns:46px 1fr auto!important;padding:8px 9px!important}
+  .plant-dashboard-photo{width:42px!important;height:42px!important;font-size:1.65rem!important}
+  .plant-dashboard-copy strong{font-size:.86rem!important}
+  .plant-dashboard-copy small{font-size:.62rem!important}
+  .maintenance-row{grid-template-columns:22px minmax(0,1fr) 104px 48px!important}
+  .maintenance-row .field,.maintenance-row .secondary{grid-column:auto!important;grid-row:auto!important}
+}
+@media(max-width:390px){
+  .maintenance-row{grid-template-columns:20px minmax(0,1fr) 96px 44px!important;gap:4px!important}
+  .maintenance-row .field,.maintenance-row .secondary{font-size:.66rem!important;padding:4px!important}
+}

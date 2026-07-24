@@ -118,9 +118,20 @@ function lina17PlantLight(plant){
   if(n.includes("orchid")||n.includes("spider")||n.includes("prayer"))return "Bright indirect light";
   return "Check care guide";
 }
+
+function lina17PlantWateringCycle(plant){
+  const direct=Number(plant?.wateringDays);
+  if(Number.isFinite(direct)&&direct>0)return direct;
+  try{
+    const guide=typeof encyclopediaEntry==="function"?encyclopediaEntry(plant?.guideId||plant?.id,plant?.name):null;
+    const guided=Number(guide?.wateringDays);
+    if(Number.isFinite(guided)&&guided>0)return guided;
+  }catch{}
+  return 7;
+}
 function lina17PlantWaterStatus(plant){
   if(!plant.lastWatered)return "Watering not logged";
-  const cycle=Number(plant.wateringDays)||7;
+  const cycle=lina17PlantWateringCycle(plant);
   const due=new Date(`${plant.lastWatered}T12:00:00`);due.setDate(due.getDate()+cycle);
   const diff=lina17DaysBetween(today(),due.toISOString().slice(0,10));
   if(diff===0)return "Water today";
@@ -130,7 +141,7 @@ function lina17PlantWaterStatus(plant){
 }
 function lina17PlantStatusClass(plant){
   if(!plant.lastWatered)return "status-neutral";
-  const cycle=Number(plant.wateringDays)||7;
+  const cycle=lina17PlantWateringCycle(plant);
   const due=new Date(`${plant.lastWatered}T12:00:00`);due.setDate(due.getDate()+cycle);
   const diff=lina17DaysBetween(today(),due.toISOString().slice(0,10));
   return diff<0?"status-overdue":diff<=1?"status-soon":"status-good";
@@ -223,7 +234,8 @@ function render(){
       return `<i class="sakura-petal" style="--x:${x}%;--petal-size:${size}px;--fall-duration:${duration}s;--fall-delay:${delay}s;--drift:${drift}px;--drift-back:${driftBack}px;--drift-end:${driftEnd}px;--petal-opacity:${opacity}" aria-hidden="true"><svg viewBox="0 0 24 30" focusable="false"><path d="M12 29C8.6 24.3 2.2 21.2 1.4 13.9C.8 8.8 3.8 3.7 8.2 2.2C10.5 1.4 11.8 3.2 12 6.1C12.2 3.2 13.5 1.4 15.8 2.2C20.2 3.7 23.2 8.8 22.6 13.9C21.8 21.2 15.4 24.3 12 29Z"/><path class="sakura-vein" d="M12 27C11.7 20.8 11.8 14.8 12 8.2"/></svg></i>`;
     }).join("");
   }else if(route==="pets"||route==="tank"){
-    atmosphere.innerHTML=Array.from({length:16},(_,i)=>`<i class="aqua-bubble" style="--i:${i}"></i>`).join("");
+    atmosphere.classList.add("aquarium-side-bubbles");
+    atmosphere.innerHTML=Array.from({length:20},(_,i)=>`<i class="aqua-bubble" style="--i:${i}"></i>`).join("");
   }
 
   document.body.appendChild(atmosphere);

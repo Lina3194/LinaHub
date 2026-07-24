@@ -11,7 +11,15 @@ Fixed behaviour:
 Build cache: 17.0.3
 
 
-17.0.4 correction:
+17.0.5 correction:
 - Restored aquarium feeding date picker and visible feeding dates/times
 - Preserves older feed records using either date/time or createdAt
 - Removed invented 'Tonight' feed status
+
+
+17.0.5 fixes:
+- Smaller plant cards and aquarium maintenance rows
+- Restored visible side bubbles on aquarium pages
+- Lower, shorter bottom navigation with safe content clearance
+- Plant watering dates use each plant's own care-guide interval
+- Shopping card removed from Household

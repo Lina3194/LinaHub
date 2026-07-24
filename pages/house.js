@@ -1,3 +1,4 @@
+/* ===== pages/house.js ===== */
 
 const DEFAULT_HOUSE_ROOMS=[
   {id:"living-room",name:"Living Room",icon:"🛋️"},
@@ -228,12 +229,6 @@ function HousePage(){
           <p class="helper-text">Deleting a room moves its jobs to Whole House.</p>
         </div>
       `}
-    </section>
-
-    <section class="card house-shopping-card">
-      <div class="section-title"><div><span class="section-kicker">Household</span><h2>🛒 Shopping</h2></div><strong>${(data.shoppingItems||[]).filter(item=>!item.done&&!item.bought).length} remaining</strong></div>
-      <p>Manage groceries, household supplies and anything the house needs.</p>
-      <button type="button" class="secondary" data-route="shopping">Open shopping list →</button>
     </section>
 
     <section class="card">
@@ -536,3 +531,5 @@ function saveHouseEditor(){
   toast("Job updated 🏡");
   render();
 }
+
+

@@ -19,10 +19,6 @@ function renderSeasonalAtmosphere(theme){
     return `<i style="--left:${left}%;--delay:${delay}s;--duration:${duration}s;--size:${size}px;--drift:${drift}px">${symbols[i%symbols.length]}</i>`;
   }).join("");
 }
-document.addEventListener("linahub:house-completion",()=>{
-  if(route==="today"){
-    suppressNextPageAnimation=true;
-    
 /* LinaHub 17.0 — Measures, aquarium maintenance and theme polish */
 function lina17DateList(values){return (Array.isArray(values)?values:[]).slice().filter(Boolean).sort().reverse()}
 function HealthPage(){
@@ -130,9 +126,6 @@ function PlantsPage(){
     </button>`).join("")}</div>`,"plants");
 }
 
-render();
-  }
-});
 function lina17HeaderIllustration(routeName){
   const art={
     plants:{emoji:"🪴",bits:["🌿","🌸","✨"]},
@@ -392,7 +385,10 @@ function setupSwipeBack(){
         completed=true;
         suppressNextPageAnimation=true;
         cleanup();
-        goBack("home");
+        // Medication add/edit and stock screens are subviews of the Medication page.
+        // Swiping back from any of them should always reopen the main Medication list.
+        if(route==="medication") go("medication","");
+        else goBack("home");
       };
 
       page.addEventListener("transitionend",done,{once:true});

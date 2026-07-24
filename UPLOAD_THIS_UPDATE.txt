@@ -1,15 +1,11 @@
-LinaHub 17.0 — Corrected Update
+LinaHub 17.0 — Medication Swipe Fix
 
-Upload the CONTENTS of this ZIP over the existing LinaHub site and preserve the folder structure.
-Choose replace/overwrite when prompted.
+Upload the CONTENTS of this ZIP over the existing LinaHub site and overwrite matching files.
 
-Corrected:
-- Settings displays Version 17.0
-- Measures uses Weight, Waist and Tummy only with type-in boxes
-- Plants use compact care cards with coloured status bars
-- Aquariums use compact tank dashboards
-- Aquarium feeds collapsed by default
-- Separate maintenance histories for Water Change, Tank Clean, Sponge Clean and Filter Change
-- Plain, Glitter, Floral, Spring, Summer, Autumn and Winter themes
-- Medication add/update stock swipe-back returns to Medication
-- Cache version bumped so old 16.x files are removed
+Fixed behaviour:
+- Swipe from Add Medication -> Medication overview (Day tab)
+- Swipe from Stock -> Medication overview (Day tab)
+- Swipe from History -> Medication overview (Day tab)
+- Swipe from Medication overview -> previous main page
+
+Build cache: 17.0.3

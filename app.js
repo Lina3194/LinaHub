@@ -385,10 +385,17 @@ function setupSwipeBack(){
         completed=true;
         suppressNextPageAnimation=true;
         cleanup();
-        // Medication add/edit and stock screens are subviews of the Medication page.
-        // Swiping back from any of them should always reopen the main Medication list.
-        if(route==="medication") go("medication","");
-        else goBack("home");
+        // Medication tabs are subviews. A swipe from Add Medication, History or Stock
+        // must first return to the main Medication overview instead of reopening the same tab.
+        if(route==="medication" && data.medicationView?.tab!=="today") {
+          data.medicationView.tab="today";
+          data.medicationView.date=typeof medLocalDate==="function"?medLocalDate():today();
+          medicationDateTouched=false;
+          saveData();
+          render();
+        } else {
+          goBack("home");
+        }
       };
 
       page.addEventListener("transitionend",done,{once:true});

@@ -8,6 +8,7 @@ function ensureHomeLayout(){
   if(!Array.isArray(data.homeHidden)) data.homeHidden=[];
   data.homeTileAccents=data.homeTileAccents||{};
   data.homeTileNames=data.homeTileNames||{};
+  if(data.homeTileNames.measurements==="Weight & Measurements"||data.homeTileNames.measurements==="Weight & Measurement"||data.homeTileNames.measurements==="Weight &\nMeasurements") data.homeTileNames.measurements="Measures";
 
   // Older versions used "flowers" for the hourly Journal tile.
   data.homeLayout=data.homeLayout.map(item=>{
@@ -16,7 +17,7 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
-  // 16.72: keep Period on Home and remove the redundant Health dashboard tile.
+  // 16.73: keep Period on Home and remove the redundant Health dashboard tile.
   data.homeLayout=data.homeLayout.filter(item=>!["hobbies","health"].includes(typeof item==="string"?item:item?.id));
   data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="health"&&id!=="period");
 
@@ -48,7 +49,7 @@ const HOME_TILE_INFO={
   house:["House","Home, jobs and supplies","🏡"],
   shopping:["Shopping","Lists and essentials","🛒"],
   medication:["Medication","Tablets and schedule","💊"],
-  measurements:["Weight & Measurements","Track weight and body measurements","⚖️"],
+  measurements:["Measures","Track weight and body measurements","📏"],
   period:["Period","Cycle and symptom tracking","🌸"],
   pokemon:["Pokémon GO","Friends, gifts and Vivillon","🔴"],
   books:["Books","Reading list and progress","📚"],
@@ -142,17 +143,22 @@ function homeTile(item,editing){
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1672" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1673" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const accent=data.homeTileAccents?.[item.id]||"";
   const style=accent?` style="--tile-accent:${esc(accent)}"`:"";
   const route=item.id==="measurements"?"health":item.id;
   const extra=item.id==="measurements"?' data-route-id="log"':"";
-  return `<article class="home-tile-wrap size-${item.size}${editing?" is-editing":""}" data-home-id="${item.id}"${style}>
-    <button type="button" class="module module-${item.id}" ${editing?'data-edit-home-tile="'+item.id+'"':`data-route="${route}"${extra}`}>${art}<strong>${esc(title)}</strong><small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span><span class="home-tile-chevron">${editing?"✎":"›"}</span></button>
+  const content=`${art}<strong>${esc(title)}</strong><small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span>`;
+  if(editing){
+    return `<article class="home-tile-wrap size-${item.size} is-editing" data-home-id="${item.id}"${style}>
+      <div class="module module-${item.id}">${content}<button type="button" class="home-tile-edit-button" data-edit-home-tile="${item.id}">✎ Edit</button></div>
+    </article>`;
+  }
+  return `<article class="home-tile-wrap size-${item.size}" data-home-id="${item.id}"${style}>
+    <button type="button" class="module module-${item.id}" data-route="${route}"${extra}>${content}<span class="home-tile-chevron">›</span></button>
   </article>`;
 }
-
 function hiddenHomeTiles(){
   if(!data.homeHidden?.length) return "";
   return `<section class="hidden-home-tiles"><h2>Hidden tiles</h2><div>${data.homeHidden.map(id=>{
@@ -174,7 +180,7 @@ function tileEditor(id){
       <div class="tile-editor-head"><div><span class="eyebrow">Edit Home tile</span><h2 id="tileEditorTitle">${esc(title)}</h2></div><button type="button" data-close-tile-editor aria-label="Close">×</button></div>
       <label>Tile name<input class="field" id="tileEditorName" value="${esc(title)}" maxlength="40"></label>
       <label>Icon or emoji<input class="field" id="tileEditorIcon" value="${esc(icon)}" maxlength="12"></label>
-      <label>Tile size<select class="field" id="tileEditorSize"><option value="medium" selected>Standard tile</option><option value="wide" ${item.size==="wide"?"selected":""}>Wide tile</option></select></label>
+      <label>Tile size<select class="field" id="tileEditorSize"><option value="medium" ${item.size!=="wide"?"selected":""}>Standard tile</option><option value="wide" ${item.size==="wide"?"selected":""}>Wide tile</option></select></label>
       <label class="tile-colour-label">Accent colour<input type="color" id="tileEditorAccent" value="${esc(accent)}"></label>
       <div class="tile-cover-row"><div class="tile-cover-preview">${data.homeImages?.[id]?`<img src="${data.homeImages[id]}" alt="">`:`<span>${esc(icon)}</span>`}</div><div><strong>Custom cover image</strong><p>Shows the whole picture without cropping.</p><button type="button" class="secondary" id="tilePickImage">Choose image</button><input type="file" id="tileImageInput" accept="image/*" hidden>${data.homeImages?.[id]?`<button type="button" class="mini danger" id="tileRemoveImage">Remove image</button>`:""}</div></div>
       <div class="tile-position-controls" aria-label="Move tile"><button type="button" class="secondary" id="tileMoveEarlier">← Move earlier</button><button type="button" class="secondary" id="tileMoveLater">Move later →</button></div>
@@ -226,7 +232,7 @@ function HomePage(){
           </div>
         </div>
       </div>
-      ${editing?`<p class="home-edit-help">Tap any tile to rename it, change its icon, colour or size. Move it earlier or later from inside the editor.</p>`:""}
+      ${editing?`<p class="home-edit-help">Use the Edit button on any tile to rename it, change its icon, colour or size. Move it earlier or later from inside the editor.</p>`:""}
     </section>
     <button type="button" class="home-daily-checkin ${complete?"complete":""}" data-open-daily-checkin>
       <span class="home-checkin-icon">☀️</span><span><strong>Daily check-in</strong><small>${complete?"Completed for today":"Track sleep, mood, energy and more"}</small></span><b>${complete?"Completed":"Complete now"}</b>

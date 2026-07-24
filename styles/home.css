@@ -210,7 +210,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .tile-cover-preview{width:70px;height:70px}
 }
 
-/* LinaHub 16.72 — phone-safe Home editing */
+/* LinaHub 16.73 — phone-safe Home editing */
 .home-tile-wrap.is-editing .module{
   outline:1px dashed color-mix(in srgb,var(--purple) 72%,transparent);
   outline-offset:2px;
@@ -229,4 +229,70 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .tile-editor{width:100%;max-width:none;max-height:88vh;border-radius:24px 24px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
   .tile-editor-head{position:sticky;top:-18px;z-index:2;margin:-18px -16px 12px;padding:18px 16px 10px;background:var(--card);border-radius:24px 24px 0 0}
   .tile-position-controls{grid-template-columns:1fr 1fr}
+}
+
+/* LinaHub 16.73 — centred phone tile editor and premium Treasure Room */
+.home-tile-wrap .module::after,
+.customisable-tile.has-custom-accent::after{display:none!important;content:none!important}
+.home-tile-wrap .module{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  text-align:center!important;
+  gap:0!important;
+}
+.home-tile-wrap .module strong,
+.home-tile-wrap .tile-status,
+.home-tile-wrap .tile-subtitle{width:100%;text-align:center!important}
+.home-tile-wrap .tile-status{padding-right:0!important}
+.home-tile-wrap.is-editing .module{
+  outline:1px dashed color-mix(in srgb,var(--purple) 70%,transparent);
+  outline-offset:2px;
+  cursor:default;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+}
+.home-tile-edit-button{
+  width:calc(100% - 8px);
+  min-height:34px;
+  margin-top:auto;
+  padding:7px 6px;
+  border:0;
+  border-radius:11px;
+  background:rgba(255,255,255,.08);
+  color:var(--ink);
+  font:inherit;
+  font-size:.67rem;
+  font-weight:800;
+  text-align:center;
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  user-select:none;
+  touch-action:manipulation;
+}
+.home-tile-edit-button:active{transform:scale(.97)}
+.home-tile-wrap.size-wide .module{display:grid!important;grid-template-columns:64px 1fr!important;grid-template-rows:auto auto auto!important;column-gap:14px!important;align-content:center!important;text-align:center!important}
+.home-tile-wrap.size-wide .emoji,.home-tile-wrap.size-wide .module-image{grid-column:1;grid-row:1/4!important;margin:0!important}
+.home-tile-wrap.size-wide strong,.home-tile-wrap.size-wide .tile-subtitle,.home-tile-wrap.size-wide .tile-status{grid-column:2!important;text-align:center!important}
+.home-tile-wrap.size-wide .home-tile-edit-button{grid-column:2!important;width:min(180px,100%);justify-self:center;margin-top:10px}
+.home-tile-wrap[data-home-id="treasures"] .module{
+  border:1px solid rgba(232,181,95,.72)!important;
+  background:
+    radial-gradient(circle at 18% 30%,rgba(255,202,99,.16),transparent 28%),
+    radial-gradient(circle at 82% 22%,rgba(173,94,255,.22),transparent 34%),
+    linear-gradient(135deg,#25123f,#170c2e 54%,#32164f)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,219,142,.18),0 16px 34px rgba(0,0,0,.28),0 0 24px rgba(163,83,255,.15)!important;
+}
+.home-tile-wrap[data-home-id="treasures"] .module strong{font-family:Georgia,"Times New Roman",serif;color:#f0c46d;font-size:1.15rem!important;letter-spacing:.02em}
+.home-tile-wrap[data-home-id="treasures"] .tile-status{color:#c995ff!important}
+@media(max-width:430px){
+  .home-tile-wrap .module{min-height:118px!important;padding:8px 5px!important}
+  .home-tile-wrap .module .emoji,.home-tile-wrap .module .module-image{margin-inline:auto!important}
+  .home-tile-wrap .module strong{font-size:.64rem!important;line-height:1.12!important}
+  .home-tile-wrap .tile-status{font-size:.52rem!important;line-height:1.1!important}
+  .home-tile-edit-button{min-height:31px;padding:6px 3px;font-size:.61rem;border-radius:10px}
+  .home-tile-wrap.size-wide .module{min-height:106px!important;grid-template-columns:54px 1fr!important;column-gap:9px!important;padding:11px!important}
+  .home-tile-wrap.size-wide .home-tile-edit-button{min-height:30px;margin-top:7px}
 }

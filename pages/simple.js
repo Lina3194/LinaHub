@@ -61,7 +61,7 @@ function SettingsPage(){
           ["amethyst","Amethyst"],["rose","Rose Garden"],["sage","Sage Botanical"],["ocean","Ocean"],
           ["autumn","Autumn"],["galaxy","Galaxy"],["winter","Winter"],["cherry","Cherry Blossom"],
           ["wildflower","Wildflower"],["celestial","Celestial"],["meadow","Meadow"],["midnight","Midnight Floral"],
-          ["clouds","Clouds"],["marble","Rose Marble"]
+          ["clouds","Clouds"],["marble","Rose Marble"],["lina-blossom","Lina Blossom"]
         ].map(([key,label])=>`<button type="button" class="theme-choice ${data.colorTheme===key?"active":""}" data-color-theme="${key}"><span class="theme-swatch swatch-${key}"></span><strong>${label}</strong></button>`).join("")}
       </div>
       <button class="secondary" id="themeToggle2" style="margin-top:12px">Switch to ${data.theme==="dark"?"light":"dark"} mode</button>
@@ -110,7 +110,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version 16.86<br><br>24 Jul 2026</p>`,"settings");
+  <p class="app-version">Version 16.87<br><br>24 Jul 2026</p>`,"settings");
 }
 
 function bindSimple(){

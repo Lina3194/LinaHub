@@ -1386,3 +1386,43 @@ select,
 .hero::after{
   pointer-events:none!important;
 }
+
+/* LinaHub v16.89 — Lina Blossom theme */
+.swatch-lina-blossom{
+  background:
+    radial-gradient(circle at 28% 28%,#fff 0 5%,#f7b7d5 6% 13%,transparent 14%),
+    radial-gradient(circle at 72% 68%,#fff 0 4%,#c9a5ef 5% 12%,transparent 13%),
+    linear-gradient(145deg,#fff3f8,#f7cfe0 52%,#c9a8ee);
+}
+body[data-color-theme="lina-blossom"]{
+  --purple:#a95fd2;--purple2:#ee72ad;--gold:#e7b865;--aqua:#b69eea;
+  --line:rgba(205,112,169,.28);--purple-soft:rgba(229,111,171,.16);
+  --theme-bg-a:#241125;--theme-bg-b:#3a1732;--theme-bg-c:#1f1228;
+  --theme-orb-1:rgba(239,116,176,.30);--theme-orb-2:rgba(175,112,225,.24);--theme-orb-3:rgba(255,203,223,.13);
+  --theme-card-a:rgba(71,32,60,.92);--theme-card-b:rgba(37,22,45,.92);--theme-nav:rgba(34,18,38,.95);
+  --theme-pattern-opacity:.28;--theme-pattern-1:rgba(255,208,228,.86);--theme-pattern-2:rgba(205,174,243,.72);
+  --theme-radius:28px;--theme-title-font:Georgia,"Times New Roman",serif;
+  --theme-preview:linear-gradient(135deg,#fff0f6,#f4bcd5 55%,#c9a6ec);
+}
+body:not(.dark)[data-color-theme="lina-blossom"]{
+  --ink:#5b3156;--muted:#89687f;
+  --theme-bg-a:#fff8fb;--theme-bg-b:#f9dce9;--theme-bg-c:#f7efff;
+  --theme-card-a:rgba(255,255,255,.92);--theme-card-b:rgba(255,244,250,.90);--theme-nav:rgba(255,248,252,.94);
+  --theme-pattern-opacity:.16;
+}
+body[data-color-theme="lina-blossom"]:after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:-1;opacity:.38;
+  background:
+    radial-gradient(ellipse at 8% 18%,rgba(255,181,214,.48) 0 8px,transparent 9px),
+    radial-gradient(ellipse at 12% 23%,rgba(201,164,238,.38) 0 6px,transparent 7px),
+    radial-gradient(ellipse at 91% 12%,rgba(255,190,220,.42) 0 9px,transparent 10px),
+    radial-gradient(ellipse at 86% 19%,rgba(192,151,232,.34) 0 7px,transparent 8px),
+    radial-gradient(ellipse at 15% 82%,rgba(255,205,226,.38) 0 8px,transparent 9px),
+    radial-gradient(ellipse at 93% 78%,rgba(210,173,241,.32) 0 7px,transparent 8px);
+  background-size:220px 220px,260px 260px,240px 240px,280px 280px,250px 250px,300px 300px;
+}
+body[data-color-theme="lina-blossom"] .hero,body[data-color-theme="lina-blossom"] .card,
+body[data-color-theme="lina-blossom"] .module,body[data-color-theme="lina-blossom"] .plant-card,
+body[data-color-theme="lina-blossom"] .tank-card{
+  box-shadow:0 14px 34px rgba(145,70,128,.16),inset 0 1px 0 rgba(255,255,255,.16);
+}

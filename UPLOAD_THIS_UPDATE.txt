@@ -1,0 +1,2 @@
+LinaHub 16.89 adds a new optional theme: Settings > Themes & appearance > Lina Blossom.
+Your existing theme remains unchanged until you select it.

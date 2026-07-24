@@ -1,4 +1,4 @@
-/* LinaHub v16.84 Cloud Edition — Firebase Auth + verified Firestore module sync */
+/* LinaHub v16.85 Cloud Edition — complete daily and hourly check-in sync */
 const LINAHUB_FIREBASE_CONFIG={
   apiKey:"AIzaSyAnMmtT7RGTMpl8CZbpAX3rFWH9HjjZZqI",
   authDomain:"linahub.firebaseapp.com",
@@ -9,7 +9,7 @@ const LINAHUB_FIREBASE_CONFIG={
 };
 
 const CLOUD_MODULES={
-  journal:["checkins","checkinLayout","checkinFilter","journalControlsCollapsed","journalTab","journalSelectedDate","journalTrendPeriod","checkinHidden","checkinEditMode","dayCheckins","journalTimeline"],
+  journal:["checkins","morningCheckins","dailyCheckinCompleted","dailyCheckinRemindAt","checkinLayout","checkinFilter","journalControlsCollapsed","journalTab","journalSelectedDate","journalTrendPeriod","checkinHidden","checkinEditMode","dayCheckins","journalTimeline"],
   plants:["plants"],
   pokemon:["pokemonFriends","pokemonSeededVersion"],
   aquariums:["aquariums"],
@@ -106,7 +106,7 @@ async function pushCloudModule(name){
   if(!CLOUD_STATE.user||!navigator.onLine) return setCloudStatus("offline");
   try{
     const ref=firebase.firestore().doc(`users/${CLOUD_STATE.user.uid}/modules/${name}`);
-    await ref.set({...modulePayload(name),schemaVersion:1683,deviceId:CLOUD_STATE.deviceId,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:false});
+    await ref.set({...modulePayload(name),schemaVersion:1685,deviceId:CLOUD_STATE.deviceId,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:false});
     setCloudStatus("synced");
   }catch(error){console.error("LinaHub cloud upload",error);setCloudStatus("error")}
 }
@@ -114,7 +114,7 @@ async function uploadAllModules(){
   setCloudStatus("syncing");
   for(const name of Object.keys(CLOUD_MODULES)) await pushCloudModule(name);
   const meta=firebase.firestore().doc(`users/${CLOUD_STATE.user.uid}/meta/profile`);
-  await meta.set({schemaVersion:1683,migratedAt:firebase.firestore.FieldValue.serverTimestamp(),deviceId:CLOUD_STATE.deviceId},{merge:true});
+  await meta.set({schemaVersion:1685,migratedAt:firebase.firestore.FieldValue.serverTimestamp(),deviceId:CLOUD_STATE.deviceId},{merge:true});
   localStorage.setItem(`linahub-cloud-migrated-${CLOUD_STATE.user.uid}`,"1");
   setCloudStatus("synced");
 }

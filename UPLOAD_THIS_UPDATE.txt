@@ -1,8 +1,9 @@
-LinaHub 17.1.3
+LinaHub 17.1.4
 
-Upload all files and folders in this ZIP, replacing the existing files.
+Upload the CONTENTS of this folder to replace the current LinaHub site.
 
 Changes:
-- Today house rooms now start collapsed and can be opened individually.
-- Open room state stays in place while ticking tasks.
-- Medication phone layout is fully constrained to the screen width.
+- Main Medication date field shortened and contained on phones
+- Aquarium side bubbles restored on iPhone/Safari
+- Pokémon Stats, Import and Vivillon tabs removed
+- Pokémon friendship, Vivillon and interaction filters moved into one compact Filter friends dropdown

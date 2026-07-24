@@ -5,7 +5,7 @@ const LEGACY_KEYS=["linahub-v4","linahub-v4-1","linahub-v4-2","linahub-v4-3"];
 const DEFAULT_DATA={
   version:5,
   theme:"dark",
-  colorTheme:"spring",
+  colorTheme:"floral",
   notifications:{enabled:false,medication:true,todayTasks:true,dayCheckins:false,medicationTimes:["09:00"],todayTimes:["09:15"],dayCheckinStart:"08:00",dayCheckinEnd:"22:00",dayCheckinEvery:1,lastSent:{}},
   checkins:{},
   morningCheckins:{},
@@ -64,7 +64,7 @@ const DEFAULT_DATA={
   shoppingView:{category:"all"},
   books:[],
   booksView:{tab:"reading"},
-  shoppingCategories:["Fruit & Veg","Fridge","Freezer","Cupboard","Household","Toiletries","Other"],
+  shoppingCategories:["Fruit & Veg","Fridge","Freezer","Cupboard","Toiletries","Other"],
   houseControlsCollapsed:true,
   houseOpenRooms:[],
   houseRooms:[
@@ -100,7 +100,7 @@ const DEFAULT_DATA={
       ],
       temperature:"",temperatureUpdated:"",
       feeds:[],
-      maintenance:{waterChange:"",clean:"",filterChange:"",spongeChange:""}
+      maintenance:{waterChange:"",clean:"",filterChange:"",spongeChange:"",history:{waterChange:[],clean:[],spongeChange:[],filterChange:[]}}
     },
     {
       id:"boys-tank",name:"Boys Tank",emoji:"💙",
@@ -112,7 +112,7 @@ const DEFAULT_DATA={
       ],
       temperature:"",temperatureUpdated:"",
       feeds:[],
-      maintenance:{waterChange:"",clean:"",filterChange:"",spongeChange:""}
+      maintenance:{waterChange:"",clean:"",filterChange:"",spongeChange:"",history:{waterChange:[],clean:[],spongeChange:[],filterChange:[]}}
     }
   ],
   plants:[
@@ -249,7 +249,13 @@ function normalizeAquarium(tank,i){
       waterChange:tank?.maintenance?.waterChange||"",
       clean:tank?.maintenance?.clean||"",
       filterChange:tank?.maintenance?.filterChange||"",
-      spongeChange:tank?.maintenance?.spongeChange||""
+      spongeChange:tank?.maintenance?.spongeChange||"",
+      history:{
+        waterChange:Array.isArray(tank?.maintenance?.history?.waterChange)?tank.maintenance.history.waterChange:[],
+        clean:Array.isArray(tank?.maintenance?.history?.clean)?tank.maintenance.history.clean:[],
+        spongeChange:Array.isArray(tank?.maintenance?.history?.spongeChange)?tank.maintenance.history.spongeChange:[],
+        filterChange:Array.isArray(tank?.maintenance?.history?.filterChange)?tank.maintenance.history.filterChange:[]
+      }
     }
   };
 }
@@ -308,6 +314,8 @@ function loadData(){
         loaded.pokemonFriends=structuredClone(POKEMON_FRIEND_SEED);loaded.pokemonSeededVersion=1;
       }
       loaded.pokemonFriends=(loaded.pokemonFriends||[]).map(normalizePokemonFriend);
+      loaded.shoppingCategories=(loaded.shoppingCategories||DEFAULT_DATA.shoppingCategories).filter(category=>category!=="Household");
+      loaded.shoppingItems=(loaded.shoppingItems||[]).map(item=>item?.category==="Household"?{...item,category:"Other"}:item);
       return loaded;
     }
     return migrateLegacy()||structuredClone(DEFAULT_DATA);

@@ -52,13 +52,13 @@ function SettingsPage(){
     </section>
 
     <section class="card settings-accordion${accordionClass("appearance")}" id="appearanceSettings" data-settings-accordion="appearance">
-      <button type="button" class="settings-accordion-toggle" aria-expanded="${accordionExpanded("appearance")}"><span><strong>Seasons & appearance</strong><small>Flowers, sunshine, falling leaves or snow</small></span><b aria-hidden="true">⌄</b></button>
+      <button type="button" class="settings-accordion-toggle" aria-expanded="${accordionExpanded("appearance")}"><span><strong>Themes & appearance</strong><small>Plain, glitter, floral or seasonal</small></span><b aria-hidden="true">⌄</b></button>
       <div class="settings-collapse-body"${accordionHidden("appearance")}>
-      <h2>Seasonal atmosphere</h2>
-      <p>Choose a season for the whole app. The background changes and animated decorations appear across every page.</p>
+      <h2>App theme</h2>
+      <p>Choose a calm plain look, sparkly glitter, the signature floral design, or one of the four seasons.</p>
       <div class="theme-choice-grid">
         ${[
-          ["spring","🌸 Spring"], ["summer","☀️ Summer"], ["autumn","🍂 Autumn"], ["winter","❄️ Winter"]
+          ["plain","◻️ Plain"], ["glitter","✨ Glitter"], ["floral","🌺 Floral"], ["spring","🌸 Spring"], ["summer","☀️ Summer"], ["autumn","🍂 Autumn"], ["winter","❄️ Winter"]
         ].map(([key,label])=>`<button type="button" class="theme-choice ${data.colorTheme===key?"active":""}" data-color-theme="${key}"><span class="theme-swatch swatch-${key}"></span><strong>${label}</strong></button>`).join("")}
       </div>
       <button class="secondary" id="themeToggle2" style="margin-top:12px">Switch to ${data.theme==="dark"?"light":"dark"} mode</button>

@@ -12,8 +12,8 @@ function renderSeasonalAtmosphere(theme){
   }
   if(layer.dataset.theme===theme) return;
   layer.dataset.theme=theme;
-  const symbols={spring:["🌸","🌷","✿","❀"],summer:["✨","☀","✦","•"],autumn:["🍂","🍁","❧","•"],winter:["❄","❅","✧","•"]}[theme]||["✨"];
-  const count=theme==="winter"?34:theme==="summer"?22:28;
+  const symbols={plain:[],glitter:["✦","✧","⋆","✨"],floral:["🌸","✿","❀","🌺"],spring:["🌸","🌷","✿","❀"],summer:["✨","☀","✦","•"],autumn:["🍂","🍁","❧","•"],winter:["❄","❅","✧","•"]}[theme]||[];
+  const count=theme==="plain"?0:theme==="winter"?34:theme==="summer"?22:theme==="glitter"?36:28;
   layer.innerHTML=Array.from({length:count},(_,i)=>{
     const left=(i*37%101), delay=-((i*1.37)%14), duration=8+(i*0.73%10), size=12+(i*7%18), drift=-35+(i*19%70);
     return `<i style="--left:${left}%;--delay:${delay}s;--duration:${duration}s;--size:${size}px;--drift:${drift}px">${symbols[i%symbols.length]}</i>`;
@@ -22,14 +22,62 @@ function renderSeasonalAtmosphere(theme){
 document.addEventListener("linahub:house-completion",()=>{
   if(route==="today"){
     suppressNextPageAnimation=true;
-    render();
+    
+/* LinaHub 17.0 — Measures, aquarium maintenance and theme polish */
+function lina17DateList(values){return (Array.isArray(values)?values:[]).slice().filter(Boolean).sort().reverse()}
+function HealthPage(){
+  const weights=(data.weightEntries||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const measures=(data.measurements||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const latestWeight=weights[0],latestMeasure=measures[0];
+  const history=[...weights.map(x=>({date:x.date,type:"Weight",value:`${x.value||x.weight||"—"} kg`,id:x.id})),...measures.flatMap(x=>[
+    x.waist!==""&&x.waist!=null?{date:x.date,type:"Waist",value:`${x.waist} cm`,id:x.id}:null,
+    x.tummy!==""&&x.tummy!=null?{date:x.date,type:"Tummy",value:`${x.tummy} cm`,id:x.id}:null
+  ].filter(Boolean))].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  return shell(`${head("Measures","A simple record of weight, waist and tummy")}
+    <section class="measure-hero card">
+      <div><span class="section-kicker">Latest measurements</span><h2>Your progress, without the clutter</h2><p>Only the three measurements that matter to you.</p></div>
+      <div class="measure-summary-grid">
+        <article><span>⚖️</span><small>Weight</small><strong>${latestWeight?.value||latestWeight?.weight||"—"}<em>${latestWeight?" kg":""}</em></strong></article>
+        <article><span>📏</span><small>Waist</small><strong>${latestMeasure?.waist??"—"}<em>${latestMeasure?.waist!=null&&latestMeasure?.waist!==""?" cm":""}</em></strong></article>
+        <article><span>〰️</span><small>Tummy</small><strong>${latestMeasure?.tummy??"—"}<em>${latestMeasure?.tummy!=null&&latestMeasure?.tummy!==""?" cm":""}</em></strong></article>
+      </div>
+    </section>
+    <section class="card measure-entry-card"><div class="section-title-row"><div><span class="section-kicker">New entry</span><h2>Add today’s measures</h2></div></div>
+      <label class="compact-measure-date">Date<input class="field" id="measureDate" type="date" value="${today()}"></label>
+      <div class="health-measure-fields">
+        <label><span>⚖️ Weight</span><div class="measure-input-wrap"><input class="field" id="weightValue" inputmode="decimal" type="number" step="0.1" placeholder="0.0"><b>kg</b></div></label>
+        <label><span>📏 Waist</span><div class="measure-input-wrap"><input class="field" id="measureWaist" inputmode="decimal" type="number" step="0.1" placeholder="0.0"><b>cm</b></div></label>
+        <label><span>〰️ Tummy</span><div class="measure-input-wrap"><input class="field" id="measureTummy" inputmode="decimal" type="number" step="0.1" placeholder="0.0"><b>cm</b></div></label>
+      </div><button class="primary measure-save" id="saveMeasures">Save measurements</button>
+    </section>
+    <section class="card measure-history-card"><div class="section-title-row"><div><span class="section-kicker">History</span><h2>Previous entries</h2></div><span class="count-pill">${history.length}</span></div>
+      <div class="measure-history-list">${history.length?history.map(item=>`<article><time>${formatDate(item.date)}</time><span>${item.type}</span><strong>${esc(item.value)}</strong></article>`).join(""):`<div class="empty compact"><p>Your saved measurements will appear here.</p></div>`}</div>
+    </section>`,"health");
+}
+function bindHealth(){
+  const save=document.querySelector("#saveMeasures"); if(!save)return;
+  save.onclick=()=>{const date=document.querySelector("#measureDate").value||today(),weight=document.querySelector("#weightValue").value,waist=document.querySelector("#measureWaist").value,tummy=document.querySelector("#measureTummy").value;if(!weight&&!waist&&!tummy){toast("Add at least one measurement");return}
+    if(weight){data.weightEntries=data.weightEntries||[];data.weightEntries.push({id:`weight-${Date.now()}`,date,value:Number(weight)})}
+    if(waist||tummy){data.measurements=data.measurements||[];data.measurements.push({id:`measure-${Date.now()}`,date,waist:waist===""?"":Number(waist),tummy:tummy===""?"":Number(tummy)})}
+    saveData();toast("Measurements saved ✨");render();};
+}
+function lina17Maintenance(tank){tank.maintenance=tank.maintenance||{};tank.maintenance.history=tank.maintenance.history||{};["waterChange","clean","spongeChange","filterChange"].forEach(k=>tank.maintenance.history[k]=Array.isArray(tank.maintenance.history[k])?tank.maintenance.history[k]:[]);return tank.maintenance}
+function AquariumsPage(){return shell(`${head("Aquariums","Feeding and maintenance at a glance")}
+  <div class="aquarium-grid">${(data.aquariums||[]).map(tank=>{const m=lina17Maintenance(tank);return `<section class="card aquarium-overview-card"><button class="tank-open" data-route="tank" data-route-id="${esc(tank.id)}"><span class="tank-emoji">${tank.emoji||"🐠"}</span><span><strong>${esc(tank.name)}</strong><small>${(tank.livestock||[]).length} livestock groups</small></span><b>›</b></button><div class="maintenance-mini-grid">${[["waterChange","Water change"],["clean","Tank clean"],["spongeChange","Sponge clean"],["filterChange","Filter change"]].map(([k,label])=>`<span><small>${label}</small><strong>${m[k]?formatDate(m[k]):"Not logged"}</strong></span>`).join("")}</div></section>`}).join("")}</div>`,"pets")}
+function AquariumTankPage(){const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return AquariumsPage();const m=lina17Maintenance(tank);const jobs=[["waterChange","Water Change","💧"],["clean","Tank Clean","🫧"],["spongeChange","Sponge Clean","🧽"],["filterChange","Filter Change","⚙️"]];return shell(`${head(tank.name,"Aquarium care",true)}
+  <section class="card aquarium-feeds"><details><summary><span><strong>🍽️ Feeding</strong><small>${(tank.feeds||[]).length} saved feed entries</small></span><b>⌄</b></summary><div class="feed-list">${(tank.feeds||[]).length?(tank.feeds||[]).map((f,i)=>`<div class="compact-feed-row"><span>${esc(f.food||f.name||"Feed")}</span><small>${esc(f.time||f.date||"")}</small><button class="mini danger" data-delete-feed="${i}">×</button></div>`).join(""):"<p class='muted-copy'>No feeding entries yet.</p>"}<div class="inline-add"><input class="field" id="feedName" placeholder="Food or feeding note"><button class="secondary" id="addFeed">Add</button></div></div></details></section>
+  <section class="card aquarium-maintenance-card"><div class="section-title-row"><div><span class="section-kicker">Maintenance</span><h2>Care log</h2></div></div><div class="maintenance-rows">${jobs.map(([key,label,icon])=>`<article class="maintenance-row"><span class="maintenance-icon">${icon}</span><div><strong>${label}</strong><small>${m[key]?`Last: ${formatDate(m[key])}`:"Not logged yet"}</small></div><input class="field" type="date" data-maintenance-date="${key}" value="${m[key]||today()}"><button class="secondary" data-save-maintenance="${key}">Log</button></article>`).join("")}</div></section>
+  <section class="aquarium-history-grid">${jobs.map(([key,label,icon])=>`<details class="card maintenance-history"><summary><span>${icon} ${label} history</span><b>${m.history[key].length}</b></summary><div>${lina17DateList(m.history[key]).length?lina17DateList(m.history[key]).map(date=>`<div class="history-date-row"><span>${formatDate(date)}</span><button class="mini danger" data-delete-maintenance="${key}" data-date="${date}">×</button></div>`).join(""):"<p class='muted-copy'>No history yet.</p>"}</div></details>`).join("")}</section>`,"pets")}
+function bindAquariums(){const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return;const m=lina17Maintenance(tank);document.querySelector("#addFeed")?.addEventListener("click",()=>{const input=document.querySelector("#feedName");if(!input?.value.trim())return;tank.feeds=tank.feeds||[];tank.feeds.push({food:input.value.trim(),date:today()});saveData();render()});document.querySelectorAll("[data-delete-feed]").forEach(b=>b.onclick=()=>{tank.feeds.splice(Number(b.dataset.deleteFeed),1);saveData();render()});document.querySelectorAll("[data-save-maintenance]").forEach(b=>b.onclick=()=>{const key=b.dataset.saveMaintenance,date=document.querySelector(`[data-maintenance-date='${key}']`).value||today();m[key]=date;if(!m.history[key].includes(date))m.history[key].push(date);saveData();toast("Maintenance logged");render()});document.querySelectorAll("[data-delete-maintenance]").forEach(b=>b.onclick=()=>{const a=m.history[b.dataset.deleteMaintenance];m.history[b.dataset.deleteMaintenance]=a.filter(x=>x!==b.dataset.date);saveData();render()})}
+
+render();
   }
 });
 function render(){
   resetSwipePreview();
   document.body.classList.toggle("dark",data.theme==="dark");
-  const seasonalThemes=["spring","summer","autumn","winter"];
-  if(!seasonalThemes.includes(data.colorTheme)) data.colorTheme="spring";
+  const seasonalThemes=["plain","glitter","floral","spring","summer","autumn","winter"];
+  if(!seasonalThemes.includes(data.colorTheme)) data.colorTheme="floral";
   document.body.dataset.colorTheme=data.colorTheme;
   renderSeasonalAtmosphere(data.colorTheme);
   document.body.dataset.route=route; // Styling metadata only; navigation clicks are restricted to explicit controls.
@@ -408,7 +456,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1687",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1700",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

@@ -1,5 +1,11 @@
-LinaHub 16.90 seasonal themes
+LinaHub 17.0
 
-Upload the 6 files from the PATCH zip to the same matching locations in GitHub. Replace the existing files.
+Upload the contents of this ZIP over the existing LinaHub site, preserving the folder structure.
 
-Changes: removed the old colour-only theme choices; added Spring flowers, Summer sparkles, Autumn falling leaves and Winter snow across the app.
+Included in 17.0:
+- Redesigned Measures page: Weight, Waist and Tummy only
+- Plain, Glitter, Floral, Spring, Summer, Autumn and Winter themes
+- Aquarium feeds collapsed by default
+- Compact maintenance rows with separate histories
+- Household removed from Shopping
+- Reduced spacing, thinner dividers and mobile UI polish

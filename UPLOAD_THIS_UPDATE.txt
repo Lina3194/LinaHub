@@ -1,4 +1,4 @@
-LinaHub 17.1.5
+LinaHub 17.1.6
 
 - Aquarium maintenance date boxes are compact and stay beside Log on phone
 - Aquarium bubbles sit behind all cards and controls

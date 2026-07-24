@@ -92,3 +92,29 @@ body[data-route="tank"] .aquarium-history-grid {
     font-size: .64rem !important;
   }
 }
+
+/* LinaHub 17.1.6 — Today centred + separated Measures history */
+.bottom button[data-route="home"]{order:1}
+.bottom button[data-route="todo"]{order:2}
+.bottom button[data-route="today"]{order:3}
+.bottom button[data-route="shopping"]{order:4}
+.bottom button[data-route="settings"]{order:5}
+
+.measure-history-top{order:-1}
+.measure-category-tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.measure-category-tabs button{min-width:0;min-height:58px;padding:9px 7px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.04);color:var(--muted);display:grid;place-items:center;gap:3px;text-align:center}
+.measure-category-tabs button span{font-size:1.1rem;line-height:1}
+.measure-category-tabs button strong{font-size:.76rem;line-height:1.15;white-space:normal}
+.measure-category-tabs button.active{background:var(--purple-soft);color:var(--ink);border-color:var(--purple);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--purple) 35%,transparent)}
+.measure-history-single article{grid-template-columns:1.25fr .8fr 1fr}
+
+@media(max-width:600px){
+  .measure-category-tabs{gap:5px;margin-bottom:12px}
+  .measure-category-tabs button{min-height:50px;padding:7px 4px;border-radius:13px}
+  .measure-category-tabs button span{font-size:.95rem}
+  .measure-category-tabs button strong{font-size:.65rem}
+  .measure-history-single article{grid-template-columns:1.1fr .7fr 1fr;padding:9px 0;gap:5px}
+  .measure-history-single time{font-size:.72rem}
+  .measure-history-single span{font-size:.76rem}
+  .measure-history-single strong{font-size:.78rem}
+}

@@ -18,7 +18,7 @@ function JournalPage(){
   if(data.journalTab==="trends") return JournalTrendsPage();
   data.dayCheckins=Array.isArray(data.dayCheckins)?data.dayCheckins:[];
   const dateValue=today();
-  const entries=typeof dayEntries==="function"?dayEntries(dateValue):data.dayCheckins.filter(entry=>entry.date===dateValue).sort((a,b)=>String(a.createdAt||"").localeCompare(String(b.createdAt||"")));
+  const entries=typeof dayEntries==="function"?[...dayEntries(dateValue)].reverse():data.dayCheckins.filter(entry=>entry.date===dateValue).sort((a,b)=>String(b.createdAt||`${b.date}T${b.time||"00:00"}`).localeCompare(String(a.createdAt||`${a.date}T${a.time||"00:00"}`)));
   return shell(`${head("Journal","Small check-ins throughout your day")}${journalTabs("today")}
     <section class="card hourly-journal-hero hourly-journal-compact">
       <div><span class="section-kicker">✨ Hourly journal</span><h2>Check in</h2></div>

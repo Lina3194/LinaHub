@@ -727,3 +727,14 @@ body:not(.dark) .module-section-tabs button.active{background:linear-gradient(13
 .daily-time-pair>span{position:relative;display:block}
 .daily-time-pair input{padding-right:34px}
 .daily-time-pair small{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:800}
+
+/* LinaHub 16.81 — Measures sections and tappable chart points */
+.measure-history-list{display:grid;gap:8px}
+.measure-history-row{padding:12px 14px;border:1px solid var(--line);border-radius:15px;background:var(--card-soft)}
+.measure-history-row strong,.measure-history-row small{display:block}
+.measure-history-row small{margin-top:4px;color:var(--muted)}
+.health-chart-dot{cursor:pointer;outline:none;stroke:var(--card);stroke-width:.8;transform-box:fill-box;transform-origin:center}
+.health-chart-dot:hover,.health-chart-dot:focus,.health-chart-dot.selected{transform:scale(1.55);stroke:var(--ink);stroke-width:1.1}
+.health-chart-point-info{display:grid;gap:2px;min-height:48px;margin-top:9px;padding:10px 12px;border:1px solid var(--line);border-radius:13px;background:var(--card-soft);text-align:center;color:var(--muted);font-size:.78rem}
+.health-chart-point-info strong{color:var(--ink);font-size:.9rem}
+.health-chart-point-info span{display:block}

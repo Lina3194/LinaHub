@@ -142,3 +142,9 @@ body.reordering{
   .trend-day-picker input{padding:8px 8px;font-size:.82rem}
   .trend-day-picker button{width:36px;height:36px;border-radius:12px}
 }
+
+/* LinaHub 16.81 — narrower phone day selector */
+@media(max-width:640px){
+  .trend-day-picker label{width:min(158px,48vw)}
+  .trend-day-picker input{font-size:.78rem;padding:7px 6px}
+}

@@ -210,7 +210,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .tile-cover-preview{width:70px;height:70px}
 }
 
-/* LinaHub 16.73 — phone-safe Home editing */
+/* LinaHub 16.74 — phone-safe Home editing */
 .home-tile-wrap.is-editing .module{
   outline:1px dashed color-mix(in srgb,var(--purple) 72%,transparent);
   outline-offset:2px;
@@ -231,7 +231,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .tile-position-controls{grid-template-columns:1fr 1fr}
 }
 
-/* LinaHub 16.73 — centred phone tile editor and premium Treasure Room */
+/* LinaHub 16.74 — centred phone tile editor and premium Treasure Room */
 .home-tile-wrap .module::after,
 .customisable-tile.has-custom-accent::after{display:none!important;content:none!important}
 .home-tile-wrap .module{
@@ -295,4 +295,25 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .home-tile-edit-button{min-height:31px;padding:6px 3px;font-size:.61rem;border-radius:10px}
   .home-tile-wrap.size-wide .module{min-height:106px!important;grid-template-columns:54px 1fr!important;column-gap:9px!important;padding:11px!important}
   .home-tile-wrap.size-wide .home-tile-edit-button{min-height:30px;margin-top:7px}
+}
+
+
+/* LinaHub 16.74 — working phone edit buttons and shorter tiles */
+.home-layout.editing .home-tile-wrap,
+.home-layout.editing .home-tile-wrap .module{pointer-events:auto!important}
+.home-layout.editing .home-tile-edit-button{
+  position:relative!important;
+  z-index:20!important;
+  pointer-events:auto!important;
+  cursor:pointer!important;
+}
+@media(max-width:430px){
+  .home-tile-wrap .module{min-height:98px!important;padding:6px 4px!important}
+  .home-tile-wrap .module .emoji,.home-tile-wrap .module .module-image{width:32px!important;height:32px!important;flex-basis:32px!important;margin-bottom:5px!important}
+  .home-tile-wrap .module strong{font-size:.62rem!important}
+  .home-tile-wrap .tile-status{font-size:.52rem!important;padding-top:4px!important}
+  .home-tile-wrap.is-editing .module{min-height:110px!important}
+  .home-tile-edit-button{min-height:28px!important;margin-top:5px!important;padding:4px 2px!important;font-size:.58rem!important}
+  .home-tile-wrap.size-wide .module{min-height:92px!important}
+  .home-tile-wrap.size-wide.is-editing .module{min-height:102px!important}
 }

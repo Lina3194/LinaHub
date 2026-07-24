@@ -8,6 +8,8 @@ function ensureHomeLayout(){
   if(!Array.isArray(data.homeHidden)) data.homeHidden=[];
   data.homeTileAccents=data.homeTileAccents||{};
   data.homeTileNames=data.homeTileNames||{};
+  // 16.74: clear the accidental Budget highlight once; users can still choose a new accent afterwards.
+  if(!data.homeBudgetAccentReset1674){ delete data.homeTileAccents.budget; data.homeBudgetAccentReset1674=true; }
   if(data.homeTileNames.measurements==="Weight & Measurements"||data.homeTileNames.measurements==="Weight & Measurement"||data.homeTileNames.measurements==="Weight &\nMeasurements") data.homeTileNames.measurements="Measures";
 
   // Older versions used "flowers" for the hourly Journal tile.
@@ -17,7 +19,7 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
-  // 16.73: keep Period on Home and remove the redundant Health dashboard tile.
+  // 16.74: keep Period on Home and remove the redundant Health dashboard tile.
   data.homeLayout=data.homeLayout.filter(item=>!["hobbies","health"].includes(typeof item==="string"?item:item?.id));
   data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="health"&&id!=="period");
 
@@ -143,7 +145,7 @@ function homeTile(item,editing){
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1673" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1674" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const accent=data.homeTileAccents?.[item.id]||"";
   const style=accent?` style="--tile-accent:${esc(accent)}"`:"";

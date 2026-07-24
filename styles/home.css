@@ -470,3 +470,16 @@ body.home-tile-scroll-locked .home-tile-wrap{
   .home-daily-checkin.complete small{display:none}
   .home-daily-checkin.complete>b{grid-column:auto;padding:0;background:transparent;color:#57d68d;font-size:1.05rem}
 }
+
+/* LinaHub 16.86 — latest hourly check-in in Quick overview */
+.home-overview-heading{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:12px}
+.home-overview-heading h2{margin:0}
+.home-overview-time{color:var(--muted);font-size:.68rem;text-align:right}
+.home-overview-grid article b{line-height:1.25}
+@media(max-width:560px){
+  .home-overview-heading{align-items:start}
+  .home-overview-time{max-width:145px;font-size:.62rem}
+  .home-overview-grid article{padding:11px 9px;gap:8px}
+  .home-overview-grid article>span{font-size:1.35rem}
+  .home-overview-grid article b{font-size:.68rem}
+}

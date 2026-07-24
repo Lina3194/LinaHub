@@ -192,16 +192,28 @@ function tileEditor(id){
 function homeQuickOverview(){
   const dateKey=typeof today==="function"?today():new Date().toISOString().slice(0,10);
   const checkins=(data.dayCheckins||[]).filter(entry=>entry.date===dateKey);
-  const latest=checkins.slice().sort((a,b)=>String(b.createdAt||b.time||"").localeCompare(String(a.createdAt||a.time||"")))[0]||{};
+  const latest=checkins.slice().sort((a,b)=>String(b.createdAt||`${b.date||""}T${b.time||""}`).localeCompare(String(a.createdAt||`${a.date||""}T${a.time||""}`)))[0]||null;
   const daily=data.morningCheckins?.[dateKey]||{};
+  const levels={
+    mood:["Very low","Low","Okay","Good","Great"],
+    pain:["Severe","High","Moderate","Mild","None"],
+    energy:["Empty","Low","Okay","Good","Full"]
+  };
+  const hourlyValue=key=>{
+    const raw=latest?.[key];
+    if(raw===null||raw===undefined||raw==="") return "—";
+    const value=Number(raw);
+    return Number.isFinite(value)?`${levels[key]?.[value]||`${value+1}/5`} · ${value+1}/5`:"—";
+  };
   const sleepHours=Number(daily.sleep||0);
   const items=[
-    ["⚡","Energy",latest.energy?`${latest.energy}/5`:daily.energy?`${daily.energy}/5`:"—"],
-    ["🙂","Mood",latest.mood?`${latest.mood}/5`:daily.mood?`${daily.mood}/5`:"—"],
-    ["😣","Pain",latest.pain?`${latest.pain}/5`:daily.pain?`${daily.pain}/5`:"—"],
+    ["🙂","Mood",hourlyValue("mood")],
+    ["😣","Pain",hourlyValue("pain")],
+    ["⚡","Energy",hourlyValue("energy")],
     ["🌙","Sleep",sleepHours?`${sleepHours}h`:"—"]
   ];
-  return `<section class="home-overview"><h2>Quick overview</h2><div class="home-overview-grid">${items.map(([icon,label,value])=>`<article><span>${icon}</span><div><strong>${label}</strong><b>${value}</b></div></article>`).join("")}</div></section>`;
+  const latestTime=latest?.time?`<small class="home-overview-time">Latest hourly check-in · ${esc(latest.time)}</small>`:"";
+  return `<section class="home-overview"><div class="home-overview-heading"><h2>Quick overview</h2>${latestTime}</div><div class="home-overview-grid">${items.map(([icon,label,value])=>`<article><span>${icon}</span><div><strong>${label}</strong><b>${value}</b></div></article>`).join("")}</div></section>`;
 }
 
 function homeMedicationReminder(){

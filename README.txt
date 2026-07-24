@@ -9,4 +9,4 @@ Version 16.84: cache-busting fix and verified server-first Firebase upload/downl
 
 16.84: Removed the scale and measuring-tape graphics from Measures while keeping the Today / Trends (W) / Trends (M) layout and Firebase server sync fixes.
 
-16.85: Fixed Firebase sync for daily and hourly check-ins by syncing morningCheckins, dailyCheckinCompleted and dailyCheckinRemindAt with the existing journal data.
+16.86: Fixed Firebase sync for daily and hourly check-ins by syncing morningCheckins, dailyCheckinCompleted and dailyCheckinRemindAt with the existing journal data.

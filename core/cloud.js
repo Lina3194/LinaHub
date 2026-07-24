@@ -1,4 +1,4 @@
-/* LinaHub v16.85 Cloud Edition — complete daily and hourly check-in sync */
+/* LinaHub v16.86 Cloud Edition — complete daily and hourly check-in sync */
 const LINAHUB_FIREBASE_CONFIG={
   apiKey:"AIzaSyAnMmtT7RGTMpl8CZbpAX3rFWH9HjjZZqI",
   authDomain:"linahub.firebaseapp.com",

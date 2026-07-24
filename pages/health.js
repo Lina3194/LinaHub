@@ -97,6 +97,7 @@ function journeyEntry(entry,index){
 function dayEntries(dateValue){return (data.dayCheckins||[]).filter(e=>e.date===dateValue).sort((a,b)=>(a.createdAt||"").localeCompare(b.createdAt||""))}
 function HealthPage(){
  ensureHealthView();
+ if(["sleep","garden","log","weight","measurements"].includes(routeId)) data.healthView.tab=routeId;
  data.sleepEntries=Array.isArray(data.sleepEntries)?data.sleepEntries:[];data.dayCheckins=Array.isArray(data.dayCheckins)?data.dayCheckins:[];
  const weights=[...(data.weightEntries||[])].sort((a,b)=>healthSortValue(b).localeCompare(healthSortValue(a)));
  const measures=[...(data.measurements||[])].sort((a,b)=>healthSortValue(b).localeCompare(healthSortValue(a)));
@@ -111,7 +112,9 @@ function HealthPage(){
  const weightTab=`<section class="card compact-health-card"><h2>Add weight</h2><div class="compact-health-fields"><input class="field" id="weightDate" type="date" value="${today()}"><input class="field" id="weightValue" type="number" step="0.1" placeholder="Weight kg"></div><button class="primary" id="addWeight">Save weight</button></section><section class="card"><h2>Weight history</h2>${healthRangeButtons("weight",data.healthView.weightRange)}<div data-health-chart-panel="weight">${healthGraph(weights,[{label:"Weight",unit:"kg",get:healthWeightValue}],data.healthView.weightRange)}</div></section>`;
  const measureTab=`<section class="card compact-health-card"><h2>Add measurements</h2><input class="field" id="measureDate" type="date" value="${today()}"><div class="compact-health-fields"><input class="field" id="measureWaist" type="number" step="0.1" placeholder="Waist cm"><input class="field" id="measureTummy" type="number" step="0.1" placeholder="Tummy cm"></div><button class="primary" id="addMeasure">Save measurements</button></section><section class="card"><h2>Measurement history</h2>${healthRangeButtons("measurements",data.healthView.measureRange)}<div data-health-chart-panel="measurements">${healthGraph(measures,[{label:"Waist",unit:"cm",get:e=>e.waist},{label:"Tummy",unit:"cm",get:e=>e.tummy}],data.healthView.measureRange)}</div></section>`;
  const content=tab==='dashboard'?dashboard:tab==='sleep'?sleepTab:tab==='garden'?gardenTab:tab==='weight'?weightTab:tab==='measurements'?measureTab:logTab;
- return shell(`${head("Health","Your wellbeing in one gentle dashboard")}<nav class="health-tabs"><button class="${tab==='dashboard'?'active':''}" data-health-tab="dashboard">Overview</button>${tab!=='dashboard'?`<button class="active">${({sleep:'Sleep',garden:'Journal',weight:'Weight',measurements:'Measurements',log:'Add'})[tab]||'Health'}</button>`:''}</nav>${content}`,"health");
+ const trackerTitle=({dashboard:"Trackers",sleep:"Sleep",garden:"Journal",weight:"Weight",measurements:"Measures",log:"Measures"})[tab]||"Trackers";
+ const trackerSubtitle=tab==="sleep"?"Sleep duration, quality and history":tab==="garden"?"Hourly wellbeing check-ins":"Weight and body measurements";
+ return shell(`${head(trackerTitle,trackerSubtitle)}${content}`,"health");
 }
 function selectedHealthFeeling(name){const el=document.querySelector(`[data-health-feeling="${name}"].active`);return el?Number(el.dataset.value):null}
 function markHealthTodayPrompt(date){
@@ -228,17 +231,23 @@ function linaDailyDueMedications(dateValue){
     return m.scheduleType==="daily"||(m.scheduleType==="weekdays"&&(m.weekdays||[]).includes(shortDay));
   });
 }
+function linaSplitHours(value,totalMinutes){
+  const minutes=Number.isFinite(Number(totalMinutes))?Math.max(0,Math.round(Number(totalMinutes))):Math.max(0,Math.round((Number(value)||0)*60));
+  return {hours:Math.floor(minutes/60),minutes:minutes%60};
+}
 function linaDailyCheckinMarkup(dateValue){
   const saved=(data.morningCheckins||{})[dateValue]||{};
   const feelings=(name,title,items,value)=>`<div class="daily-popup-group"><h3>${title}</h3><div class="health-circle-scale">${items.map((item,index)=>`<button type="button" data-daily-feeling="${name}" data-value="${index}" class="${Number(value)===index?'active':''}"><span>${item[0]}</span><small>${item[1]}</small></button>`).join("")}</div></div>`;
   const meds=linaDailyDueMedications(dateValue);
   const selected=new Set(saved.tablets||[]);
+  const sleepParts=linaSplitHours(saved.sleep,saved.sleepTotalMinutes);
+  const deepParts=linaSplitHours(saved.deepSleep,saved.deepSleepTotalMinutes);
   return `<div class="hourly-checkin-backdrop daily-checkin-backdrop" role="dialog" aria-modal="true" aria-label="Daily check-in">
     <section class="hourly-checkin-modal daily-checkin-modal">
       <div class="hourly-popup-head"><div><span class="section-kicker">☀️ DAILY CHECK-IN</span><h2>How did you wake up?</h2><p>This day runs from 2:00 AM to 1:59 AM.</p></div></div>
       <div class="daily-fields-grid">
-        <label>Sleep <span>hours</span><input class="field" id="dailySleep" type="number" min="0" max="24" step="0.25" value="${esc(saved.sleep||'')}" placeholder="e.g. 7.5"></label>
-        <label>Deep sleep <span>hours</span><input class="field" id="dailyDeepSleep" type="number" min="0" max="24" step="0.25" value="${esc(saved.deepSleep||'')}" placeholder="e.g. 1.5"></label>
+        <label class="daily-time-field">Sleep<div class="daily-time-pair"><span><input class="field" id="dailySleepHours" type="number" inputmode="numeric" min="0" max="24" step="1" value="${sleepParts.hours||''}" placeholder="0"><small>h</small></span><span><input class="field" id="dailySleepMinutes" type="number" inputmode="numeric" min="0" max="59" step="1" value="${sleepParts.minutes||''}" placeholder="0"><small>m</small></span></div></label>
+        <label class="daily-time-field">Deep sleep<div class="daily-time-pair"><span><input class="field" id="dailyDeepSleepHours" type="number" inputmode="numeric" min="0" max="24" step="1" value="${deepParts.hours||''}" placeholder="0"><small>h</small></span><span><input class="field" id="dailyDeepSleepMinutes" type="number" inputmode="numeric" min="0" max="59" step="1" value="${deepParts.minutes||''}" placeholder="0"><small>m</small></span></div></label>
         <label>Weight <span>kg</span><input class="field" id="dailyWeight" type="number" step="0.1" value="${esc(saved.weight||'')}" placeholder="Optional"></label>
         <label>Waist <span>cm</span><input class="field" id="dailyWaist" type="number" step="0.1" value="${esc(saved.waist||'')}" placeholder="Optional"></label>
         <label>Tummy <span>cm</span><input class="field" id="dailyTummy" type="number" step="0.1" value="${esc(saved.tummy||'')}" placeholder="Optional"></label>
@@ -255,10 +264,14 @@ function linaDailyCheckinMarkup(dateValue){
 function linaSaveDailyCheckin(backdrop,dateValue,complete){
   const val=id=>backdrop.querySelector(id)?.value||"";
   const selected=name=>{const b=backdrop.querySelector(`[data-daily-feeling="${name}"].active`);return b?Number(b.dataset.value):null};
-  const entry={date:dateValue,updatedAt:new Date().toISOString(),sleep:val("#dailySleep"),deepSleep:val("#dailyDeepSleep"),sleepQuality:selected("sleep"),weight:val("#dailyWeight"),waist:val("#dailyWaist"),tummy:val("#dailyTummy"),energy:selected("energy"),mood:selected("mood"),pain:selected("pain"),tablets:[...backdrop.querySelectorAll("[data-daily-med]:checked")].map(x=>String(x.dataset.dailyMed))};
+  const bounded=(id,max)=>Math.max(0,Math.min(max,Number(val(id))||0));
+  const sleepHours=bounded("#dailySleepHours",24),sleepMinutes=bounded("#dailySleepMinutes",59);
+  const deepSleepHours=bounded("#dailyDeepSleepHours",24),deepSleepMinutes=bounded("#dailyDeepSleepMinutes",59);
+  const sleepTotalMinutes=sleepHours*60+sleepMinutes,deepSleepTotalMinutes=deepSleepHours*60+deepSleepMinutes;
+  const entry={date:dateValue,updatedAt:new Date().toISOString(),sleepHours,sleepMinutes,sleepTotalMinutes,sleep:sleepTotalMinutes/60,deepSleepHours,deepSleepMinutes,deepSleepTotalMinutes,deepSleep:deepSleepTotalMinutes/60,sleepQuality:selected("sleep"),weight:val("#dailyWeight"),waist:val("#dailyWaist"),tummy:val("#dailyTummy"),energy:selected("energy"),mood:selected("mood"),pain:selected("pain"),tablets:[...backdrop.querySelectorAll("[data-daily-med]:checked")].map(x=>String(x.dataset.dailyMed))};
   data.morningCheckins=data.morningCheckins||{};data.morningCheckins[dateValue]=entry;
   if(entry.weight){data.weightEntries=Array.isArray(data.weightEntries)?data.weightEntries:[];data.weightEntries=data.weightEntries.filter(x=>!(x.date===dateValue&&x.source==="daily-checkin"));data.weightEntries.push({id:`weight-${Date.now()}`,date:dateValue,weight:Number(entry.weight),value:Number(entry.weight),unit:"kg",source:"daily-checkin",createdAt:entry.updatedAt});}
-  if(entry.sleep||entry.deepSleep){data.sleepEntries=Array.isArray(data.sleepEntries)?data.sleepEntries:[];data.sleepEntries=data.sleepEntries.filter(x=>!(x.date===dateValue&&x.source==="daily-checkin"));data.sleepEntries.push({id:`sleep-${Date.now()}`,date:dateValue,totalMinutes:Math.round(Number(entry.sleep||0)*60),deepMinutes:Math.round(Number(entry.deepSleep||0)*60),source:"daily-checkin",createdAt:entry.updatedAt});}
+  if(entry.sleepTotalMinutes||entry.deepSleepTotalMinutes){data.sleepEntries=Array.isArray(data.sleepEntries)?data.sleepEntries:[];data.sleepEntries=data.sleepEntries.filter(x=>!(x.date===dateValue&&x.source==="daily-checkin"));data.sleepEntries.push({id:`sleep-${Date.now()}`,date:dateValue,totalMinutes:entry.sleepTotalMinutes,deepMinutes:entry.deepSleepTotalMinutes,quality:entry.sleepQuality,source:"daily-checkin",createdAt:entry.updatedAt});}
   if(entry.waist||entry.tummy){data.measurements=Array.isArray(data.measurements)?data.measurements:[];data.measurements=data.measurements.filter(x=>!(x.date===dateValue&&x.source==="daily-checkin"));data.measurements.push({id:`measure-${Date.now()}`,date:dateValue,waist:entry.waist,tummy:entry.tummy,source:"daily-checkin",createdAt:entry.updatedAt});}
   data.checkins=data.checkins||{};data.checkins[dateValue]={...(data.checkins[dateValue]||{}),sleep:entry.sleepQuality,energy:entry.energy,mood:entry.mood,pain:entry.pain,savedAt:entry.updatedAt};
   data.medicationHistory=Array.isArray(data.medicationHistory)?data.medicationHistory:[];
@@ -274,8 +287,8 @@ function openDailyCheckin(force=false){
   document.body.insertAdjacentHTML("beforeend",linaDailyCheckinMarkup(dateValue));
   const backdrop=document.querySelector(".daily-checkin-backdrop");
   backdrop?.addEventListener("click",event=>{const feeling=event.target.closest("[data-daily-feeling]");if(feeling){backdrop.querySelectorAll(`[data-daily-feeling="${feeling.dataset.dailyFeeling}"]`).forEach(x=>x.classList.remove("active"));feeling.classList.add("active");}});
-  backdrop?.querySelector("#completeDailyCheckin")?.addEventListener("click",()=>{linaSaveDailyCheckin(backdrop,dateValue,true);backdrop.remove();toast("Daily check-in complete ☀️");if(route==="health"||route==="today"||route==="home")render();});
-  backdrop?.querySelector("#laterDailyCheckin")?.addEventListener("click",()=>{linaSaveDailyCheckin(backdrop,dateValue,false);backdrop.remove();toast("Saved — I’ll remind you later 💜");window.clearTimeout(window.__linaDailyReminderTimer);window.__linaDailyReminderTimer=window.setTimeout(()=>openDailyCheckin(),60*60*1000);if(route==="health"||route==="today"||route==="home")render();});
+  backdrop?.querySelector("#completeDailyCheckin")?.addEventListener("click",()=>{linaSaveDailyCheckin(backdrop,dateValue,true);backdrop.remove();toast("Daily check-in complete ☀️");if(route==="today"||route==="home"||route==="journal")render();});
+  backdrop?.querySelector("#laterDailyCheckin")?.addEventListener("click",()=>{linaSaveDailyCheckin(backdrop,dateValue,false);backdrop.remove();toast("Saved — I’ll remind you later 💜");window.clearTimeout(window.__linaDailyReminderTimer);window.__linaDailyReminderTimer=window.setTimeout(()=>openDailyCheckin(),60*60*1000);if(route==="today"||route==="home"||route==="journal")render();});
 }
 function linaMaybeOpenDailyCheckin(){
   const key=linaDailyDayKey();

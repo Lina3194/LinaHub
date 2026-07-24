@@ -210,7 +210,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .tile-cover-preview{width:70px;height:70px}
 }
 
-/* LinaHub 16.78 — phone-safe Home editing */
+/* LinaHub 16.79 — phone-safe Home editing */
 .home-tile-wrap.is-editing .module{
   outline:1px dashed color-mix(in srgb,var(--purple) 72%,transparent);
   outline-offset:2px;
@@ -231,7 +231,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .tile-position-controls{grid-template-columns:1fr 1fr}
 }
 
-/* LinaHub 16.78 — centred phone tile editor and premium Treasure Room */
+/* LinaHub 16.79 — centred phone tile editor and premium Treasure Room */
 .home-tile-wrap .module::after,
 .customisable-tile.has-custom-accent::after{display:none!important;content:none!important}
 .home-tile-wrap .module{
@@ -298,7 +298,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
 }
 
 
-/* LinaHub 16.78 — working phone edit buttons and shorter tiles */
+/* LinaHub 16.79 — working phone edit buttons and shorter tiles */
 .home-layout.editing .home-tile-wrap,
 .home-layout.editing .home-tile-wrap .module{pointer-events:auto!important}
 .home-layout.editing .home-tile-edit-button{
@@ -318,7 +318,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .home-tile-wrap.size-wide.is-editing .module{min-height:102px!important}
 }
 
-/* LinaHub 16.78 — keep the Home tile editor above the bottom navigation */
+/* LinaHub 16.79 — keep the Home tile editor above the bottom navigation */
 .tile-editor-backdrop{
   z-index:60000!important;
 }
@@ -348,7 +348,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   }
 }
 
-/* LinaHub 16.78 — touch drag-and-drop Home tiles in Edit mode */
+/* LinaHub 16.79 — touch drag-and-drop Home tiles in Edit mode */
 .home-layout.editing .home-tile-wrap{
   -webkit-user-select:none!important;
   user-select:none!important;
@@ -388,7 +388,7 @@ body.home-tile-dragging{
 body.home-tile-dragging .home-layout.editing .home-tile-wrap{cursor:grabbing}
 
 
-/* LinaHub 16.78 — remove persistent Home tile highlights */
+/* LinaHub 16.79 — remove persistent Home tile highlights */
 .home-tile-wrap .module,
 .home-tile-wrap[style] .module,
 .customisable-tile.has-custom-accent{
@@ -412,7 +412,7 @@ body.home-tile-dragging .home-layout.editing .home-tile-wrap{cursor:grabbing}
 }
 
 
-/* LinaHub 16.78 — viewport editor and strict no-scroll tile dragging */
+/* LinaHub 16.79 — viewport editor and strict no-scroll tile dragging */
 body.tile-editor-open{
   overflow:hidden!important;
   overscroll-behavior:none!important;
@@ -460,4 +460,13 @@ body.home-tile-scroll-locked{
 body.home-tile-scroll-locked .home-layout,
 body.home-tile-scroll-locked .home-tile-wrap{
   touch-action:none!important;
+}
+
+/* LinaHub 16.79 — compact completed check-in on phones */
+@media(max-width:430px){
+  .home-daily-checkin.complete{grid-template-columns:32px 1fr auto;margin:4px 0 14px;padding:8px 10px;gap:8px;border-radius:15px;box-shadow:none}
+  .home-daily-checkin.complete .home-checkin-icon{width:30px;height:30px;border-radius:10px;font-size:1rem;background:color-mix(in srgb,#57d68d 22%,var(--soft));color:#57d68d}
+  .home-daily-checkin.complete strong{font-size:.78rem}
+  .home-daily-checkin.complete small{display:none}
+  .home-daily-checkin.complete>b{grid-column:auto;padding:0;background:transparent;color:#57d68d;font-size:1.05rem}
 }

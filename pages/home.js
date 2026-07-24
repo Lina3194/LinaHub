@@ -7,10 +7,10 @@ function ensureHomeLayout(){
   if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
   if(!Array.isArray(data.homeHidden)) data.homeHidden=[];
   data.homeTileNames=data.homeTileNames||{};
-  // 16.78: remove the Home highlight/accent feature and clear any saved tile highlights.
-  if(!data.homeTileHighlightsRemoved1678){
+  // 16.79: remove the Home highlight/accent feature and clear any saved tile highlights.
+  if(!data.homeTileHighlightsRemoved1679){
     data.homeTileAccents={};
-    data.homeTileHighlightsRemoved1678=true;
+    data.homeTileHighlightsRemoved1679=true;
   }
   if(data.homeTileNames.measurements==="Weight & Measurements"||data.homeTileNames.measurements==="Weight & Measurement"||data.homeTileNames.measurements==="Weight &\nMeasurements") data.homeTileNames.measurements="Measures";
 
@@ -21,7 +21,7 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
-  // 16.78: keep Period on Home and remove the redundant Health dashboard tile.
+  // 16.79: keep Period on Home and remove the redundant Health dashboard tile.
   data.homeLayout=data.homeLayout.filter(item=>!["hobbies","health"].includes(typeof item==="string"?item:item?.id));
   data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="health"&&id!=="period");
 
@@ -147,7 +147,7 @@ function homeTile(item,editing){
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1678" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1679" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const route=item.id==="measurements"?"health":item.id;
   const extra=item.id==="measurements"?' data-route-id="log"':"";
@@ -235,7 +235,7 @@ function HomePage(){
       ${editing?`<p class="home-edit-help">Use the Edit button on any tile to rename it, change its name, icon or size. Move it earlier or later from inside the editor.</p>`:""}
     </section>
     <button type="button" class="home-daily-checkin ${complete?"complete":""}" data-open-daily-checkin>
-      <span class="home-checkin-icon">☀️</span><span><strong>Daily check-in</strong><small>${complete?"Completed for today":"Track sleep, mood, energy and more"}</small></span><b>${complete?"Completed":"Complete now"}</b>
+      <span class="home-checkin-icon">${complete?"✓":"☀️"}</span><span><strong>${complete?"Daily check-in complete":"Daily check-in"}</strong><small>${complete?"Saved for today":"Track sleep, mood, energy and more"}</small></span><b>${complete?"✓":"Complete now"}</b>
     </button>
     <section class="home-journey"><h2>Your journey</h2><div class="grid home-layout ${editing?"editing":""}">${data.homeLayout.map(item=>homeTile(item,editing)).join("")}</div></section>
     ${editing?hiddenHomeTiles():""}

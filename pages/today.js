@@ -10,14 +10,6 @@ function getTodayItems(){
   const now=new Date();
   const hour=now.getHours();
   const weekday=now.toLocaleDateString("en-GB",{weekday:"long"});
-  const healthLog=(data.healthPromptLog||{})[today()]||{};
-
-  if(hour < 14 && !healthLog.morning){
-    items.push({emoji:"⚖️",title:"Morning weight & measurements",detail:"Log your morning weight and any measurements you want to track.",route:"health",kind:"Health",action:"health-morning"});
-  }
-  if(hour >= 17 && !healthLog.evening){
-    items.push({emoji:"📏",title:"Evening weight & measurements",detail:"Add your evening check-in before the day ends.",route:"health",kind:"Health",action:"health-evening"});
-  }
 
   const todayValue=today();
   const shortDay=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"][now.getDay()];

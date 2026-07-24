@@ -60,17 +60,19 @@ function AquariumTankPage(){
       <div><span class="section-kicker">Current water temperature</span><h1>${tank.temperature?`${esc(tank.temperature)}°C`:"Not logged"}</h1><p>${tank.temperatureUpdated?`Updated ${aquariumDateTimeLabel(tank.temperatureUpdated)}`:"Add the current temperature below."}</p></div>
     </section>
 
-    <section class="card">
-      <div class="section-title"><div><span class="section-kicker">🐟 Residents</span><h2>Fish & other life</h2></div></div>
-      <div class="livestock-list">
-        ${tank.livestock.length?tank.livestock.map(item=>`<div class="livestock-row"><span class="life-icon">${item.type==="Fish"?"🐟":item.type==="Shrimp"?"🦐":item.type==="Snail"?"🐌":"🫧"}</span><div><strong>${esc(item.name)}</strong><small>${esc(item.type)}</small></div><b>${item.count===""?"—":esc(item.count)}</b><button class="icon-danger" data-life-delete="${esc(item.id)}" aria-label="Delete">×</button></div>`).join(""):`<p>No residents added yet.</p>`}
+    <details class="card aquarium-residents-card">
+      <summary class="aquarium-residents-summary"><span><span class="section-kicker">🐟 Residents</span><strong>Fish & other life</strong></span><b>${tank.livestock.reduce((n,x)=>n+(Number(x.count)||0),0)} total <i>⌄</i></b></summary>
+      <div class="aquarium-residents-body">
+        <div class="livestock-list">
+          ${tank.livestock.length?tank.livestock.map(item=>`<div class="livestock-row"><span class="life-icon">${item.type==="Fish"?"🐟":item.type==="Shrimp"?"🦐":item.type==="Snail"?"🐌":"🫧"}</span><div><strong>${esc(item.name)}</strong><small>${esc(item.type)}</small></div><b>${item.count===""?"—":esc(item.count)}</b><button class="icon-danger" data-life-delete="${esc(item.id)}" aria-label="Delete">×</button></div>`).join(""):`<p>No residents added yet.</p>`}
+        </div>
+        <div class="form-grid add-life-form">
+          <div class="two-col"><select class="field" id="lifeType"><option>Fish</option><option>Shrimp</option><option>Snail</option><option>Other</option></select><input class="field" id="lifeCount" type="number" min="0" placeholder="Number"></div>
+          <input class="field" id="lifeName" placeholder="e.g. Female guppies">
+          <button class="primary" id="addLife">Add resident</button>
+        </div>
       </div>
-      <div class="form-grid add-life-form">
-        <div class="two-col"><select class="field" id="lifeType"><option>Fish</option><option>Shrimp</option><option>Snail</option><option>Other</option></select><input class="field" id="lifeCount" type="number" min="0" placeholder="Number"></div>
-        <input class="field" id="lifeName" placeholder="e.g. Female guppies">
-        <button class="primary" id="addLife">Add resident</button>
-      </div>
-    </section>
+    </details>
 
     <section class="card">
       <div class="section-title"><div><span class="section-kicker">🌡️ Water</span><h2>Temperature</h2></div></div>

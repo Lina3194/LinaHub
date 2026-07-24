@@ -19,7 +19,7 @@ function moduleBanner(active){
   const image=data.moduleBanners?.[active];
   if(!image||active==="home"||active==="settings") return "";
   const names={
-    journal:"Journal",today:"Today",todo:"To-do",shopping:"Shopping",health:"Health",hobbies:"Hobbies",books:"Books",gaming:"Gaming",
+    journal:"Journal",today:"Today",todo:"To-do",shopping:"Shopping",health:"Measures",hobbies:"Hobbies",books:"Books",gaming:"Gaming",
     plants:"Plants",medication:"Medication",pokemon:"Pokémon GO",pets:"Aquariums",house:"House",period:"Period Tracker",budget:"Budget & Bills",treasures:"Treasure Room"
   };
   return `<section class="module-banner">
@@ -39,7 +39,7 @@ function moduleRouteForHistoryKey(key){
   return ({weight:"health",sleep:"health",measurements:"health",mood:"health",energy:"health",pain:"health",health:"health",aquariums:"pets"})[key]||key;
 }
 function moduleSectionTabs(active,selected="today",historyKey=""){
-  const supported=new Set(["journal","today","todo","shopping","plants","plant","health","hobbies","books","gaming","medication","pokemon","pets","tank","house","period","budget","treasures"]);
+  const supported=new Set(["journal","today","todo","shopping","plants","plant","hobbies","books","gaming","medication","pokemon","pets","tank","house","period","budget","treasures"]);
   if(!supported.has(active)) return "";
   const key=historyKey||moduleHistoryKey(active);
   const landing=active==="plant"?"plants":active==="tank"?"pets":active;

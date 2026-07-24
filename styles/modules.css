@@ -711,3 +711,19 @@ body:not(.dark) .module-section-tabs button.active{background:linear-gradient(13
 /* 16.64: the full bottom-navigation icon and label are tappable */
 .bottom.five-nav button{cursor:pointer;touch-action:manipulation}
 .bottom.five-nav button > *{pointer-events:none}
+
+/* LinaHub 16.79 — collapsed aquarium residents and clock-style sleep inputs */
+.aquarium-residents-card{padding:0;overflow:hidden}
+.aquarium-residents-summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;cursor:pointer}
+.aquarium-residents-summary::-webkit-details-marker{display:none}
+.aquarium-residents-summary span,.aquarium-residents-summary strong{display:block}
+.aquarium-residents-summary strong{margin-top:3px;font-size:1.05rem}
+.aquarium-residents-summary>b{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:.82rem}
+.aquarium-residents-summary i{font-style:normal;transition:transform .2s ease}
+.aquarium-residents-card[open] .aquarium-residents-summary i{transform:rotate(180deg)}
+.aquarium-residents-body{padding:0 20px 20px;border-top:1px solid var(--line)}
+.daily-time-field{display:block}
+.daily-time-pair{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:7px}
+.daily-time-pair>span{position:relative;display:block}
+.daily-time-pair input{padding-right:34px}
+.daily-time-pair small{position:absolute;right:13px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:800}

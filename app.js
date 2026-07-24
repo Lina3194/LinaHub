@@ -21,26 +21,37 @@ function renderSeasonalAtmosphere(theme){
 }
 /* LinaHub 17.0 — Measures, aquarium maintenance and theme polish */
 function lina17DateList(values){return (Array.isArray(values)?values:[]).slice().filter(Boolean).sort().reverse()}
+function linaMeasureChart(category){
+  const clean=(category.entries||[]).map(item=>({date:String(item.date||""),value:Number(item.value)})).filter(item=>item.date&&Number.isFinite(item.value)).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!clean.length)return `<section class="card measure-chart-card"><div class="empty"><p>No ${category.short.toLowerCase()} entries yet.</p></div></section>`;
+  const width=720,height=300,padL=48,padR=24,padT=28,padB=46;
+  const values=clean.map(x=>x.value),minRaw=Math.min(...values),maxRaw=Math.max(...values);
+  const spread=Math.max(maxRaw-minRaw,category.unit==="kg"?.5:2);
+  const min=minRaw-spread*.18,max=maxRaw+spread*.18;
+  const x=i=>clean.length===1?(padL+(width-padL-padR)/2):padL+i*((width-padL-padR)/(clean.length-1));
+  const y=v=>padT+(max-v)*(height-padT-padB)/(max-min||1);
+  const points=clean.map((item,i)=>`${x(i).toFixed(1)},${y(item.value).toFixed(1)}`).join(" ");
+  const grid=Array.from({length:4},(_,i)=>{const yy=padT+i*(height-padT-padB)/3;const val=max-i*(max-min)/3;return `<line x1="${padL}" y1="${yy}" x2="${width-padR}" y2="${yy}" class="measure-chart-grid"/><text x="${padL-8}" y="${yy+4}" text-anchor="end" class="measure-chart-axis">${val.toFixed(category.unit==="kg"?1:0)}</text>`}).join("");
+  const dots=clean.map((item,i)=>`<circle class="measure-chart-dot" cx="${x(i)}" cy="${y(item.value)}" r="8" tabindex="0" role="button" aria-label="${formatDate(item.date)} ${item.value} ${category.unit}" data-chart-date="${esc(item.date)}" data-chart-value="${esc(item.value)}" data-chart-unit="${category.unit}"></circle>`).join("");
+  const first=clean[0],last=clean[clean.length-1],change=last.value-first.value;
+  return `<section class="card measure-chart-card">
+    <div class="measure-chart-heading"><div><span class="section-kicker">Progress chart</span><h2>${category.label}</h2></div><div class="measure-chart-current"><small>Latest</small><strong>${last.value} ${category.unit}</strong></div></div>
+    <div class="measure-chart-wrap"><svg class="measure-progress-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${category.label} progress over time">${grid}<polyline class="measure-chart-line" points="${points}"/>${dots}</svg></div>
+    <div class="measure-chart-tooltip" id="measureChartTooltip"><span>Tap a dot to see the date and value</span></div>
+    <div class="measure-chart-footer"><span>${formatDate(first.date)}</span><strong>${change===0?"No change":`${change>0?"+":""}${change.toFixed(category.unit==="kg"?2:1)} ${category.unit}`}</strong><span>${formatDate(last.date)}</span></div>
+  </section>`;
+}
 function HealthPage(){
   const weights=(data.weightEntries||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   const measures=(data.measurements||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   const latestWeight=weights[0],latestMeasure=measures[0];
-  const selected=["weight","waist","tummy"].includes(data.healthMeasureTab)?data.healthMeasureTab:"weight";
+  const selected=["overview","weight","waist","tummy"].includes(data.healthMeasureTab)?data.healthMeasureTab:"overview";
   const categories={
-    weight:{label:"Weight",short:"Weight",icon:"⚖️",unit:"kg",entries:weights.map(x=>({date:x.date,value:x.value??x.weight??"—"}))},
+    weight:{label:"Weight",short:"Weight",icon:"⚖️",unit:"kg",entries:weights.map(x=>({date:x.date,value:x.value??x.weight}))},
     waist:{label:"Measurement (W)",short:"Waist",icon:"📏",unit:"cm",entries:measures.filter(x=>x.waist!==""&&x.waist!=null).map(x=>({date:x.date,value:x.waist}))},
     tummy:{label:"Measurement (T)",short:"Tummy",icon:"〰️",unit:"cm",entries:measures.filter(x=>x.tummy!==""&&x.tummy!=null).map(x=>({date:x.date,value:x.tummy}))}
   };
-  const current=categories[selected];
-  return shell(`${head("Measures","A simple record of weight, waist and tummy")}
-    <section class="card measure-history-card measure-history-top">
-      <div class="measure-category-tabs" role="tablist" aria-label="Measurement history categories">
-        ${Object.entries(categories).map(([key,item])=>`<button type="button" class="${selected===key?"active":""}" data-measure-tab="${key}" role="tab" aria-selected="${selected===key}">${item.label}</button>`).join("")}
-      </div>
-      <div class="section-title-row"><div><span class="section-kicker">History</span><h2>${current.label}</h2></div><span class="count-pill">${current.entries.length}</span></div>
-      <div class="measure-history-list measure-history-single">${current.entries.length?current.entries.map(item=>`<article><time>${formatDate(item.date)}</time><span>${current.short}</span><strong>${esc(item.value)} ${current.unit}</strong></article>`).join(""):`<div class="empty compact"><p>No ${current.short.toLowerCase()} entries yet.</p></div>`}</div>
-    </section>
-    <section class="measure-hero card">
+  const overview=`<section class="measure-hero card">
       <div><span class="section-kicker">Latest measurements</span><h2>Your progress, without the clutter</h2><p>Only the three measurements that matter to you.</p></div>
       <div class="measure-summary-grid">
         <article><span>⚖️</span><small>Weight</small><strong>${latestWeight?.value||latestWeight?.weight||"—"}<em>${latestWeight?" kg":""}</em></strong></article>
@@ -55,10 +66,22 @@ function HealthPage(){
         <label><span>📏 Waist</span><div class="measure-input-wrap"><input class="field" id="measureWaist" inputmode="decimal" type="number" step="0.1" placeholder="0.0"><b>cm</b></div></label>
         <label><span>〰️ Tummy</span><div class="measure-input-wrap"><input class="field" id="measureTummy" inputmode="decimal" type="number" step="0.1" placeholder="0.0"><b>cm</b></div></label>
       </div><button class="primary measure-save" id="saveMeasures">Save measurements</button>
-    </section>`,"health");
+    </section>`;
+  return shell(`${head("Measures","A simple record of weight, waist and tummy")}
+    <nav class="measure-main-tabs" role="tablist" aria-label="Measures sections">
+      <button type="button" class="${selected==="overview"?"active":""}" data-measure-tab="overview" role="tab" aria-selected="${selected==="overview"}">Overview</button>
+      <button type="button" class="${selected==="weight"?"active":""}" data-measure-tab="weight" role="tab" aria-selected="${selected==="weight"}">Weight</button>
+      <button type="button" class="${selected==="waist"?"active":""}" data-measure-tab="waist" role="tab" aria-selected="${selected==="waist"}">Measurement (W)</button>
+      <button type="button" class="${selected==="tummy"?"active":""}" data-measure-tab="tummy" role="tab" aria-selected="${selected==="tummy"}">Measurement (T)</button>
+    </nav>
+    ${selected==="overview"?overview:linaMeasureChart(categories[selected])}`,'health');
 }
 function bindHealth(){
   document.querySelectorAll("[data-measure-tab]").forEach(button=>button.onclick=()=>{data.healthMeasureTab=button.dataset.measureTab;saveData();render();});
+  document.querySelectorAll(".measure-chart-dot").forEach(dot=>{
+    const show=()=>{const box=document.querySelector("#measureChartTooltip");if(!box)return;box.innerHTML=`<strong>${formatDate(dot.dataset.chartDate)}</strong><span>${dot.dataset.chartValue} ${dot.dataset.chartUnit}</span>`;document.querySelectorAll(".measure-chart-dot.selected").forEach(x=>x.classList.remove("selected"));dot.classList.add("selected")};
+    dot.onclick=show;dot.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();show()}};
+  });
   const save=document.querySelector("#saveMeasures"); if(!save)return;
   save.onclick=()=>{const date=document.querySelector("#measureDate").value||today(),weight=document.querySelector("#weightValue").value,waist=document.querySelector("#measureWaist").value,tummy=document.querySelector("#measureTummy").value;if(!weight&&!waist&&!tummy){toast("Add at least one measurement");return}
     if(weight){data.weightEntries=data.weightEntries||[];data.weightEntries.push({id:`weight-${Date.now()}`,date,value:Number(weight)})}

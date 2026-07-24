@@ -1,5 +1,4 @@
-LinaHub 17.1.8
-
-- Fixed the missing Measures tab stylesheet reference.
-- The connected Weight / Measurement (W) / Measurement (T) tab bar now loads and works.
-- Cache bumped to 17.1.8.
+LinaHub 17.1.9
+- Overview now contains only the latest measurement cards and Add today’s measures.
+- Weight, Measurement (W), and Measurement (T) now open interactive progress charts.
+- Tap any chart dot to see its date and value.

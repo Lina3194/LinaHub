@@ -161,8 +161,8 @@ function lina17HeaderIllustration(routeName){
     pets:{emoji:"🐠",bits:["🫧","🌿","✨"]},
     tank:{emoji:"🐠",bits:["🫧","🌿","✨"]},
     todo:{emoji:"📋",bits:["🌸","✏️","✨"]},
-    journal:{emoji:"☕",bits:["📖","💜","✨"]},
-    today:{emoji:"☕",bits:["📖","💜","✨"]},
+    journal:{emoji:"📔",bits:["✨","🌙","🌸"]},
+    today:{emoji:"📔",bits:["✨","🌙","🌸"]},
     budget:{emoji:"👛",bits:["🪙","🌸","✨"]},
     health:{emoji:"📏",bits:["💗","✨","〰️"]},
     house:{emoji:"🏡",bits:["🌸","🪴","✨"]}
@@ -583,7 +583,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1714",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1715",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

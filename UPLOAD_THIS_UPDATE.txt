@@ -1,9 +1,5 @@
-LinaHub 17.1.4
+LinaHub 17.1.5
 
-Upload the CONTENTS of this folder to replace the current LinaHub site.
-
-Changes:
-- Main Medication date field shortened and contained on phones
-- Aquarium side bubbles restored on iPhone/Safari
-- Pokémon Stats, Import and Vivillon tabs removed
-- Pokémon friendship, Vivillon and interaction filters moved into one compact Filter friends dropdown
+- Aquarium maintenance date boxes are compact and stay beside Log on phone
+- Aquarium bubbles sit behind all cards and controls
+- Today and Journal headers now use a cute magical journal illustration

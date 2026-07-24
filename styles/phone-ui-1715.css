@@ -1,0 +1,94 @@
+/* LinaHub 17.1.5 — compact aquarium date boxes, background bubbles, magical journal */
+
+/* Bubbles are decoration only: always behind aquarium cards and controls. */
+body[data-route="pets"] .route-atmosphere.aquarium-side-bubbles,
+body[data-route="tank"] .route-atmosphere.aquarium-side-bubbles {
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+body[data-route="pets"] main,
+body[data-route="tank"] main,
+body[data-route="pets"] .shell,
+body[data-route="tank"] .shell,
+body[data-route="pets"] .page-head,
+body[data-route="tank"] .page-head,
+body[data-route="pets"] .card,
+body[data-route="tank"] .card,
+body[data-route="pets"] .aquarium-grid,
+body[data-route="tank"] .aquarium-history-grid {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+@media (max-width: 600px) {
+  /* Keep each maintenance date box compact and on the same line as its Log button. */
+  body[data-route="tank"] .maintenance-row {
+    display: grid !important;
+    grid-template-columns: 22px minmax(0, 1fr) 112px 48px !important;
+    grid-template-rows: auto !important;
+    align-items: center !important;
+    column-gap: 6px !important;
+    row-gap: 0 !important;
+    padding: 7px 0 !important;
+    overflow: hidden !important;
+  }
+  body[data-route="tank"] .maintenance-row > .maintenance-icon {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+  body[data-route="tank"] .maintenance-row > div {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+  body[data-route="tank"] .maintenance-row > div strong,
+  body[data-route="tank"] .maintenance-row > div small {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  body[data-route="tank"] .maintenance-row > .field[data-maintenance-date] {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    width: 112px !important;
+    max-width: 112px !important;
+    min-width: 0 !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 4px 5px !important;
+    border-radius: 11px !important;
+    font-size: .66rem !important;
+    box-sizing: border-box !important;
+  }
+  body[data-route="tank"] .maintenance-row > .secondary[data-save-maintenance] {
+    grid-column: 4 !important;
+    grid-row: 1 !important;
+    width: 48px !important;
+    max-width: 48px !important;
+    min-width: 0 !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 4px !important;
+    border-radius: 11px !important;
+    font-size: .68rem !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (max-width: 380px) {
+  body[data-route="tank"] .maintenance-row {
+    grid-template-columns: 20px minmax(0, 1fr) 102px 44px !important;
+    column-gap: 4px !important;
+  }
+  body[data-route="tank"] .maintenance-row > .field[data-maintenance-date] {
+    width: 102px !important;
+    max-width: 102px !important;
+    font-size: .61rem !important;
+  }
+  body[data-route="tank"] .maintenance-row > .secondary[data-save-maintenance] {
+    width: 44px !important;
+    max-width: 44px !important;
+    font-size: .64rem !important;
+  }
+}

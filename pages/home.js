@@ -16,7 +16,7 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
-  // 16.71: keep Period on Home and remove the redundant Health dashboard tile.
+  // 16.72: keep Period on Home and remove the redundant Health dashboard tile.
   data.homeLayout=data.homeLayout.filter(item=>!["hobbies","health"].includes(typeof item==="string"?item:item?.id));
   data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="health"&&id!=="period");
 
@@ -142,20 +142,14 @@ function homeTile(item,editing){
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1671" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1672" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const accent=data.homeTileAccents?.[item.id]||"";
   const style=accent?` style="--tile-accent:${esc(accent)}"`:"";
   const route=item.id==="measurements"?"health":item.id;
   const extra=item.id==="measurements"?' data-route-id="log"':"";
-  return `<article class="home-tile-wrap size-${item.size}" draggable="${editing}" data-home-id="${item.id}"${style}>
-    <button type="button" class="module module-${item.id}" ${editing?'tabindex="-1"':`data-route="${route}"${extra}`}>${art}<strong>${esc(title)}</strong><small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span><span class="home-tile-chevron">›</span></button>
-    ${editing?`<div class="tile-edit-controls">
-      <button type="button" class="tile-move" data-move="back" aria-label="Move ${esc(title)} earlier">‹</button>
-      <button type="button" class="tile-drag" aria-label="Drag ${esc(title)}">☰</button>
-      <button type="button" class="tile-customise" data-customise-tile="${item.id}" aria-label="Customise ${esc(title)}">Edit</button>
-      <button type="button" class="tile-move" data-move="forward" aria-label="Move ${esc(title)} later">›</button>
-    </div>`:""}
+  return `<article class="home-tile-wrap size-${item.size}${editing?" is-editing":""}" data-home-id="${item.id}"${style}>
+    <button type="button" class="module module-${item.id}" ${editing?'data-edit-home-tile="'+item.id+'"':`data-route="${route}"${extra}`}>${art}<strong>${esc(title)}</strong><small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span><span class="home-tile-chevron">${editing?"✎":"›"}</span></button>
   </article>`;
 }
 
@@ -183,6 +177,7 @@ function tileEditor(id){
       <label>Tile size<select class="field" id="tileEditorSize"><option value="medium" selected>Standard tile</option><option value="wide" ${item.size==="wide"?"selected":""}>Wide tile</option></select></label>
       <label class="tile-colour-label">Accent colour<input type="color" id="tileEditorAccent" value="${esc(accent)}"></label>
       <div class="tile-cover-row"><div class="tile-cover-preview">${data.homeImages?.[id]?`<img src="${data.homeImages[id]}" alt="">`:`<span>${esc(icon)}</span>`}</div><div><strong>Custom cover image</strong><p>Shows the whole picture without cropping.</p><button type="button" class="secondary" id="tilePickImage">Choose image</button><input type="file" id="tileImageInput" accept="image/*" hidden>${data.homeImages?.[id]?`<button type="button" class="mini danger" id="tileRemoveImage">Remove image</button>`:""}</div></div>
+      <div class="tile-position-controls" aria-label="Move tile"><button type="button" class="secondary" id="tileMoveEarlier">← Move earlier</button><button type="button" class="secondary" id="tileMoveLater">Move later →</button></div>
       <div class="tile-editor-actions"><button type="button" class="danger secondary" id="tileHide">Hide tile</button><button type="button" class="primary" id="tileSave">Save changes</button></div>
     </section>
   </div>`;
@@ -231,7 +226,7 @@ function HomePage(){
           </div>
         </div>
       </div>
-      ${editing?`<p class="home-edit-help">Tap any tile to rename it, change its icon, colour or size. Drag with ☰ or use the arrows to reorder.</p>`:""}
+      ${editing?`<p class="home-edit-help">Tap any tile to rename it, change its icon, colour or size. Move it earlier or later from inside the editor.</p>`:""}
     </section>
     <button type="button" class="home-daily-checkin ${complete?"complete":""}" data-open-daily-checkin>
       <span class="home-checkin-icon">☀️</span><span><strong>Daily check-in</strong><small>${complete?"Completed for today":"Track sleep, mood, energy and more"}</small></span><b>${complete?"Completed":"Complete now"}</b>
@@ -281,6 +276,14 @@ function bindTileEditor(id){
     try{data.homeImages=data.homeImages||{};data.homeImages[id]=await resizeHomeCover(file);saveData();bindTileEditor(id);toast("Cover image added ✨")}catch{toast("That image could not be added")}
   });
   mount.querySelector("#tileRemoveImage")?.addEventListener("click",()=>{delete data.homeImages[id];saveData();bindTileEditor(id);toast("Cover image removed")});
+  const moveTile=step=>{
+    const i=data.homeLayout.findIndex(x=>x.id===id);const j=i+step;
+    if(i<0||j<0||j>=data.homeLayout.length){toast(step<0?"This tile is already first":"This tile is already last");return;}
+    [data.homeLayout[i],data.homeLayout[j]]=[data.homeLayout[j],data.homeLayout[i]];
+    saveData();bindTileEditor(id);toast(step<0?"Tile moved earlier":"Tile moved later");
+  };
+  mount.querySelector("#tileMoveEarlier")?.addEventListener("click",()=>moveTile(-1));
+  mount.querySelector("#tileMoveLater")?.addEventListener("click",()=>moveTile(1));
   mount.querySelector("#tileHide")?.addEventListener("click",()=>{
     data.homeLayout=data.homeLayout.filter(x=>x.id!==id);data.homeHidden=data.homeHidden||[];if(!data.homeHidden.includes(id))data.homeHidden.push(id);saveData();render();
   });
@@ -308,48 +311,10 @@ function bindHome(){
   document.querySelector("#homeEditToggle")?.addEventListener("click",()=>{data.homeEditing=!data.homeEditing;saveData();render()});
   if(!data.homeEditing) return;
   const saveRender=()=>{saveData();render()};
-  document.querySelectorAll("[data-customise-tile]").forEach(btn=>btn.addEventListener("click",event=>{event.stopPropagation();bindTileEditor(btn.dataset.customiseTile)}));
-  // 16.71: on phones the whole tile is the easiest edit target. While Edit Home is active,
-  // tapping any tile opens the same editor so its name, icon, colour and size can be changed.
-  document.querySelectorAll(".home-tile-wrap .module").forEach(tileButton=>tileButton.addEventListener("click",event=>{
-    event.preventDefault();
-    event.stopPropagation();
-    const id=tileButton.closest(".home-tile-wrap")?.dataset.homeId;
-    if(id) bindTileEditor(id);
+  document.querySelectorAll("[data-edit-home-tile]").forEach(tileButton=>tileButton.addEventListener("click",event=>{
+    event.preventDefault();event.stopPropagation();bindTileEditor(tileButton.dataset.editHomeTile);
   }));
   document.querySelectorAll("[data-show-tile]").forEach(btn=>btn.addEventListener("click",()=>{
     const id=btn.dataset.showTile;data.homeHidden=data.homeHidden.filter(x=>x!==id);data.homeLayout.push({id,size:id==="treasures"?"wide":"medium"});saveRender();
   }));
-  document.querySelectorAll(".home-tile-wrap").forEach(tile=>{
-    tile.querySelectorAll("[data-move]").forEach(btn=>btn.addEventListener("click",()=>{
-      const i=data.homeLayout.findIndex(x=>x.id===tile.dataset.homeId); const step=btn.dataset.move==="back"?-1:1; const j=i+step;
-      if(i<0||j<0||j>=data.homeLayout.length)return;
-      [data.homeLayout[i],data.homeLayout[j]]=[data.homeLayout[j],data.homeLayout[i]];saveRender();
-    }));
-    tile.addEventListener("dragstart",e=>{e.dataTransfer.setData("text/plain",tile.dataset.homeId);tile.classList.add("dragging")});
-    tile.addEventListener("dragend",()=>tile.classList.remove("dragging"));
-    tile.addEventListener("dragover",e=>{e.preventDefault();tile.classList.add("drag-over")});
-    tile.addEventListener("dragleave",()=>tile.classList.remove("drag-over"));
-    tile.addEventListener("drop",e=>{e.preventDefault();tile.classList.remove("drag-over");const from=e.dataTransfer.getData("text/plain"),to=tile.dataset.homeId;if(!from||from===to)return;const fi=data.homeLayout.findIndex(x=>x.id===from),ti=data.homeLayout.findIndex(x=>x.id===to);const [moved]=data.homeLayout.splice(fi,1);data.homeLayout.splice(ti,0,moved);saveRender()});
-  });
-
-  let draggedId="";
-  document.querySelectorAll(".tile-drag").forEach(handle=>{
-    handle.addEventListener("pointerdown",e=>{
-      e.preventDefault();draggedId=handle.closest(".home-tile-wrap")?.dataset.homeId||"";
-      handle.setPointerCapture?.(e.pointerId);document.body.classList.add("reordering");
-    });
-    handle.addEventListener("pointermove",e=>{
-      if(!draggedId)return;
-      const target=document.elementFromPoint(e.clientX,e.clientY)?.closest(".home-tile-wrap");
-      if(!target||target.dataset.homeId===draggedId)return;
-      const fi=data.homeLayout.findIndex(x=>x.id===draggedId),ti=data.homeLayout.findIndex(x=>x.id===target.dataset.homeId);
-      if(fi<0||ti<0)return;
-      const [moved]=data.homeLayout.splice(fi,1);data.homeLayout.splice(ti,0,moved);
-      const grid=document.querySelector(".home-layout");const dragged=grid.querySelector(`[data-home-id="${draggedId}"]`);
-      if(fi<ti)target.after(dragged);else target.before(dragged);
-    });
-    const finish=()=>{if(!draggedId)return;draggedId="";document.body.classList.remove("reordering");saveData()};
-    handle.addEventListener("pointerup",finish);handle.addEventListener("pointercancel",finish);
-  });
 }

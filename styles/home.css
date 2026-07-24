@@ -209,3 +209,24 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .tile-cover-row{grid-template-columns:70px 1fr}
   .tile-cover-preview{width:70px;height:70px}
 }
+
+/* LinaHub 16.72 — phone-safe Home editing */
+.home-tile-wrap.is-editing .module{
+  outline:1px dashed color-mix(in srgb,var(--purple) 72%,transparent);
+  outline-offset:2px;
+  cursor:pointer;
+}
+.home-tile-wrap.is-editing .home-tile-chevron{
+  width:22px;height:22px;display:grid;place-items:center;border-radius:8px;
+  background:color-mix(in srgb,var(--purple) 22%,var(--soft));color:var(--ink);
+  right:6px;bottom:6px;font-size:.72rem;
+}
+.tile-edit-controls{display:none!important}
+.tile-position-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.tile-position-controls button{min-height:48px}
+@media(max-width:520px){
+  .tile-editor-backdrop{align-items:flex-end;padding:0}
+  .tile-editor{width:100%;max-width:none;max-height:88vh;border-radius:24px 24px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+  .tile-editor-head{position:sticky;top:-18px;z-index:2;margin:-18px -16px 12px;padding:18px 16px 10px;background:var(--card);border-radius:24px 24px 0 0}
+  .tile-position-controls{grid-template-columns:1fr 1fr}
+}

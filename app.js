@@ -1,5 +1,24 @@
 
 
+
+function renderSeasonalAtmosphere(theme){
+  let layer=document.querySelector("#seasonalAtmosphere");
+  if(!layer){
+    layer=document.createElement("div");
+    layer.id="seasonalAtmosphere";
+    layer.className="seasonal-atmosphere";
+    layer.setAttribute("aria-hidden","true");
+    document.body.appendChild(layer);
+  }
+  if(layer.dataset.theme===theme) return;
+  layer.dataset.theme=theme;
+  const symbols={spring:["🌸","🌷","✿","❀"],summer:["✨","☀","✦","•"],autumn:["🍂","🍁","❧","•"],winter:["❄","❅","✧","•"]}[theme]||["✨"];
+  const count=theme==="winter"?34:theme==="summer"?22:28;
+  layer.innerHTML=Array.from({length:count},(_,i)=>{
+    const left=(i*37%101), delay=-((i*1.37)%14), duration=8+(i*0.73%10), size=12+(i*7%18), drift=-35+(i*19%70);
+    return `<i style="--left:${left}%;--delay:${delay}s;--duration:${duration}s;--size:${size}px;--drift:${drift}px">${symbols[i%symbols.length]}</i>`;
+  }).join("");
+}
 document.addEventListener("linahub:house-completion",()=>{
   if(route==="today"){
     suppressNextPageAnimation=true;
@@ -9,7 +28,10 @@ document.addEventListener("linahub:house-completion",()=>{
 function render(){
   resetSwipePreview();
   document.body.classList.toggle("dark",data.theme==="dark");
-  document.body.dataset.colorTheme=data.colorTheme||"amethyst";
+  const seasonalThemes=["spring","summer","autumn","winter"];
+  if(!seasonalThemes.includes(data.colorTheme)) data.colorTheme="spring";
+  document.body.dataset.colorTheme=data.colorTheme;
+  renderSeasonalAtmosphere(data.colorTheme);
   document.body.dataset.route=route; // Styling metadata only; navigation clicks are restricted to explicit controls.
   document.querySelectorAll(".route-atmosphere").forEach(el=>el.remove());
 
@@ -386,7 +408,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1680",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1687",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

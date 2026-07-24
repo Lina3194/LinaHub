@@ -1,2 +1,5 @@
-LinaHub 16.89 adds a new optional theme: Settings > Themes & appearance > Lina Blossom.
-Your existing theme remains unchanged until you select it.
+LinaHub 16.90 seasonal themes
+
+Upload the 6 files from the PATCH zip to the same matching locations in GitHub. Replace the existing files.
+
+Changes: removed the old colour-only theme choices; added Spring flowers, Summer sparkles, Autumn falling leaves and Winter snow across the app.

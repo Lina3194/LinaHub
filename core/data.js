@@ -5,7 +5,7 @@ const LEGACY_KEYS=["linahub-v4","linahub-v4-1","linahub-v4-2","linahub-v4-3"];
 const DEFAULT_DATA={
   version:5,
   theme:"dark",
-  colorTheme:"amethyst",
+  colorTheme:"spring",
   notifications:{enabled:false,medication:true,todayTasks:true,dayCheckins:false,medicationTimes:["09:00"],todayTimes:["09:15"],dayCheckinStart:"08:00",dayCheckinEnd:"22:00",dayCheckinEvery:1,lastSent:{}},
   checkins:{},
   morningCheckins:{},

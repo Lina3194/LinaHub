@@ -52,16 +52,13 @@ function SettingsPage(){
     </section>
 
     <section class="card settings-accordion${accordionClass("appearance")}" id="appearanceSettings" data-settings-accordion="appearance">
-      <button type="button" class="settings-accordion-toggle" aria-expanded="${accordionExpanded("appearance")}"><span><strong>Themes & appearance</strong><small>Colours, sanctuary theme and light or dark mode</small></span><b aria-hidden="true">⌄</b></button>
+      <button type="button" class="settings-accordion-toggle" aria-expanded="${accordionExpanded("appearance")}"><span><strong>Seasons & appearance</strong><small>Flowers, sunshine, falling leaves or snow</small></span><b aria-hidden="true">⌄</b></button>
       <div class="settings-collapse-body"${accordionHidden("appearance")}>
-      <h2>Appearance</h2>
-      <p>Choose a full LinaHub sanctuary. Each one changes the background, cards, buttons, navigation and atmosphere across the whole app.</p>
+      <h2>Seasonal atmosphere</h2>
+      <p>Choose a season for the whole app. The background changes and animated decorations appear across every page.</p>
       <div class="theme-choice-grid">
         ${[
-          ["amethyst","Amethyst"],["rose","Rose Garden"],["sage","Sage Botanical"],["ocean","Ocean"],
-          ["autumn","Autumn"],["galaxy","Galaxy"],["winter","Winter"],["cherry","Cherry Blossom"],
-          ["wildflower","Wildflower"],["celestial","Celestial"],["meadow","Meadow"],["midnight","Midnight Floral"],
-          ["clouds","Clouds"],["marble","Rose Marble"],["lina-blossom","Lina Blossom"]
+          ["spring","🌸 Spring"], ["summer","☀️ Summer"], ["autumn","🍂 Autumn"], ["winter","❄️ Winter"]
         ].map(([key,label])=>`<button type="button" class="theme-choice ${data.colorTheme===key?"active":""}" data-color-theme="${key}"><span class="theme-swatch swatch-${key}"></span><strong>${label}</strong></button>`).join("")}
       </div>
       <button class="secondary" id="themeToggle2" style="margin-top:12px">Switch to ${data.theme==="dark"?"light":"dark"} mode</button>

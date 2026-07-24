@@ -1,5 +1,2 @@
-LinaHub 17.2.0
-- Measures opens on Overview by default.
-- Weight, Waist and Tummy charts have Week, Month, 3 months, 6 months and Year filters.
-- Every measurement tab includes the complete history list below the chart.
-- Chart dots remain tappable to show exact date and value.
+LinaHub 17.2.1
+Measures now always opens on the Overview tab when entering the page.

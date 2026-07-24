@@ -236,6 +236,12 @@ function lina17HeaderIllustration(routeName){
 }
 
 function render(){
+  // Always open Measures on Overview when entering the page.
+  // Re-renders while already inside Measures (for chart tabs/ranges) keep the selected tab.
+  if(route === "health" && window.__linaLastRenderedRoute !== "health") {
+    window.linaHealthMeasureTab = "overview";
+  }
+  window.__linaLastRenderedRoute = route;
   resetSwipePreview();
   document.body.classList.toggle("dark",data.theme==="dark");
   const seasonalThemes=["plain","glitter","floral","spring","summer","autumn","winter"];

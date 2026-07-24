@@ -11,19 +11,18 @@ function dateLabel(value){return new Date(value+"T12:00:00").toLocaleDateString(
 function emptyJournalEntry(){return {sleep:null,energy:null,mood:null,pain:null,spoons:0,water:0,selfCare:[],supports:[],savedAt:""}}
 function renderScale(name,value){return `<div class="scale">${SCALE_OPTIONS[name].map((x,i)=>`<button type="button" data-scale="${name}" data-value="${i}" class="${value!==null&&value!==undefined&&Number(value)===i?"active":""}"><span class="face">${x[0]}</span><small>${x[1]}</small></button>`).join("")}</div>`}
 
-function journalTabs(active){return `<div class="journal-tabs"><button type="button" data-journal-tab="today" class="${active==="today"?"active":""}">Today</button><button type="button" data-journal-tab="history" class="${active==="history"?"active":""}">History</button><button type="button" data-journal-tab="trends" class="${active==="trends"?"active":""}">Trends</button></div>`}
+function journalTabs(active){return `<div class="journal-tabs journal-tabs-two"><button type="button" data-journal-tab="today" class="${active==="today"?"active":""}">Today</button><button type="button" data-journal-tab="trends" class="${active==="trends"?"active":""}">Trends</button></div>`}
 
 function JournalPage(){
   data.journalTab=data.journalTab||"today";
-  if(data.journalTab==="history") return JournalHistoryPage();
   if(data.journalTab==="trends") return JournalTrendsPage();
   data.dayCheckins=Array.isArray(data.dayCheckins)?data.dayCheckins:[];
   const dateValue=today();
   const entries=typeof dayEntries==="function"?dayEntries(dateValue):data.dayCheckins.filter(entry=>entry.date===dateValue).sort((a,b)=>String(a.createdAt||"").localeCompare(String(b.createdAt||"")));
   return shell(`${head("Journal","Small check-ins throughout your day")}${journalTabs("today")}
-    <section class="card hourly-journal-hero">
-      <div><span class="section-kicker">✨ Hourly journal</span><h2>How are you right now?</h2><p>Add a quick energy, mood and pain check-in whenever the hour changes. You can also leave a short note.</p></div>
-      <button type="button" class="primary" data-open-hourly-checkin>＋ Add check-in</button>
+    <section class="card hourly-journal-hero hourly-journal-compact">
+      <div><span class="section-kicker">✨ Hourly journal</span><h2>Check in</h2></div>
+      <button type="button" class="mini hourly-add-button" data-open-hourly-checkin>＋ Add check-in</button>
     </section>
     <section class="card journey-card"><div class="section-title"><div><span class="section-kicker">Today</span><h2>Journal timeline</h2></div><strong>${entries.length} check-in${entries.length===1?"":"s"}</strong></div><div class="journey-timeline ${entries.length?"":"empty-journey"}">${entries.length?entries.map(journeyEntry).join(""):`<div class="journey-empty"><span>✨</span><strong>No check-ins yet</strong><small>Your first hourly check-in will appear here.</small></div>`}</div></section>`,"journal");
 }
@@ -56,7 +55,7 @@ function JournalTrendsPage(){
   const controls=`<div class="trend-periods"><button type="button" data-period="day" class="${period==="day"?"active":""}">Day</button><button type="button" data-period="week" class="${period==="week"?"active":""}">Week</button><button type="button" data-period="month" class="${period==="month"?"active":""}">Month</button><button type="button" data-period="six" class="${period==="six"?"active":""}">6 months</button><button type="button" data-period="year" class="${period==="year"?"active":""}">Year</button></div>`;
   const dayPicker=period==="day"?`<div class="trend-day-picker"><button type="button" data-trend-day-step="-1" aria-label="Previous day">‹</button><label><span>Day</span><input type="date" id="journalTrendDate" max="${today()}" value="${dayDate}"></label><button type="button" data-trend-day-step="1" aria-label="Next day" ${dayDate>=today()?"disabled":""}>›</button></div>`:"";
   const charts=period==="day"?`${hourlyTrendChart("energy","Energy",dayDate)}${hourlyTrendChart("mood","Mood",dayDate)}${hourlyTrendChart("pain","Pain",dayDate)}`:`${trendChart("energy","Energy",period)}${trendChart("mood","Mood",period)}${trendChart("pain","Pain",period)}`;
-  return shell(`${head("Journal","See how things change over time")}${journalTabs("trends")}${controls}${dayPicker}<section class="trend-grid">${charts}</section><p class="trend-note">These charts show patterns in your own entries. They do not diagnose causes.</p>`,"journal")
+  return shell(`${head("Journal","Trends")}${journalTabs("trends")}${controls}${dayPicker}<section class="trend-grid">${charts}</section>`,"journal")
 }
 
 function bindJournal(){

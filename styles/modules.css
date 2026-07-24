@@ -712,7 +712,7 @@ body:not(.dark) .module-section-tabs button.active{background:linear-gradient(13
 .bottom.five-nav button{cursor:pointer;touch-action:manipulation}
 .bottom.five-nav button > *{pointer-events:none}
 
-/* LinaHub 16.79 — collapsed aquarium residents and clock-style sleep inputs */
+/* LinaHub 16.80 — collapsed aquarium residents and clock-style sleep inputs */
 .aquarium-residents-card{padding:0;overflow:hidden}
 .aquarium-residents-summary{list-style:none;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 20px;cursor:pointer}
 .aquarium-residents-summary::-webkit-details-marker{display:none}

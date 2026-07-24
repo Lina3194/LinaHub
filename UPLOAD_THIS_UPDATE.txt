@@ -1,25 +1,11 @@
-LinaHub 17.0 — Medication Swipe Fix
+LinaHub 17.0.6
 
-Upload the CONTENTS of this ZIP over the existing LinaHub site and overwrite matching files.
+Upload every file and folder in this ZIP over the existing LinaHub site and replace matching files.
 
-Fixed behaviour:
-- Swipe from Add Medication -> Medication overview (Day tab)
-- Swipe from Stock -> Medication overview (Day tab)
-- Swipe from History -> Medication overview (Day tab)
-- Swipe from Medication overview -> previous main page
-
-Build cache: 17.0.3
-
-
-17.0.5 correction:
-- Restored aquarium feeding date picker and visible feeding dates/times
-- Preserves older feed records using either date/time or createdAt
-- Removed invented 'Tonight' feed status
-
-
-17.0.5 fixes:
-- Smaller plant cards and aquarium maintenance rows
-- Restored visible side bubbles on aquarium pages
-- Lower, shorter bottom navigation with safe content clearance
-- Plant watering dates use each plant's own care-guide interval
-- Shopping card removed from Household
+Fixes in 17.0.6:
+- Household Shopping promo removed, with a runtime fail-safe for older cached markup
+- Bottom navigation shortened and kept inside the phone width
+- Extra bottom clearance so the final plant and final controls can be fully reached
+- Plant cards reduced further
+- Aquarium maintenance controls changed to a compact two-row mobile layout with no overlap
+- All asset query versions bumped to 1706 to force iPhone/Safari to load the new CSS and page files

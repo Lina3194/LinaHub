@@ -213,6 +213,14 @@ function render(){
 
   const pageFactory=pages[route]||HomePage;
   document.querySelector("#app").innerHTML=pageFactory();
+
+  // LinaHub 17.0.6: Household must never show the Shopping promo/card.
+  if(route==="house"){
+    document.querySelectorAll("#app section, #app article, #app .card").forEach(el=>{
+      const text=(el.textContent||"").replace(/\s+/g," ").trim();
+      if(/Open shopping list|Manage groceries|HOUSEHOLD Shopping/i.test(text)) el.remove();
+    });
+  }
   lina17HeaderIllustration(route);
 
   const atmosphere=document.createElement("div");

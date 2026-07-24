@@ -1,4 +1,4 @@
-/* LinaHub v16.83 Cloud Edition — Firebase Auth + verified Firestore module sync */
+/* LinaHub v16.84 Cloud Edition — Firebase Auth + verified Firestore module sync */
 const LINAHUB_FIREBASE_CONFIG={
   apiKey:"AIzaSyAnMmtT7RGTMpl8CZbpAX3rFWH9HjjZZqI",
   authDomain:"linahub.firebaseapp.com",

@@ -21,7 +21,7 @@
   <link rel="stylesheet" href="./styles/treasures.css?v=1683">
 <script>
 (function(){
-  const BUILD="16.83";
+  const BUILD="16.84";
   const KEY="linahub-clean-build";
   if(localStorage.getItem(KEY)!==BUILD){
     localStorage.setItem(KEY,BUILD);
@@ -29,8 +29,8 @@
     if("serviceWorker" in navigator){cleanup.push(navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))).catch(()=>{}));}
     if("caches" in window){cleanup.push(caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{}));}
     Promise.all(cleanup).finally(()=>{
-      if(!sessionStorage.getItem("linahub-reloaded-16.83")){
-        sessionStorage.setItem("linahub-reloaded-16.83","1");
+      if(!sessionStorage.getItem("linahub-reloaded-16.84")){
+        sessionStorage.setItem("linahub-reloaded-16.84","1");
         const url=new URL(location.href);
         url.searchParams.set("build","1683");
         location.replace(url.toString());

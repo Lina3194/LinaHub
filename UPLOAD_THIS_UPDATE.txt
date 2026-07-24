@@ -1,11 +1,11 @@
-LinaHub 17.0.6
+LinaHub 17.0.7 — PHONE VERSION FIX
 
-Upload every file and folder in this ZIP over the existing LinaHub site and replace matching files.
+Upload the full contents and replace matching files.
 
-Fixes in 17.0.6:
-- Household Shopping promo removed, with a runtime fail-safe for older cached markup
-- Bottom navigation shortened and kept inside the phone width
-- Extra bottom clearance so the final plant and final controls can be fully reached
-- Plant cards reduced further
-- Aquarium maintenance controls changed to a compact two-row mobile layout with no overlap
-- All asset query versions bumped to 1706 to force iPhone/Safari to load the new CSS and page files
+Phone-only fixes:
+- Shopping promotion removed from House
+- Bottom navigation fixed to a short 72px phone bar
+- Extra bottom scroll clearance to reach the final plant and controls
+- Smaller plant cards
+- Aquarium maintenance controls constrained to the phone width
+- Cache and service worker bumped to build 1707

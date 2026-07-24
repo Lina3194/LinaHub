@@ -214,11 +214,14 @@ function render(){
   const pageFactory=pages[route]||HomePage;
   document.querySelector("#app").innerHTML=pageFactory();
 
-  // LinaHub 17.0.6: Household must never show the Shopping promo/card.
+  // LinaHub 17.0.7: Household must never show the Shopping promo/card.
   if(route==="house"){
-    document.querySelectorAll("#app section, #app article, #app .card").forEach(el=>{
+    document.querySelectorAll("#app .card, #app section, #app article").forEach(el=>{
       const text=(el.textContent||"").replace(/\s+/g," ").trim();
-      if(/Open shopping list|Manage groceries|HOUSEHOLD Shopping/i.test(text)) el.remove();
+      if(/Open shopping list|Manage groceries|Shopping\s+\d+\s+remaining|HOUSEHOLD.*Shopping/i.test(text)){
+        const card=el.closest(".card")||el;
+        card.remove();
+      }
     });
   }
   lina17HeaderIllustration(route);
@@ -580,7 +583,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1700",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1707",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

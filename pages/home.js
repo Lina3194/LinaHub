@@ -16,7 +16,7 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
-  // 16.70: keep Period on Home and remove the redundant Health dashboard tile.
+  // 16.71: keep Period on Home and remove the redundant Health dashboard tile.
   data.homeLayout=data.homeLayout.filter(item=>!["hobbies","health"].includes(typeof item==="string"?item:item?.id));
   data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="health"&&id!=="period");
 
@@ -142,7 +142,7 @@ function homeTile(item,editing){
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1670" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1671" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const accent=data.homeTileAccents?.[item.id]||"";
   const style=accent?` style="--tile-accent:${esc(accent)}"`:"";
@@ -231,7 +231,7 @@ function HomePage(){
           </div>
         </div>
       </div>
-      ${editing?`<p class="home-edit-help">Drag tiles using ☰, use the arrows, or tap Edit to rename, hide, recolour or add a cover image.</p>`:""}
+      ${editing?`<p class="home-edit-help">Tap any tile to rename it, change its icon, colour or size. Drag with ☰ or use the arrows to reorder.</p>`:""}
     </section>
     <button type="button" class="home-daily-checkin ${complete?"complete":""}" data-open-daily-checkin>
       <span class="home-checkin-icon">☀️</span><span><strong>Daily check-in</strong><small>${complete?"Completed for today":"Track sleep, mood, energy and more"}</small></span><b>${complete?"Completed":"Complete now"}</b>
@@ -308,7 +308,15 @@ function bindHome(){
   document.querySelector("#homeEditToggle")?.addEventListener("click",()=>{data.homeEditing=!data.homeEditing;saveData();render()});
   if(!data.homeEditing) return;
   const saveRender=()=>{saveData();render()};
-  document.querySelectorAll("[data-customise-tile]").forEach(btn=>btn.addEventListener("click",()=>bindTileEditor(btn.dataset.customiseTile)));
+  document.querySelectorAll("[data-customise-tile]").forEach(btn=>btn.addEventListener("click",event=>{event.stopPropagation();bindTileEditor(btn.dataset.customiseTile)}));
+  // 16.71: on phones the whole tile is the easiest edit target. While Edit Home is active,
+  // tapping any tile opens the same editor so its name, icon, colour and size can be changed.
+  document.querySelectorAll(".home-tile-wrap .module").forEach(tileButton=>tileButton.addEventListener("click",event=>{
+    event.preventDefault();
+    event.stopPropagation();
+    const id=tileButton.closest(".home-tile-wrap")?.dataset.homeId;
+    if(id) bindTileEditor(id);
+  }));
   document.querySelectorAll("[data-show-tile]").forEach(btn=>btn.addEventListener("click",()=>{
     const id=btn.dataset.showTile;data.homeHidden=data.homeHidden.filter(x=>x!==id);data.homeLayout.push({id,size:id==="treasures"?"wide":"medium"});saveRender();
   }));

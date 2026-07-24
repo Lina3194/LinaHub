@@ -35,7 +35,7 @@ function HealthPage(){
   return shell(`${head("Measures","A simple record of weight, waist and tummy")}
     <section class="card measure-history-card measure-history-top">
       <div class="measure-category-tabs" role="tablist" aria-label="Measurement history categories">
-        ${Object.entries(categories).map(([key,item])=>`<button type="button" class="${selected===key?"active":""}" data-measure-tab="${key}" role="tab" aria-selected="${selected===key}"><span>${item.icon}</span><strong>${item.label}</strong></button>`).join("")}
+        ${Object.entries(categories).map(([key,item])=>`<button type="button" class="${selected===key?"active":""}" data-measure-tab="${key}" role="tab" aria-selected="${selected===key}">${item.label}</button>`).join("")}
       </div>
       <div class="section-title-row"><div><span class="section-kicker">History</span><h2>${current.label}</h2></div><span class="count-pill">${current.entries.length}</span></div>
       <div class="measure-history-list measure-history-single">${current.entries.length?current.entries.map(item=>`<article><time>${formatDate(item.date)}</time><span>${current.short}</span><strong>${esc(item.value)} ${current.unit}</strong></article>`).join(""):`<div class="empty compact"><p>No ${current.short.toLowerCase()} entries yet.</p></div>`}</div>

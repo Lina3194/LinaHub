@@ -1,5 +1,7 @@
-LinaHub 17.1.6
+LinaHub 17.1.7
 
-- Aquarium maintenance date boxes are compact and stay beside Log on phone
-- Aquarium bubbles sit behind all cards and controls
-- Today and Journal headers now use a cute magical journal illustration
+Changes:
+- Measures categories now use one connected segmented tab bar, matching the requested example.
+- Tabs: Weight, Measurement (W), Measurement (T).
+- History remains at the top.
+- Today remains centred in the bottom navigation.

@@ -1,11 +1,13 @@
-LinaHub 17.0.7 — PHONE VERSION FIX
+LinaHub 17.0.8 — COMPACT PHONE FORMS
 
 Upload the full contents and replace matching files.
 
-Phone-only fixes:
-- Shopping promotion removed from House
-- Bottom navigation fixed to a short 72px phone bar
-- Extra bottom scroll clearance to reach the final plant and controls
-- Smaller plant cards
-- Aquarium maintenance controls constrained to the phone width
-- Cache and service worker bumped to build 1707
+Phone fixes:
+- Shorter fields and buttons
+- Smaller House energy and priority controls
+- Compact Medication photo and form
+- Start/end dates share a row where screen width allows
+- Finer divider lines
+- Shorter bottom navigation
+- Extra scroll clearance retained
+- Cache bumped to build 1708

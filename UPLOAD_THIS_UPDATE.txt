@@ -1,7 +1,5 @@
-LinaHub 17.1.7
+LinaHub 17.1.8
 
-Changes:
-- Measures categories now use one connected segmented tab bar, matching the requested example.
-- Tabs: Weight, Measurement (W), Measurement (T).
-- History remains at the top.
-- Today remains centred in the bottom navigation.
+- Fixed the missing Measures tab stylesheet reference.
+- The connected Weight / Measurement (W) / Measurement (T) tab bar now loads and works.
+- Cache bumped to 17.1.8.

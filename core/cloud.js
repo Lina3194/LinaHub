@@ -1,4 +1,4 @@
-/* LinaHub v12 Cloud Edition — Firebase Auth + split Firestore module sync */
+/* LinaHub v16.83 Cloud Edition — Firebase Auth + verified Firestore module sync */
 const LINAHUB_FIREBASE_CONFIG={
   apiKey:"AIzaSyAnMmtT7RGTMpl8CZbpAX3rFWH9HjjZZqI",
   authDomain:"linahub.firebaseapp.com",
@@ -106,7 +106,7 @@ async function pushCloudModule(name){
   if(!CLOUD_STATE.user||!navigator.onLine) return setCloudStatus("offline");
   try{
     const ref=firebase.firestore().doc(`users/${CLOUD_STATE.user.uid}/modules/${name}`);
-    await ref.set({...modulePayload(name),schemaVersion:12,deviceId:CLOUD_STATE.deviceId,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:false});
+    await ref.set({...modulePayload(name),schemaVersion:1683,deviceId:CLOUD_STATE.deviceId,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:false});
     setCloudStatus("synced");
   }catch(error){console.error("LinaHub cloud upload",error);setCloudStatus("error")}
 }
@@ -114,13 +114,19 @@ async function uploadAllModules(){
   setCloudStatus("syncing");
   for(const name of Object.keys(CLOUD_MODULES)) await pushCloudModule(name);
   const meta=firebase.firestore().doc(`users/${CLOUD_STATE.user.uid}/meta/profile`);
-  await meta.set({schemaVersion:12,migratedAt:firebase.firestore.FieldValue.serverTimestamp(),deviceId:CLOUD_STATE.deviceId},{merge:true});
+  await meta.set({schemaVersion:1683,migratedAt:firebase.firestore.FieldValue.serverTimestamp(),deviceId:CLOUD_STATE.deviceId},{merge:true});
   localStorage.setItem(`linahub-cloud-migrated-${CLOUD_STATE.user.uid}`,"1");
   setCloudStatus("synced");
 }
 async function downloadAllModules(){
   setCloudStatus("syncing");
-  const snap=await firebase.firestore().collection(`users/${CLOUD_STATE.user.uid}/modules`).get();
+  let snap;
+  try{
+    snap=await firebase.firestore().collection(`users/${CLOUD_STATE.user.uid}/modules`).get({source:"server"});
+  }catch(error){
+    console.error("LinaHub server download failed",error);
+    throw new Error("Could not reach Firebase. Check the internet connection and try again.");
+  }
   const found=new Set();
   CLOUD_STATE.applyingRemote=true;
   snap.forEach(doc=>{found.add(doc.id);applyModule(doc.data())});
@@ -154,7 +160,9 @@ function startCloudListeners(){
   });
 }
 async function firstCloudSetup(){
-  const meta=await firebase.firestore().doc(`users/${CLOUD_STATE.user.uid}/meta/profile`).get();
+  let meta;
+  try{meta=await firebase.firestore().doc(`users/${CLOUD_STATE.user.uid}/meta/profile`).get({source:"server"})}
+  catch(error){console.error("LinaHub cloud profile check",error);throw error}
   const migrated=localStorage.getItem(`linahub-cloud-migrated-${CLOUD_STATE.user.uid}`)==="1";
   if(!meta.exists){
     await uploadAllModules();
@@ -180,8 +188,24 @@ async function linaSignIn(){
   }
 }
 async function linaSignOut(){await firebase.auth().signOut()}
-async function forceCloudUpload(){if(!CLOUD_STATE.user)return toast("Sign in first");CLOUD_STATE.timers.forEach(timer=>clearTimeout(timer));CLOUD_STATE.timers.clear();await uploadAllModules();toast("This device is now saved to LinaHub Cloud ☁️")}
-async function forceCloudDownload(){if(!CLOUD_STATE.user)return toast("Sign in first");if(!confirm("Replace this device's LinaHub data with the cloud copy?"))return;await downloadAllModules();toast("Cloud data downloaded ☁️")}
+async function forceCloudUpload(){
+  if(!CLOUD_STATE.user)return toast("Sign in first");
+  if(!navigator.onLine)return toast("This device is offline");
+  CLOUD_STATE.timers.forEach(timer=>clearTimeout(timer));CLOUD_STATE.timers.clear();
+  try{
+    await uploadAllModules();
+    await firebase.firestore().waitForPendingWrites();
+    const count=Object.keys(CLOUD_MODULES).length;
+    toast(`Uploaded ${count} sections to cloud ☁️`);
+  }catch(error){console.error("Manual cloud upload",error);setCloudStatus("error");toast("Upload failed — Firebase was not reached")}
+}
+async function forceCloudDownload(){
+  if(!CLOUD_STATE.user)return toast("Sign in first");
+  if(!navigator.onLine)return toast("This device is offline");
+  if(!confirm("Replace this device's LinaHub data with the cloud copy?"))return;
+  try{await downloadAllModules();toast("Fresh Firebase data downloaded ☁️")}
+  catch(error){console.error("Manual cloud download",error);setCloudStatus("error");toast("Download failed — Firebase was not reached")}
+}
 
 function initLinaCloud(){
   try{

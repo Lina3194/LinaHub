@@ -21,31 +21,57 @@ function renderSeasonalAtmosphere(theme){
 }
 /* LinaHub 17.0 — Measures, aquarium maintenance and theme polish */
 function lina17DateList(values){return (Array.isArray(values)?values:[]).slice().filter(Boolean).sort().reverse()}
+function linaMeasureRangeStart(range){
+  const now=new Date(`${today()}T23:59:59`);
+  const start=new Date(now);
+  if(range==="week")start.setDate(start.getDate()-6);
+  else if(range==="month")start.setMonth(start.getMonth()-1);
+  else if(range==="3months")start.setMonth(start.getMonth()-3);
+  else if(range==="6months")start.setMonth(start.getMonth()-6);
+  else if(range==="year")start.setFullYear(start.getFullYear()-1);
+  return start;
+}
 function linaMeasureChart(category){
-  const clean=(category.entries||[]).map(item=>({date:String(item.date||""),value:Number(item.value)})).filter(item=>item.date&&Number.isFinite(item.value)).sort((a,b)=>a.date.localeCompare(b.date));
-  if(!clean.length)return `<section class="card measure-chart-card"><div class="empty"><p>No ${category.short.toLowerCase()} entries yet.</p></div></section>`;
-  const width=720,height=300,padL=48,padR=24,padT=28,padB=46;
-  const values=clean.map(x=>x.value),minRaw=Math.min(...values),maxRaw=Math.max(...values);
-  const spread=Math.max(maxRaw-minRaw,category.unit==="kg"?.5:2);
-  const min=minRaw-spread*.18,max=maxRaw+spread*.18;
-  const x=i=>clean.length===1?(padL+(width-padL-padR)/2):padL+i*((width-padL-padR)/(clean.length-1));
-  const y=v=>padT+(max-v)*(height-padT-padB)/(max-min||1);
-  const points=clean.map((item,i)=>`${x(i).toFixed(1)},${y(item.value).toFixed(1)}`).join(" ");
-  const grid=Array.from({length:4},(_,i)=>{const yy=padT+i*(height-padT-padB)/3;const val=max-i*(max-min)/3;return `<line x1="${padL}" y1="${yy}" x2="${width-padR}" y2="${yy}" class="measure-chart-grid"/><text x="${padL-8}" y="${yy+4}" text-anchor="end" class="measure-chart-axis">${val.toFixed(category.unit==="kg"?1:0)}</text>`}).join("");
-  const dots=clean.map((item,i)=>`<circle class="measure-chart-dot" cx="${x(i)}" cy="${y(item.value)}" r="8" tabindex="0" role="button" aria-label="${formatDate(item.date)} ${item.value} ${category.unit}" data-chart-date="${esc(item.date)}" data-chart-value="${esc(item.value)}" data-chart-unit="${category.unit}"></circle>`).join("");
-  const first=clean[0],last=clean[clean.length-1],change=last.value-first.value;
-  return `<section class="card measure-chart-card">
-    <div class="measure-chart-heading"><div><span class="section-kicker">Progress chart</span><h2>${category.label}</h2></div><div class="measure-chart-current"><small>Latest</small><strong>${last.value} ${category.unit}</strong></div></div>
-    <div class="measure-chart-wrap"><svg class="measure-progress-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${category.label} progress over time">${grid}<polyline class="measure-chart-line" points="${points}"/>${dots}</svg></div>
-    <div class="measure-chart-tooltip" id="measureChartTooltip"><span>Tap a dot to see the date and value</span></div>
-    <div class="measure-chart-footer"><span>${formatDate(first.date)}</span><strong>${change===0?"No change":`${change>0?"+":""}${change.toFixed(category.unit==="kg"?2:1)} ${category.unit}`}</strong><span>${formatDate(last.date)}</span></div>
+  const all=(category.entries||[]).map(item=>({date:String(item.date||""),value:Number(item.value)})).filter(item=>item.date&&Number.isFinite(item.value)).sort((a,b)=>a.date.localeCompare(b.date));
+  const range=["week","month","3months","6months","year"].includes(window.linaMeasureRange)?window.linaMeasureRange:"week";
+  const start=linaMeasureRangeStart(range);
+  const clean=all.filter(item=>new Date(`${item.date}T12:00:00`)>=start);
+  const rangeLabel={week:"Week",month:"Month","3months":"3 months","6months":"6 months",year:"Year"};
+  const controls=`<nav class="measure-range-tabs" role="tablist" aria-label="Chart time range">
+    ${[["week","Week"],["month","Month"],["3months","3 months"],["6months","6 months"],["year","Year"]].map(([key,label])=>`<button type="button" class="${range===key?"active":""}" data-measure-range="${key}" role="tab" aria-selected="${range===key}">${label}</button>`).join("")}
+  </nav>`;
+  let chart;
+  if(!clean.length){
+    chart=`<section class="card measure-chart-card"><div class="measure-chart-heading"><div><span class="section-kicker">Progress chart</span><h2>${category.label}</h2></div></div>${controls}<div class="empty"><p>No ${category.short.toLowerCase()} entries in this ${rangeLabel[range].toLowerCase()}.</p></div></section>`;
+  }else{
+    const width=720,height=300,padL=48,padR=24,padT=28,padB=46;
+    const values=clean.map(x=>x.value),minRaw=Math.min(...values),maxRaw=Math.max(...values);
+    const spread=Math.max(maxRaw-minRaw,category.unit==="kg"?.5:2);
+    const min=minRaw-spread*.18,max=maxRaw+spread*.18;
+    const x=i=>clean.length===1?(padL+(width-padL-padR)/2):padL+i*((width-padL-padR)/(clean.length-1));
+    const y=v=>padT+(max-v)*(height-padT-padB)/(max-min||1);
+    const points=clean.map((item,i)=>`${x(i).toFixed(1)},${y(item.value).toFixed(1)}`).join(" ");
+    const grid=Array.from({length:4},(_,i)=>{const yy=padT+i*(height-padT-padB)/3;const val=max-i*(max-min)/3;return `<line x1="${padL}" y1="${yy}" x2="${width-padR}" y2="${yy}" class="measure-chart-grid"/><text x="${padL-8}" y="${yy+4}" text-anchor="end" class="measure-chart-axis">${val.toFixed(category.unit==="kg"?1:0)}</text>`}).join("");
+    const dots=clean.map((item,i)=>`<circle class="measure-chart-dot" cx="${x(i)}" cy="${y(item.value)}" r="8" tabindex="0" role="button" aria-label="${formatDate(item.date)} ${item.value} ${category.unit}" data-chart-date="${esc(item.date)}" data-chart-value="${esc(item.value)}" data-chart-unit="${category.unit}"></circle>`).join("");
+    const first=clean[0],last=clean[clean.length-1],change=last.value-first.value;
+    chart=`<section class="card measure-chart-card">
+      <div class="measure-chart-heading"><div><span class="section-kicker">Progress chart</span><h2>${category.label}</h2></div><div class="measure-chart-current"><small>Latest</small><strong>${last.value} ${category.unit}</strong></div></div>
+      ${controls}
+      <div class="measure-chart-wrap"><svg class="measure-progress-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${category.label} progress over time">${grid}<polyline class="measure-chart-line" points="${points}"/>${dots}</svg></div>
+      <div class="measure-chart-tooltip" id="measureChartTooltip"><span>Tap a dot to see the date and value</span></div>
+      <div class="measure-chart-footer"><span>${formatDate(first.date)}</span><strong>${change===0?"No change":`${change>0?"+":""}${change.toFixed(category.unit==="kg"?2:1)} ${category.unit}`}</strong><span>${formatDate(last.date)}</span></div>
+    </section>`;
+  }
+  const history=`<section class="card measure-history-card"><div class="measure-history-heading"><div><span class="section-kicker">History</span><h2>All ${category.short.toLowerCase()} entries</h2></div><b>${all.length}</b></div>
+    <div class="measure-history-list">${all.length?all.slice().reverse().map(item=>`<article><time>${formatDate(item.date)}</time><span>${category.icon} ${category.short}</span><strong>${item.value} ${category.unit}</strong></article>`).join(""):`<div class="empty"><p>No entries yet.</p></div>`}</div>
   </section>`;
+  return chart+history;
 }
 function HealthPage(){
   const weights=(data.weightEntries||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   const measures=(data.measurements||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   const latestWeight=weights[0],latestMeasure=measures[0];
-  const selected=["overview","weight","waist","tummy"].includes(data.healthMeasureTab)?data.healthMeasureTab:"overview";
+  const selected=["overview","weight","waist","tummy"].includes(window.linaHealthMeasureTab)?window.linaHealthMeasureTab:"overview";
   const categories={
     weight:{label:"Weight",short:"Weight",icon:"⚖️",unit:"kg",entries:weights.map(x=>({date:x.date,value:x.value??x.weight}))},
     waist:{label:"Measurement (W)",short:"Waist",icon:"📏",unit:"cm",entries:measures.filter(x=>x.waist!==""&&x.waist!=null).map(x=>({date:x.date,value:x.waist}))},
@@ -77,7 +103,8 @@ function HealthPage(){
     ${selected==="overview"?overview:linaMeasureChart(categories[selected])}`,'health');
 }
 function bindHealth(){
-  document.querySelectorAll("[data-measure-tab]").forEach(button=>button.onclick=()=>{data.healthMeasureTab=button.dataset.measureTab;saveData();render();});
+  document.querySelectorAll("[data-measure-tab]").forEach(button=>button.onclick=()=>{window.linaHealthMeasureTab=button.dataset.measureTab;render();});
+  document.querySelectorAll("[data-measure-range]").forEach(button=>button.onclick=()=>{window.linaMeasureRange=button.dataset.measureRange;render();});
   document.querySelectorAll(".measure-chart-dot").forEach(dot=>{
     const show=()=>{const box=document.querySelector("#measureChartTooltip");if(!box)return;box.innerHTML=`<strong>${formatDate(dot.dataset.chartDate)}</strong><span>${dot.dataset.chartValue} ${dot.dataset.chartUnit}</span>`;document.querySelectorAll(".measure-chart-dot.selected").forEach(x=>x.classList.remove("selected"));dot.classList.add("selected")};
     dot.onclick=show;dot.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();show()}};

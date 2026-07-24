@@ -1,4 +1,5 @@
-LinaHub 17.1.9
-- Overview now contains only the latest measurement cards and Add today’s measures.
-- Weight, Measurement (W), and Measurement (T) now open interactive progress charts.
-- Tap any chart dot to see its date and value.
+LinaHub 17.2.0
+- Measures opens on Overview by default.
+- Weight, Waist and Tummy charts have Week, Month, 3 months, 6 months and Year filters.
+- Every measurement tab includes the complete history list below the chart.
+- Chart dots remain tappable to show exact date and value.

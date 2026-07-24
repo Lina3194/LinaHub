@@ -113,7 +113,7 @@ body.reordering{
   pointer-events:none;
 }
 
-/* LinaHub 16.75 — hourly day trends */
+/* LinaHub 16.76 — hourly day trends */
 .trend-day-picker{display:flex;align-items:end;justify-content:center;gap:10px;margin:-4px 0 16px}
 .trend-day-picker label{display:grid;gap:5px;min-width:min(280px,70vw);font-size:.72rem;color:var(--muted);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
 .trend-day-picker input{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink)}

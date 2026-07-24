@@ -1356,7 +1356,7 @@ select,
   }
 }
 
-/* LinaHub 16.75 — restore fully interactive bottom navigation */
+/* LinaHub 16.76 — restore fully interactive bottom navigation */
 .bottom,
 #app > .bottom{
   position:fixed!important;

@@ -210,7 +210,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .tile-cover-preview{width:70px;height:70px}
 }
 
-/* LinaHub 16.75 — phone-safe Home editing */
+/* LinaHub 16.76 — phone-safe Home editing */
 .home-tile-wrap.is-editing .module{
   outline:1px dashed color-mix(in srgb,var(--purple) 72%,transparent);
   outline-offset:2px;
@@ -231,7 +231,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .tile-position-controls{grid-template-columns:1fr 1fr}
 }
 
-/* LinaHub 16.75 — centred phone tile editor and premium Treasure Room */
+/* LinaHub 16.76 — centred phone tile editor and premium Treasure Room */
 .home-tile-wrap .module::after,
 .customisable-tile.has-custom-accent::after{display:none!important;content:none!important}
 .home-tile-wrap .module{
@@ -298,7 +298,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
 }
 
 
-/* LinaHub 16.75 — working phone edit buttons and shorter tiles */
+/* LinaHub 16.76 — working phone edit buttons and shorter tiles */
 .home-layout.editing .home-tile-wrap,
 .home-layout.editing .home-tile-wrap .module{pointer-events:auto!important}
 .home-layout.editing .home-tile-edit-button{
@@ -318,7 +318,7 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
   .home-tile-wrap.size-wide.is-editing .module{min-height:102px!important}
 }
 
-/* LinaHub 16.75 — keep the Home tile editor above the bottom navigation */
+/* LinaHub 16.76 — keep the Home tile editor above the bottom navigation */
 .tile-editor-backdrop{
   z-index:60000!important;
 }
@@ -347,3 +347,42 @@ body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;
     border-radius:24px 24px 0 0!important;
   }
 }
+
+/* LinaHub 16.76 — touch drag-and-drop Home tiles in Edit mode */
+.home-layout.editing .home-tile-wrap{
+  -webkit-user-select:none!important;
+  user-select:none!important;
+  -webkit-touch-callout:none!important;
+  touch-action:pan-y;
+  cursor:grab;
+}
+.home-layout.editing .home-tile-wrap.drag-ready{
+  transform:scale(.975);
+  filter:brightness(1.08);
+}
+.home-layout.editing .home-tile-wrap.drag-source{
+  opacity:.22;
+}
+.home-layout.editing .home-tile-wrap.drag-target{
+  outline:2px solid var(--purple)!important;
+  outline-offset:3px;
+  border-radius:18px;
+}
+.home-tile-drag-ghost{
+  position:fixed!important;
+  left:0;
+  top:0;
+  z-index:12000!important;
+  margin:0!important;
+  pointer-events:none!important;
+  opacity:.96;
+  transform:translate3d(var(--drag-x),var(--drag-y),0) scale(1.035);
+  transform-origin:center;
+  filter:drop-shadow(0 18px 28px rgba(0,0,0,.48));
+}
+.home-tile-drag-ghost .home-tile-edit-button{display:none!important}
+body.home-tile-dragging{
+  overflow:hidden!important;
+  overscroll-behavior:none;
+}
+body.home-tile-dragging .home-layout.editing .home-tile-wrap{cursor:grabbing}

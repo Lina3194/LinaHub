@@ -8,8 +8,8 @@ function ensureHomeLayout(){
   if(!Array.isArray(data.homeHidden)) data.homeHidden=[];
   data.homeTileAccents=data.homeTileAccents||{};
   data.homeTileNames=data.homeTileNames||{};
-  // 16.75: clear the accidental Budget highlight once; users can still choose a new accent afterwards.
-  if(!data.homeBudgetAccentReset1675){ delete data.homeTileAccents.budget; data.homeBudgetAccentReset1675=true; }
+  // 16.76: clear the accidental Budget highlight once; users can still choose a new accent afterwards.
+  if(!data.homeBudgetAccentReset1676){ delete data.homeTileAccents.budget; data.homeBudgetAccentReset1676=true; }
   if(data.homeTileNames.measurements==="Weight & Measurements"||data.homeTileNames.measurements==="Weight & Measurement"||data.homeTileNames.measurements==="Weight &\nMeasurements") data.homeTileNames.measurements="Measures";
 
   // Older versions used "flowers" for the hourly Journal tile.
@@ -19,7 +19,7 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
-  // 16.75: keep Period on Home and remove the redundant Health dashboard tile.
+  // 16.76: keep Period on Home and remove the redundant Health dashboard tile.
   data.homeLayout=data.homeLayout.filter(item=>!["hobbies","health"].includes(typeof item==="string"?item:item?.id));
   data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="health"&&id!=="period");
 
@@ -145,7 +145,7 @@ function homeTile(item,editing){
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1675" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1676" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const accent=data.homeTileAccents?.[item.id]||"";
   const style=accent?` style="--tile-accent:${esc(accent)}"`:"";
@@ -309,6 +309,86 @@ function bindTileEditor(id){
   });
 }
 
+function bindHomeTileDragging(){
+  const grid=document.querySelector(".home-layout.editing");
+  if(!grid) return;
+  let source=null,ghost=null,holdTimer=null,pointerId=null;
+  let startX=0,startY=0,offsetX=0,offsetY=0,active=false,lastTarget=null;
+
+  const clearHold=()=>{if(holdTimer){clearTimeout(holdTimer);holdTimer=null}};
+  const clearTarget=()=>{lastTarget?.classList.remove("drag-target");lastTarget=null};
+  const cleanup=({save=false}={})=>{
+    clearHold();clearTarget();
+    document.body.classList.remove("home-tile-dragging");
+    source?.classList.remove("drag-ready","drag-source");
+    ghost?.remove();ghost=null;
+    if(save&&source){
+      const ids=[...grid.querySelectorAll(".home-tile-wrap[data-home-id]")].map(el=>el.dataset.homeId);
+      const byId=new Map(data.homeLayout.map(item=>[item.id,item]));
+      data.homeLayout=ids.map(id=>byId.get(id)).filter(Boolean);
+      saveData();
+      toast("Home tiles reordered ✨");
+    }
+    source=null;pointerId=null;active=false;
+  };
+  const moveGhost=(x,y)=>{
+    if(!ghost)return;
+    ghost.style.setProperty("--drag-x",`${x-offsetX}px`);
+    ghost.style.setProperty("--drag-y",`${y-offsetY}px`);
+  };
+  const beginDrag=(event)=>{
+    if(!source)return;
+    active=true;
+    source.classList.remove("drag-ready");
+    source.classList.add("drag-source");
+    document.body.classList.add("home-tile-dragging");
+    const rect=source.getBoundingClientRect();
+    offsetX=event.clientX-rect.left;offsetY=event.clientY-rect.top;
+    ghost=source.cloneNode(true);
+    ghost.classList.add("home-tile-drag-ghost");
+    ghost.classList.remove("drag-source","drag-ready","drag-target");
+    ghost.style.width=`${rect.width}px`;ghost.style.height=`${rect.height}px`;
+    document.body.appendChild(ghost);
+    moveGhost(event.clientX,event.clientY);
+    try{source.setPointerCapture(pointerId)}catch{}
+    if(navigator.vibrate) navigator.vibrate(18);
+  };
+
+  grid.querySelectorAll(".home-tile-wrap[data-home-id]").forEach(tile=>{
+    tile.addEventListener("pointerdown",event=>{
+      if(event.pointerType==="mouse"&&event.button!==0)return;
+      if(event.target.closest("button,input,select,label,a"))return;
+      cleanup();
+      source=tile;pointerId=event.pointerId;startX=event.clientX;startY=event.clientY;
+      tile.classList.add("drag-ready");
+      holdTimer=setTimeout(()=>beginDrag(event),180);
+    });
+  });
+
+  grid.addEventListener("pointermove",event=>{
+    if(!source||event.pointerId!==pointerId)return;
+    const distance=Math.hypot(event.clientX-startX,event.clientY-startY);
+    if(!active){
+      if(distance>10){clearHold();source.classList.remove("drag-ready");source=null;pointerId=null}
+      return;
+    }
+    event.preventDefault();
+    moveGhost(event.clientX,event.clientY);
+    ghost.style.visibility="hidden";
+    const target=document.elementFromPoint(event.clientX,event.clientY)?.closest(".home-tile-wrap[data-home-id]");
+    ghost.style.visibility="";
+    if(!target||target===source||!grid.contains(target)){clearTarget();return}
+    if(lastTarget!==target){clearTarget();lastTarget=target;target.classList.add("drag-target")}
+    const rect=target.getBoundingClientRect();
+    const before=event.clientY<rect.top+rect.height/2 || (Math.abs(event.clientY-(rect.top+rect.height/2))<rect.height*.28&&event.clientX<rect.left+rect.width/2);
+    if(before) grid.insertBefore(source,target); else grid.insertBefore(source,target.nextSibling);
+  },{passive:false});
+  const finish=event=>{if(!source||event.pointerId!==pointerId)return;cleanup({save:active})};
+  grid.addEventListener("pointerup",finish);
+  grid.addEventListener("pointercancel",()=>cleanup());
+  window.addEventListener("blur",()=>cleanup());
+}
+
 function bindHome(){
   const menuToggle=document.querySelector("#homeMenuToggle");
   const menu=document.querySelector("#homeMenu");
@@ -318,6 +398,7 @@ function bindHome(){
   document.querySelector("#homeThemes")?.addEventListener("click",()=>{data.settingsSection="appearance";saveData();go("settings")});
   document.querySelector("#homeEditToggle")?.addEventListener("click",()=>{data.homeEditing=!data.homeEditing;saveData();render()});
   if(!data.homeEditing) return;
+  bindHomeTileDragging();
   const saveRender=()=>{saveData();render()};
   document.querySelectorAll("[data-edit-home-tile]").forEach(tileButton=>tileButton.addEventListener("click",event=>{
     event.preventDefault();event.stopPropagation();bindTileEditor(tileButton.dataset.editHomeTile);

@@ -34,3 +34,20 @@ body[data-route="medication"] .med-bottom-tabs-three{grid-template-columns:repea
  body[data-route="medication"] .med-page{padding-bottom:92px!important}
  body[data-route="medication"] .med-bottom-tabs-three button{min-width:0!important}
 }
+
+
+/* LinaHub 17.3.4: collapsed history and centred two-item medication navigation */
+body[data-route="medication"] .med-bottom-tabs-two{
+  grid-template-columns:repeat(2,minmax(0,1fr))!important;
+}
+@media (max-width:768px){
+  body[data-route="medication"] .med-bottom-tabs.med-bottom-tabs-two{
+    position:static!important;
+    left:auto!important;right:auto!important;transform:none!important;
+    width:calc(100% - 32px)!important;max-width:420px!important;
+    margin:16px auto 0!important;
+    align-self:center!important;justify-self:center!important;
+    box-sizing:border-box!important;
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+  }
+}

@@ -185,10 +185,9 @@ function MedicationPage(){
   ensureMedicationData();
   const tab=data.medicationView.tab;
   const content=tab==="schedule"?medicationScheduleTab():tab==="history"?medicationHistoryTab():tab==="stock"?medicationStockTab():medicationTodayTab();
-  return shell(`${head("Medication","Medication centre · v17.3.3")}
+  return shell(`${head("Medication","Medication centre · v17.3.4")}
     <div class="med-page">${content}</div>
-    <nav class="med-bottom-tabs med-bottom-tabs-three" aria-label="Medication sections">
-      <button class="${tab==="today"||tab==="history"?"active":""}" data-med-tab="today">✓<small>Day</small></button>
+    <nav class="med-bottom-tabs med-bottom-tabs-two" aria-label="Medication sections">
       <button class="${tab==="schedule"?"active":""}" data-med-tab="schedule">＋<small>Medication</small></button>
       <button class="${tab==="stock"?"active":""}" data-med-tab="stock">▣<small>Stock</small></button>
     </nav>`,"medication");
@@ -256,6 +255,10 @@ function medEditLog(log){
 }
 function bindMedication(){
   ensureMedicationData();
+  // Safari can restore <details> open state across renders. History must start collapsed.
+  if(data.medicationView.tab==="history"){
+    requestAnimationFrame(()=>document.querySelectorAll("details.med-tablet-history").forEach(item=>item.open=false));
+  }
   const saveStockCount=id=>{
     const input=document.querySelector(`[data-med-stock-input="${CSS.escape(String(id))}"]`);
     const value=input?.value?.trim()??"";

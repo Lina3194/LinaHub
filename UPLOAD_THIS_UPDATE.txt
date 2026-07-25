@@ -1,2 +1,3 @@
-LinaHub 17.2.1
-Measures now always opens on the Overview tab when entering the page.
+LinaHub 17.2.4
+
+Medication stock now uses a real numeric input, saves the exact whole-tablet count, verifies local storage, and opens the phone number keypad.

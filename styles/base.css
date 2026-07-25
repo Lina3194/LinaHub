@@ -1939,3 +1939,17 @@ body[data-route="house"] .shopping-household-card{display:none!important}
   body[data-route="medication"] .med-photo-upload{grid-template-columns:42px minmax(0,1fr)!important}
   body[data-route="medication"] #saveMedication{height:39px!important;min-height:39px!important}
 }
+
+/* LinaHub 17.2.4 — reliable medication stock editor */
+.med-stock-list article.editing{grid-template-columns:minmax(0,1fr) minmax(90px,140px) auto auto}
+.med-stock-input-wrap{min-width:0}
+.med-stock-input{width:100%;min-width:0;text-align:center;font-weight:800}
+@media (max-width:600px){
+  body[data-route="medication"] .med-stock-list article.editing{
+    grid-template-columns:minmax(0,1fr) 92px auto;
+    gap:6px;
+  }
+  body[data-route="medication"] .med-stock-list article.editing>div{grid-column:1/-1}
+  body[data-route="medication"] .med-stock-list article.editing [data-med-stock-cancel]{display:none}
+  body[data-route="medication"] .med-stock-input{font-size:16px!important;height:40px!important;min-height:40px!important;padding:6px 8px!important}
+}

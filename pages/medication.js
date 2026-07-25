@@ -1,5 +1,6 @@
 const MED_WEEKDAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 let medicationDateTouched=false;
+let medicationStockEditingId="";
 
 function medLocalDate(date=new Date()){
   const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,"0"),d=String(date.getDate()).padStart(2,"0");
@@ -120,7 +121,10 @@ function medicationHistoryTab(){
 }
 
 function medicationStockTab(){
-  return `<section class="card"><div class="section-title"><div><span class="section-kicker">📦 Stock</span><h2>Tablet stock</h2></div></div>${data.medications.length?`<div class="med-stock-list">${data.medications.map(m=>`<article><div><strong>${esc(m.name)}</strong><small>${esc(m.dose||"")}</small></div><span class="med-stock-count">${Number(m.stock)||0} left</span><button class="mini" data-med-stock="${esc(m.id)}">Update</button></article>`).join("")}</div>`:`<p>Add medication first.</p>`}</section>`;
+  return `<section class="card"><div class="section-title"><div><span class="section-kicker">📦 Stock</span><h2>Tablet stock</h2></div></div>${data.medications.length?`<div class="med-stock-list">${data.medications.map(m=>{
+    const editing=String(medicationStockEditingId)===String(m.id);
+    return `<article class="${editing?"editing":""}"><div><strong>${esc(m.name)}</strong><small>${esc(m.dose||"")}</small></div>${editing?`<label class="med-stock-input-wrap"><span class="sr-only">Tablet count for ${esc(m.name)}</span><input class="field med-stock-input" data-med-stock-input="${esc(m.id)}" type="number" inputmode="numeric" pattern="[0-9]*" min="0" step="1" value="${Math.max(0,Math.floor(Number(m.stock)||0))}" enterkeyhint="done" autocomplete="off"></label><button class="mini primary" data-med-stock-save="${esc(m.id)}">Save</button><button class="mini" data-med-stock-cancel="${esc(m.id)}">Cancel</button>`:`<span class="med-stock-count">${Math.max(0,Math.floor(Number(m.stock)||0))} left</span><button class="mini" data-med-stock="${esc(m.id)}">Update</button>`}</article>`;
+  }).join("")}</div>`:`<p>Add medication first.</p>`}</section>`;
 }
 function MedicationPage(){
   ensureMedicationData();
@@ -198,7 +202,34 @@ function medEditLog(log){
 }
 function bindMedication(){
   ensureMedicationData();
-  document.querySelectorAll("[data-med-stock]").forEach(b=>b.onclick=()=>{const m=data.medications.find(x=>x.id===b.dataset.medStock);if(!m)return;const value=prompt(`How many ${m.name} are left?`,String(Number(m.stock)||0));if(value===null)return;const n=Number(value);if(!Number.isFinite(n)||n<0){toast("Enter a valid amount");return}m.stock=Math.floor(n);saveData();render()});
+  const saveStockCount=id=>{
+    const input=document.querySelector(`[data-med-stock-input="${CSS.escape(String(id))}"]`);
+    const value=input?.value?.trim()??"";
+    if(value===""){toast("Enter the tablet count");input?.focus();return}
+    const n=Number(value);
+    if(!Number.isFinite(n)||n<0||!Number.isInteger(n)){toast("Enter a whole number");input?.focus();return}
+    const index=data.medications.findIndex(x=>String(x.id)===String(id));
+    if(index<0)return;
+    data.medications[index]={...data.medications[index],stock:n};
+    if(!saveData())return;
+    // Verify the exact value reached local storage before closing the editor.
+    try{
+      const saved=JSON.parse(localStorage.getItem(STORAGE_KEY)||"{}");
+      const savedMed=(saved.medications||[]).find(x=>String(x.id)===String(id));
+      if(Number(savedMed?.stock)!==n){toast("Stock could not be saved");input?.focus();return}
+    }catch{toast("Stock could not be checked");input?.focus();return}
+    medicationStockEditingId="";
+    toast(`${n} tablets saved`);
+    render();
+  };
+  document.querySelectorAll("[data-med-stock]").forEach(b=>b.onclick=()=>{
+    medicationStockEditingId=b.dataset.medStock;
+    render();
+    requestAnimationFrame(()=>{const input=document.querySelector(`[data-med-stock-input="${CSS.escape(String(medicationStockEditingId))}"]`);input?.focus();input?.select()});
+  });
+  document.querySelectorAll("[data-med-stock-save]").forEach(b=>b.onclick=()=>saveStockCount(b.dataset.medStockSave));
+  document.querySelectorAll("[data-med-stock-cancel]").forEach(b=>b.onclick=()=>{medicationStockEditingId="";render()});
+  document.querySelectorAll("[data-med-stock-input]").forEach(input=>input.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();saveStockCount(input.dataset.medStockInput)}}));
   document.querySelectorAll("[data-med-tab]").forEach(b=>b.onclick=()=>{data.medicationView.tab=b.dataset.medTab;saveData();render()});
   document.querySelector("#medSelectedDate")?.addEventListener("change",e=>{medicationDateTouched=true;data.medicationView.date=e.target.value||medLocalDate();saveData();render()});
   document.querySelectorAll("[data-med-take]").forEach(b=>b.onclick=()=>{

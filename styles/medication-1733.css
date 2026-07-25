@@ -1,0 +1,36 @@
+/* LinaHub 17.3.3 medication navigation and per-tablet calendar history */
+body[data-route="medication"] .med-top-tabs{
+  display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 12px;padding:4px;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.025)
+}
+body[data-route="medication"] .med-top-tabs button{min-height:42px;border:0;border-radius:999px;background:transparent;color:var(--muted);font:inherit;font-weight:800}
+body[data-route="medication"] .med-top-tabs button.active{color:var(--text);background:var(--soft);box-shadow:inset 0 0 0 1px var(--line)}
+body[data-route="medication"] .med-today-due{padding:14px}
+body[data-route="medication"] .med-today-title{margin-bottom:10px}
+body[data-route="medication"] .med-today-title h2{margin:3px 0 0}
+body[data-route="medication"] .med-quick-list-only{display:grid;gap:8px}
+body[data-route="medication"] .med-today-empty{padding:14px 6px;text-align:center}
+body[data-route="medication"] .med-history-by-tablet{display:grid;gap:10px}
+body[data-route="medication"] details.med-tablet-history{padding:0;overflow:hidden}
+body[data-route="medication"] details.med-tablet-history>summary{display:grid;grid-template-columns:auto minmax(0,1fr) auto;align-items:center;gap:11px;padding:12px 14px;list-style:none;cursor:pointer}
+body[data-route="medication"] details.med-tablet-history>summary::-webkit-details-marker{display:none}
+body[data-route="medication"] details.med-tablet-history>summary span:nth-child(2){display:grid;gap:2px;min-width:0}
+body[data-route="medication"] details.med-tablet-history>summary small{color:var(--muted)}
+body[data-route="medication"] .med-history-chevron{font-size:24px;transition:transform .2s ease}
+body[data-route="medication"] details[open] .med-history-chevron{transform:rotate(90deg)}
+body[data-route="medication"] .med-history-calendar{padding:0 12px 12px}
+body[data-route="medication"] .med-calendar-head{display:grid;grid-template-columns:38px 1fr 38px;align-items:center;text-align:center;padding:8px 0}
+body[data-route="medication"] .med-calendar-head button{min-width:34px;height:34px;padding:0;font-size:23px}
+body[data-route="medication"] .med-calendar-week,.med-calendar-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px}
+body[data-route="medication"] .med-calendar-week{margin-bottom:5px;color:var(--muted);font-size:10px;text-align:center}
+body[data-route="medication"] .med-cal-day{aspect-ratio:1;display:grid;place-items:center;position:relative;border:1px solid var(--line);border-radius:10px;font-size:12px;background:rgba(255,255,255,.02)}
+body[data-route="medication"] .med-cal-day.blank{visibility:hidden}
+body[data-route="medication"] .med-cal-day.taken{background:var(--soft);box-shadow:inset 0 0 0 1px var(--accent)}
+body[data-route="medication"] .med-cal-day small{position:absolute;right:3px;bottom:1px;color:var(--accent);font-size:9px;font-weight:900}
+body[data-route="medication"] .med-history-recent{display:grid;gap:5px;margin-top:10px}
+body[data-route="medication"] .med-history-recent>div{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:7px 2px;border-top:1px solid var(--line);font-size:12px}
+body[data-route="medication"] .med-history-recent>div>span:last-child{display:flex;gap:4px}
+body[data-route="medication"] .med-bottom-tabs-three{grid-template-columns:repeat(3,1fr)!important}
+@media (max-width:768px){
+ body[data-route="medication"] .med-page{padding-bottom:92px!important}
+ body[data-route="medication"] .med-bottom-tabs-three button{min-width:0!important}
+}

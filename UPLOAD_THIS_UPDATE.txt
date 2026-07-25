@@ -1,9 +1,3 @@
-LinaHub 17.3.2
-
-Upload the contents of this ZIP to replace the existing site files.
-
-Changes:
-- Rebuilt Completed today as one compact card
-- Removed the long horizontal divider and inner bordered box
-- Kept stock count and History button
-- Kept the global bottom bar hidden inside Pokémon
+LinaHub 17.3.3
+Upload the full contents of this folder to replace the existing site.
+Medication: top Today/History tabs, per-tablet collapsed calendar history, Today only shows doses still due, and bottom medication nav is Day / Medication / Stock.

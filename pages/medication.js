@@ -80,29 +80,27 @@ function medDosePeriod(m,index){
   return `Dose ${index+1}`;
 }
 function medicationTodayTab(){
-  const selected=data.medicationView.date||medLocalDate();
+  const selected=medLocalDate();
+  data.medicationView.date=selected;
   const scheduled=data.medications.filter(m=>medDueOn(m,selected));
   const dueRows=[];
   scheduled.forEach(m=>{
     const logs=medLogsFor(m.id,selected);
     const required=m.scheduleType==="prn"?Math.max(1,logs.length+1):m.dosesPerDay;
-    for(let index=logs.length;index<required;index++)dueRows.push({m,index,logs});
+    for(let index=logs.length;index<required;index++)dueRows.push({m,index});
   });
-  const takenToday=data.medicationHistory
-    .filter(log=>log.date===selected)
-    .sort((a,b)=>(a.time||"").localeCompare(b.time||"")||(a.createdAt||"").localeCompare(b.createdAt||""));
-  return `<section class="med-date-card card">
-    <div><span class="section-kicker">📅 Selected day</span><h2>${medDateLabel(selected)}</h2></div>
-    <input class="field med-day-picker" id="medSelectedDate" type="date" value="${esc(selected)}">
+  return `<section class="med-top-tabs" aria-label="Medication day and history">
+    <button class="active" data-med-tab="today">Today</button>
+    <button data-med-tab="history">History</button>
   </section>
-  <section class="card med-quick-list">
-    ${dueRows.length?dueRows.map(({m,index})=>`<article class="med-quick-row">
+  <section class="card med-today-due">
+    <div class="med-today-title"><div><span class="section-kicker">💊 Today</span><h2>${dueRows.length?`${dueRows.length} ${dueRows.length===1?"tablet":"tablets"} left to take`:"All done for today"}</h2></div></div>
+    ${dueRows.length?`<div class="med-quick-list-only">${dueRows.map(({m,index})=>`<article class="med-quick-row">
       ${medPhoto(m)}
       <div class="med-quick-copy"><strong>${esc(m.name)}</strong><span>${esc([medDosePeriod(m,index),String(index+1),m.dose].filter(Boolean).join(" · "))}</span></div>
       <button type="button" class="med-quick-tick" data-med-take="${esc(m.id)}" data-dose-index="${index}" aria-label="Mark ${esc(m.name)} taken">✓</button>
-    </article>`).join(""):`<div class="empty"><h2>All medication completed</h2><p>${scheduled.length?"Everything scheduled for this day has been taken.":"No medication is scheduled on this day."}</p></div>`}
-  </section>
-  ${takenToday.length?`<section class="card med-completed med-completed-compact"><div class="med-completed-heading"><strong>✓ Completed today</strong><small>${takenToday.length} ${takenToday.length===1?"tablet":"tablets"}</small></div><div class="med-completed-list">${takenToday.map(log=>{const m=data.medications.find(item=>String(item.id)===String(log.medId));if(!m)return "";const left=Math.max(0,Math.floor(Number(m.stock)||0));return `<div class="med-completed-row">${medPhoto(m)}<span class="med-completed-copy"><strong>${esc(m.name)}</strong><small class="med-completed-meta"><b>${esc(log.time||"Time not recorded")}</b><em>• ${left} ${left===1?"tablet":"tablets"} left</em></small></span><button class="mini" data-med-open-history="${esc(m.id)}" aria-label="Open ${esc(m.name)} history">History</button></div>`}).join("")}</div></section>`:""}`;
+    </article>`).join("")}</div>`:`<div class="empty med-today-empty"><h2>All medication completed</h2><p>There is nothing else to take today.</p></div>`}
+  </section>`;
 }
 function medicationScheduleTab(){
   const meds=data.medications;
@@ -131,11 +129,50 @@ function medicationScheduleTab(){
     <div class="med-schedule-list">${meds.length?meds.map(m=>`<div class="med-schedule-row">${medPhoto(m)}<div><strong>${esc(m.name)}</strong><small>${esc([m.dose,m.scheduleType==="daily"?"Daily":m.scheduleType==="prn"?"As needed":m.weekdays.join(", "),m.scheduleType!=="prn"?`${m.dosesPerDay} ${m.dosesPerDay===1?"dose":"doses"} per day`:"",m.time,m.startDate?`from ${medDateLabel(m.startDate)}`:"",m.endDate?`until ${medDateLabel(m.endDate)}`:""].filter(Boolean).join(" · "))}</small></div><button class="mini" data-med-edit="${esc(m.id)}">Edit</button><button class="mini danger" data-med-delete="${esc(m.id)}">×</button></div>`).join(""):`<p>No medications added yet.</p>`}</div>
   </section>`;
 }
+function medHistoryMonthStart(){
+  const value=data.medicationView.historyMonth||medLocalDate().slice(0,7);
+  return /^\d{4}-\d{2}$/.test(value)?value:medLocalDate().slice(0,7);
+}
+function medShiftMonth(value,delta){
+  const [y,m]=value.split("-").map(Number),d=new Date(y,m-1+delta,1);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`;
+}
+function medCalendarFor(med,monthValue){
+  const [year,month]=monthValue.split("-").map(Number);
+  const first=new Date(year,month-1,1),days=new Date(year,month,0).getDate();
+  const mondayOffset=(first.getDay()+6)%7;
+  const logs=data.medicationHistory.filter(x=>String(x.medId)===String(med.id)&&x.date.startsWith(`${monthValue}-`));
+  const counts={};logs.forEach(x=>counts[x.date]=(counts[x.date]||0)+1);
+  const cells=[];
+  for(let i=0;i<mondayOffset;i++)cells.push(`<span class="med-cal-day blank"></span>`);
+  for(let day=1;day<=days;day++){
+    const date=`${monthValue}-${String(day).padStart(2,"0")}`,count=counts[date]||0;
+    cells.push(`<span class="med-cal-day ${count?"taken":""}" title="${count?`${count} dose${count===1?"":"s"} recorded`:"No dose recorded"}"><b>${day}</b>${count?`<small>${count>1?count:"✓"}</small>`:""}</span>`);
+  }
+  const monthLabel=first.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
+  const recent=[...data.medicationHistory].filter(x=>String(x.medId)===String(med.id)).sort((a,b)=>`${b.date} ${b.time||""}`.localeCompare(`${a.date} ${a.time||""}`)).slice(0,12);
+  return `<div class="med-history-calendar">
+    <div class="med-calendar-head"><button class="mini" data-med-history-month="-1" data-med-history-med="${esc(med.id)}" aria-label="Previous month">‹</button><strong>${monthLabel}</strong><button class="mini" data-med-history-month="1" data-med-history-med="${esc(med.id)}" aria-label="Next month">›</button></div>
+    <div class="med-calendar-week"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+    <div class="med-calendar-grid">${cells.join("")}</div>
+    ${recent.length?`<div class="med-history-recent">${recent.map(log=>`<div><span>${medDateLabel(log.date)}${log.time?` · ${esc(log.time)}`:""}</span><span><button class="mini" data-med-log-edit="${esc(log.id)}">Edit</button><button class="mini danger" data-med-log-delete="${esc(log.id)}">×</button></span></div>`).join("")}</div>`:`<p class="muted-copy">No doses recorded for this tablet yet.</p>`}
+  </div>`;
+}
 function medicationHistoryTab(){
-  const filter=data.medicationView.historyMed||"all";
-  const logs=[...data.medicationHistory].filter(x=>filter==="all"||x.medId===filter).sort((a,b)=>`${b.date} ${b.time||""}`.localeCompare(`${a.date} ${a.time||""}`));
-  return `<section class="card med-history-controls"><div><span class="section-kicker">📖 Dose history</span><h2>${logs.length} recorded ${logs.length===1?"dose":"doses"}</h2></div><select class="field" id="medHistoryFilter"><option value="all">All medication</option>${data.medications.map(m=>`<option value="${esc(m.id)}" ${filter===m.id?"selected":""}>${esc(m.name)}</option>`).join("")}</select></section>
-  <section class="med-history-list">${logs.length?logs.map(log=>{const m=data.medications.find(x=>x.id===log.medId);return `<article class="card med-history-row">${m?medPhoto(m):`<span class="med-photo med-photo-placeholder">💊</span>`}<div><h2>${esc(m?.name||"Removed medication")}</h2><p>${medDateLabel(log.date)}${log.time?` · ${esc(log.time)}`:""}${log.notes?` · ${esc(log.notes)}`:""}</p></div><button class="mini" data-med-log-edit="${esc(log.id)}">Edit</button><button class="mini danger" data-med-log-delete="${esc(log.id)}">×</button></article>`}).join(""):`<section class="card empty"><h2>No doses recorded</h2><p>Marked doses will appear here with their exact date and time.</p></section>`}</section>`;
+  const monthValue=medHistoryMonthStart();
+  return `<section class="med-top-tabs" aria-label="Medication day and history">
+    <button data-med-tab="today">Today</button>
+    <button class="active" data-med-tab="history">History</button>
+  </section>
+  <section class="med-history-by-tablet">
+    ${data.medications.length?data.medications.map(m=>{
+      const total=data.medicationHistory.filter(x=>String(x.medId)===String(m.id)).length;
+      return `<details class="card med-tablet-history">
+        <summary>${medPhoto(m)}<span><strong>${esc(m.name)}</strong><small>${total} recorded ${total===1?"dose":"doses"}</small></span><span class="med-history-chevron">›</span></summary>
+        ${medCalendarFor(m,monthValue)}
+      </details>`;
+    }).join(""):`<section class="card empty"><h2>No medication added</h2><p>Add a medication first and its calendar will appear here.</p></section>`}
+  </section>`;
 }
 
 function medicationStockTab(){
@@ -148,12 +185,11 @@ function MedicationPage(){
   ensureMedicationData();
   const tab=data.medicationView.tab;
   const content=tab==="schedule"?medicationScheduleTab():tab==="history"?medicationHistoryTab():tab==="stock"?medicationStockTab():medicationTodayTab();
-  return shell(`${head("Medication","Medication centre · v17.3.0")}
+  return shell(`${head("Medication","Medication centre · v17.3.3")}
     <div class="med-page">${content}</div>
-    <nav class="med-bottom-tabs" aria-label="Medication sections">
-      <button class="${tab==="today"?"active":""}" data-med-tab="today">✓<small>Day</small></button>
+    <nav class="med-bottom-tabs med-bottom-tabs-three" aria-label="Medication sections">
+      <button class="${tab==="today"||tab==="history"?"active":""}" data-med-tab="today">✓<small>Day</small></button>
       <button class="${tab==="schedule"?"active":""}" data-med-tab="schedule">＋<small>Medication</small></button>
-      <button class="${tab==="history"?"active":""}" data-med-tab="history">◷<small>History</small></button>
       <button class="${tab==="stock"?"active":""}" data-med-tab="stock">▣<small>Stock</small></button>
     </nav>`,"medication");
 }
@@ -248,7 +284,7 @@ function bindMedication(){
   document.querySelectorAll("[data-med-stock-save]").forEach(b=>b.onclick=()=>saveStockCount(b.dataset.medStockSave));
   document.querySelectorAll("[data-med-stock-cancel]").forEach(b=>b.onclick=()=>{medicationStockEditingId="";render()});
   document.querySelectorAll("[data-med-stock-input]").forEach(input=>input.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();saveStockCount(input.dataset.medStockInput)}}));
-  document.querySelectorAll("[data-med-tab]").forEach(b=>b.onclick=()=>{data.medicationView.tab=b.dataset.medTab;saveData();render()});
+  document.querySelectorAll("[data-med-tab]").forEach(b=>b.onclick=()=>{data.medicationView.tab=b.dataset.medTab;if(b.dataset.medTab==="today"){data.medicationView.date=medLocalDate();medicationDateTouched=false}saveData();render()});
   document.querySelector("#medSelectedDate")?.addEventListener("change",e=>{medicationDateTouched=true;data.medicationView.date=e.target.value||medLocalDate();saveData();render()});
   document.querySelectorAll("[data-med-take]").forEach(b=>b.onclick=()=>{
     const medId=b.dataset.medTake,date=data.medicationView.date||medLocalDate(),time=medNowTime();
@@ -285,6 +321,7 @@ function bindMedication(){
   document.querySelectorAll("[data-med-delete]").forEach(b=>b.onclick=()=>{const m=data.medications.find(x=>x.id===b.dataset.medDelete);if(!m||!confirm(`Remove ${m.name}? Its dose history will be kept.`))return;data.medications=data.medications.filter(x=>x.id!==m.id);saveData();render()});
   document.querySelector("#medHistoryFilter")?.addEventListener("change",e=>{data.medicationView.historyMed=e.target.value;saveData();render()});
   document.querySelectorAll("[data-med-log-edit]").forEach(b=>b.onclick=()=>{const log=data.medicationHistory.find(x=>x.id===b.dataset.medLogEdit);if(log)medEditLog(log)});
+  document.querySelectorAll("[data-med-history-month]").forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();data.medicationView.historyMonth=medShiftMonth(medHistoryMonthStart(),Number(b.dataset.medHistoryMonth)||0);saveData();render();requestAnimationFrame(()=>{const item=[...document.querySelectorAll(".med-tablet-history")].find(d=>d.querySelector(`[data-med-history-med="${CSS.escape(String(b.dataset.medHistoryMed))}"]`));if(item)item.open=true})});
   document.querySelectorAll("[data-med-open-history]").forEach(b=>b.onclick=()=>{data.medicationView.tab="history";data.medicationView.historyMed=b.dataset.medOpenHistory;saveData();render()});
   document.querySelectorAll("[data-med-log-delete]").forEach(b=>b.onclick=()=>{if(!confirm("Delete this dose record?"))return;const log=data.medicationHistory.find(x=>x.id===b.dataset.medLogDelete);data.medicationHistory=data.medicationHistory.filter(x=>x.id!==b.dataset.medLogDelete);if(log){if(log.stockAdjusted)medAdjustStockForDose(log.medId,1);syncMedicationCompletionMap(log.medId,log.date)}saveData();render()});
 }

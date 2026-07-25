@@ -20,7 +20,8 @@ function ensureMedicationData(){
     weekdays:Array.isArray(m.weekdays)?m.weekdays:[],time:/^\d{2}:\d{2}$/.test(m.time||"")?m.time:"",
     timeLabel:!/^\d{2}:\d{2}$/.test(m.time||"")&&m.time!=="As needed"?(m.time||""):"",
     startDate:m.startDate||"",endDate:m.endDate||"",photo:m.photo||"",notes:m.notes||"",active:m.active!==false,
-    dosesPerDay:Math.max(1,Number(m.dosesPerDay)||1)
+    dosesPerDay:Math.max(1,Number(m.dosesPerDay)||1),
+    stock:Math.max(0,Math.floor(Number(m.stock)||0))
   }));
   // Convert the original one-check-per-day format into proper history once.
   if(!data.medicationHistoryMigrated && data.medicationLog && typeof data.medicationLog==="object"){
@@ -221,7 +222,9 @@ function bindMedication(){
     if(!name){toast("Add the medication name");return}if(scheduleType==="weekdays"&&!weekdays.length){toast("Select at least one day");return}
     const dosesPerDay=Math.max(1,Math.min(12,Number(document.querySelector("#medDosesPerDay").value)||1));
     const med={id:document.querySelector("#medEditId").value||medUid(),name,dose:document.querySelector("#medDose").value.trim(),instructions:document.querySelector("#medInstructions").value.trim(),scheduleType,weekdays,time:document.querySelector("#medTime").value,startDate:document.querySelector("#medStartDate").value,endDate:document.querySelector("#medEndDate").value,photo:document.querySelector("#medPhotoData").value,notes:document.querySelector("#medNotes").value.trim(),active:true,dosesPerDay};
-    const existing=data.medications.findIndex(x=>x.id===med.id);if(existing>=0)data.medications[existing]=med;else data.medications.push(med);data.medicationView.tab="today";data.medicationView.date=medLocalDate();medicationDateTouched=false;saveData();render();toast(existing>=0?"Medication updated":"Medication added");
+    const existing=data.medications.findIndex(x=>x.id===med.id);
+    med.stock=existing>=0?Math.max(0,Math.floor(Number(data.medications[existing].stock)||0)):0;
+    if(existing>=0)data.medications[existing]=med;else data.medications.push(med);data.medicationView.tab="today";data.medicationView.date=medLocalDate();medicationDateTouched=false;saveData();render();toast(existing>=0?"Medication updated":"Medication added");
   });
   document.querySelector("#cancelMedEdit")?.addEventListener("click",()=>render());
   document.querySelectorAll("[data-med-edit]").forEach(b=>b.onclick=()=>{const m=data.medications.find(x=>x.id===b.dataset.medEdit);if(m)medFillForm(m)});
@@ -232,3 +235,5 @@ function bindMedication(){
   document.querySelectorAll("[data-med-open-history]").forEach(b=>b.onclick=()=>{data.medicationView.tab="history";data.medicationView.historyMed=b.dataset.medOpenHistory;saveData();render()});
   document.querySelectorAll("[data-med-log-delete]").forEach(b=>b.onclick=()=>{if(!confirm("Delete this dose record?"))return;const log=data.medicationHistory.find(x=>x.id===b.dataset.medLogDelete);data.medicationHistory=data.medicationHistory.filter(x=>x.id!==b.dataset.medLogDelete);if(log)syncMedicationCompletionMap(log.medId,log.date);saveData();render()});
 }
+
+

@@ -1,0 +1,21 @@
+/* LinaHub 17.3.1 — exact phone fixes requested. */
+
+/* Remove the horizontal divider running across the Completed today card. */
+body[data-route="medication"] .med-completed-list {
+  border-top: 0 !important;
+}
+body[data-route="medication"] details.med-completed > summary {
+  border-bottom: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Pokémon is an immersive section: never show the global LinaHub bottom bar. */
+body[data-route="pokemon"] .bottom,
+body[data-route="pokemon"] .bottom-nav {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+body[data-route="pokemon"] .shell {
+  padding-bottom: calc(22px + env(safe-area-inset-bottom)) !important;
+}

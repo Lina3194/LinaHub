@@ -1,4 +1,7 @@
-LinaHub 17.3.0
-Phone Medication Day view shortened substantially.
-The medication section tabs now sit immediately below the compact cards.
-Upload all files and replace existing files.
+LinaHub 17.3.1
+
+Exact fixes:
+- Removed the horizontal divider across Completed today.
+- Hidden the global bottom navigation throughout the Pokémon section.
+
+Upload all files and folders in this ZIP, replacing the existing versions.

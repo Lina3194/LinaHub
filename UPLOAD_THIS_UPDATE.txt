@@ -1,10 +1,7 @@
-LinaHub 17.2.7
+LinaHub 17.2.8
 
-Medication stock now updates automatically:
-- Marking one tablet as taken subtracts 1 from stock.
-- Each recorded dose can only subtract once.
-- Deleting that dose from Medication History adds 1 back.
-- Stock never goes below 0.
-- Manual stock entry still opens the number keypad on phones.
-
-Upload the contents of this ZIP as your LinaHub site update.
+PHONE MEDICATION VIEW COMPACT
+- Compact selected-day card
+- Compact completed-state card
+- Compact completed medication rows
+- Stock values and countdown logic unchanged

@@ -660,3 +660,34 @@ if("serviceWorker" in navigator){
 }
 
 render();
+
+/* LinaHub 17.2.2 — format decimal sleep duration as hours and minutes */
+(function(){
+  function formatSleepHours(value){
+    const decimal=Number(value);
+    if(!Number.isFinite(decimal)||decimal<0)return null;
+    let totalMinutes=Math.round(decimal*60);
+    const hours=Math.floor(totalMinutes/60);
+    const minutes=totalMinutes%60;
+    return `${hours}h ${minutes}m`;
+  }
+
+  function fixSleepDurationDisplay(root=document){
+    const nodes=root.querySelectorAll ? root.querySelectorAll('*') : [];
+    nodes.forEach((node)=>{
+      if(node.children.length) return;
+      const text=(node.textContent||'').trim();
+      const match=text.match(/^(-?\d+(?:\.\d+)?)h$/i);
+      if(!match) return;
+      const card=node.closest('.stat,.card,[class*="sleep"],[class*="summary"],button,li,section,div');
+      if(!card || !/sleep/i.test(card.textContent||'')) return;
+      const formatted=formatSleepHours(match[1]);
+      if(formatted && formatted!==text) node.textContent=formatted;
+    });
+  }
+
+  const run=()=>fixSleepDurationDisplay(document);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run,{once:true});
+  else run();
+  new MutationObserver(run).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+})();

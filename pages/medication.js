@@ -1,6 +1,7 @@
 const MED_WEEKDAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 let medicationDateTouched=false;
 let medicationStockEditingId="";
+let medicationHistoryOpenId="";
 
 function medLocalDate(date=new Date()){
   const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,"0"),d=String(date.getDate()).padStart(2,"0");
@@ -167,10 +168,11 @@ function medicationHistoryTab(){
   <section class="med-history-by-tablet">
     ${data.medications.length?data.medications.map(m=>{
       const total=data.medicationHistory.filter(x=>String(x.medId)===String(m.id)).length;
-      return `<details class="card med-tablet-history">
-        <summary>${medPhoto(m)}<span><strong>${esc(m.name)}</strong><small>${total} recorded ${total===1?"dose":"doses"}</small></span><span class="med-history-chevron">›</span></summary>
-        ${medCalendarFor(m,monthValue)}
-      </details>`;
+      const isOpen=String(medicationHistoryOpenId)===String(m.id);
+      return `<article class="card med-tablet-history ${isOpen?"is-open":""}">
+        <button type="button" class="med-history-summary" data-med-history-toggle="${esc(m.id)}" aria-expanded="${isOpen?"true":"false"}">${medPhoto(m)}<span><strong>${esc(m.name)}</strong><small>${total} recorded ${total===1?"dose":"doses"}</small></span><span class="med-history-chevron">›</span></button>
+        <div class="med-history-panel" ${isOpen?"":"hidden"}>${medCalendarFor(m,monthValue)}</div>
+      </article>`;
     }).join(""):`<section class="card empty"><h2>No medication added</h2><p>Add a medication first and its calendar will appear here.</p></section>`}
   </section>`;
 }
@@ -185,7 +187,7 @@ function MedicationPage(){
   ensureMedicationData();
   const tab=data.medicationView.tab;
   const content=tab==="schedule"?medicationScheduleTab():tab==="history"?medicationHistoryTab():tab==="stock"?medicationStockTab():medicationTodayTab();
-  return shell(`${head("Medication","Medication centre · v17.3.4")}
+  return shell(`${head("Medication","Medication centre · v17.3.5")}
     <div class="med-page">${content}</div>
     <nav class="med-bottom-tabs med-bottom-tabs-two" aria-label="Medication sections">
       <button class="${tab==="schedule"?"active":""}" data-med-tab="schedule">＋<small>Medication</small></button>
@@ -255,10 +257,6 @@ function medEditLog(log){
 }
 function bindMedication(){
   ensureMedicationData();
-  // Safari can restore <details> open state across renders. History must start collapsed.
-  if(data.medicationView.tab==="history"){
-    requestAnimationFrame(()=>document.querySelectorAll("details.med-tablet-history").forEach(item=>item.open=false));
-  }
   const saveStockCount=id=>{
     const input=document.querySelector(`[data-med-stock-input="${CSS.escape(String(id))}"]`);
     const value=input?.value?.trim()??"";
@@ -287,7 +285,18 @@ function bindMedication(){
   document.querySelectorAll("[data-med-stock-save]").forEach(b=>b.onclick=()=>saveStockCount(b.dataset.medStockSave));
   document.querySelectorAll("[data-med-stock-cancel]").forEach(b=>b.onclick=()=>{medicationStockEditingId="";render()});
   document.querySelectorAll("[data-med-stock-input]").forEach(input=>input.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();saveStockCount(input.dataset.medStockInput)}}));
-  document.querySelectorAll("[data-med-tab]").forEach(b=>b.onclick=()=>{data.medicationView.tab=b.dataset.medTab;if(b.dataset.medTab==="today"){data.medicationView.date=medLocalDate();medicationDateTouched=false}saveData();render()});
+  document.querySelectorAll("[data-med-tab]").forEach(b=>b.onclick=()=>{
+    const nextTab=b.dataset.medTab;
+    if(nextTab==="history"&&data.medicationView.tab!=="history") medicationHistoryOpenId="";
+    data.medicationView.tab=nextTab;
+    if(nextTab==="today"){data.medicationView.date=medLocalDate();medicationDateTouched=false}
+    saveData();render();
+  });
+  document.querySelectorAll("[data-med-history-toggle]").forEach(b=>b.onclick=()=>{
+    const id=b.dataset.medHistoryToggle;
+    medicationHistoryOpenId=String(medicationHistoryOpenId)===String(id)?"":id;
+    render();
+  });
   document.querySelector("#medSelectedDate")?.addEventListener("change",e=>{medicationDateTouched=true;data.medicationView.date=e.target.value||medLocalDate();saveData();render()});
   document.querySelectorAll("[data-med-take]").forEach(b=>b.onclick=()=>{
     const medId=b.dataset.medTake,date=data.medicationView.date||medLocalDate(),time=medNowTime();
@@ -324,7 +333,7 @@ function bindMedication(){
   document.querySelectorAll("[data-med-delete]").forEach(b=>b.onclick=()=>{const m=data.medications.find(x=>x.id===b.dataset.medDelete);if(!m||!confirm(`Remove ${m.name}? Its dose history will be kept.`))return;data.medications=data.medications.filter(x=>x.id!==m.id);saveData();render()});
   document.querySelector("#medHistoryFilter")?.addEventListener("change",e=>{data.medicationView.historyMed=e.target.value;saveData();render()});
   document.querySelectorAll("[data-med-log-edit]").forEach(b=>b.onclick=()=>{const log=data.medicationHistory.find(x=>x.id===b.dataset.medLogEdit);if(log)medEditLog(log)});
-  document.querySelectorAll("[data-med-history-month]").forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();data.medicationView.historyMonth=medShiftMonth(medHistoryMonthStart(),Number(b.dataset.medHistoryMonth)||0);saveData();render();requestAnimationFrame(()=>{const item=[...document.querySelectorAll(".med-tablet-history")].find(d=>d.querySelector(`[data-med-history-med="${CSS.escape(String(b.dataset.medHistoryMed))}"]`));if(item)item.open=true})});
+  document.querySelectorAll("[data-med-history-month]").forEach(b=>b.onclick=e=>{e.preventDefault();e.stopPropagation();medicationHistoryOpenId=b.dataset.medHistoryMed;data.medicationView.historyMonth=medShiftMonth(medHistoryMonthStart(),Number(b.dataset.medHistoryMonth)||0);saveData();render()});
   document.querySelectorAll("[data-med-open-history]").forEach(b=>b.onclick=()=>{data.medicationView.tab="history";data.medicationView.historyMed=b.dataset.medOpenHistory;saveData();render()});
   document.querySelectorAll("[data-med-log-delete]").forEach(b=>b.onclick=()=>{if(!confirm("Delete this dose record?"))return;const log=data.medicationHistory.find(x=>x.id===b.dataset.medLogDelete);data.medicationHistory=data.medicationHistory.filter(x=>x.id!==b.dataset.medLogDelete);if(log){if(log.stockAdjusted)medAdjustStockForDose(log.medId,1);syncMedicationCompletionMap(log.medId,log.date)}saveData();render()});
 }

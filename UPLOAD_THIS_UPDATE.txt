@@ -1,7 +1,4 @@
-LinaHub 17.2.8
-
-PHONE MEDICATION VIEW COMPACT
-- Compact selected-day card
-- Compact completed-state card
-- Compact completed medication rows
-- Stock values and countdown logic unchanged
+LinaHub 17.3.0
+Phone Medication Day view shortened substantially.
+The medication section tabs now sit immediately below the compact cards.
+Upload all files and replace existing files.

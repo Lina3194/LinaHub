@@ -148,7 +148,7 @@ function MedicationPage(){
   ensureMedicationData();
   const tab=data.medicationView.tab;
   const content=tab==="schedule"?medicationScheduleTab():tab==="history"?medicationHistoryTab():tab==="stock"?medicationStockTab():medicationTodayTab();
-  return shell(`${head("Medication","Medication centre · v17.2.9")}
+  return shell(`${head("Medication","Medication centre · v17.3.0")}
     <div class="med-page">${content}</div>
     <nav class="med-bottom-tabs" aria-label="Medication sections">
       <button class="${tab==="today"?"active":""}" data-med-tab="today">✓<small>Day</small></button>

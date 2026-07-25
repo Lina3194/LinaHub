@@ -1,0 +1,132 @@
+/* LinaHub 17.3.2 — compact Completed today card + immersive Pokémon. */
+
+/* Pokémon stays full-screen without the global LinaHub navigation. */
+body[data-route="pokemon"] .bottom,
+body[data-route="pokemon"] .bottom-nav {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+body[data-route="pokemon"] .shell {
+  padding-bottom: calc(22px + env(safe-area-inset-bottom)) !important;
+}
+
+@media screen and (max-width: 768px) {
+  /* One compact card: no full-width divider and no inner bordered box. */
+  body[data-route="medication"] .med-completed-compact.card {
+    display: block !important;
+    min-height: 0 !important;
+    height: auto !important;
+    margin: 0 !important;
+    padding: 9px 11px !important;
+    border-radius: 15px !important;
+    overflow: hidden !important;
+    box-sizing: border-box !important;
+  }
+
+  body[data-route="medication"] .med-completed-compact .med-completed-heading {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    gap: 8px !important;
+    min-height: 18px !important;
+    margin: 0 0 6px !important;
+    padding: 0 !important;
+    border: 0 !important;
+    box-shadow: none !important;
+  }
+
+  body[data-route="medication"] .med-completed-compact .med-completed-heading strong {
+    font-size: 13px !important;
+    line-height: 1.1 !important;
+    margin: 0 !important;
+  }
+
+  body[data-route="medication"] .med-completed-compact .med-completed-heading small {
+    font-size: 10px !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  body[data-route="medication"] .med-completed-compact .med-completed-list {
+    display: grid !important;
+    gap: 4px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  body[data-route="medication"] .med-completed-compact .med-completed-row {
+    display: grid !important;
+    grid-template-columns: 30px minmax(0, 1fr) 26px !important;
+    align-items: center !important;
+    gap: 7px !important;
+    min-height: 36px !important;
+    height: 36px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  body[data-route="medication"] .med-completed-compact .med-completed-row .med-photo {
+    width: 30px !important;
+    height: 30px !important;
+    min-width: 30px !important;
+    min-height: 30px !important;
+    border-radius: 9px !important;
+    font-size: 15px !important;
+  }
+
+  body[data-route="medication"] .med-completed-compact .med-completed-copy {
+    display: grid !important;
+    gap: 2px !important;
+    min-width: 0 !important;
+  }
+
+  body[data-route="medication"] .med-completed-compact .med-completed-copy > strong {
+    font-size: 13px !important;
+    line-height: 1 !important;
+    margin: 0 !important;
+  }
+
+  body[data-route="medication"] .med-completed-compact .med-completed-meta {
+    display: flex !important;
+    align-items: center !important;
+    flex-wrap: nowrap !important;
+    gap: 4px !important;
+    margin: 0 !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  body[data-route="medication"] .med-completed-compact .med-completed-meta b,
+  body[data-route="medication"] .med-completed-compact .med-completed-meta em {
+    font-size: 10px !important;
+    line-height: 1 !important;
+  }
+
+  body[data-route="medication"] .med-completed-compact .med-completed-row > button.mini {
+    width: 26px !important;
+    min-width: 26px !important;
+    max-width: 26px !important;
+    height: 26px !important;
+    min-height: 26px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border-radius: 8px !important;
+    font-size: 0 !important;
+    display: grid !important;
+    place-items: center !important;
+  }
+
+  body[data-route="medication"] .med-completed-compact .med-completed-row > button.mini::before {
+    content: "◷" !important;
+    font-size: 13px !important;
+    line-height: 1 !important;
+  }
+}

@@ -1,7 +1,9 @@
-LinaHub 17.3.1
+LinaHub 17.3.2
 
-Exact fixes:
-- Removed the horizontal divider across Completed today.
-- Hidden the global bottom navigation throughout the Pokémon section.
+Upload the contents of this ZIP to replace the existing site files.
 
-Upload all files and folders in this ZIP, replacing the existing versions.
+Changes:
+- Rebuilt Completed today as one compact card
+- Removed the long horizontal divider and inner bordered box
+- Kept stock count and History button
+- Kept the global bottom bar hidden inside Pokémon

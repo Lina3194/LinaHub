@@ -1,15 +1,15 @@
 {
   "name": "LinaHub",
   "short_name": "LinaHub",
-  "id": "./?version=1801",
-  "start_url": "./?version=1801",
+  "id": "./?version=1689",
+  "start_url": "./?version=1689",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#08091b",
-  "theme_color": "#16102f",
+  "background_color": "#f9dce9",
+  "theme_color": "#ef9dca",
   "description": "Lina's gentle personal life dashboard.",
   "icons": [
-    {"src":"./icon-192.png?v=1801","sizes":"192x192","type":"image/png","purpose":"any maskable"},
-    {"src":"./icon-512.png?v=1801","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+    {"src":"./icon-192.png?v=1688","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"./icon-512.png?v=1688","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ]
 }

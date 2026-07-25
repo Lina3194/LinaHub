@@ -69,3 +69,19 @@
     inline-size: 100% !important;
   }
 }
+
+
+/* LinaHub 17.3.6 — aquarium temperature editor */
+.aquarium-temperature-card{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:16px;align-items:center}
+.aquarium-temperature-copy h2{margin:4px 0 3px;font-size:1.55rem}
+.aquarium-temperature-copy small{color:var(--muted)}
+.aquarium-temperature-controls{display:flex;align-items:end;gap:9px}
+.aquarium-temperature-controls label{display:grid;gap:5px}
+.aquarium-temperature-controls label>span{font-size:.72rem;color:var(--muted);font-weight:800}
+.aquarium-temperature-controls input{width:112px;text-align:center;font-weight:800}
+.aquarium-temperature-controls button{min-height:45px}
+@media(max-width:600px){
+ .aquarium-temperature-card{grid-template-columns:1fr;gap:12px;padding:15px!important}
+ .aquarium-temperature-controls{display:grid;grid-template-columns:minmax(0,1fr) 92px;align-items:end}
+ .aquarium-temperature-controls input{width:100%}
+}

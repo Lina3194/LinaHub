@@ -51,6 +51,22 @@ function medDueOn(m,dateValue){
   }
   return true;
 }
+
+function medAdjustStockForDose(medId,change){
+  const med=(data.medications||[]).find(item=>String(item.id)===String(medId));
+  if(!med)return false;
+  const current=Math.max(0,Math.floor(Number(med.stock)||0));
+  if(change<0){
+    if(current<1)return false;
+    med.stock=current-1;
+    return true;
+  }
+  if(change>0){
+    med.stock=current+1;
+    return true;
+  }
+  return false;
+}
 function medLogsFor(medId,dateValue){
   return data.medicationHistory.filter(x=>x.medId===medId&&x.date===dateValue).sort((a,b)=>(a.time||"").localeCompare(b.time||""));
 }
@@ -234,13 +250,17 @@ function bindMedication(){
   document.querySelector("#medSelectedDate")?.addEventListener("change",e=>{medicationDateTouched=true;data.medicationView.date=e.target.value||medLocalDate();saveData();render()});
   document.querySelectorAll("[data-med-take]").forEach(b=>b.onclick=()=>{
     const medId=b.dataset.medTake,date=data.medicationView.date||medLocalDate(),time=medNowTime();
-    data.medicationHistory.push({id:medUid("dose"),medId,date,time,notes:"",createdAt:new Date().toISOString()});
+    const stockAdjusted=medAdjustStockForDose(medId,-1);
+    data.medicationHistory.push({id:medUid("dose"),medId,date,time,notes:"",createdAt:new Date().toISOString(),stockAdjusted});
     // Keep the original daily completion map in sync so Today and Medication
     // always agree, including for data created by older LinaHub versions.
     data.medicationLog=data.medicationLog&&typeof data.medicationLog==="object"?data.medicationLog:{};
     data.medicationLog[date]=data.medicationLog[date]&&typeof data.medicationLog[date]==="object"?data.medicationLog[date]:{};
     data.medicationLog[date][medId]=true;
-    data.medicationView.date=date;saveData();b.classList.add("done");toast("Dose marked as taken");setTimeout(()=>render(),160);
+    data.medicationView.date=date;saveData();b.classList.add("done");
+    const med=data.medications.find(item=>String(item.id)===String(medId));
+    toast(stockAdjusted?`Dose taken · ${Math.max(0,Math.floor(Number(med?.stock)||0))} tablets left`:"Dose marked as taken · stock is already 0");
+    setTimeout(()=>render(),160);
   });
   document.querySelector("#medScheduleType")?.addEventListener("change",e=>document.querySelector("#medWeekdays").classList.toggle("hidden",e.target.value!=="weekdays"));
   document.querySelector("#medPhotoInput")?.addEventListener("change",async e=>{
@@ -264,7 +284,7 @@ function bindMedication(){
   document.querySelector("#medHistoryFilter")?.addEventListener("change",e=>{data.medicationView.historyMed=e.target.value;saveData();render()});
   document.querySelectorAll("[data-med-log-edit]").forEach(b=>b.onclick=()=>{const log=data.medicationHistory.find(x=>x.id===b.dataset.medLogEdit);if(log)medEditLog(log)});
   document.querySelectorAll("[data-med-open-history]").forEach(b=>b.onclick=()=>{data.medicationView.tab="history";data.medicationView.historyMed=b.dataset.medOpenHistory;saveData();render()});
-  document.querySelectorAll("[data-med-log-delete]").forEach(b=>b.onclick=()=>{if(!confirm("Delete this dose record?"))return;const log=data.medicationHistory.find(x=>x.id===b.dataset.medLogDelete);data.medicationHistory=data.medicationHistory.filter(x=>x.id!==b.dataset.medLogDelete);if(log)syncMedicationCompletionMap(log.medId,log.date);saveData();render()});
+  document.querySelectorAll("[data-med-log-delete]").forEach(b=>b.onclick=()=>{if(!confirm("Delete this dose record?"))return;const log=data.medicationHistory.find(x=>x.id===b.dataset.medLogDelete);data.medicationHistory=data.medicationHistory.filter(x=>x.id!==b.dataset.medLogDelete);if(log){if(log.stockAdjusted)medAdjustStockForDose(log.medId,1);syncMedicationCompletionMap(log.medId,log.date)}saveData();render()});
 }
 
 

@@ -153,11 +153,12 @@ function bindToday(){
       const now=new Date(),pad=n=>String(n).padStart(2,'0');
       data.medicationHistory=Array.isArray(data.medicationHistory)?data.medicationHistory:[];
       const doseDate=today();
-      data.medicationHistory.push({id:`dose-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,medId:med.id,date:doseDate,time:`${pad(now.getHours())}:${pad(now.getMinutes())}`,notes:'',createdAt:now.toISOString()});
+      const stockAdjusted=typeof medAdjustStockForDose==='function'?medAdjustStockForDose(med.id,-1):false;
+      data.medicationHistory.push({id:`dose-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,medId:med.id,date:doseDate,time:`${pad(now.getHours())}:${pad(now.getMinutes())}`,notes:'',createdAt:now.toISOString(),stockAdjusted});
       data.medicationLog=data.medicationLog&&typeof data.medicationLog==='object'?data.medicationLog:{};
       data.medicationLog[doseDate]=data.medicationLog[doseDate]&&typeof data.medicationLog[doseDate]==='object'?data.medicationLog[doseDate]:{};
       data.medicationLog[doseDate][med.id]=true;
-      message=`${med.name} marked as taken 💊`;
+      message=stockAdjusted?`${med.name} taken · ${Math.max(0,Math.floor(Number(med.stock)||0))} tablets left 💊`:`${med.name} marked as taken · stock is already 0 💊`;
     }else if(type==='aquarium-feed'){
       const tank=(data.aquariums||[]).find(item=>String(item.id)===id);
       if(!tank)return;

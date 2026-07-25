@@ -1,3 +1,10 @@
-LinaHub 17.2.4
+LinaHub 17.2.5
 
-Medication stock now uses a real numeric input, saves the exact whole-tablet count, verifies local storage, and opens the phone number keypad.
+Medication stock now updates automatically:
+- Marking one tablet as taken subtracts 1 from stock.
+- Each recorded dose can only subtract once.
+- Deleting that dose from Medication History adds 1 back.
+- Stock never goes below 0.
+- Manual stock entry still opens the number keypad on phones.
+
+Upload the contents of this ZIP as your LinaHub site update.

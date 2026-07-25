@@ -661,7 +661,7 @@ if("serviceWorker" in navigator){
 
 render();
 
-/* LinaHub 17.2.5 — format decimal sleep duration as hours and minutes */
+/* LinaHub 17.2.6 — format decimal sleep duration as hours and minutes */
 (function(){
   function formatSleepHours(value){
     const decimal=Number(value);

@@ -1,8 +1,8 @@
 {
   "name": "LinaHub",
   "short_name": "LinaHub",
-  "id": "./?version=1688",
-  "start_url": "./?version=1688",
+  "id": "./?version=1689",
+  "start_url": "./?version=1689",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f9dce9",

@@ -139,3 +139,73 @@ body[data-route="tank"] .route-atmosphere.aquarium-side-bubbles {
     font-size: .69rem !important;
   }
 }
+
+
+/* LinaHub 17.2.6 — compact completed medication drawer */
+body[data-route="medication"] .med-completed {
+  padding: 0 !important;
+  overflow: hidden;
+}
+body[data-route="medication"] .med-completed > summary {
+  list-style: none;
+  cursor: pointer;
+  min-height: 56px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 800;
+}
+body[data-route="medication"] .med-completed > summary::-webkit-details-marker { display: none; }
+body[data-route="medication"] .med-completed > summary::before {
+  content: "▸";
+  flex: 0 0 auto;
+  transition: transform .18s ease;
+}
+body[data-route="medication"] .med-completed[open] > summary::before { transform: rotate(90deg); }
+body[data-route="medication"] .med-completed > summary > span { margin-right: auto; }
+body[data-route="medication"] .med-completed > summary > small {
+  font-size: .72rem;
+  font-weight: 750;
+  color: var(--muted);
+}
+body[data-route="medication"] .med-completed-list {
+  border-top: 1px solid var(--line);
+  padding: 4px 14px 10px;
+}
+body[data-route="medication"] .med-completed-row {
+  display: grid;
+  grid-template-columns: auto minmax(0,1fr) auto;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--line);
+}
+body[data-route="medication"] .med-completed-row:last-child { border-bottom: 0; }
+body[data-route="medication"] .med-completed-copy { min-width: 0; display: grid; gap: 3px; }
+body[data-route="medication"] .med-completed-copy strong {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+body[data-route="medication"] .med-completed-meta {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 5px 9px;
+  color: var(--muted);
+}
+body[data-route="medication"] .med-completed-meta b {
+  font-size: .76rem;
+  color: var(--ink);
+}
+body[data-route="medication"] .med-completed-meta em {
+  font-size: .68rem;
+  font-style: normal;
+  opacity: .82;
+}
+@media (max-width: 430px) {
+  body[data-route="medication"] .med-completed-row { grid-template-columns: auto minmax(0,1fr); }
+  body[data-route="medication"] .med-completed-row > button { grid-column: 2; justify-self: start; }
+}

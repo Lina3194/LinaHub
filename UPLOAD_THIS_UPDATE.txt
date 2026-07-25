@@ -1,4 +1,4 @@
-LinaHub 17.2.5
+LinaHub 17.2.7
 
 Medication stock now updates automatically:
 - Marking one tablet as taken subtracts 1 from stock.

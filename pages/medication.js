@@ -88,7 +88,9 @@ function medicationTodayTab(){
     const required=m.scheduleType==="prn"?Math.max(1,logs.length+1):m.dosesPerDay;
     for(let index=logs.length;index<required;index++)dueRows.push({m,index,logs});
   });
-  const completed=scheduled.filter(m=>m.scheduleType!=="prn"&&medLogsFor(m.id,selected).length>=m.dosesPerDay);
+  const takenToday=data.medicationHistory
+    .filter(log=>log.date===selected)
+    .sort((a,b)=>(a.time||"").localeCompare(b.time||"")||(a.createdAt||"").localeCompare(b.createdAt||""));
   return `<section class="med-date-card card">
     <div><span class="section-kicker">📅 Selected day</span><h2>${medDateLabel(selected)}</h2></div>
     <input class="field med-day-picker" id="medSelectedDate" type="date" value="${esc(selected)}">
@@ -100,7 +102,7 @@ function medicationTodayTab(){
       <button type="button" class="med-quick-tick" data-med-take="${esc(m.id)}" data-dose-index="${index}" aria-label="Mark ${esc(m.name)} taken">✓</button>
     </article>`).join(""):`<div class="empty"><h2>All medication completed</h2><p>${scheduled.length?"Everything scheduled for this day has been taken.":"No medication is scheduled on this day."}</p></div>`}
   </section>
-  ${completed.length?`<details class="card med-completed"><summary>Completed today · ${completed.length}</summary><div>${completed.map(m=>`<div class="med-completed-row">${medPhoto(m)}<span><strong>${esc(m.name)}</strong><small>${medLogsFor(m.id,selected).length} of ${m.dosesPerDay} taken</small></span><button class="mini" data-med-open-history="${esc(m.id)}">View doses</button></div>`).join("")}</div></details>`:""}`;
+  ${takenToday.length?`<details class="card med-completed"><summary><span>Completed today</span><small>${takenToday.length} ${takenToday.length===1?"tablet":"tablets"}</small></summary><div class="med-completed-list">${takenToday.map(log=>{const m=data.medications.find(item=>String(item.id)===String(log.medId));if(!m)return "";const left=Math.max(0,Math.floor(Number(m.stock)||0));return `<div class="med-completed-row">${medPhoto(m)}<span class="med-completed-copy"><strong>${esc(m.name)}</strong><small class="med-completed-meta"><b>${esc(log.time||"Time not recorded")}</b><em>${left} ${left===1?"tablet":"tablets"} left</em></small></span><button class="mini" data-med-open-history="${esc(m.id)}">History</button></div>`}).join("")}</div></details>`:""}`;
 }
 function medicationScheduleTab(){
   const meds=data.medications;
@@ -146,7 +148,7 @@ function MedicationPage(){
   ensureMedicationData();
   const tab=data.medicationView.tab;
   const content=tab==="schedule"?medicationScheduleTab():tab==="history"?medicationHistoryTab():tab==="stock"?medicationStockTab():medicationTodayTab();
-  return shell(`${head("Medication","Medication centre · v15.5")}
+  return shell(`${head("Medication","Medication centre · v15.6")}
     <div class="med-page">${content}</div>
     <nav class="med-bottom-tabs" aria-label="Medication sections">
       <button class="${tab==="today"?"active":""}" data-med-tab="today">✓<small>Day</small></button>

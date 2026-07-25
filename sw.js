@@ -1,12 +1,12 @@
-const BUILD_VERSION = 'linahub-v17.0';
-/* LinaHub 17.0 */
-const CACHE="linahub-v17-2-7";
+const BUILD_VERSION = 'linahub-v17.2.9';
+/* LinaHub 17.2.9 */
+const CACHE="linahub-v17-2-9";
 const ASSETS=[
-"./","./index.html","./app.js?v=1728","./manifest.webmanifest?v=1728",
-"./core/pokemon-seed.js?v=1728","./core/data.js?v=1728","./core/router.js?v=1728","./core/cloud.js?v=1728",
-"./pages/home.js?v=1728","./pages/today.js?v=1728","./pages/todo.js?v=1728","./pages/shopping.js?v=1728","./pages/hobbies.js?v=1728","./pages/books.js?v=1728","./pages/journal.js?v=1728","./pages/plants.js?v=1728","./pages/pokemon.js?v=1728","./pages/house.js?v=1728","./pages/medication.js?v=1728","./pages/health.js?v=1728","./pages/simple.js?v=1728","./pages/aquariums.js?v=1728","./pages/period.js?v=1728","./pages/treasures.js?v=1728","./pages/budget.js?v=1728",
-"./styles/base.css?v=1728","./styles/home.css?v=1728","./styles/journal.css?v=1728","./styles/plants.css?v=1728","./styles/modules.css?v=1728","./styles/period.css?v=1728","./styles/treasures.css?v=1728","./styles/phone-ui-1715.css?v=1728",
-"./icons/icon-192.png?v=1728","./icons/icon-512.png?v=1728","./icons/apple-touch-icon.png?v=1728"
+"./","./index.html","./app.js?v=1729","./manifest.webmanifest?v=1729",
+"./core/pokemon-seed.js?v=1729","./core/data.js?v=1729","./core/router.js?v=1729","./core/cloud.js?v=1729",
+"./pages/home.js?v=1729","./pages/today.js?v=1729","./pages/todo.js?v=1729","./pages/shopping.js?v=1729","./pages/hobbies.js?v=1729","./pages/books.js?v=1729","./pages/journal.js?v=1729","./pages/plants.js?v=1729","./pages/pokemon.js?v=1729","./pages/house.js?v=1729","./pages/medication.js?v=1729","./pages/health.js?v=1729","./pages/simple.js?v=1729","./pages/aquariums.js?v=1729","./pages/period.js?v=1729","./pages/treasures.js?v=1729","./pages/budget.js?v=1729",
+"./styles/base.css?v=1729","./styles/home.css?v=1729","./styles/journal.css?v=1729","./styles/plants.css?v=1729","./styles/modules.css?v=1729","./styles/period.css?v=1729","./styles/treasures.css?v=1729","./styles/phone-ui-1715.css?v=1729","./styles/medication-phone-1729.css?v=1729",
+"./icons/icon-192.png?v=1729","./icons/icon-512.png?v=1729","./icons/apple-touch-icon.png?v=1729"
 ];
 self.addEventListener("install",e=>{self.skipWaiting();e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)))});
 self.addEventListener("activate",e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));

@@ -107,7 +107,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version 17.3.6<br><br>25 Jul 2026</p>`,"settings");
+  <p class="app-version">Version 18.0.0<br><br>25 Jul 2026</p>`,"settings");
 }
 
 function bindSimple(){

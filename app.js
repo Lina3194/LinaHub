@@ -163,15 +163,12 @@ function lina17LatestFeed(tank){
 }
 function lina18TankArt(tank){
   const name=String(tank?.name||"").toLowerCase();
-  const kind=name.includes("girl")?"girls":name.includes("boy")?"boys":name.includes("betta")?"betta":name.includes("shrimp")?"shrimp":"tropical";
-  return `<span class="a18-tank-art a18-${kind}" aria-hidden="true"><i class="a18-weed weed-a"></i><i class="a18-weed weed-b"></i><i class="a18-log"></i><i class="a18-fish fish-a">${kind==="shrimp"?"🦐":"🐠"}</i><i class="a18-fish fish-b">${kind==="betta"?"🐟":"🐡"}</i><i class="a18-bubbles">○ · °</i></span>`;
+  const file=name.includes("boy")||name.includes("betta")?"tank-betta.png":name.includes("shrimp")?"tank-shrimp.png":"tank-tropical.png";
+  return `<img class="a18-real-tank-art" src="./assets/aquarium/${file}" alt="" aria-hidden="true">`;
 }
 function lina18CareTone(text){const value=String(text||"").toLowerCase();if(value.includes("overdue")||value.includes("ago"))return "a18-warn";if(value.includes("today")||value.includes("tonight")||value.includes("tomorrow"))return "a18-soon";return "a18-good"}
 function AquariumsPage(){return shell(`${head("Aquariums","Feeding and maintenance at a glance")}
-  <section class="a18-aquarium-hero">
-    <div><span class="a18-kicker">YOUR UNDERWATER WORLD</span><h2>Happy tanks at a glance</h2><p>Temperature, feeding and maintenance — all together.</p></div>
-    <div class="a18-fishbowl" aria-hidden="true"><span>🐠</span><i>🫧</i><b>🌿</b></div>
-  </section>
+  <div class="a18-title-art" aria-hidden="true"><img src="./assets/aquarium/header-bowl.png" alt=""></div>
   <p class="a18-helper">🐠 Tap a tank to view and update</p>
   <div class="a18-aquarium-grid">${(data.aquariums||[]).map(tank=>{const m=lina17Maintenance(tank), water=lina17MaintenanceDue(m.waterChange,7), feed=lina17LatestFeed(tank);return `<button class="a18-tank-card" data-route="tank" data-route-id="${esc(tank.id)}">
     <span class="a18-tank-picture">${tank.photo?`<img src="${tank.photo}" alt="${esc(tank.name)}">`:lina18TankArt(tank)}</span>
@@ -181,7 +178,7 @@ function AquariumsPage(){return shell(`${head("Aquariums","Feeding and maintenan
     </span>
   </button>`}).join("")}</div>`,'pets')}
 function AquariumTankPage(){const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return AquariumsPage();const m=lina17Maintenance(tank);const feeds=lina17SortedFeeds(tank);const now=new Date(),defaultTime=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;const jobs=[["waterChange","Water Change","💧",7],["clean","Tank Clean","🫧",14],["spongeChange","Sponge Filter Clean","🧽",21],["filterChange","Filter Media Clean","⚙️",42]];return shell(`${head(tank.name,"Aquarium care",true)}
-  <section class="a18-tank-hero">${lina18TankArt(tank)}<div><span class="a18-kicker">LIVE TANK OVERVIEW</span><h2>${esc(tank.name)}</h2><p>Keep your little swimmers happy and healthy.</p></div></section>
+  <section class="a18-tank-hero"><img class="a18-tank-hero-image" src="./assets/aquarium/tank-hero.png" alt=""><div><span class="a18-kicker">LIVE TANK OVERVIEW</span><h2>${esc(tank.name)}</h2><p>Keep your little swimmers happy and healthy.</p></div></section>
   <section class="a18-temperature-card">
     <div class="a18-temperature-heading"><span class="a18-icon">🌡️</span><div><strong>Temperature</strong><small>Keep your fish happy!</small></div><b>${tank.temperature!==""?`${esc(tank.temperature)}°C`:"—"}</b></div>
     <div class="a18-temperature-controls"><label><input id="tankTemperature" type="number" inputmode="decimal" step="0.1" min="0" max="50" value="${esc(tank.temperature)}" placeholder="25.0"><span>°C</span></label><button class="a18-save" id="saveTankTemperature">Save</button></div>

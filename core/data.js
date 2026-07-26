@@ -1,6 +1,6 @@
 
 const STORAGE_KEY="linahub-data";
-// LinaHub 17.3.8 — store large pictures separately from localStorage.
+// LinaHub 17.3.9 — store large pictures separately from localStorage.
 const LINAHUB_MEDIA_DB="linahub-media";
 const LINAHUB_MEDIA_STORE="images";
 function openLinaMediaDb(){

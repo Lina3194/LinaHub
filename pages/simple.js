@@ -107,7 +107,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version 17.3.7<br><br>25 Jul 2026</p>`,"settings");
+  <p class="app-version">Version 17.3.9<br><br>26 Jul 2026</p>`,"settings");
 }
 
 function bindSimple(){
@@ -257,10 +257,25 @@ function bindSimple(){
           const card=input.closest(".tab-art-setting");
           const preview=card?.querySelector(".tab-art-preview");
           if(preview) preview.innerHTML=`<img src="${data.homeImages[input.dataset.tabImage]}" alt="">`;
+          const changeButton=card?.querySelector(`[data-pick-tab-image="${input.dataset.tabImage}"]`);
+          if(changeButton) changeButton.textContent="Change";
           if(card&&!card.querySelector(`[data-remove-tab-image="${input.dataset.tabImage}"]`)){
             const remove=document.createElement("button");remove.type="button";remove.className="mini danger";remove.dataset.removeTabImage=input.dataset.tabImage;remove.textContent="Remove";
             card.querySelector(".tab-art-actions")?.appendChild(remove);
-            remove.addEventListener("click",()=>{delete data.homeImages[input.dataset.tabImage];saveData();preview.innerHTML=`<span>${esc(data.homeIcons?.[input.dataset.tabImage]||"✨")}</span>`;remove.remove();toast("Picture removed")});
+            remove.addEventListener("click",()=>{
+              const key=input.dataset.tabImage;
+              delete data.homeImages[key];
+              if(key==="girlsTank"||key==="boysTank"){
+                deleteLinaImage(`tab:${key}`);
+                const tankId=key==="girlsTank"?"girls-tank":"boys-tank";
+                const tank=(data.aquariums||[]).find(item=>item.id===tankId);
+                if(tank) tank.photo="";
+              }
+              saveData();
+              if(preview) preview.innerHTML=`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`;
+              if(changeButton) changeButton.textContent="Add image";
+              remove.remove();toast("Picture removed");
+            });
           }
         }catch(error){
           delete data.homeImages[input.dataset.tabImage];
@@ -282,6 +297,8 @@ function bindSimple(){
       const card=button.closest(".tab-art-setting");
       const preview=card?.querySelector(".tab-art-preview");
       if(preview) preview.innerHTML=`<span>${esc(data.homeIcons?.[button.dataset.removeTabImage]||"✨")}</span>`;
+      const changeButton=card?.querySelector(`[data-pick-tab-image="${button.dataset.removeTabImage}"]`);
+      if(changeButton) changeButton.textContent="Add image";
       button.remove();toast("Picture removed");
     };
   });
@@ -335,7 +352,22 @@ function bindSimple(){
           toast("Banner picture added 🌙");rememberSettingsPosition();rememberOpenAccordions();
           const card=input.closest(".banner-art-setting");
           const preview=card?.querySelector(".banner-art-preview");
+          const changeButton=card?.querySelector(`[data-pick-banner-image="${input.dataset.bannerImage}"]`);
           if(preview) preview.innerHTML=`<img src="${data.moduleBanners[input.dataset.bannerImage]}" alt="">`;
+          if(changeButton) changeButton.textContent="Change";
+          if(card&&!card.querySelector(`[data-remove-banner-image="${input.dataset.bannerImage}"]`)){
+            const remove=document.createElement("button");
+            remove.type="button";remove.className="mini danger";remove.dataset.removeBannerImage=input.dataset.bannerImage;remove.textContent="×";
+            remove.setAttribute("aria-label","Remove banner");
+            card.querySelector(".banner-art-actions")?.appendChild(remove);
+            remove.addEventListener("click",()=>{
+              const key=input.dataset.bannerImage;
+              delete data.moduleBanners[key];saveData();
+              if(preview) preview.innerHTML=`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`;
+              if(changeButton) changeButton.textContent="Add";
+              remove.remove();toast("Banner removed");
+            });
+          }
         }catch(error){
           delete data.moduleBanners[input.dataset.bannerImage];
           toast("Storage is full — remove an older picture first");
@@ -350,6 +382,8 @@ function bindSimple(){
       const card=button.closest(".banner-art-setting");
       const preview=card?.querySelector(".banner-art-preview");
       if(preview) preview.innerHTML=`<span>${esc(data.homeIcons?.[button.dataset.removeBannerImage]||"✨")}</span>`;
+      const changeButton=card?.querySelector(`[data-pick-banner-image="${button.dataset.removeBannerImage}"]`);
+      if(changeButton) changeButton.textContent="Add";
       button.remove();toast("Banner removed");
     };
   });

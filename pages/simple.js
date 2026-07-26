@@ -243,14 +243,16 @@ function bindSimple(){
       if(!file.type.startsWith("image/")){toast("Choose an image file");return}
       try{
         data.homeImages=data.homeImages||{};
-        data.homeImages[input.dataset.tabImage]=await resizeTabImage(file);
+        const resizedImage=await resizeTabImage(file);
+        data.homeImages[input.dataset.tabImage]=resizedImage;
         if(input.dataset.tabImage==="girlsTank"||input.dataset.tabImage==="boysTank"){
+          await saveLinaImage(`tab:${input.dataset.tabImage}`,resizedImage);
           const tankId=input.dataset.tabImage==="girlsTank"?"girls-tank":"boys-tank";
           const tank=(data.aquariums||[]).find(item=>item.id===tankId);
-          if(tank) tank.photo=data.homeImages[input.dataset.tabImage];
+          if(tank) tank.photo=resizedImage;
         }
         try{
-          saveData();
+          if(!saveData()) throw new Error("Could not save app data");
           toast("Tab picture added 🌸");rememberSettingsPosition();rememberOpenAccordions();
           const card=input.closest(".tab-art-setting");
           const preview=card?.querySelector(".tab-art-preview");
@@ -271,6 +273,7 @@ function bindSimple(){
     button.onclick=()=>{
       if(data.homeImages) delete data.homeImages[button.dataset.removeTabImage];
       if(button.dataset.removeTabImage==="girlsTank"||button.dataset.removeTabImage==="boysTank"){
+        deleteLinaImage(`tab:${button.dataset.removeTabImage}`);
         const tankId=button.dataset.removeTabImage==="girlsTank"?"girls-tank":"boys-tank";
         const tank=(data.aquariums||[]).find(item=>item.id===tankId);
         if(tank) tank.photo="";

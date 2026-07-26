@@ -661,6 +661,7 @@ if("serviceWorker" in navigator){
 }
 
 render();
+hydrateLinaTankImages().then(changed=>{if(changed) render()});
 
 /* LinaHub 17.2.6 — format decimal sleep duration as hours and minutes */
 (function(){

@@ -1,5 +1,66 @@
 
 const STORAGE_KEY="linahub-data";
+// LinaHub 17.3.8 — store large pictures separately from localStorage.
+const LINAHUB_MEDIA_DB="linahub-media";
+const LINAHUB_MEDIA_STORE="images";
+function openLinaMediaDb(){
+  return new Promise((resolve,reject)=>{
+    if(!("indexedDB" in window)){reject(new Error("IndexedDB unavailable"));return}
+    const request=indexedDB.open(LINAHUB_MEDIA_DB,1);
+    request.onupgradeneeded=()=>{
+      const db=request.result;
+      if(!db.objectStoreNames.contains(LINAHUB_MEDIA_STORE)) db.createObjectStore(LINAHUB_MEDIA_STORE);
+    };
+    request.onsuccess=()=>resolve(request.result);
+    request.onerror=()=>reject(request.error||new Error("Could not open image storage"));
+  });
+}
+async function saveLinaImage(key,value){
+  const db=await openLinaMediaDb();
+  return new Promise((resolve,reject)=>{
+    const tx=db.transaction(LINAHUB_MEDIA_STORE,"readwrite");
+    tx.objectStore(LINAHUB_MEDIA_STORE).put(value,key);
+    tx.oncomplete=()=>{db.close();resolve(true)};
+    tx.onerror=()=>{db.close();reject(tx.error||new Error("Could not save image"))};
+  });
+}
+async function loadLinaImage(key){
+  try{
+    const db=await openLinaMediaDb();
+    return await new Promise((resolve,reject)=>{
+      const tx=db.transaction(LINAHUB_MEDIA_STORE,"readonly");
+      const request=tx.objectStore(LINAHUB_MEDIA_STORE).get(key);
+      request.onsuccess=()=>resolve(request.result||"");
+      request.onerror=()=>reject(request.error);
+      tx.oncomplete=()=>db.close();
+    });
+  }catch{return ""}
+}
+async function deleteLinaImage(key){
+  try{
+    const db=await openLinaMediaDb();
+    return await new Promise((resolve,reject)=>{
+      const tx=db.transaction(LINAHUB_MEDIA_STORE,"readwrite");
+      tx.objectStore(LINAHUB_MEDIA_STORE).delete(key);
+      tx.oncomplete=()=>{db.close();resolve(true)};
+      tx.onerror=()=>{db.close();reject(tx.error)};
+    });
+  }catch{return false}
+}
+async function hydrateLinaTankImages(){
+  data.homeImages=data.homeImages||{};
+  let changed=false;
+  for(const [tabKey,tankId] of [["girlsTank","girls-tank"],["boysTank","boys-tank"]]){
+    const saved=await loadLinaImage(`tab:${tabKey}`);
+    if(!saved) continue;
+    data.homeImages[tabKey]=saved;
+    const tank=(data.aquariums||[]).find(item=>item.id===tankId);
+    if(tank) tank.photo=saved;
+    changed=true;
+  }
+  return changed;
+}
+
 const LEGACY_KEYS=["linahub-v4","linahub-v4-1","linahub-v4-2","linahub-v4-3"];
 
 const DEFAULT_DATA={
@@ -345,7 +406,9 @@ if(!data.v9CollapseDefaultsApplied){
 function saveData(){
   try{
     // Images are stored separately in IndexedDB. Never let a large photo make all app data fail to save.
-    const serializable={...data,plants:(data.plants||[]).map(plant=>({...plant,photo:/^data:image\//.test(plant.photo||"")?"":plant.photo||""}))};
+    const safeHomeImages={...(data.homeImages||{})};
+    for(const key of ["girlsTank","boysTank"]){if(/^data:image\//.test(safeHomeImages[key]||"")) safeHomeImages[key]=""}
+    const serializable={...data,homeImages:safeHomeImages,plants:(data.plants||[]).map(plant=>({...plant,photo:/^data:image\//.test(plant.photo||"")?"":plant.photo||""})),aquariums:(data.aquariums||[]).map(tank=>({...tank,photo:/^data:image\//.test(tank.photo||"")?"":tank.photo||""}))};
     localStorage.setItem(STORAGE_KEY,JSON.stringify(serializable));
     return true;
   }catch(error){

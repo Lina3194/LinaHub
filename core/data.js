@@ -241,6 +241,8 @@ function normalizeAquarium(tank,i){
     id:tank?.id||fallback.id||`tank-${i}`,
     name:tank?.name||fallback.name||`Tank ${i+1}`,
     emoji:tank?.emoji||fallback.emoji||"🐠",
+    photo:tank?.photo||"",
+    photoKey:tank?.photoKey||`aquarium:${tank?.id||fallback.id||`tank-${i}`}`,
     livestock:Array.isArray(tank?.livestock)?tank.livestock:(fallback.livestock||[]),
     temperature:tank?.temperature??"",
     temperatureUpdated:tank?.temperatureUpdated||"",

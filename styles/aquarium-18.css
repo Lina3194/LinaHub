@@ -1,4 +1,4 @@
-/* LinaHub 18.0.1 — aquarium rebuilt to match the polished mock-up */
+/* LinaHub 18.0.2 — aquarium rebuilt to match the polished mock-up */
 body[data-route="pets"],body[data-route="tank"]{background:radial-gradient(circle at 72% 0,rgba(93,35,155,.18),transparent 24%),linear-gradient(160deg,#070817 0%,#0c0920 58%,#080817 100%)!important}
 body[data-route="pets"] .page,body[data-route="tank"] .page{max-width:560px!important;margin-inline:auto!important}
 body[data-route="pets"] .page-head,body[data-route="tank"] .page-head{position:relative;z-index:3;padding-right:150px}

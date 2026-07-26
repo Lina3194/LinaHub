@@ -107,7 +107,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version 17.3.6<br><br>25 Jul 2026</p>`,"settings");
+  <p class="app-version">Version 17.3.7<br><br>25 Jul 2026</p>`,"settings");
 }
 
 function bindSimple(){
@@ -244,6 +244,11 @@ function bindSimple(){
       try{
         data.homeImages=data.homeImages||{};
         data.homeImages[input.dataset.tabImage]=await resizeTabImage(file);
+        if(input.dataset.tabImage==="girlsTank"||input.dataset.tabImage==="boysTank"){
+          const tankId=input.dataset.tabImage==="girlsTank"?"girls-tank":"boys-tank";
+          const tank=(data.aquariums||[]).find(item=>item.id===tankId);
+          if(tank) tank.photo=data.homeImages[input.dataset.tabImage];
+        }
         try{
           saveData();
           toast("Tab picture added 🌸");rememberSettingsPosition();rememberOpenAccordions();
@@ -265,6 +270,11 @@ function bindSimple(){
   document.querySelectorAll("[data-remove-tab-image]").forEach(button=>{
     button.onclick=()=>{
       if(data.homeImages) delete data.homeImages[button.dataset.removeTabImage];
+      if(button.dataset.removeTabImage==="girlsTank"||button.dataset.removeTabImage==="boysTank"){
+        const tankId=button.dataset.removeTabImage==="girlsTank"?"girls-tank":"boys-tank";
+        const tank=(data.aquariums||[]).find(item=>item.id===tankId);
+        if(tank) tank.photo="";
+      }
       saveData();
       const card=button.closest(".tab-art-setting");
       const preview=card?.querySelector(".tab-art-preview");

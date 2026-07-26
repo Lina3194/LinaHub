@@ -107,7 +107,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version 17.3.9<br><br>26 Jul 2026</p>`,"settings");
+  <p class="app-version">Version 17.4.0<br><br>26 Jul 2026</p>`,"settings");
 }
 
 function bindSimple(){
@@ -245,8 +245,8 @@ function bindSimple(){
         data.homeImages=data.homeImages||{};
         const resizedImage=await resizeTabImage(file);
         data.homeImages[input.dataset.tabImage]=resizedImage;
+        await saveLinaImage(`tab:${input.dataset.tabImage}`,resizedImage);
         if(input.dataset.tabImage==="girlsTank"||input.dataset.tabImage==="boysTank"){
-          await saveLinaImage(`tab:${input.dataset.tabImage}`,resizedImage);
           const tankId=input.dataset.tabImage==="girlsTank"?"girls-tank":"boys-tank";
           const tank=(data.aquariums||[]).find(item=>item.id===tankId);
           if(tank) tank.photo=resizedImage;
@@ -265,8 +265,8 @@ function bindSimple(){
             remove.addEventListener("click",()=>{
               const key=input.dataset.tabImage;
               delete data.homeImages[key];
+              deleteLinaImage(`tab:${key}`);
               if(key==="girlsTank"||key==="boysTank"){
-                deleteLinaImage(`tab:${key}`);
                 const tankId=key==="girlsTank"?"girls-tank":"boys-tank";
                 const tank=(data.aquariums||[]).find(item=>item.id===tankId);
                 if(tank) tank.photo="";
@@ -287,8 +287,8 @@ function bindSimple(){
   document.querySelectorAll("[data-remove-tab-image]").forEach(button=>{
     button.onclick=()=>{
       if(data.homeImages) delete data.homeImages[button.dataset.removeTabImage];
+      deleteLinaImage(`tab:${button.dataset.removeTabImage}`);
       if(button.dataset.removeTabImage==="girlsTank"||button.dataset.removeTabImage==="boysTank"){
-        deleteLinaImage(`tab:${button.dataset.removeTabImage}`);
         const tankId=button.dataset.removeTabImage==="girlsTank"?"girls-tank":"boys-tank";
         const tank=(data.aquariums||[]).find(item=>item.id===tankId);
         if(tank) tank.photo="";
@@ -347,6 +347,7 @@ function bindSimple(){
       try{
         data.moduleBanners=data.moduleBanners||{};
         data.moduleBanners[input.dataset.bannerImage]=await resizeBannerImage(file);
+        await saveLinaImage(`banner:${input.dataset.bannerImage}`,data.moduleBanners[input.dataset.bannerImage]);
         try{
           saveData();
           toast("Banner picture added 🌙");rememberSettingsPosition();rememberOpenAccordions();
@@ -362,7 +363,7 @@ function bindSimple(){
             card.querySelector(".banner-art-actions")?.appendChild(remove);
             remove.addEventListener("click",()=>{
               const key=input.dataset.bannerImage;
-              delete data.moduleBanners[key];saveData();
+              delete data.moduleBanners[key];deleteLinaImage(`banner:${key}`);saveData();
               if(preview) preview.innerHTML=`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`;
               if(changeButton) changeButton.textContent="Add";
               remove.remove();toast("Banner removed");
@@ -378,6 +379,7 @@ function bindSimple(){
   document.querySelectorAll("[data-remove-banner-image]").forEach(button=>{
     button.onclick=()=>{
       if(data.moduleBanners) delete data.moduleBanners[button.dataset.removeBannerImage];
+      deleteLinaImage(`banner:${button.dataset.removeBannerImage}`);
       saveData();
       const card=button.closest(".banner-art-setting");
       const preview=card?.querySelector(".banner-art-preview");

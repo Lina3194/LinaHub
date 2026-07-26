@@ -1,6 +1,6 @@
 
 const STORAGE_KEY="linahub-data";
-// LinaHub 17.3.9 — store large pictures separately from localStorage.
+// LinaHub 17.4.0 — store every tile picture and banner separately from localStorage.
 const LINAHUB_MEDIA_DB="linahub-media";
 const LINAHUB_MEDIA_STORE="images";
 function openLinaMediaDb(){
@@ -47,19 +47,47 @@ async function deleteLinaImage(key){
     });
   }catch{return false}
 }
-async function hydrateLinaTankImages(){
+async function hydrateLinaMedia(){
   data.homeImages=data.homeImages||{};
+  data.moduleBanners=data.moduleBanners||{};
   let changed=false;
+
+  // First migrate any older pictures that are still embedded in localStorage.
+  for(const [key,value] of Object.entries(data.homeImages)){
+    if(/^data:image\//.test(value||"")){
+      try{await saveLinaImage(`tab:${key}`,value)}catch{}
+    }
+  }
+  for(const [key,value] of Object.entries(data.moduleBanners)){
+    if(/^data:image\//.test(value||"")){
+      try{await saveLinaImage(`banner:${key}`,value)}catch{}
+    }
+  }
+
+  const tabKeys=[
+    "home","today","todo","shopping","settings","journal","plants","pokemon","pets","house","budget","treasures","journey",
+    "sleep","medication","period","weight","measurements","shoppingFridge","shoppingFreezer","shoppingPantry","shoppingCleaning","shoppingToiletries",
+    "rooms","inventory","girlsTank","boysTank","aquariumMaintenance","bills","savings","income","expenses"
+  ];
+  const bannerKeys=["journal","today","todo","plants","medication","pokemon","pets","house","period","treasures"];
+
+  for(const key of tabKeys){
+    const saved=await loadLinaImage(`tab:${key}`);
+    if(saved && data.homeImages[key]!==saved){data.homeImages[key]=saved;changed=true}
+  }
+  for(const key of bannerKeys){
+    const saved=await loadLinaImage(`banner:${key}`);
+    if(saved && data.moduleBanners[key]!==saved){data.moduleBanners[key]=saved;changed=true}
+  }
+
   for(const [tabKey,tankId] of [["girlsTank","girls-tank"],["boysTank","boys-tank"]]){
-    const saved=await loadLinaImage(`tab:${tabKey}`);
-    if(!saved) continue;
-    data.homeImages[tabKey]=saved;
+    const saved=data.homeImages[tabKey]||"";
     const tank=(data.aquariums||[]).find(item=>item.id===tankId);
-    if(tank) tank.photo=saved;
-    changed=true;
+    if(tank && tank.photo!==saved){tank.photo=saved;changed=true}
   }
   return changed;
 }
+
 
 const LEGACY_KEYS=["linahub-v4","linahub-v4-1","linahub-v4-2","linahub-v4-3"];
 
@@ -405,10 +433,10 @@ if(!data.v9CollapseDefaultsApplied){
 }
 function saveData(){
   try{
-    // Images are stored separately in IndexedDB. Never let a large photo make all app data fail to save.
-    const safeHomeImages={...(data.homeImages||{})};
-    for(const key of ["girlsTank","boysTank"]){if(/^data:image\//.test(safeHomeImages[key]||"")) safeHomeImages[key]=""}
-    const serializable={...data,homeImages:safeHomeImages,plants:(data.plants||[]).map(plant=>({...plant,photo:/^data:image\//.test(plant.photo||"")?"":plant.photo||""})),aquariums:(data.aquariums||[]).map(tank=>({...tank,photo:/^data:image\//.test(tank.photo||"")?"":tank.photo||""}))};
+    // Every uploaded picture is stored in IndexedDB, never in the main JSON payload.
+    const safeHomeImages=Object.fromEntries(Object.entries(data.homeImages||{}).map(([key,value])=>[key,/^data:image\//.test(value||"")?"":value||""]));
+    const safeModuleBanners=Object.fromEntries(Object.entries(data.moduleBanners||{}).map(([key,value])=>[key,/^data:image\//.test(value||"")?"":value||""]));
+    const serializable={...data,homeImages:safeHomeImages,moduleBanners:safeModuleBanners,plants:(data.plants||[]).map(plant=>({...plant,photo:/^data:image\//.test(plant.photo||"")?"":plant.photo||""})),aquariums:(data.aquariums||[]).map(tank=>({...tank,photo:/^data:image\//.test(tank.photo||"")?"":tank.photo||""}))};
     localStorage.setItem(STORAGE_KEY,JSON.stringify(serializable));
     return true;
   }catch(error){

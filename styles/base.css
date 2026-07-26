@@ -1953,3 +1953,18 @@ body[data-route="house"] .shopping-household-card{display:none!important}
   body[data-route="medication"] .med-stock-list article.editing [data-med-stock-cancel]{display:none}
   body[data-route="medication"] .med-stock-input{font-size:16px!important;height:40px!important;min-height:40px!important;padding:6px 8px!important}
 }
+
+/* LinaHub 17.4.1 — full-width Garden banner on Plants page */
+.plants-module-banner{
+  width:100%;
+  min-height:clamp(150px,24vw,235px);
+  padding:0;
+  margin:8px 0 16px;
+  background:#25183b;
+  align-items:stretch;
+}
+.plants-module-banner>img{object-fit:cover;object-position:center}
+.plants-module-banner:after{background:linear-gradient(180deg,rgba(20,12,38,.02),rgba(20,12,38,.14))}
+@media(max-width:600px){
+  .plants-module-banner{min-height:132px;border-radius:21px;margin-top:6px;margin-bottom:13px}
+}

@@ -206,7 +206,9 @@ function lina17PlantStatusClass(plant){
   return diff<0?"status-overdue":diff<=1?"status-soon":"status-good";
 }
 function PlantsPage(){
+  const gardenBanner=data.moduleBanners?.plants||"";
   return shell(`${head("Plants","Care for your green babies")}
+    ${gardenBanner?`<section class="module-banner plants-module-banner" aria-label="Plants banner"><img src="${gardenBanner}" alt="Garden banner"></section>`:""}
     <div class="plant-dashboard-list">${(data.plants||[]).map(plant=>`<button class="card plant-dashboard-card ${lina17PlantStatusClass(plant)}" data-route="plant" data-route-id="${esc(plant.id)}">
       <span class="plant-dashboard-photo">${plant.photo?`<img src="${plant.photo}" alt="${esc(plant.name)}">`:`<span>${plant.emoji||"🌿"}</span>`}</span>
       <span class="plant-dashboard-copy"><strong>${esc(plant.name)}</strong><small>💧 ${esc(lina17PlantWaterStatus(plant))}</small><small>☀️ ${esc(lina17PlantLight(plant))}</small><small>🌱 ${plant.lastFed?`Last fed ${formatDate(plant.lastFed)}`:"Feeding not logged"}</small><small>📷 ${plant.photo?"Photo added":"Add photo"}</small></span><b>›</b>
@@ -229,6 +231,7 @@ function lina17HeaderIllustration(routeName){
   if(!art)return;
   const header=document.querySelector(".page-head");
   if(!header||header.querySelector(".lina-header-art"))return;
+  if((routeName==="plants"||routeName==="plant")&&data.moduleBanners?.plants)return;
   const el=document.createElement("div");
   el.className=`lina-header-art lina-header-art-${routeName}`;
   el.setAttribute("aria-hidden","true");

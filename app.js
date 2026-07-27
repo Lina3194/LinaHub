@@ -233,6 +233,7 @@ function lina17StandardBanner(routeName){
   const image=document.createElement("img");
   image.src=src;
   image.alt="";
+  image.addEventListener("error",()=>{ banner.remove(); toast("The saved banner could not be displayed. Please choose the image again."); },{once:true});
   banner.appendChild(image);
   header.insertAdjacentElement("afterend",banner);
 }

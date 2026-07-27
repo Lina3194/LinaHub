@@ -1,4 +1,4 @@
-/* LinaHub 17.4.7 — active Measures page implementation. */
+/* LinaHub 17.4.8 — active Measures page implementation. */
 function lina17DateList(values){return (Array.isArray(values)?values:[]).slice().filter(Boolean).sort().reverse()}
 function linaMeasureRangeStart(range){
   const now=new Date(`${today()}T23:59:59`);

@@ -1,6 +1,6 @@
 
 const STORAGE_KEY="linahub-data";
-// LinaHub 17.4.7 — shared image storage wrappers (same IndexedDB database/store as before).
+// LinaHub 17.4.8 — shared image storage wrappers (same IndexedDB database/store as before).
 async function saveLinaImage(key,value){return LinaImage.save(key,value)}
 async function loadLinaImage(key){try{return await LinaImage.load(key)}catch{return ""}}
 async function deleteLinaImage(key){try{return await LinaImage.remove(key)}catch{return false}}

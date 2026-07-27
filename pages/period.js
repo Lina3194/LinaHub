@@ -193,6 +193,20 @@ function importHistoricalPeriodData(){
   data.periodHistorySeedVersion=1;
 }
 
+function repairAdjacentFlowCycles(){
+  const sorted=[...(data.periodCycles||[])].filter(c=>c?.start).sort((a,b)=>a.start.localeCompare(b.start));
+  const cleaned=[];
+  sorted.forEach(cycle=>{
+    const previous=cleaned[cleaned.length-1];
+    const gap=previous?periodDaysBetween(previous.start,cycle.start):0;
+    const continuesPrevious=previous&&previous.source==="flow-log"&&cycle.source==="flow-log"&&gap>=1&&gap<=10&&periodHasMainFlow(periodAddDays(cycle.start,-1));
+    if(!continuesPrevious){cleaned.push(cycle);return}
+    previous.end=cycle.end||"";
+    if(data.periodEntries?.[cycle.start]) delete data.periodEntries[cycle.start].cycleStart;
+  });
+  if(cleaned.length!==sorted.length) data.periodCycles=cleaned;
+}
+
 const PERIOD_DEFAULT_OPTIONS=[
   {id:"clots",emoji:"🩸",name:"Clots",type:"toggle",choices:[]},
   {id:"colour",emoji:"🌹",name:"Colour",type:"single",choices:["Bright red","Dark red","Brown","Pink"]},
@@ -220,6 +234,7 @@ function ensurePeriodData(){
   data.periodTab=["today","history","settings"].includes(data.periodTab)?data.periodTab:"today";
   data.periodOpenYears=data.periodOpenYears&&typeof data.periodOpenYears==="object"?data.periodOpenYears:{};
   importHistoricalPeriodData();
+  repairAdjacentFlowCycles();
 }
 
 function periodDate(value){return new Date(`${value}T12:00:00`)}
@@ -230,18 +245,55 @@ function periodIso(date){
 function periodDaysBetween(a,b){return Math.round((periodDate(b)-periodDate(a))/86400000)}
 function periodSortedCycles(){return [...(data.periodCycles||[])].sort((a,b)=>String(b.start).localeCompare(String(a.start)))}
 function periodCurrentCycle(){return periodSortedCycles().find(c=>c.start&&!c.end)||null}
+function periodAddDays(value,days){return periodIso(new Date(periodDate(value).getTime()+Number(days||0)*86400000))}
+function periodHasMainFlow(date){return ["light","medium","heavy"].includes(data.periodEntries?.[date]?.flow)}
+function periodCycleContainsDate(cycle,date){return Boolean(cycle?.start&&date>=cycle.start&&cycle.end&&date<=cycle.end)}
+function periodCycleForFlowContinuation(date){
+  const previousDay=periodAddDays(date,-1);
+  if(!periodHasMainFlow(previousDay)) return null;
+  return [...(data.periodCycles||[])].sort((a,b)=>String(b.start).localeCompare(String(a.start))).find(cycle=>{
+    if(!cycle?.start||cycle.start>previousDay) return false;
+    if(periodDaysBetween(cycle.start,date)>14) return false;
+    return !cycle.end||previousDay<=cycle.end;
+  })||null;
+}
 function periodStartCycleFromFlow(date){
   if(!date) return null;
   data.periodCycles=Array.isArray(data.periodCycles)?data.periodCycles:[];
   const sameStart=data.periodCycles.find(c=>c.start===date);
-  if(sameStart){sameStart.end="";sameStart.source="flow-log";return sameStart}
-  const previousDay=periodIso(new Date(periodDate(date).getTime()-86400000));
+  if(sameStart){
+    if(!sameStart.source) sameStart.source="flow-log";
+    return sameStart;
+  }
+  const coveringCycle=data.periodCycles.find(cycle=>periodCycleContainsDate(cycle,date));
+  if(coveringCycle) return coveringCycle;
+  const continuation=periodCycleForFlowContinuation(date);
+  if(continuation){
+    if(continuation.end&&date>continuation.end) continuation.end=date;
+    return continuation;
+  }
+  const previousDay=periodAddDays(date,-1);
   data.periodCycles.forEach(cycle=>{
     if(cycle.start&&cycle.start<date&&!cycle.end) cycle.end=previousDay;
   });
   const cycle={id:`cycle-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,start:date,end:"",source:"flow-log"};
   data.periodCycles.push(cycle);
+  const entry=data.periodEntries[date]=data.periodEntries[date]||{};
+  entry.cycleStart=true;
   return cycle;
+}
+function periodRemoveFlowCycleStart(date){
+  const cycle=(data.periodCycles||[]).find(item=>item.start===date&&item.source==="flow-log");
+  if(!cycle) return;
+  const nextDate=periodAddDays(date,1);
+  if(periodHasMainFlow(nextDate)&&(!cycle.end||nextDate<=cycle.end)){
+    cycle.start=nextDate;
+    const nextEntry=data.periodEntries[nextDate]=data.periodEntries[nextDate]||{};
+    nextEntry.cycleStart=true;
+  }else{
+    data.periodCycles=data.periodCycles.filter(item=>item!==cycle);
+  }
+  if(data.periodEntries?.[date]) delete data.periodEntries[date].cycleStart;
 }
 function periodAverage(values){return values.length?Math.round(values.reduce((sum,n)=>sum+n,0)/values.length):0}
 function periodStats(){
@@ -288,10 +340,55 @@ function periodOptionInput(option,value){
   if(option.type==="number") return `<input class="field period-option-field" data-period-value="${option.id}" type="number" value="${esc(value??"")}" placeholder="Add number">`;
   return `<input class="field period-option-field" data-period-value="${option.id}" value="${esc(value??"")}" placeholder="Add a short note">`;
 }
+function periodPredictionStartsUntil(stats,endDate){
+  if(!stats?.predicted||!stats?.averageCycle||!endDate) return [];
+  const starts=[];
+  let cursor=stats.predicted,guard=0;
+  while(cursor<=endDate&&guard<600){
+    starts.push(cursor);
+    cursor=periodAddDays(cursor,stats.averageCycle);
+    guard++;
+  }
+  return starts;
+}
+function periodTimelineForRange(rangeStart,rangeEnd,stats=periodStats()){
+  const actualStarts=[...new Set((stats.cycles||[]).map(c=>c.start).filter(Boolean))].sort();
+  const projectionEnd=periodAddDays(rangeEnd,Math.max(45,stats.averageCycle+20));
+  const futureStarts=periodPredictionStartsUntil(stats,projectionEnd);
+  const starts=[...actualStarts.map(start=>({start,predicted:false})),...futureStarts.map(start=>({start,predicted:true}))].sort((a,b)=>a.start.localeCompare(b.start));
+  const windows=[];
+  for(let index=1;index<starts.length;index++){
+    const previous=starts[index-1],next=starts[index],cycleLength=periodDaysBetween(previous.start,next.start);
+    if(cycleLength<10||cycleLength>90) continue;
+    const ovulation=periodAddDays(next.start,-14);
+    windows.push({
+      cycleStart:previous.start,
+      nextPeriodStart:next.start,
+      ovulation,
+      fertileStart:periodAddDays(ovulation,-5),
+      fertileEnd:periodAddDays(ovulation,1),
+      predicted:next.predicted
+    });
+  }
+  return {
+    predictedPeriods:futureStarts.map(start=>({start,end:periodAddDays(start,stats.averagePeriod-1)})),
+    windows
+  };
+}
 function periodCalendar(){
-  const [year,month]=data.periodCalendarMonth.split("-").map(Number),first=new Date(year,month-1,1),total=new Date(year,month,0).getDate(),leading=(first.getDay()+6)%7,cells=[],stats=periodStats(),predictedEnd=stats.predicted?periodIso(new Date(periodDate(stats.predicted).getTime()+(stats.averagePeriod-1)*86400000)):"";
+  const [year,month]=data.periodCalendarMonth.split("-").map(Number),first=new Date(year,month-1,1),total=new Date(year,month,0).getDate(),leading=(first.getDay()+6)%7,cells=[],stats=periodStats();
+  const monthStart=`${year}-${String(month).padStart(2,"0")}-01`,monthEnd=`${year}-${String(month).padStart(2,"0")}-${String(total).padStart(2,"0")}`,timeline=periodTimelineForRange(monthStart,monthEnd,stats);
   for(let i=0;i<leading;i++)cells.push(`<span class="period-calendar-blank"></span>`);
-  for(let day=1;day<=total;day++){const date=`${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`,entry=periodEntry(date),inCycle=(data.periodCycles||[]).some(c=>c.start&&date>=c.start&&date<=(c.end||today())),pred=stats.predicted&&date>=stats.predicted&&date<=predictedEnd,fertile=stats.fertileStart&&date>=stats.fertileStart&&date<=stats.fertileEnd,ovu=date===stats.ovulation,cls=[date===data.periodSelectedDate?"selected":"",entry.flow?`flow-${entry.flow}`:"",inCycle?"in-cycle":"",pred?"predicted-period":"",fertile?"fertile-window":"",ovu?"ovulation-day":""].filter(Boolean).join(" "),mark=entry.flow?periodFlowEmoji(entry.flow):ovu?"✦":fertile?"•":pred?"○":"";cells.push(`<button type="button" class="period-calendar-day ${cls}" data-period-date="${date}"><span>${day}</span>${mark?`<i>${mark}</i>`:""}</button>`)}
+  for(let day=1;day<=total;day++){
+    const date=`${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`,entry=periodEntry(date);
+    const inCycle=(data.periodCycles||[]).some(c=>c.start&&date>=c.start&&date<=(c.end||today()));
+    const pred=timeline.predictedPeriods.some(item=>date>=item.start&&date<=item.end);
+    const fertile=timeline.windows.some(item=>date>=item.fertileStart&&date<=item.fertileEnd);
+    const ovu=timeline.windows.some(item=>date===item.ovulation);
+    const cls=[date===data.periodSelectedDate?"selected":"",entry.flow?`flow-${entry.flow}`:"",inCycle?"in-cycle":"",pred?"predicted-period":"",fertile?"fertile-window":"",ovu?"ovulation-day":""].filter(Boolean).join(" ");
+    const mark=entry.flow?periodFlowEmoji(entry.flow):ovu?"✦":fertile?"•":pred?"○":"";
+    cells.push(`<button type="button" class="period-calendar-day ${cls}" data-period-date="${date}"><span>${day}</span>${mark?`<i>${mark}</i>`:""}</button>`);
+  }
   return `<section class="card period-calendar-card"><div class="period-calendar-head"><button type="button" data-period-month="-1">‹</button><h2>${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</h2><button type="button" data-period-month="1">›</button></div><div class="period-weekdays">${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(d=>`<span>${d}</span>`).join("")}</div><div class="period-calendar-grid">${cells.join("")}</div><div class="period-legend"><span><i class="legend-period"></i> Period</span><span><i class="legend-predicted"></i> Predicted period</span><span><i class="legend-fertile"></i> Fertile window</span><span><i class="legend-ovulation"></i> Ovulation</span></div></section>`;
 }
 function periodOptionEditor(){
@@ -368,9 +465,11 @@ function bindPeriod(){
   document.querySelectorAll("[data-period-flow]").forEach(button=>button.onclick=()=>{
     const date=data.periodSelectedDate;
     data.periodEntries[date]=data.periodEntries[date]||{};
-    const nextFlow=data.periodEntries[date].flow===button.dataset.periodFlow?"":button.dataset.periodFlow;
+    const previousFlow=data.periodEntries[date].flow||"";
+    const nextFlow=previousFlow===button.dataset.periodFlow?"":button.dataset.periodFlow;
     data.periodEntries[date].flow=nextFlow;
     if(["light","medium","heavy"].includes(nextFlow)) periodStartCycleFromFlow(date);
+    else if(["light","medium","heavy"].includes(previousFlow)&&!nextFlow) periodRemoveFlowCycleStart(date);
     saveData();render();
   });
   document.querySelectorAll("[data-period-toggle]").forEach(button=>button.onclick=()=>{const date=data.periodSelectedDate;const entry=data.periodEntries[date]=data.periodEntries[date]||{};entry.options=entry.options||{};entry.options[button.dataset.periodToggle]=entry.options[button.dataset.periodToggle]!==true;saveData();render()});

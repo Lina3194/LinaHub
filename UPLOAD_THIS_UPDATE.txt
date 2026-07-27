@@ -1,3 +1,14 @@
-LinaHub 17.3.8
+LinaHub 17.4.2 — Universal Image Upload Fix
 
-Fixed Girls Tank and Boys Tank custom pictures so they remain saved and no longer revert to the heart emoji. This build keeps the 17.3.6 design and features.
+Upload all files in this ZIP over the existing LinaHub repository, preserving the folders.
+
+Changed only the image upload/save system:
+- One shared module: core/media.js
+- Automatic resize and compression
+- WebP output with JPEG fallback
+- Existing IndexedDB database and store retained
+- Save verification before success is shown
+- Clear errors without silently removing the previous image
+- Shared handling for Home tile images, banners, Girls Tank, Boys Tank and medication photo processing
+
+No design or UI changes were made.

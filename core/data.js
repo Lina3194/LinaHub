@@ -1,20 +1,53 @@
 
 const STORAGE_KEY="linahub-data";
-// LinaHub 17.4.2 — shared image storage wrappers (same IndexedDB database/store as before).
+// LinaHub 17.4.7 — shared image storage wrappers (same IndexedDB database/store as before).
 async function saveLinaImage(key,value){return LinaImage.save(key,value)}
 async function loadLinaImage(key){try{return await LinaImage.load(key)}catch{return ""}}
 async function deleteLinaImage(key){try{return await LinaImage.remove(key)}catch{return false}}
 async function hydrateLinaMedia(){
   data.homeImages=data.homeImages||{};
   data.moduleBanners=data.moduleBanners||{};
+  data.plants=Array.isArray(data.plants)?data.plants:[];
+  data.aquariums=Array.isArray(data.aquariums)?data.aquariums:[];
+  data.medications=Array.isArray(data.medications)?data.medications:[];
   let changed=false;
-  for(const [key,value] of Object.entries(data.homeImages)){if(/^data:image\//.test(value||"")){try{await saveLinaImage(`tab:${key}`,value)}catch{}}}
-  for(const [key,value] of Object.entries(data.moduleBanners)){if(/^data:image\//.test(value||"")){try{await saveLinaImage(`banner:${key}`,value)}catch{}}}
-  const tabKeys=["home","today","todo","shopping","settings","journal","plants","pokemon","pets","house","budget","treasures","journey","sleep","medication","period","weight","measurements","shoppingFridge","shoppingFreezer","shoppingPantry","shoppingCleaning","shoppingToiletries","rooms","inventory","girlsTank","boysTank","aquariumMaintenance","bills","savings","income","expenses"];
-  const bannerKeys=["journal","today","todo","plants","medication","pokemon","pets","house","period","treasures"];
-  for(const key of tabKeys){const saved=await loadLinaImage(`tab:${key}`);if(saved&&data.homeImages[key]!==saved){data.homeImages[key]=saved;changed=true}}
-  for(const key of bannerKeys){const saved=await loadLinaImage(`banner:${key}`);if(saved&&data.moduleBanners[key]!==saved){data.moduleBanners[key]=saved;changed=true}}
-  for(const [tabKey,tankId] of [["girlsTank","girls-tank"],["boysTank","boys-tank"]]){const saved=data.homeImages[tabKey]||"";const tank=(data.aquariums||[]).find(item=>item.id===tankId);if(tank&&tank.photo!==saved){tank.photo=saved;changed=true}}
+
+  const migrateInline=async(key,value)=>{
+    if(!/^data:image\//.test(value||"")) return;
+    try{await saveLinaImage(key,value)}catch(error){console.error("Could not migrate image",key,error)}
+  };
+  for(const [key,value] of Object.entries(data.homeImages)) await migrateInline(`tab:${key}`,value);
+  for(const [key,value] of Object.entries(data.moduleBanners)) await migrateInline(`banner:${key}`,value);
+  for(const plant of data.plants){plant.photoKey=plant.photoKey||`plant:${plant.id}`;await migrateInline(plant.photoKey,plant.photo)}
+  for(const tank of data.aquariums){tank.photoKey=tank.photoKey||`aquarium:${tank.id}`;await migrateInline(tank.photoKey,tank.photo)}
+  for(const med of data.medications){med.photoKey=med.photoKey||`medication:${med.id}`;await migrateInline(med.photoKey,med.photo)}
+
+  let rows=[];
+  try{rows=await LinaImage.entries()}catch(error){console.error("Could not list saved images",error)}
+  for(const [storageKey,value] of rows){
+    if(!value) continue;
+    if(storageKey.startsWith("tab:")){
+      const key=storageKey.slice(4);
+      if(data.homeImages[key]!==value){data.homeImages[key]=value;changed=true}
+    }else if(storageKey.startsWith("banner:")){
+      const key=storageKey.slice(7);
+      if(data.moduleBanners[key]!==value){data.moduleBanners[key]=value;changed=true}
+    }else if(storageKey.startsWith("plant:")){
+      const plant=data.plants.find(item=>(item.photoKey||`plant:${item.id}`)===storageKey);
+      if(plant&&plant.photo!==value){plant.photo=value;changed=true}
+    }else if(storageKey.startsWith("aquarium:")){
+      const tank=data.aquariums.find(item=>(item.photoKey||`aquarium:${item.id}`)===storageKey);
+      if(tank&&tank.photo!==value){tank.photo=value;changed=true}
+    }else if(storageKey.startsWith("medication:")){
+      const med=data.medications.find(item=>(item.photoKey||`medication:${item.id}`)===storageKey);
+      if(med&&med.photo!==value){med.photo=value;changed=true}
+    }
+  }
+  for(const [tabKey,tankId] of [["girlsTank","girls-tank"],["boysTank","boys-tank"]]){
+    const saved=data.homeImages[tabKey]||"";
+    const tank=data.aquariums.find(item=>item.id===tankId);
+    if(tank&&saved&&tank.photo!==saved){tank.photo=saved;changed=true}
+  }
   return changed;
 }
 
@@ -366,7 +399,7 @@ function saveData(){
     // Every uploaded picture is stored in IndexedDB, never in the main JSON payload.
     const safeHomeImages=Object.fromEntries(Object.entries(data.homeImages||{}).map(([key,value])=>[key,/^data:image\//.test(value||"")?"":value||""]));
     const safeModuleBanners=Object.fromEntries(Object.entries(data.moduleBanners||{}).map(([key,value])=>[key,/^data:image\//.test(value||"")?"":value||""]));
-    const serializable={...data,homeImages:safeHomeImages,moduleBanners:safeModuleBanners,plants:(data.plants||[]).map(plant=>({...plant,photo:/^data:image\//.test(plant.photo||"")?"":plant.photo||""})),aquariums:(data.aquariums||[]).map(tank=>({...tank,photo:/^data:image\//.test(tank.photo||"")?"":tank.photo||""}))};
+    const serializable={...data,homeImages:safeHomeImages,moduleBanners:safeModuleBanners,plants:(data.plants||[]).map(plant=>({...plant,photo:/^data:image\//.test(plant.photo||"")?"":plant.photo||""})),aquariums:(data.aquariums||[]).map(tank=>({...tank,photo:/^data:image\//.test(tank.photo||"")?"":tank.photo||""})),medications:(data.medications||[]).map(med=>({...med,photo:/^data:image\//.test(med.photo||"")?"":med.photo||""}))};
     localStorage.setItem(STORAGE_KEY,JSON.stringify(serializable));
     return true;
   }catch(error){

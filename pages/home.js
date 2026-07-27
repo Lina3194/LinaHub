@@ -147,7 +147,7 @@ function homeTile(item,editing){
   const art=data.homeImages?.[item.id]
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1680" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1747" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const route=item.id==="measurements"?"health":item.id;
   const extra=item.id==="measurements"?' data-route-id="log"':"";
@@ -257,30 +257,6 @@ function HomePage(){
   `,"home");
 }
 
-function resizeHomeCover(file){
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onerror=()=>reject(new Error("read"));
-    reader.onload=()=>{
-      const img=new Image();
-      img.onerror=()=>reject(new Error("image"));
-      img.onload=()=>{
-        const size=600;
-        const canvas=document.createElement("canvas");
-        canvas.width=size;canvas.height=size;
-        const ctx=canvas.getContext("2d");
-        ctx.fillStyle="rgba(0,0,0,0)";ctx.fillRect(0,0,size,size);
-        const scale=Math.min((size-32)/img.width,(size-32)/img.height);
-        const w=img.width*scale,h=img.height*scale;
-        ctx.drawImage(img,(size-w)/2,(size-h)/2,w,h);
-        resolve(canvas.toDataURL("image/webp",.82));
-      };
-      img.src=reader.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
 function bindTileEditor(id){
   document.querySelector("#globalTileEditor")?.remove();
   const host=document.createElement("div");
@@ -298,9 +274,13 @@ function bindTileEditor(id){
   host.querySelector("#tilePickImage")?.addEventListener("click",()=>host.querySelector("#tileImageInput")?.click());
   host.querySelector("#tileImageInput")?.addEventListener("change",async e=>{
     const file=e.target.files?.[0]; if(!file) return;
-    try{data.homeImages=data.homeImages||{};data.homeImages[id]=await resizeHomeCover(file);saveData();close();bindTileEditor(id);toast("Cover image added ✨")}catch{toast("That image could not be added")}
+    try{
+      data.homeImages=data.homeImages||{};
+      data.homeImages[id]=await LinaImage.upload({file,key:`tab:${id}`,width:1200,height:1200,fit:"contain",quality:0.82,allowUpscale:false});
+      saveData();close();bindTileEditor(id);toast("Cover image added ✨");
+    }catch(error){toast(LinaImage.friendlyError(error))}
   });
-  host.querySelector("#tileRemoveImage")?.addEventListener("click",()=>{delete data.homeImages[id];saveData();close();bindTileEditor(id);toast("Cover image removed")});
+  host.querySelector("#tileRemoveImage")?.addEventListener("click",async()=>{await LinaImage.remove(`tab:${id}`).catch(()=>{});delete data.homeImages[id];saveData();close();bindTileEditor(id);toast("Cover image removed")});
   const moveTile=step=>{
     const i=data.homeLayout.findIndex(x=>x.id===id);const j=i+step;
     if(i<0||j<0||j>=data.homeLayout.length){toast(step<0?"This tile is already first":"This tile is already last");return;}

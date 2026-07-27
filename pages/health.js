@@ -1,3 +1,100 @@
+/* LinaHub 17.4.7 — active Measures page implementation. */
+function lina17DateList(values){return (Array.isArray(values)?values:[]).slice().filter(Boolean).sort().reverse()}
+function linaMeasureRangeStart(range){
+  const now=new Date(`${today()}T23:59:59`);
+  const start=new Date(now);
+  if(range==="week")start.setDate(start.getDate()-6);
+  else if(range==="month")start.setMonth(start.getMonth()-1);
+  else if(range==="3months")start.setMonth(start.getMonth()-3);
+  else if(range==="6months")start.setMonth(start.getMonth()-6);
+  else if(range==="year")start.setFullYear(start.getFullYear()-1);
+  return start;
+}
+function linaMeasureChart(category){
+  const all=(category.entries||[]).map(item=>({date:String(item.date||""),value:Number(item.value)})).filter(item=>item.date&&Number.isFinite(item.value)).sort((a,b)=>a.date.localeCompare(b.date));
+  const range=["week","month","3months","6months","year"].includes(window.linaMeasureRange)?window.linaMeasureRange:"week";
+  const start=linaMeasureRangeStart(range);
+  const clean=all.filter(item=>new Date(`${item.date}T12:00:00`)>=start);
+  const rangeLabel={week:"Week",month:"Month","3months":"3 months","6months":"6 months",year:"Year"};
+  const controls=`<nav class="measure-range-tabs" role="tablist" aria-label="Chart time range">
+    ${[["week","Week"],["month","Month"],["3months","3 months"],["6months","6 months"],["year","Year"]].map(([key,label])=>`<button type="button" class="${range===key?"active":""}" data-measure-range="${key}" role="tab" aria-selected="${range===key}">${label}</button>`).join("")}
+  </nav>`;
+  let chart;
+  if(!clean.length){
+    chart=`<section class="card measure-chart-card"><div class="measure-chart-heading"><div><span class="section-kicker">Progress chart</span><h2>${category.label}</h2></div></div>${controls}<div class="empty"><p>No ${category.short.toLowerCase()} entries in this ${rangeLabel[range].toLowerCase()}.</p></div></section>`;
+  }else{
+    const width=720,height=300,padL=48,padR=24,padT=28,padB=46;
+    const values=clean.map(x=>x.value),minRaw=Math.min(...values),maxRaw=Math.max(...values);
+    const spread=Math.max(maxRaw-minRaw,category.unit==="kg"?.5:2);
+    const min=minRaw-spread*.18,max=maxRaw+spread*.18;
+    const x=i=>clean.length===1?(padL+(width-padL-padR)/2):padL+i*((width-padL-padR)/(clean.length-1));
+    const y=v=>padT+(max-v)*(height-padT-padB)/(max-min||1);
+    const points=clean.map((item,i)=>`${x(i).toFixed(1)},${y(item.value).toFixed(1)}`).join(" ");
+    const grid=Array.from({length:4},(_,i)=>{const yy=padT+i*(height-padT-padB)/3;const val=max-i*(max-min)/3;return `<line x1="${padL}" y1="${yy}" x2="${width-padR}" y2="${yy}" class="measure-chart-grid"/><text x="${padL-8}" y="${yy+4}" text-anchor="end" class="measure-chart-axis">${val.toFixed(category.unit==="kg"?1:0)}</text>`}).join("");
+    const dots=clean.map((item,i)=>`<circle class="measure-chart-dot" cx="${x(i)}" cy="${y(item.value)}" r="8" tabindex="0" role="button" aria-label="${formatDate(item.date)} ${item.value} ${category.unit}" data-chart-date="${esc(item.date)}" data-chart-value="${esc(item.value)}" data-chart-unit="${category.unit}"></circle>`).join("");
+    const first=clean[0],last=clean[clean.length-1],change=last.value-first.value;
+    chart=`<section class="card measure-chart-card">
+      <div class="measure-chart-heading"><div><span class="section-kicker">Progress chart</span><h2>${category.label}</h2></div><div class="measure-chart-current"><small>Latest</small><strong>${last.value} ${category.unit}</strong></div></div>
+      ${controls}
+      <div class="measure-chart-wrap"><svg class="measure-progress-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${category.label} progress over time">${grid}<polyline class="measure-chart-line" points="${points}"/>${dots}</svg></div>
+      <div class="measure-chart-tooltip" id="measureChartTooltip"><span>Tap a dot to see the date and value</span></div>
+      <div class="measure-chart-footer"><span>${formatDate(first.date)}</span><strong>${change===0?"No change":`${change>0?"+":""}${change.toFixed(category.unit==="kg"?2:1)} ${category.unit}`}</strong><span>${formatDate(last.date)}</span></div>
+    </section>`;
+  }
+  const history=`<section class="card measure-history-card"><div class="measure-history-heading"><div><span class="section-kicker">History</span><h2>All ${category.short.toLowerCase()} entries</h2></div><b>${all.length}</b></div>
+    <div class="measure-history-list">${all.length?all.slice().reverse().map(item=>`<article><time>${formatDate(item.date)}</time><span>${category.icon} ${category.short}</span><strong>${item.value} ${category.unit}</strong></article>`).join(""):`<div class="empty"><p>No entries yet.</p></div>`}</div>
+  </section>`;
+  return chart+history;
+}
+function HealthPage(){
+  const weights=(data.weightEntries||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const measures=(data.measurements||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const latestWeight=weights[0],latestMeasure=measures[0];
+  const selected=["overview","weight","waist","tummy"].includes(window.linaHealthMeasureTab)?window.linaHealthMeasureTab:"overview";
+  const categories={
+    weight:{label:"Weight",short:"Weight",icon:"⚖️",unit:"kg",entries:weights.map(x=>({date:x.date,value:x.value??x.weight}))},
+    waist:{label:"Measurement (W)",short:"Waist",icon:"📏",unit:"cm",entries:measures.filter(x=>x.waist!==""&&x.waist!=null).map(x=>({date:x.date,value:x.waist}))},
+    tummy:{label:"Measurement (T)",short:"Tummy",icon:"〰️",unit:"cm",entries:measures.filter(x=>x.tummy!==""&&x.tummy!=null).map(x=>({date:x.date,value:x.tummy}))}
+  };
+  const overview=`<section class="measure-hero card">
+      <div><span class="section-kicker">Latest measurements</span><h2>Your progress, without the clutter</h2><p>Only the three measurements that matter to you.</p></div>
+      <div class="measure-summary-grid">
+        <article><span>⚖️</span><small>Weight</small><strong>${latestWeight?.value||latestWeight?.weight||"—"}<em>${latestWeight?" kg":""}</em></strong></article>
+        <article><span>📏</span><small>Waist</small><strong>${latestMeasure?.waist??"—"}<em>${latestMeasure?.waist!=null&&latestMeasure?.waist!==""?" cm":""}</em></strong></article>
+        <article><span>〰️</span><small>Tummy</small><strong>${latestMeasure?.tummy??"—"}<em>${latestMeasure?.tummy!=null&&latestMeasure?.tummy!==""?" cm":""}</em></strong></article>
+      </div>
+    </section>
+    <section class="card measure-entry-card"><div class="section-title-row"><div><span class="section-kicker">New entry</span><h2>Add today’s measures</h2></div></div>
+      <label class="compact-measure-date">Date<input class="field" id="measureDate" type="date" value="${today()}"></label>
+      <div class="health-measure-fields">
+        <label><span>⚖️ Weight</span><div class="measure-input-wrap"><input class="field" id="weightValue" inputmode="decimal" type="number" step="0.1" placeholder="0.0"><b>kg</b></div></label>
+        <label><span>📏 Waist</span><div class="measure-input-wrap"><input class="field" id="measureWaist" inputmode="decimal" type="number" step="0.1" placeholder="0.0"><b>cm</b></div></label>
+        <label><span>〰️ Tummy</span><div class="measure-input-wrap"><input class="field" id="measureTummy" inputmode="decimal" type="number" step="0.1" placeholder="0.0"><b>cm</b></div></label>
+      </div><button class="primary measure-save" id="saveMeasures">Save measurements</button>
+    </section>`;
+  return shell(`${head("Measures","A simple record of weight, waist and tummy")}
+    <nav class="measure-main-tabs" role="tablist" aria-label="Measures sections">
+      <button type="button" class="${selected==="overview"?"active":""}" data-measure-tab="overview" role="tab" aria-selected="${selected==="overview"}">Overview</button>
+      <button type="button" class="${selected==="weight"?"active":""}" data-measure-tab="weight" role="tab" aria-selected="${selected==="weight"}">Weight</button>
+      <button type="button" class="${selected==="waist"?"active":""}" data-measure-tab="waist" role="tab" aria-selected="${selected==="waist"}">Measurement (W)</button>
+      <button type="button" class="${selected==="tummy"?"active":""}" data-measure-tab="tummy" role="tab" aria-selected="${selected==="tummy"}">Measurement (T)</button>
+    </nav>
+    ${selected==="overview"?overview:linaMeasureChart(categories[selected])}`,'health');
+}
+function bindHealth(){
+  document.querySelectorAll("[data-measure-tab]").forEach(button=>button.onclick=()=>{window.linaHealthMeasureTab=button.dataset.measureTab;render();});
+  document.querySelectorAll("[data-measure-range]").forEach(button=>button.onclick=()=>{window.linaMeasureRange=button.dataset.measureRange;render();});
+  document.querySelectorAll(".measure-chart-dot").forEach(dot=>{
+    const show=()=>{const box=document.querySelector("#measureChartTooltip");if(!box)return;box.innerHTML=`<strong>${formatDate(dot.dataset.chartDate)}</strong><span>${dot.dataset.chartValue} ${dot.dataset.chartUnit}</span>`;document.querySelectorAll(".measure-chart-dot.selected").forEach(x=>x.classList.remove("selected"));dot.classList.add("selected")};
+    dot.onclick=show;dot.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();show()}};
+  });
+  const save=document.querySelector("#saveMeasures"); if(!save)return;
+  save.onclick=()=>{const date=document.querySelector("#measureDate").value||today(),weight=document.querySelector("#weightValue").value,waist=document.querySelector("#measureWaist").value,tummy=document.querySelector("#measureTummy").value;if(!weight&&!waist&&!tummy){toast("Add at least one measurement");return}
+    if(weight){data.weightEntries=data.weightEntries||[];data.weightEntries.push({id:`weight-${Date.now()}`,date,value:Number(weight)})}
+    if(waist||tummy){data.measurements=data.measurements||[];data.measurements.push({id:`measure-${Date.now()}`,date,waist:waist===""?"":Number(waist),tummy:tummy===""?"":Number(tummy)})}
+    saveData();toast("Measurements saved ✨");render();};
+}
+
 function entryTimestamp(dateValue){
   const now=new Date();
   const pad=n=>String(n).padStart(2,"0");
@@ -96,34 +193,6 @@ function journeyEntry(entry,index){
   return `<article class="journey-entry" data-day-checkin-id="${esc(entry.id)}" style="--journey-glow:${glow}"><div class="journey-time">${esc(entry.time||"")}</div><button type="button" class="journey-orb" aria-label="Open or remove ${esc(entry.time||"check-in")}"><span></span></button><div class="journey-values"><span title="Energy"><b>${energy[0]}</b><small>${energy[1]}</small></span><span title="Mood"><b>${mood[0]}</b><small>${mood[1]}</small></span><span title="Pain"><b>${pain[0]}</b><small>${pain[1]}</small></span></div>${entry.note?`<p class="journey-note">${esc(entry.note)}</p>`:""}</article>`;
 }
 function dayEntries(dateValue){return (data.dayCheckins||[]).filter(e=>e.date===dateValue).sort((a,b)=>(a.createdAt||"").localeCompare(b.createdAt||""))}
-function HealthPage(){
- ensureHealthView();
- if(["sleep","garden","log","weight","measurements"].includes(routeId)) data.healthView.tab=routeId;
- data.sleepEntries=Array.isArray(data.sleepEntries)?data.sleepEntries:[];data.dayCheckins=Array.isArray(data.dayCheckins)?data.dayCheckins:[];
- const weights=[...(data.weightEntries||[])].sort((a,b)=>healthSortValue(b).localeCompare(healthSortValue(a)));
- const measures=[...(data.measurements||[])].sort((a,b)=>healthSortValue(b).localeCompare(healthSortValue(a)));
- const sleeps=[...data.sleepEntries].sort((a,b)=>healthSortValue(b).localeCompare(healthSortValue(a)));
- const latest=weights[0],tab=data.healthView.tab,dateValue=today(),morning=(data.checkins||{})[dateValue]||{},todayJourney=dayEntries(dateValue);
- const latestSleep=sleeps[0],medDue=typeof medicationDueSummary==="function"?medicationDueSummary(dateValue):null;
- const dashboard=`<section class="card health-dashboard-hero"><span class="section-kicker">❤️ Your health today</span><h2>${new Date().toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long"})}</h2><div class="health-dashboard-stats"><div><small>Sleep</small><strong>${morning.sleep!=null?HEALTH_FEELINGS.sleep[morning.sleep][0]:"—"}</strong><small>${latestSleep?minutesLabel(latestSleep.totalMinutes):"No time logged"}</small></div><div><small>Energy</small><strong>${morning.energy!=null?HEALTH_FEELINGS.energy[morning.energy][0]:"—"}</strong></div><div><small>Mood</small><strong>${morning.mood!=null?HEALTH_FEELINGS.mood[morning.mood][0]:"—"}</strong></div><div><small>Pain</small><strong>${morning.pain!=null?HEALTH_FEELINGS.pain[morning.pain][0]:"—"}</strong></div></div></section><section class="health-module-grid"><button data-health-open="sleep"><span>${morning.sleep!=null?HEALTH_FEELINGS.sleep[morning.sleep][0]:moduleVisual("sleep","😴")}</span><strong>Sleep</strong><small>${latestSleep?minutesLabel(latestSleep.totalMinutes):"Choose how you slept"}</small></button><button data-route="medication"><span>${moduleVisual("medication","💊")}</span><strong>Medication</strong><small>Today, history & stock</small></button><button data-route="period"><span>${moduleVisual("period","🌸")}</span><strong>Period</strong><small>Cycle & predictions</small></button><button data-health-open="weight"><span>${moduleVisual("weight","⚖️")}</span><strong>Weight</strong><small>${latest?`${esc(healthWeightValue(latest))} kg`:"Add weight"}</small></button><button data-health-open="measurements"><span>${moduleVisual("measurements","📏")}</span><strong>Measurements</strong><small>${measures.length} entries</small></button></section>`;
- const measuresSection=data.healthView.measuresSection;
- const measuresTabs=`<div class="module-section-tabs measures-section-tabs"><button type="button" data-measures-section="today" class="${measuresSection==="today"?"active":""}">Today</button><button type="button" data-measures-section="weight" class="${measuresSection==="weight"?"active":""}">Trends (W)</button><button type="button" data-measures-section="measurements" class="${measuresSection==="measurements"?"active":""}">Trends (M)</button></div>`;
- const measuresToday=`<div class="health-form-grid"><section class="card compact-health-card"><h2>Add weight</h2><div class="compact-health-fields"><input class="field" id="weightDate" type="date" value="${today()}"><input class="field" id="weightValue" type="number" step="0.1" placeholder="Weight kg"></div><button class="primary" id="addWeight">Save weight</button></section><section class="card compact-health-card"><h2>Add measurements</h2><input class="field" id="measureDate" type="date" value="${today()}"><div class="compact-health-fields"><input class="field" id="measureWaist" type="number" step="0.1" placeholder="Waist cm"><input class="field" id="measureTummy" type="number" step="0.1" placeholder="Tummy cm"></div><button class="primary" id="addMeasure">Save measurements</button></section></div>`;
- const weightHistory=weights.map(entry=>`<article class="measure-history-row"><div><strong>${esc(healthWeightValue(entry))} kg</strong><small>${formatDate(entry.date)}${healthEntryTime(entry)?` · ${healthEntryTime(entry)}`:""}</small></div></article>`).join("");
- const measurementHistory=measures.map(entry=>`<article class="measure-history-row"><div><strong>${entry.waist?`Waist ${esc(entry.waist)} cm`:""}${entry.waist&&entry.tummy?" · ":""}${entry.tummy?`Tummy ${esc(entry.tummy)} cm`:""}</strong><small>${formatDate(entry.date)}${healthEntryTime(entry)?` · ${healthEntryTime(entry)}`:""}</small></div></article>`).join("");
- const weightTrends=`<section class="card measures-history-card"><div class="section-title"><div><span class="section-kicker">Trends</span><h2>Weight</h2></div><strong>${weights.length} entr${weights.length===1?"y":"ies"}</strong></div>${healthRangeButtons("weight",data.healthView.weightRange)}<div data-health-chart-panel="weight">${healthGraph(weights,[{label:"Weight",unit:"kg",get:healthWeightValue}],data.healthView.weightRange)}</div></section><section class="card measures-history-card"><div class="section-title"><div><span class="section-kicker">Saved entries</span><h2>Weight history</h2></div><strong>${weights.length}</strong></div><div class="measure-history-list">${weightHistory||`<div class="health-graph-empty">No weight entries yet.</div>`}</div></section>`;
- const measurementTrends=`<section class="card measures-history-card"><div class="section-title"><div><span class="section-kicker">Trends</span><h2>Measurements</h2></div><strong>${measures.length} entr${measures.length===1?"y":"ies"}</strong></div>${healthRangeButtons("measurements",data.healthView.measureRange)}<div data-health-chart-panel="measurements">${healthGraph(measures,[{label:"Waist",unit:"cm",get:e=>e.waist},{label:"Tummy",unit:"cm",get:e=>e.tummy}],data.healthView.measureRange)}</div></section><section class="card measures-history-card"><div class="section-title"><div><span class="section-kicker">Saved entries</span><h2>Measurement history</h2></div><strong>${measures.length}</strong></div><div class="measure-history-list">${measurementHistory||`<div class="health-graph-empty">No measurement entries yet.</div>`}</div></section>`;
- const logTab=`${measuresTabs}${measuresSection==="weight"?weightTrends:measuresSection==="measurements"?measurementTrends:measuresToday}`;
- const sleepTab=`<section class="card sleep-morning-card"><div class="section-title"><div><span class="section-kicker">😴 Morning</span><h2>Sleep & morning check-in</h2></div></div><input class="field" id="sleepDate" type="date" value="${dateValue}"><div class="sleep-time-grid"><label><span>Total sleep</span><div><input class="field" id="sleepHours" type="number" min="0" max="24" placeholder="Hours"><input class="field" id="sleepMinutes" type="number" min="0" max="59" placeholder="Minutes"></div></label><label><span>Deep sleep</span><div><input class="field" id="deepHours" type="number" min="0" max="24" placeholder="Hours"><input class="field" id="deepMinutes" type="number" min="0" max="59" placeholder="Minutes"></div></label></div><h3>Sleep</h3>${healthScale("sleep",morning.sleep)}<h3>Pain</h3>${healthScale("pain",morning.pain)}<h3>Energy</h3>${healthScale("energy",morning.energy)}<h3>Mood</h3>${healthScale("mood",morning.mood)}<p class="health-auto-save-note" id="morningAutoSaveNote">Saved automatically as you tap or change a value.</p></section><section class="card"><div class="section-title"><div><span class="section-kicker">History</span><h2>Sleep history</h2></div></div>${sleeps.length?`<div class="sleep-history">${sleeps.slice(0,30).map(e=>`<article><div><strong>${formatDate(e.date)}</strong><small>${healthEntryTime(e)}</small></div><span>😴 ${minutesLabel(e.totalMinutes)}</span><span>🌙 ${minutesLabel(e.deepMinutes)}</span><button class="mini danger" data-sleep-delete="${esc(e.id)}">×</button></article>`).join("")}</div>`:`<p>No sleep entries yet.</p>`}</section>`;
- const circleScale=(name,items)=>`<div class="health-circle-scale">${items.map((item,index)=>`<button type="button" data-health-feeling="${name}" data-value="${index}" aria-label="${item[1]}"><span>${item[0]}</span><small>${item[1]}</small></button>`).join("")}</div>`;
- const gardenTab=`<section class="card journey-checkin-card"><div class="section-title"><div><span class="section-kicker">✨ Check in</span><h2>How are you right now?</h2></div><strong>${new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}</strong></div><p class="journey-direction">Worst on the left · best on the right</p><h3>Energy</h3>${circleScale("dayEnergy",HEALTH_FEELINGS.energy)}<h3>Mood</h3>${circleScale("dayMood",HEALTH_FEELINGS.mood)}<h3>Pain</h3>${circleScale("dayPain",HEALTH_FEELINGS.pain)}<button class="primary" id="saveDayJourney">Save check-in</button></section><section class="card journey-card"><div class="section-title"><div><span class="section-kicker">Today</span><h2>Journal timeline</h2></div><strong>${todayJourney.length} check-in${todayJourney.length===1?"":"s"}</strong></div><div class="journey-timeline ${todayJourney.length?"":"empty-journey"}">${todayJourney.length?todayJourney.map(journeyEntry).join(""):`<div class="journey-empty"><span>✨</span><strong>No check-ins yet</strong><small>Your day will appear here as a calm timeline.</small></div>`}</div></section>`;
- const weightTab=`<section class="card compact-health-card"><h2>Add weight</h2><div class="compact-health-fields"><input class="field" id="weightDate" type="date" value="${today()}"><input class="field" id="weightValue" type="number" step="0.1" placeholder="Weight kg"></div><button class="primary" id="addWeight">Save weight</button></section><section class="card"><h2>Weight history</h2>${healthRangeButtons("weight",data.healthView.weightRange)}<div data-health-chart-panel="weight">${healthGraph(weights,[{label:"Weight",unit:"kg",get:healthWeightValue}],data.healthView.weightRange)}</div></section>`;
- const measureTab=`<section class="card compact-health-card"><h2>Add measurements</h2><input class="field" id="measureDate" type="date" value="${today()}"><div class="compact-health-fields"><input class="field" id="measureWaist" type="number" step="0.1" placeholder="Waist cm"><input class="field" id="measureTummy" type="number" step="0.1" placeholder="Tummy cm"></div><button class="primary" id="addMeasure">Save measurements</button></section><section class="card"><h2>Measurement history</h2>${healthRangeButtons("measurements",data.healthView.measureRange)}<div data-health-chart-panel="measurements">${healthGraph(measures,[{label:"Waist",unit:"cm",get:e=>e.waist},{label:"Tummy",unit:"cm",get:e=>e.tummy}],data.healthView.measureRange)}</div></section>`;
- const content=tab==='dashboard'?dashboard:tab==='sleep'?sleepTab:tab==='garden'?gardenTab:tab==='weight'?weightTab:tab==='measurements'?measureTab:logTab;
- const trackerTitle=({dashboard:"Trackers",sleep:"Sleep",garden:"Journal",weight:"Weight",measurements:"Measures",log:"Measures"})[tab]||"Trackers";
- const trackerSubtitle=tab==="sleep"?"Sleep duration, quality and history":tab==="garden"?"Hourly wellbeing check-ins":"Weight and body measurements";
- return shell(`${head(trackerTitle,trackerSubtitle)}${content}`,"health");
-}
 function selectedHealthFeeling(name){const el=document.querySelector(`[data-health-feeling="${name}"].active`);return el?Number(el.dataset.value):null}
 function markHealthTodayPrompt(date){
   if(date!==today()) return;
@@ -138,49 +207,6 @@ function releaseHealthInputZoom(){
   requestAnimationFrame(()=>window.scrollTo({top:window.scrollY,left:0,behavior:"auto"}));
 }
 
-function bindHealth(){
- ensureHealthView();
- document.querySelectorAll('[data-health-open]').forEach(b=>b.onclick=()=>{data.healthView.tab=b.dataset.healthOpen;saveData();render()});
- document.querySelectorAll('[data-health-tab]').forEach(b=>b.onclick=()=>{data.healthView.tab=b.dataset.healthTab;saveData();render()});
- document.querySelectorAll('[data-measures-section]').forEach(b=>b.onclick=()=>{data.healthView.measuresSection=b.dataset.measuresSection;saveData();render()});
- const saveMorningAutomatically=()=>{
-   const date=document.querySelector('#sleepDate')?.value||today();
-   data.checkins=data.checkins||{};
-   const existing=data.checkins[date]||{};
-   const readNumber=id=>{const el=document.querySelector(id);return el&&el.value!==''?Number(el.value):0};
-   const sleepValue=selectedHealthFeeling('sleep'),painValue=selectedHealthFeeling('pain'),energyValue=selectedHealthFeeling('energy'),moodValue=selectedHealthFeeling('mood');
-   data.checkins[date]={...existing,
-     ...(sleepValue!=null?{sleep:sleepValue}:{}),
-     ...(painValue!=null?{pain:painValue}:{}),
-     ...(energyValue!=null?{energy:energyValue}:{}),
-     ...(moodValue!=null?{mood:moodValue}:{})
-   };
-   const totalMinutes=readNumber('#sleepHours')*60+readNumber('#sleepMinutes');
-   const deepMinutes=readNumber('#deepHours')*60+readNumber('#deepMinutes');
-   if(totalMinutes>0||deepMinutes>0){
-     const existingSleep=(data.sleepEntries||[]).find(entry=>entry.date===date);
-     if(existingSleep){existingSleep.totalMinutes=totalMinutes;existingSleep.deepMinutes=deepMinutes;existingSleep.createdAt=new Date().toISOString()}
-     else data.sleepEntries.push({id:`sleep-${Date.now()}`,date,totalMinutes,deepMinutes,createdAt:new Date().toISOString()});
-   }
-   saveData();
-   const note=document.querySelector('#morningAutoSaveNote');
-   if(note){note.textContent='Saved ✓';clearTimeout(window.__morningSavedTimer);window.__morningSavedTimer=setTimeout(()=>{if(note)note.textContent='Saved automatically as you tap or change a value.'},1000)}
- };
- document.querySelectorAll('[data-health-feeling]').forEach(b=>b.onclick=()=>{
-   document.querySelectorAll(`[data-health-feeling="${b.dataset.healthFeeling}"]`).forEach(x=>x.classList.remove('active'));
-   b.classList.add('active');
-   if(['sleep','pain','energy','mood'].includes(b.dataset.healthFeeling)) saveMorningAutomatically();
- });
- ['#sleepDate','#sleepHours','#sleepMinutes','#deepHours','#deepMinutes'].forEach(selector=>document.querySelector(selector)?.addEventListener('change',saveMorningAutomatically));
- document.querySelector('#addWeight')?.addEventListener('click',()=>{const input=document.querySelector('#weightValue'),weight=input.value;if(!weight){toast('Enter a weight');return}const date=document.querySelector('#weightDate').value;data.weightEntries.push({...entryTimestamp(date),weight});markHealthTodayPrompt(date);releaseHealthInputZoom();saveData();toast('Weight saved ✨');render()});
- document.querySelector('#addMeasure')?.addEventListener('click',()=>{const waist=document.querySelector('#measureWaist').value,tummy=document.querySelector('#measureTummy').value;if(!waist&&!tummy){toast('Add at least one measurement');return}const date=document.querySelector('#measureDate').value;data.measurements.push({...entryTimestamp(date),waist,tummy});markHealthTodayPrompt(date);releaseHealthInputZoom();saveData();toast('Measurements saved ✨');render()});
- document.querySelectorAll('[data-sleep-delete]').forEach(b=>b.onclick=()=>{data.sleepEntries=data.sleepEntries.filter(e=>e.id!==b.dataset.sleepDelete);saveData();render()});
- document.querySelector('#saveDayJourney')?.addEventListener('click',()=>{const energy=selectedHealthFeeling('dayEnergy'),mood=selectedHealthFeeling('dayMood'),pain=selectedHealthFeeling('dayPain');if(energy===null||mood===null||pain===null){toast('Choose your energy, mood and pain');return}const stamp=entryTimestamp(today());data.dayCheckins=data.dayCheckins||[];data.dayCheckins.push({id:`journal-${Date.now()}`,...stamp,energy,mood,pain});data.journalTimeline=data.journalTimeline||[];data.journalTimeline.push({id:`timeline-${Date.now()}`,date:today(),time:stamp.time,prompt:'Wellbeing check-in',text:`Energy ${energy} · Mood ${mood} · Pain ${pain}`,createdAt:new Date().toISOString()});saveData();toast('Check-in saved ✨');render()});
- document.querySelectorAll('[data-day-checkin-id]').forEach(b=>b.onclick=()=>{if(confirm('Remove this check-in?')){data.dayCheckins=data.dayCheckins.filter(e=>e.id!==b.dataset.dayCheckinId);saveData();render()}});
- document.querySelector('#saveFlowerReminder')?.addEventListener('click',async()=>{const enabled=document.querySelector('#flowerReminderEnabled').checked;if(enabled&&!(await linaRequestNotificationPermission()))return;data.notifications={...(data.notifications||{}),enabled:data.notifications?.enabled||enabled,dayCheckins:enabled,dayCheckinStart:document.querySelector('#flowerReminderStart').value,dayCheckinEnd:document.querySelector('#flowerReminderEnd').value,dayCheckinEvery:Number(document.querySelector('#flowerReminderFrequency').value)||1,lastSent:data.notifications?.lastSent||{}};saveData();linaStartNotificationChecks();toast('Flower reminder saved')});
- document.querySelectorAll('[data-health-range]').forEach(button=>button.onclick=()=>{const kind=button.dataset.healthRange,range=button.dataset.rangeValue;if(kind==='weight')data.healthView.weightRange=range;else data.healthView.measureRange=range;saveData();render()});
- document.querySelectorAll('[data-chart-point]').forEach(point=>{const show=()=>{const wrap=point.closest('.health-chart-wrap');const info=wrap?.querySelector('.health-chart-point-info');if(!info)return;const time=point.dataset.pointTime?` · ${point.dataset.pointTime}`:"";info.innerHTML=`<strong>${esc(point.dataset.pointLabel)}: ${esc(point.dataset.pointValue)} ${esc(point.dataset.pointUnit)}</strong><span>${esc(point.dataset.pointDate)}${esc(time)}</span>`;wrap.querySelectorAll('[data-chart-point]').forEach(x=>x.classList.remove('selected'));point.classList.add('selected')};point.addEventListener('click',show);point.addEventListener('keydown',event=>{if(event.key==='Enter'||event.key===' '){event.preventDefault();show()}})});
-}
 
 function hourlyCheckinMarkup(){
   const scale=(name,label,items)=>`<div class="hourly-popup-group"><h3>${label}</h3><div class="health-circle-scale">${items.map((item,index)=>`<button type="button" data-hourly-feeling="${name}" data-value="${index}" aria-label="${item[1]}"><span>${item[0]}</span><small>${item[1]}</small></button>`).join("")}</div></div>`;

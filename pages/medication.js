@@ -21,7 +21,7 @@ function ensureMedicationData(){
     scheduleType:m.scheduleType||((m.time||"").toLowerCase()==="as needed"?"prn":"daily"),
     weekdays:Array.isArray(m.weekdays)?m.weekdays:[],time:/^\d{2}:\d{2}$/.test(m.time||"")?m.time:"",
     timeLabel:!/^\d{2}:\d{2}$/.test(m.time||"")&&m.time!=="As needed"?(m.time||""):"",
-    startDate:m.startDate||"",endDate:m.endDate||"",photo:m.photo||"",notes:m.notes||"",active:m.active!==false,
+    startDate:m.startDate||"",endDate:m.endDate||"",photo:m.photo||"",photoKey:m.photoKey||`medication:${m.id||`med-${i}`}`,notes:m.notes||"",active:m.active!==false,
     dosesPerDay:Math.max(1,Number(m.dosesPerDay)||1),
     stock:Math.max(0,Math.floor(Number(m.stock)||0))
   }));
@@ -305,11 +305,16 @@ function bindMedication(){
     try{const photo=await medCompressPhoto(file);document.querySelector("#medPhotoData").value=photo;document.querySelector("#medPhotoPreview").innerHTML=`<img src="${photo}" alt="Medication preview">`;document.querySelector("#removeMedPhoto").classList.remove("hidden")}catch(error){toast(LinaImage.friendlyError(error))}
   });
   document.querySelector("#removeMedPhoto")?.addEventListener("click",()=>{document.querySelector("#medPhotoData").value="";document.querySelector("#medPhotoPreview").textContent="💊";document.querySelector("#removeMedPhoto").classList.add("hidden")});
-  document.querySelector("#saveMedication")?.addEventListener("click",()=>{
+  document.querySelector("#saveMedication")?.addEventListener("click",async()=>{
     const name=document.querySelector("#medName").value.trim(),scheduleType=document.querySelector("#medScheduleType").value,weekdays=[...document.querySelectorAll("#medWeekdays input:checked")].map(x=>x.value);
     if(!name){toast("Add the medication name");return}if(scheduleType==="weekdays"&&!weekdays.length){toast("Select at least one day");return}
     const dosesPerDay=Math.max(1,Math.min(12,Number(document.querySelector("#medDosesPerDay").value)||1));
     const med={id:document.querySelector("#medEditId").value||medUid(),name,dose:document.querySelector("#medDose").value.trim(),instructions:document.querySelector("#medInstructions").value.trim(),scheduleType,weekdays,time:document.querySelector("#medTime").value,startDate:document.querySelector("#medStartDate").value,endDate:document.querySelector("#medEndDate").value,photo:document.querySelector("#medPhotoData").value,notes:document.querySelector("#medNotes").value.trim(),active:true,dosesPerDay};
+    med.photoKey=`medication:${med.id}`;
+    try{
+      if(/^data:image\//.test(med.photo||"")) await LinaImage.save(med.photoKey,med.photo);
+      else if(!med.photo) await LinaImage.remove(med.photoKey).catch(()=>{});
+    }catch(error){toast(LinaImage.friendlyError(error));return}
     const existing=data.medications.findIndex(x=>x.id===med.id);
     med.stock=existing>=0?Math.max(0,Math.floor(Number(data.medications[existing].stock)||0)):0;
     if(existing>=0)data.medications[existing]=med;else data.medications.push(med);data.medicationView.tab="today";data.medicationView.date=medLocalDate();medicationDateTouched=false;saveData();render();toast(existing>=0?"Medication updated":"Medication added");

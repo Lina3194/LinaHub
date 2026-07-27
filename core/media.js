@@ -1,10 +1,11 @@
-/* LinaHub 17.4.6 — one reliable image pipeline for all uploads. */
+/* LinaHub 17.4.7 — one reliable image pipeline for all uploads. */
 (function(){
   "use strict";
   const DB_NAME="linahub-media";
   const STORE_NAME="images";
   const DB_VERSION=1;
   const IMAGE_EXTENSIONS=/\.(jpe?g|png|webp|heic|heif)$/i;
+  const memoryCache=new Map();
 
   function friendlyError(error){
     const message=String(error?.message||error||"");
@@ -47,12 +48,13 @@
         tx.onabort=()=>reject(tx.error||new Error("Image save transaction was aborted"));
       });
     }finally{db.close();}
-    const verified=await get(key);
+    const verified=await readStored(key);
     if(!verified || verified!==value) throw new Error("Saved image could not be verified");
+    memoryCache.set(key,value);
     return true;
   }
 
-  async function get(key){
+  async function readStored(key){
     const db=await openDb();
     try{
       return await new Promise((resolve,reject)=>{
@@ -62,6 +64,36 @@
         request.onerror=()=>reject(request.error||new Error("Could not load image"));
         tx.onerror=()=>reject(tx.error||new Error("Image load transaction failed"));
       });
+    }finally{db.close();}
+  }
+
+  async function get(key){
+    if(memoryCache.has(key)) return memoryCache.get(key)||"";
+    const value=await readStored(key);
+    if(value) memoryCache.set(key,value);
+    return value;
+  }
+
+  function peek(key){return memoryCache.get(key)||"";}
+
+  async function entries(){
+    const db=await openDb();
+    try{
+      const rows=await new Promise((resolve,reject)=>{
+        const result=[];
+        const tx=db.transaction(STORE_NAME,"readonly");
+        const request=tx.objectStore(STORE_NAME).openCursor();
+        request.onsuccess=()=>{
+          const cursor=request.result;
+          if(!cursor){resolve(result);return;}
+          result.push([String(cursor.key),cursor.value||""]);
+          cursor.continue();
+        };
+        request.onerror=()=>reject(request.error||new Error("Could not list saved images"));
+        tx.onerror=()=>reject(tx.error||new Error("Image list transaction failed"));
+      });
+      rows.forEach(([key,value])=>{if(value)memoryCache.set(key,value)});
+      return rows;
     }finally{db.close();}
   }
 
@@ -77,6 +109,7 @@
         tx.onabort=()=>reject(tx.error||new Error("Image remove transaction was aborted"));
       });
     }finally{db.close();}
+    memoryCache.delete(key);
     return true;
   }
 
@@ -163,5 +196,5 @@
     return value;
   }
 
-  window.LinaImage={process,upload,save:put,load:get,remove,friendlyError,validateFile};
+  window.LinaImage={process,upload,save:put,load:get,peek,entries,remove,friendlyError,validateFile};
 })();

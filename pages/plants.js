@@ -1,4 +1,7 @@
 function addDays(dateValue,days){const d=new Date(`${dateValue}T12:00:00`);d.setDate(d.getDate()+Number(days||0));return d.toISOString().slice(0,10)}
+
+function plantPhotoKey(plant){return plant.photoKey||`plant:${plant.id}`}
+function plantPhotoSrc(plant){return plant.photo||LinaImage.peek(plantPhotoKey(plant))||""}
 const PLANT_ENCYCLOPEDIA=[
   {id:"lemon-tree",name:"Lemon Tree",scientific:"Citrus limon",emoji:"🍋",light:"Very bright light; several hours of direct sun is ideal.",water:"Water thoroughly when the top 2–3 cm of compost feels dry. Do not leave it sitting in water.",humidity:"Normal household humidity is usually fine.",temperature:"Prefers warmth; protect from cold draughts and frost.",feeding:"Citrus feed every 1–2 weeks in spring and summer; reduce in winter.",soil:"Free-draining citrus or houseplant compost with added perlite.",tips:["Turn the pot regularly for even growth.","Yellow leaves can mean overwatering, poor drainage or a nutrient shortage.","Repot only one size up when roots are crowded."],wateringDays:7},
   {id:"basil",name:"Basil",scientific:"Ocimum basilicum",emoji:"🌿",light:"Bright light with around 6 hours of sun. Shield from harsh scorching midday sun behind glass.",water:"Keep lightly and evenly moist. Water when the surface begins to feel dry.",humidity:"Average humidity; good airflow helps prevent mildew.",temperature:"Warm conditions, ideally above 15°C.",feeding:"Half-strength liquid feed every 2–4 weeks while actively growing.",soil:"Rich but free-draining multipurpose compost.",tips:["Pinch out flower buds to keep leaves tender and encourage bushy growth.","Harvest just above a pair of leaves.","Avoid leaving the roots waterlogged."],wateringDays:3},
@@ -178,16 +181,14 @@ function bindPlants(){
     const p=data.plants.find(x=>x.id===routeId); if(!p)return;
     try{
       toast("Saving plant photo…");
-      const image=await imageFileToCompressedDataUrl(file);
       p.photoKey=plantPhotoKey(p);
-      await putLinaImage(p.photoKey,image);
-      p.photo="";
+      p.photo=await LinaImage.upload({file,key:p.photoKey,width:1000,height:1000,fit:"contain",quality:0.82,allowUpscale:false});
       saveData();
       toast("Plant photo saved safely 📷");
       render();
     }catch(error){
       console.error(error);
-      toast("That photo could not be saved");
+      toast(LinaImage.friendlyError(error));
     }
   });
 }

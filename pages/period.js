@@ -230,6 +230,19 @@ function periodIso(date){
 function periodDaysBetween(a,b){return Math.round((periodDate(b)-periodDate(a))/86400000)}
 function periodSortedCycles(){return [...(data.periodCycles||[])].sort((a,b)=>String(b.start).localeCompare(String(a.start)))}
 function periodCurrentCycle(){return periodSortedCycles().find(c=>c.start&&!c.end)||null}
+function periodStartCycleFromFlow(date){
+  if(!date) return null;
+  data.periodCycles=Array.isArray(data.periodCycles)?data.periodCycles:[];
+  const sameStart=data.periodCycles.find(c=>c.start===date);
+  if(sameStart){sameStart.end="";sameStart.source="flow-log";return sameStart}
+  const previousDay=periodIso(new Date(periodDate(date).getTime()-86400000));
+  data.periodCycles.forEach(cycle=>{
+    if(cycle.start&&cycle.start<date&&!cycle.end) cycle.end=previousDay;
+  });
+  const cycle={id:`cycle-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,start:date,end:"",source:"flow-log"};
+  data.periodCycles.push(cycle);
+  return cycle;
+}
 function periodAverage(values){return values.length?Math.round(values.reduce((sum,n)=>sum+n,0)/values.length):0}
 function periodStats(){
   const cycles=periodSortedCycles().filter(c=>c.start);
@@ -353,7 +366,12 @@ function bindPeriod(){
   });
   document.querySelector("#endPeriod")?.addEventListener("click",()=>{const cycle=periodCurrentCycle();if(!cycle)return;cycle.end=today();saveData();toast("Period ended and saved 💜");render()});
   document.querySelectorAll("[data-period-flow]").forEach(button=>button.onclick=()=>{
-    const date=data.periodSelectedDate;data.periodEntries[date]=data.periodEntries[date]||{};data.periodEntries[date].flow=data.periodEntries[date].flow===button.dataset.periodFlow?"":button.dataset.periodFlow;saveData();render();
+    const date=data.periodSelectedDate;
+    data.periodEntries[date]=data.periodEntries[date]||{};
+    const nextFlow=data.periodEntries[date].flow===button.dataset.periodFlow?"":button.dataset.periodFlow;
+    data.periodEntries[date].flow=nextFlow;
+    if(["light","medium","heavy"].includes(nextFlow)) periodStartCycleFromFlow(date);
+    saveData();render();
   });
   document.querySelectorAll("[data-period-toggle]").forEach(button=>button.onclick=()=>{const date=data.periodSelectedDate;const entry=data.periodEntries[date]=data.periodEntries[date]||{};entry.options=entry.options||{};entry.options[button.dataset.periodToggle]=entry.options[button.dataset.periodToggle]!==true;saveData();render()});
   document.querySelectorAll("[data-period-multi]").forEach(button=>button.onclick=()=>{const date=data.periodSelectedDate;const entry=data.periodEntries[date]=data.periodEntries[date]||{};entry.options=entry.options||{};const id=button.dataset.periodMulti;const current=Array.isArray(entry.options[id])?entry.options[id]:[];entry.options[id]=current.includes(button.dataset.choice)?current.filter(x=>x!==button.dataset.choice):[...current,button.dataset.choice];saveData();render()});

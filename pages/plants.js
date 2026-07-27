@@ -84,12 +84,25 @@ function encyclopediaCard(g,owned){return `<article class="encyclopedia-card">
   ${owned?`<em class="owned-chip">✓ In my garden</em>`:`<button type="button" class="mini" data-add-guide="${g.id}">＋ Add to my garden</button>`}
 </article>`}
 
+function plantTileDetails(p){
+  const guide=encyclopediaEntry(p.guideId||p.id,p.name);
+  const days=Number(p.wateringDays)||guide?.wateringDays||7;
+  let waterText="Water today";
+  if(p.lastWatered){
+    const due=addDays(p.lastWatered,days);
+    const diff=Math.round((new Date(`${due}T12:00:00`)-new Date(`${today()}T12:00:00`))/86400000);
+    waterText=diff<0?`Water overdue by ${Math.abs(diff)} day${Math.abs(diff)===1?"":"s"}`:diff===0?"Water today":`Water in ${diff} day${diff===1?"":"s"}`;
+  }
+  const light=(p.light||guide?.light||"Light not set").split(/[.;]/)[0];
+  const fed=p.lastFed||p.lastFedDate||"";
+  return {waterText,light,fedText:fed?`Last fed ${formatDate(fed)}`:"Feeding not logged"};
+}
 function PlantTile(p){
-  const s=plantStatus(p);
+  const s=plantStatus(p),details=plantTileDetails(p);
   return `<article class="plant-tile" data-plant-name="${esc(p.name.toLowerCase())}" data-plant-id="${esc(p.id)}">
     <button type="button" class="plant-tile-open" data-route="plant" data-route-id="${esc(p.id)}" aria-label="Open ${esc(p.name)}">
       <div class="plant-tile-art">${plantPhotoSrc(p)?`<img src="${plantPhotoSrc(p)}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div>
-      <div class="plant-tile-copy"><h2>${esc(p.name)}</h2><p>${p.lastWatered?`Watered ${esc(formatDate(p.lastWatered))}`:"Not watered yet"}</p><em class="status-chip ${s.className}">${s.icon} ${s.text}</em></div>
+      <div class="plant-tile-copy"><h2>${esc(p.name)}</h2><div class="plant-card-details"><p>💧 ${esc(details.waterText)}</p><p>☀️ ${esc(details.light)}</p><p>🌱 ${esc(details.fedText)}</p></div><em class="status-chip ${s.className}">${s.icon} ${s.text}</em></div>
     </button>
     <button type="button" class="plant-quick-water ${p.lastWatered===today()?"watered-today":""}" data-quick-water="${esc(p.id)}" aria-label="${p.lastWatered===today()?"Watered today":"Mark as watered today"}" title="${p.lastWatered===today()?"Watered today":"Mark as watered today"}">${p.lastWatered===today()?"✓":"💧"}</button>
   </article>`;

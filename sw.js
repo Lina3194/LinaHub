@@ -1,28 +1,28 @@
-const BUILD_VERSION = 'linahub-v17.4.5';
+const BUILD_VERSION = 'linahub-v17.4.6';
 const CACHE='linahub-v17-4-4';
 const ASSETS=[
 "./",
 "./index.html",
-"./app.js?v=1745",
-"./core/media.js?v=1745",
-"./core/data.js?v=1745",
-"./pages/simple.js?v=1745",
-"./pages/today.js?v=1745",
-"./pages/house.js?v=1745",
-"./pages/medication.js?v=1745",
-"./styles/base.css?v=1745",
-"./styles/phone-final-fixes.css?v=1745",
-"./styles/phone-ui-1714.css?v=1745",
-"./styles/phone-ui-1715.css?v=1745",
-"./styles/medication-phone-1730.css?v=1745",
-"./styles/exact-fixes-1732.css?v=1745",
-"./styles/medication-1733.css?v=1745",
-"./ui-1714.js?v=1745",
-"./manifest.webmanifest?v=1745",
-"./icons/favicon.png?v=1745",
-"./icons/icon-192.png?v=1745",
-"./icons/icon-512.png?v=1745",
-"./icons/apple-touch-icon.png?v=1745"
+"./app.js?v=1746",
+"./core/media.js?v=1746",
+"./core/data.js?v=1746",
+"./pages/simple.js?v=1746",
+"./pages/today.js?v=1746",
+"./pages/house.js?v=1746",
+"./pages/medication.js?v=1746",
+"./styles/base.css?v=1746",
+"./styles/phone-final-fixes.css?v=1746",
+"./styles/phone-ui-1714.css?v=1746",
+"./styles/phone-ui-1715.css?v=1746",
+"./styles/medication-phone-1730.css?v=1746",
+"./styles/exact-fixes-1732.css?v=1746",
+"./styles/medication-1733.css?v=1746",
+"./ui-1714.js?v=1746",
+"./manifest.webmanifest?v=1746",
+"./icons/favicon.png?v=1746",
+"./icons/icon-192.png?v=1746",
+"./icons/icon-512.png?v=1746",
+"./icons/apple-touch-icon.png?v=1746"
 ];
 self.addEventListener('install',event=>{self.skipWaiting();event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)))});
 self.addEventListener('activate',event=>event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(key=>key!==CACHE).map(key=>caches.delete(key)))).then(()=>self.clients.claim())));

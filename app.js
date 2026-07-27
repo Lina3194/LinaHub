@@ -214,15 +214,8 @@ function PlantsPage(){
 }
 
 
-function lina17StandardBanner(routeName){
-  const keyMap={
-    journal:"journal",today:"today",todo:"todo",plants:"plants",plant:"plants",
-    medication:"medication",pokemon:"pokemon",pets:"pets",tank:"pets",house:"house",
-    period:"period",treasures:"treasures"
-  };
-  const key=keyMap[routeName];
-  const src=key?data.moduleBanners?.[key]:"";
-  if(!src)return;
+function lina17InsertStandardBanner(key,src,routeAtRequest){
+  if(!src||route!==routeAtRequest)return;
   const app=document.querySelector("#app");
   if(!app||app.querySelector(".module-banner"))return;
   const header=app.querySelector(".page-head");
@@ -233,9 +226,40 @@ function lina17StandardBanner(routeName){
   const image=document.createElement("img");
   image.src=src;
   image.alt="";
-  image.addEventListener("error",()=>{ banner.remove(); toast("The saved banner could not be displayed. Please choose the image again."); },{once:true});
+  image.addEventListener("error",()=>{
+    banner.remove();
+    toast("The saved banner could not be displayed. Please choose the image again.");
+  },{once:true});
   banner.appendChild(image);
   header.insertAdjacentElement("afterend",banner);
+}
+
+function lina17StandardBanner(routeName){
+  const keyMap={
+    journal:"journal",today:"today",todo:"todo",plants:"plants",plant:"plants",
+    medication:"medication",pokemon:"pokemon",pets:"pets",tank:"pets",house:"house",
+    period:"period",treasures:"treasures"
+  };
+  const key=keyMap[routeName];
+  if(!key)return;
+  const routeAtRequest=route;
+  const src=data.moduleBanners?.[key]||"";
+  if(src){
+    lina17InsertStandardBanner(key,src,routeAtRequest);
+    return;
+  }
+
+  // The main JSON deliberately does not contain image data. Always fall back to
+  // IndexedDB here as well, so a refresh, cloud sync or later re-render cannot
+  // temporarily replace a saved banner with an empty value.
+  if(window.LinaImage){
+    LinaImage.load(`banner:${key}`).then(saved=>{
+      if(!saved)return;
+      data.moduleBanners=data.moduleBanners||{};
+      data.moduleBanners[key]=saved;
+      lina17InsertStandardBanner(key,saved,routeAtRequest);
+    }).catch(()=>{});
+  }
 }
 
 function lina17HeaderIllustration(routeName){
@@ -675,7 +699,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1715",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1746",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{
@@ -687,8 +711,13 @@ if("serviceWorker" in navigator){
   });
 }
 
-render();
-hydrateLinaMedia().then(changed=>{if(changed) render()});
+// Restore all IndexedDB images before the first render. Previously LinaHub
+// rendered blank image fields first and only hydrated afterwards, allowing a
+// refresh/cloud re-render to wipe a banner that had just appeared.
+(async()=>{
+  try{await hydrateLinaMedia();}catch(error){console.error("Could not restore saved images",error);}
+  render();
+})();
 
 /* LinaHub 17.2.6 — format decimal sleep duration as hours and minutes */
 (function(){

@@ -1,0 +1,485 @@
+
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.module{
+  min-height:142px;padding:18px;border:1px solid var(--line);border-radius:24px;background:var(--card);
+  box-shadow:var(--shadow);text-align:left;color:var(--ink);position:relative;
+}
+.module .emoji{display:grid;place-items:center;width:58px;height:58px;border-radius:20px;background:#f0e2f8;font-size:2rem;margin-bottom:18px}
+.module strong{display:block;font-size:1rem}.module small{color:var(--muted)}
+.today-list{display:grid;gap:9px}
+.reminder{
+  width:100%;display:flex;align-items:center;gap:12px;background:#fffafd;border:1px solid var(--line);
+  padding:13px;border-radius:17px;color:var(--ink);text-align:left
+}
+body.dark .module,body.dark .reminder{background:#151225}
+
+.today-heading{
+  width:100%;display:flex;align-items:center;justify-content:space-between;
+  border:0;background:transparent;color:var(--ink);padding:0 0 12px;text-align:left
+}
+.today-heading h2{margin:0}.today-heading small{color:var(--muted)}
+.today-heading b{font-size:1.8rem;color:var(--purple)}
+
+.app-icon-image{
+  display:grid;
+  place-items:center;
+}
+.app-icon-image img{
+  width:52px;
+  height:52px;
+  display:block;
+}
+
+
+/* v15.2 keep every home icon aligned in the same top-left position */
+.module{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-start;overflow:hidden}
+.module .emoji,.module .module-image{flex:0 0 58px;width:58px;height:58px;margin:0 0 18px 0;align-self:flex-start}
+.module .module-image{display:grid;place-items:center;border-radius:20px;overflow:hidden;background:#f0e2f8}
+.module .module-image img{width:100%;height:100%;display:block;object-fit:cover}
+.module strong,.module small{align-self:flex-start;text-align:left}
+
+
+/* v15.6 customisable Home */
+.home-menu-wrap{position:relative;z-index:12;flex:0 0 auto}.home-menu-toggle{width:46px;height:46px;border:1px solid var(--line);border-radius:17px;background:var(--card);color:var(--ink);font-size:1.7rem;line-height:1;display:grid;place-items:center;box-shadow:0 8px 24px rgba(0,0,0,.18)}.home-menu-toggle[aria-expanded="true"]{background:var(--purple-soft);color:#fff}.home-menu{position:absolute;right:0;top:54px;width:190px;padding:7px;border:1px solid var(--line);border-radius:18px;background:rgba(20,16,38,.97);backdrop-filter:blur(18px);box-shadow:0 18px 45px rgba(0,0,0,.42);z-index:30}.home-menu[hidden]{display:none}.home-menu button{width:100%;display:grid;grid-template-columns:30px 1fr;gap:9px;align-items:center;border:0;border-radius:12px;background:transparent;color:var(--ink);padding:11px 10px;text-align:left;font-weight:750}.home-menu button:hover,.home-menu button:focus-visible{background:var(--purple-soft)}.home-menu button span:first-child{font-size:1.15rem;text-align:center}.home-edit-help{margin:12px 0 0;padding:10px 12px;border:1px dashed var(--line);border-radius:14px;font-size:.78rem;color:var(--muted)}
+.home-layout{grid-template-columns:repeat(2,minmax(0,1fr));align-items:stretch}.home-tile-wrap{position:relative;min-width:0}.home-tile-wrap .module{width:100%;height:100%}.home-tile-wrap.size-small .module{min-height:105px;padding:14px}.home-tile-wrap.size-small .emoji,.home-tile-wrap.size-small .module-image{width:44px;height:44px;flex-basis:44px;margin-bottom:10px;border-radius:15px;font-size:1.5rem}.home-tile-wrap.size-small small{display:none}.home-tile-wrap.size-wide,.home-tile-wrap.size-large{grid-column:span 4}.home-tile-wrap.size-large .module{min-height:205px}.home-tile-wrap.size-wide .module{min-height:132px;display:grid;grid-template-columns:70px 1fr;grid-template-rows:auto auto;column-gap:14px;align-content:center}.home-tile-wrap.size-wide .emoji,.home-tile-wrap.size-wide .module-image{grid-row:1/3;margin:0;width:64px;height:64px;flex-basis:64px}.home-tile-wrap.size-wide strong,.home-tile-wrap.size-wide small{grid-column:2}.home-layout.editing .module{pointer-events:none;outline:1px dashed color-mix(in srgb,var(--purple) 55%,transparent)}.tile-edit-controls{position:absolute;z-index:4;left:7px;right:7px;bottom:7px;display:grid;grid-template-columns:34px 1fr auto auto 34px;gap:5px;padding:5px;border-radius:14px;background:rgba(22,16,39,.88);backdrop-filter:blur(8px);box-shadow:0 5px 18px rgba(0,0,0,.25)}.tile-edit-controls button{min-height:32px;border:0;border-radius:10px;background:rgba(255,255,255,.12);color:#fff;font-size:.72rem}.tile-edit-controls .tile-move{font-size:1.25rem}.tile-size{text-transform:capitalize;padding:0 8px}.home-tile-wrap.dragging{opacity:.45}.home-tile-wrap.drag-over{outline:2px solid var(--purple);outline-offset:3px;border-radius:24px}
+@media(min-width:760px){.home-layout{grid-template-columns:repeat(4,minmax(0,1fr))}.home-tile-wrap.size-wide{grid-column:span 2}.home-tile-wrap.size-large{grid-column:span 2;grid-row:span 2}}
+
+
+/* v15.8 keep the Home dropdown above the hero instead of clipping it */
+body[data-route="home"] .hero{overflow:visible;z-index:20}
+body[data-route="home"] .home-menu-wrap{z-index:100}
+body[data-route="home"] .home-menu{z-index:1000;max-height:min(320px,70vh);overflow:auto}
+
+/* v16.12 — show the complete custom Home tile artwork instead of cropping it */
+.module .module-image,
+.home-tile-wrap .module-image {
+  background: rgba(255,255,255,.08);
+}
+.module .module-image img,
+.home-tile-wrap .module-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  object-position: center;
+}
+
+/* v16.15 — fully customisable Home tiles */
+.home-tile-wrap{--tile-accent:var(--purple)}
+.home-tile-wrap .module{border-color:color-mix(in srgb,var(--tile-accent) 38%,var(--line));background:linear-gradient(150deg,color-mix(in srgb,var(--tile-accent) 11%,var(--card)) 0%,var(--card) 72%)}
+.home-tile-wrap .module::after{content:"";position:absolute;top:14px;right:14px;width:8px;height:8px;border-radius:50%;background:var(--tile-accent);box-shadow:0 0 15px color-mix(in srgb,var(--tile-accent) 70%,transparent)}
+.tile-status{display:block;margin-top:auto;padding-top:10px;color:color-mix(in srgb,var(--tile-accent) 72%,var(--ink));font-size:.75rem;font-weight:750;line-height:1.25}
+.home-tile-wrap.size-small .tile-subtitle{display:none}.home-tile-wrap.size-small .tile-status{font-size:.68rem;padding-top:5px}
+.home-tile-wrap.size-wide .tile-status{grid-column:2;margin-top:4px;padding-top:0}
+.home-tile-wrap.size-wide .module{grid-template-rows:auto auto auto}
+.home-tile-wrap.size-wide .emoji,.home-tile-wrap.size-wide .module-image{grid-row:1/4}
+.tile-edit-controls{grid-template-columns:34px 34px 1fr 34px}.tile-edit-controls .tile-customise{font-weight:800}
+.hidden-home-tiles{margin:18px 0 110px;padding:16px;border:1px dashed var(--line);border-radius:22px;background:color-mix(in srgb,var(--card) 86%,transparent)}
+.hidden-home-tiles h2{margin:0 0 10px;font-size:1rem}.hidden-home-tiles>div{display:grid;gap:8px}.hidden-home-tiles button{display:grid;grid-template-columns:34px 1fr auto;align-items:center;gap:9px;width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);text-align:left}.hidden-home-tiles button b{color:var(--purple)}
+.tile-editor-backdrop{position:fixed;inset:0;z-index:5000;display:grid;align-items:end;background:rgba(7,4,18,.72);backdrop-filter:blur(8px);padding:14px}
+.tile-editor{width:min(620px,100%);max-height:88vh;overflow:auto;margin:0 auto;padding:18px;border:1px solid var(--line);border-radius:26px 26px 18px 18px;background:var(--card);box-shadow:0 24px 70px rgba(0,0,0,.55)}
+.tile-editor-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:14px}.tile-editor-head h2{margin:3px 0 0}.tile-editor-head>button{width:42px;height:42px;border:1px solid var(--line);border-radius:14px;background:transparent;color:var(--ink);font-size:1.8rem}
+.tile-editor>label{display:block;margin:12px 0;color:var(--muted);font-size:.84rem}.tile-editor .field{margin-top:6px;font-size:16px}
+.tile-colour-label{display:flex!important;align-items:center;justify-content:space-between;gap:12px}.tile-colour-label input{width:64px;height:44px;padding:3px;border:1px solid var(--line);border-radius:12px;background:var(--card)}
+.tile-cover-row{display:grid;grid-template-columns:92px 1fr;gap:13px;align-items:center;margin:15px 0;padding:12px;border:1px solid var(--line);border-radius:18px}.tile-cover-preview{width:92px;height:92px;display:grid;place-items:center;overflow:hidden;border-radius:18px;background:var(--purple-soft);font-size:2.4rem}.tile-cover-preview img{width:100%;height:100%;object-fit:contain}.tile-cover-row p{margin:4px 0 9px;color:var(--muted);font-size:.78rem}.tile-cover-row button{margin:3px 5px 3px 0}
+.tile-editor-actions{display:grid;grid-template-columns:1fr 1.4fr;gap:10px;margin-top:16px}
+body.reordering{user-select:none;touch-action:none}.tile-drag{touch-action:none;cursor:grab}
+@media(min-width:700px){.tile-editor-backdrop{align-items:center}.tile-editor{border-radius:26px}}
+
+/* v16.21 — restore compact Home tiles */
+.home-layout{gap:10px}
+.home-tile-wrap .module{
+  min-height:118px;
+  padding:14px;
+  border-radius:20px;
+}
+.home-tile-wrap .module .emoji,
+.home-tile-wrap .module .module-image{
+  width:48px;
+  height:48px;
+  flex-basis:48px;
+  margin-bottom:11px;
+  border-radius:16px;
+  font-size:1.65rem;
+}
+.home-tile-wrap .module strong{font-size:.94rem;line-height:1.15}
+.home-tile-wrap .module small{font-size:.74rem;line-height:1.2}
+.home-tile-wrap .tile-status{padding-top:6px;font-size:.68rem}
+.home-tile-wrap.size-small .module{min-height:92px;padding:11px}
+.home-tile-wrap.size-small .emoji,
+.home-tile-wrap.size-small .module-image{width:38px;height:38px;flex-basis:38px;margin-bottom:7px;border-radius:13px;font-size:1.3rem}
+.home-tile-wrap.size-wide .module{min-height:108px;padding:13px;grid-template-columns:56px 1fr;column-gap:11px}
+.home-tile-wrap.size-wide .emoji,
+.home-tile-wrap.size-wide .module-image{width:52px;height:52px;flex-basis:52px;border-radius:16px}
+.home-tile-wrap.size-large .module{min-height:170px}
+@media(max-width:420px){
+  .home-layout{gap:8px}
+  .home-tile-wrap .module{min-height:108px;padding:12px;border-radius:18px}
+  .home-tile-wrap .module .emoji,
+  .home-tile-wrap .module .module-image{width:43px;height:43px;flex-basis:43px;margin-bottom:8px;border-radius:14px}
+  .home-tile-wrap .module strong{font-size:.88rem}
+  .home-tile-wrap .tile-status{font-size:.63rem}
+  .home-tile-wrap.size-wide .module{min-height:100px}
+}
+
+
+/* v16.43 — long press any dashboard tile to customise it */
+.customisable-tile{position:relative;-webkit-touch-callout:none;user-select:none;transition:transform .16s ease,filter .16s ease,border-color .16s ease;background-color .16s ease}
+.customisable-tile.tile-longpress-active{transform:scale(.965);filter:brightness(1.08)}
+.customisable-tile.has-custom-accent{border-color:color-mix(in srgb,var(--universal-tile-accent) 52%,var(--line))!important;background:linear-gradient(145deg,color-mix(in srgb,var(--universal-tile-accent) 13%,var(--card)) 0%,var(--card) 78%)!important}
+.customisable-tile.has-custom-accent::after{content:"";position:absolute;top:12px;right:12px;width:8px;height:8px;border-radius:50%;background:var(--universal-tile-accent);box-shadow:0 0 14px color-mix(in srgb,var(--universal-tile-accent) 78%,transparent)}
+.universal-tile-editor-backdrop{z-index:9000}
+.universal-tile-preview{display:flex;align-items:center;gap:12px;margin:4px 0 16px;padding:14px;border:1px solid color-mix(in srgb,var(--universal-tile-accent) 52%,var(--line));border-radius:18px;background:linear-gradient(145deg,color-mix(in srgb,var(--universal-tile-accent) 14%,var(--card)),var(--card))}
+.universal-tile-preview span{width:52px;height:52px;display:grid;place-items:center;border-radius:16px;background:color-mix(in srgb,var(--universal-tile-accent) 20%,transparent);font-size:1.8rem}
+.universal-tile-preview strong{font-size:1rem}
+.emoji-quick-picks{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;margin:8px 0 16px}
+.emoji-quick-picks button{aspect-ratio:1;border:1px solid var(--line);border-radius:12px;background:var(--soft);font-size:1.25rem;color:var(--ink)}
+@media(max-width:520px){.emoji-quick-picks{grid-template-columns:repeat(6,minmax(0,1fr))}.universal-tile-editor{max-height:84vh}.universal-tile-preview{padding:12px}}
+
+/* LinaHub 16.68 — compact four-across mobile dashboard */
+.home-dashboard-hero{padding-bottom:8px}
+.home-dashboard-hero h1{margin:0;font-size:clamp(1.65rem,4vw,2.25rem)}
+.home-dashboard-hero p{margin:.45rem 0 0;color:var(--muted)}
+.home-daily-checkin{
+  width:100%;display:grid;grid-template-columns:54px 1fr auto;gap:14px;align-items:center;
+  margin:8px 0 24px;padding:16px 18px;border:1px solid color-mix(in srgb,var(--purple) 52%,var(--line));
+  border-radius:22px;background:linear-gradient(135deg,color-mix(in srgb,var(--purple) 12%,var(--card)),var(--card));
+  color:var(--ink);text-align:left;box-shadow:var(--shadow)
+}
+.home-daily-checkin .home-checkin-icon{width:50px;height:50px;display:grid;place-items:center;border-radius:17px;background:var(--purple-soft);font-size:1.55rem}
+.home-daily-checkin strong,.home-daily-checkin small{display:block}.home-daily-checkin strong{font-size:1rem}.home-daily-checkin small{margin-top:3px;color:var(--muted)}
+.home-daily-checkin>b{padding:10px 14px;border-radius:13px;background:linear-gradient(110deg,var(--purple),#bf5bdd);color:#fff;white-space:nowrap}
+.home-daily-checkin.complete>b{background:var(--soft);color:var(--muted)}
+.home-journey>h2,.home-overview>h2,.home-reminders>h2{margin:0 0 12px;font-size:1.02rem}
+.home-layout{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.home-tile-wrap.size-medium,.home-tile-wrap.size-small{grid-column:span 1}
+.home-tile-wrap.size-wide,.home-tile-wrap.size-large{grid-column:span 4}
+.home-tile-wrap .module{min-height:112px;padding:9px 7px;border-radius:16px}
+.home-tile-wrap .module .emoji,.home-tile-wrap .module .module-image{width:38px;height:38px;flex-basis:38px;margin-bottom:7px;font-size:1.35rem;border-radius:12px}
+.home-tile-wrap .module strong{font-size:.68rem;line-height:1.12;overflow-wrap:anywhere}
+.home-tile-wrap .tile-subtitle{display:none}
+.home-tile-wrap .tile-status{padding-top:6px;padding-right:11px;font-size:.57rem;line-height:1.15;overflow-wrap:anywhere}
+.home-tile-chevron{position:absolute;right:6px;bottom:6px;font-size:1rem;color:var(--muted)}
+.home-tile-wrap.size-wide .module{min-height:84px;display:grid;grid-template-columns:46px 1fr;grid-template-rows:auto auto;column-gap:10px;align-content:center;text-align:left}
+.home-tile-wrap.size-wide .emoji,.home-tile-wrap.size-wide .module-image{grid-row:1/3;margin:0}
+.home-tile-wrap.size-wide strong,.home-tile-wrap.size-wide small,.home-tile-wrap.size-wide .tile-status{grid-column:2}
+.home-overview{margin-top:26px}
+.home-overview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.home-overview-grid article{display:flex;align-items:center;gap:10px;padding:13px;border:1px solid var(--line);border-radius:18px;background:var(--card)}
+.home-overview-grid article>span{font-size:1.55rem}.home-overview-grid strong,.home-overview-grid b{display:block}.home-overview-grid strong{font-size:.78rem}.home-overview-grid b{margin-top:3px;color:var(--purple);font-size:.75rem}
+.home-reminders{margin:25px 0 8px}.home-reminder-card{width:100%;display:grid;grid-template-columns:42px 1fr auto 18px;align-items:center;gap:10px;padding:13px 15px;border:1px solid var(--line);border-radius:18px;background:var(--card);color:var(--ink);text-align:left}.home-reminder-card>span{width:38px;height:38px;display:grid;place-items:center;border-radius:50%;background:var(--purple-soft);color:var(--purple)}.home-reminder-card strong,.home-reminder-card small{display:block}.home-reminder-card small{margin-top:2px;color:var(--muted)}.home-reminder-card>b{padding:7px 10px;border-radius:10px;background:var(--purple-soft);color:var(--purple)}.home-reminder-card>i{font-size:1.4rem;color:var(--muted);font-style:normal}
+@media(min-width:650px){
+  .home-layout{grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+  .home-tile-wrap.size-wide,.home-tile-wrap.size-large{grid-column:span 5}
+  .home-overview-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
+}
+@media(min-width:980px){
+  .home-layout{grid-template-columns:repeat(5,minmax(0,1fr));gap:12px}
+  .home-tile-wrap.size-wide,.home-tile-wrap.size-large{grid-column:span 5}
+  .home-tile-wrap .module{min-height:178px}
+}
+@media(max-width:430px){
+  .home-daily-checkin{grid-template-columns:42px 1fr;padding:12px;gap:10px}.home-daily-checkin>b{grid-column:1/3;text-align:center}.home-daily-checkin .home-checkin-icon{width:40px;height:40px}
+  .home-layout{gap:6px}
+  .home-tile-wrap .module{min-height:104px;padding:8px 5px;border-radius:14px}
+  .home-tile-wrap .module .emoji,.home-tile-wrap .module .module-image{width:34px;height:34px;flex-basis:34px;margin-bottom:6px;font-size:1.2rem}
+  .home-tile-wrap .module strong{font-size:.62rem}
+  .home-tile-wrap .tile-status{font-size:.52rem;padding-top:5px;padding-right:9px}
+}
+
+
+/* LinaHub 16.68 — full-tile accents and compact mobile editor */
+.home-tile-wrap[style] .module{
+  border-color:color-mix(in srgb,var(--tile-accent) 66%,var(--line))!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--tile-accent) 30%,var(--card)) 0%,color-mix(in srgb,var(--tile-accent) 14%,var(--card)) 58%,var(--card) 100%)!important;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--tile-accent) 22%,transparent),0 10px 24px color-mix(in srgb,var(--tile-accent) 12%,transparent)!important;
+}
+.home-tile-wrap[style] .module .emoji,.home-tile-wrap[style] .module .module-image{
+  background:color-mix(in srgb,var(--tile-accent) 24%,var(--soft))!important;
+  border-color:color-mix(in srgb,var(--tile-accent) 42%,var(--line))!important;
+}
+.home-tile-wrap[style] .tile-status{color:color-mix(in srgb,var(--tile-accent) 88%,white)!important}
+.customisable-tile.has-custom-accent::after{display:none!important}
+.customisable-tile.has-custom-accent{
+  border-color:color-mix(in srgb,var(--universal-tile-accent) 66%,var(--line))!important;
+  background:linear-gradient(145deg,color-mix(in srgb,var(--universal-tile-accent) 30%,var(--card)) 0%,color-mix(in srgb,var(--universal-tile-accent) 14%,var(--card)) 58%,var(--card) 100%)!important;
+}
+@media(max-width:520px){
+  .tile-editor-backdrop{align-items:center;padding:12px}
+  .tile-editor{max-height:82vh;border-radius:22px;padding:16px}
+  .tile-cover-row{grid-template-columns:70px 1fr}
+  .tile-cover-preview{width:70px;height:70px}
+}
+
+/* LinaHub 16.80 — phone-safe Home editing */
+.home-tile-wrap.is-editing .module{
+  outline:1px dashed color-mix(in srgb,var(--purple) 72%,transparent);
+  outline-offset:2px;
+  cursor:pointer;
+}
+.home-tile-wrap.is-editing .home-tile-chevron{
+  width:22px;height:22px;display:grid;place-items:center;border-radius:8px;
+  background:color-mix(in srgb,var(--purple) 22%,var(--soft));color:var(--ink);
+  right:6px;bottom:6px;font-size:.72rem;
+}
+.tile-edit-controls{display:none!important}
+.tile-position-controls{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.tile-position-controls button{min-height:48px}
+@media(max-width:520px){
+  .tile-editor-backdrop{align-items:flex-end;padding:0}
+  .tile-editor{width:100%;max-width:none;max-height:88vh;border-radius:24px 24px 0 0;padding:18px 16px calc(18px + env(safe-area-inset-bottom))}
+  .tile-editor-head{position:sticky;top:-18px;z-index:2;margin:-18px -16px 12px;padding:18px 16px 10px;background:var(--card);border-radius:24px 24px 0 0}
+  .tile-position-controls{grid-template-columns:1fr 1fr}
+}
+
+/* LinaHub 16.80 — centred phone tile editor and premium Treasure Room */
+.home-tile-wrap .module::after,
+.customisable-tile.has-custom-accent::after{display:none!important;content:none!important}
+.home-tile-wrap .module{
+  display:flex!important;
+  flex-direction:column!important;
+  align-items:center!important;
+  justify-content:flex-start!important;
+  text-align:center!important;
+  gap:0!important;
+}
+.home-tile-wrap .module strong,
+.home-tile-wrap .tile-status,
+.home-tile-wrap .tile-subtitle{width:100%;text-align:center!important}
+.home-tile-wrap .tile-status{padding-right:0!important}
+.home-tile-wrap.is-editing .module{
+  outline:1px dashed color-mix(in srgb,var(--purple) 70%,transparent);
+  outline-offset:2px;
+  cursor:default;
+  user-select:none;
+  -webkit-user-select:none;
+  -webkit-touch-callout:none;
+}
+.home-tile-edit-button{
+  width:calc(100% - 8px);
+  min-height:34px;
+  margin-top:auto;
+  padding:7px 6px;
+  border:0;
+  border-radius:11px;
+  background:rgba(255,255,255,.08);
+  color:var(--ink);
+  font:inherit;
+  font-size:.67rem;
+  font-weight:800;
+  text-align:center;
+  -webkit-touch-callout:none;
+  -webkit-user-select:none;
+  user-select:none;
+  touch-action:manipulation;
+}
+.home-tile-edit-button:active{transform:scale(.97)}
+.home-tile-wrap.size-wide .module{display:grid!important;grid-template-columns:64px 1fr!important;grid-template-rows:auto auto auto!important;column-gap:14px!important;align-content:center!important;text-align:center!important}
+.home-tile-wrap.size-wide .emoji,.home-tile-wrap.size-wide .module-image{grid-column:1;grid-row:1/4!important;margin:0!important}
+.home-tile-wrap.size-wide strong,.home-tile-wrap.size-wide .tile-subtitle,.home-tile-wrap.size-wide .tile-status{grid-column:2!important;text-align:center!important}
+.home-tile-wrap.size-wide .home-tile-edit-button{grid-column:2!important;width:min(180px,100%);justify-self:center;margin-top:10px}
+.home-tile-wrap[data-home-id="treasures"] .module{
+  border:1px solid rgba(232,181,95,.72)!important;
+  background:
+    radial-gradient(circle at 18% 30%,rgba(255,202,99,.16),transparent 28%),
+    radial-gradient(circle at 82% 22%,rgba(173,94,255,.22),transparent 34%),
+    linear-gradient(135deg,#25123f,#170c2e 54%,#32164f)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,219,142,.18),0 16px 34px rgba(0,0,0,.28),0 0 24px rgba(163,83,255,.15)!important;
+}
+.home-tile-wrap[data-home-id="treasures"] .module strong{font-family:Georgia,"Times New Roman",serif;color:#f0c46d;font-size:1.15rem!important;letter-spacing:.02em}
+.home-tile-wrap[data-home-id="treasures"] .tile-status{color:#c995ff!important}
+@media(max-width:430px){
+  .home-tile-wrap .module{min-height:118px!important;padding:8px 5px!important}
+  .home-tile-wrap .module .emoji,.home-tile-wrap .module .module-image{margin-inline:auto!important}
+  .home-tile-wrap .module strong{font-size:.64rem!important;line-height:1.12!important}
+  .home-tile-wrap .tile-status{font-size:.52rem!important;line-height:1.1!important}
+  .home-tile-edit-button{min-height:31px;padding:6px 3px;font-size:.61rem;border-radius:10px}
+  .home-tile-wrap.size-wide .module{min-height:106px!important;grid-template-columns:54px 1fr!important;column-gap:9px!important;padding:11px!important}
+  .home-tile-wrap.size-wide .home-tile-edit-button{min-height:30px;margin-top:7px}
+}
+
+
+/* LinaHub 16.80 — working phone edit buttons and shorter tiles */
+.home-layout.editing .home-tile-wrap,
+.home-layout.editing .home-tile-wrap .module{pointer-events:auto!important}
+.home-layout.editing .home-tile-edit-button{
+  position:relative!important;
+  z-index:20!important;
+  pointer-events:auto!important;
+  cursor:pointer!important;
+}
+@media(max-width:430px){
+  .home-tile-wrap .module{min-height:98px!important;padding:6px 4px!important}
+  .home-tile-wrap .module .emoji,.home-tile-wrap .module .module-image{width:32px!important;height:32px!important;flex-basis:32px!important;margin-bottom:5px!important}
+  .home-tile-wrap .module strong{font-size:.62rem!important}
+  .home-tile-wrap .tile-status{font-size:.52rem!important;padding-top:4px!important}
+  .home-tile-wrap.is-editing .module{min-height:110px!important}
+  .home-tile-edit-button{min-height:28px!important;margin-top:5px!important;padding:4px 2px!important;font-size:.58rem!important}
+  .home-tile-wrap.size-wide .module{min-height:92px!important}
+  .home-tile-wrap.size-wide.is-editing .module{min-height:102px!important}
+}
+
+/* LinaHub 16.80 — keep the Home tile editor above the bottom navigation */
+.tile-editor-backdrop{
+  z-index:60000!important;
+}
+@media(max-width:520px){
+  .tile-editor-backdrop{
+    display:flex!important;
+    align-items:center!important;
+    justify-content:center!important;
+    padding:max(18px,env(safe-area-inset-top)) 12px max(112px,calc(96px + env(safe-area-inset-bottom)))!important;
+    overflow:hidden!important;
+  }
+  .tile-editor{
+    width:100%!important;
+    max-width:430px!important;
+    max-height:calc(100dvh - 150px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+    margin:auto!important;
+    border-radius:24px!important;
+    padding:18px 16px 22px!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain!important;
+    -webkit-overflow-scrolling:touch!important;
+  }
+  .tile-editor-head{
+    top:-18px!important;
+    margin:-18px -16px 12px!important;
+    border-radius:24px 24px 0 0!important;
+  }
+}
+
+/* LinaHub 16.80 — touch drag-and-drop Home tiles in Edit mode */
+.home-layout.editing .home-tile-wrap{
+  -webkit-user-select:none!important;
+  user-select:none!important;
+  -webkit-touch-callout:none!important;
+  touch-action:pan-y;
+  cursor:grab;
+}
+.home-layout.editing .home-tile-wrap.drag-ready{
+  transform:scale(.975);
+  filter:brightness(1.08);
+}
+.home-layout.editing .home-tile-wrap.drag-source{
+  opacity:.22;
+}
+.home-layout.editing .home-tile-wrap.drag-target{
+  outline:2px solid var(--purple)!important;
+  outline-offset:3px;
+  border-radius:18px;
+}
+.home-tile-drag-ghost{
+  position:fixed!important;
+  left:0;
+  top:0;
+  z-index:12000!important;
+  margin:0!important;
+  pointer-events:none!important;
+  opacity:.96;
+  transform:translate3d(var(--drag-x),var(--drag-y),0) scale(1.035);
+  transform-origin:center;
+  filter:drop-shadow(0 18px 28px rgba(0,0,0,.48));
+}
+.home-tile-drag-ghost .home-tile-edit-button{display:none!important}
+body.home-tile-dragging{
+  overflow:hidden!important;
+  overscroll-behavior:none;
+}
+body.home-tile-dragging .home-layout.editing .home-tile-wrap{cursor:grabbing}
+
+
+/* LinaHub 16.80 — remove persistent Home tile highlights */
+.home-tile-wrap .module,
+.home-tile-wrap[style] .module,
+.customisable-tile.has-custom-accent{
+  border-color:var(--line)!important;
+  background:var(--card)!important;
+  box-shadow:none!important;
+}
+.home-tile-wrap .module .emoji,
+.home-tile-wrap .module .module-image,
+.home-tile-wrap[style] .module .emoji,
+.home-tile-wrap[style] .module .module-image{
+  background:var(--soft)!important;
+  border-color:var(--line)!important;
+}
+.home-tile-wrap .tile-status,
+.home-tile-wrap[style] .tile-status{color:var(--purple)!important}
+.home-tile-wrap[data-home-id="treasures"] .module{
+  border:1px solid rgba(232,181,95,.72)!important;
+  background:radial-gradient(circle at 18% 30%,rgba(255,202,99,.16),transparent 28%),radial-gradient(circle at 82% 22%,rgba(173,94,255,.22),transparent 34%),linear-gradient(135deg,#25123f,#170c2e 54%,#32164f)!important;
+  box-shadow:inset 0 0 0 1px rgba(255,219,142,.18),0 16px 34px rgba(0,0,0,.28),0 0 24px rgba(163,83,255,.15)!important;
+}
+
+
+/* LinaHub 16.80 — viewport editor and strict no-scroll tile dragging */
+body.tile-editor-open{
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+}
+body.tile-editor-open .bottom{
+  display:none!important;
+}
+#globalTileEditor{
+  position:fixed!important;
+  inset:0!important;
+  z-index:2147483000!important;
+  pointer-events:none;
+}
+#globalTileEditor .tile-editor-backdrop{
+  position:absolute!important;
+  inset:0!important;
+  z-index:1!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:max(18px,env(safe-area-inset-top)) 12px max(18px,env(safe-area-inset-bottom))!important;
+  overflow:hidden!important;
+  pointer-events:auto;
+}
+#globalTileEditor .tile-editor{
+  width:min(430px,100%)!important;
+  max-height:calc(100dvh - max(36px,env(safe-area-inset-top)) - max(36px,env(safe-area-inset-bottom)))!important;
+  margin:0!important;
+  overflow-y:auto!important;
+  overscroll-behavior:contain!important;
+  -webkit-overflow-scrolling:touch!important;
+}
+.home-layout.editing .home-tile-wrap{
+  touch-action:none!important;
+}
+body.home-tile-scroll-locked{
+  position:fixed!important;
+  left:0!important;
+  right:0!important;
+  width:100%!important;
+  overflow:hidden!important;
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+}
+body.home-tile-scroll-locked .home-layout,
+body.home-tile-scroll-locked .home-tile-wrap{
+  touch-action:none!important;
+}
+
+/* LinaHub 16.80 — compact completed check-in on phones */
+@media(max-width:430px){
+  .home-daily-checkin.complete{grid-template-columns:32px 1fr auto;margin:4px 0 14px;padding:8px 10px;gap:8px;border-radius:15px;box-shadow:none}
+  .home-daily-checkin.complete .home-checkin-icon{width:30px;height:30px;border-radius:10px;font-size:1rem;background:color-mix(in srgb,#57d68d 22%,var(--soft));color:#57d68d}
+  .home-daily-checkin.complete strong{font-size:.78rem}
+  .home-daily-checkin.complete small{display:none}
+  .home-daily-checkin.complete>b{grid-column:auto;padding:0;background:transparent;color:#57d68d;font-size:1.05rem}
+}
+
+/* LinaHub 16.86 — latest hourly check-in in Quick overview */
+.home-overview-heading{display:flex;align-items:end;justify-content:space-between;gap:12px;margin-bottom:12px}
+.home-overview-heading h2{margin:0}
+.home-overview-time{color:var(--muted);font-size:.68rem;text-align:right}
+.home-overview-grid article b{line-height:1.25}
+@media(max-width:560px){
+  .home-overview-heading{align-items:start}
+  .home-overview-time{max-width:145px;font-size:.62rem}
+  .home-overview-grid article{padding:11px 9px;gap:8px}
+  .home-overview-grid article>span{font-size:1.35rem}
+  .home-overview-grid article b{font-size:.68rem}
+}

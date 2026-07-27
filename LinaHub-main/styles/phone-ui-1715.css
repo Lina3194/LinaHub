@@ -1,0 +1,166 @@
+/* LinaHub 17.1.5 — compact aquarium date boxes, background bubbles, magical journal */
+
+/* Bubbles are decoration only: always behind aquarium cards and controls. */
+body[data-route="pets"] .route-atmosphere.aquarium-side-bubbles,
+body[data-route="tank"] .route-atmosphere.aquarium-side-bubbles {
+  z-index: 0 !important;
+  pointer-events: none !important;
+}
+body[data-route="pets"] main,
+body[data-route="tank"] main,
+body[data-route="pets"] .shell,
+body[data-route="tank"] .shell,
+body[data-route="pets"] .page-head,
+body[data-route="tank"] .page-head,
+body[data-route="pets"] .card,
+body[data-route="tank"] .card,
+body[data-route="pets"] .aquarium-grid,
+body[data-route="tank"] .aquarium-history-grid {
+  position: relative !important;
+  z-index: 2 !important;
+}
+
+@media (max-width: 600px) {
+  /* Keep each maintenance date box compact and on the same line as its Log button. */
+  body[data-route="tank"] .maintenance-row {
+    display: grid !important;
+    grid-template-columns: 22px minmax(0, 1fr) 112px 48px !important;
+    grid-template-rows: auto !important;
+    align-items: center !important;
+    column-gap: 6px !important;
+    row-gap: 0 !important;
+    padding: 7px 0 !important;
+    overflow: hidden !important;
+  }
+  body[data-route="tank"] .maintenance-row > .maintenance-icon {
+    grid-column: 1 !important;
+    grid-row: 1 !important;
+  }
+  body[data-route="tank"] .maintenance-row > div {
+    grid-column: 2 !important;
+    grid-row: 1 !important;
+    min-width: 0 !important;
+    overflow: hidden !important;
+  }
+  body[data-route="tank"] .maintenance-row > div strong,
+  body[data-route="tank"] .maintenance-row > div small {
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+  }
+  body[data-route="tank"] .maintenance-row > .field[data-maintenance-date] {
+    grid-column: 3 !important;
+    grid-row: 1 !important;
+    width: 112px !important;
+    max-width: 112px !important;
+    min-width: 0 !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 4px 5px !important;
+    border-radius: 11px !important;
+    font-size: .66rem !important;
+    box-sizing: border-box !important;
+  }
+  body[data-route="tank"] .maintenance-row > .secondary[data-save-maintenance] {
+    grid-column: 4 !important;
+    grid-row: 1 !important;
+    width: 48px !important;
+    max-width: 48px !important;
+    min-width: 0 !important;
+    height: 34px !important;
+    min-height: 34px !important;
+    padding: 4px !important;
+    border-radius: 11px !important;
+    font-size: .68rem !important;
+    box-sizing: border-box !important;
+  }
+}
+
+@media (max-width: 380px) {
+  body[data-route="tank"] .maintenance-row {
+    grid-template-columns: 20px minmax(0, 1fr) 102px 44px !important;
+    column-gap: 4px !important;
+  }
+  body[data-route="tank"] .maintenance-row > .field[data-maintenance-date] {
+    width: 102px !important;
+    max-width: 102px !important;
+    font-size: .61rem !important;
+  }
+  body[data-route="tank"] .maintenance-row > .secondary[data-save-maintenance] {
+    width: 44px !important;
+    max-width: 44px !important;
+    font-size: .64rem !important;
+  }
+}
+
+/* LinaHub 17.1.7 — centred Today + Measures segmented tab bar */
+.bottom button[data-route="home"]{order:1}
+.bottom button[data-route="todo"]{order:2}
+.bottom button[data-route="today"]{order:3}
+.bottom button[data-route="shopping"]{order:4}
+.bottom button[data-route="settings"]{order:5}
+
+.measure-history-top{order:-1}
+.measure-category-tabs{
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:0;
+  width:100%;
+  margin:0 0 16px;
+  padding:0;
+  overflow:hidden;
+  border:1px solid var(--line);
+  border-radius:999px;
+  background:rgba(255,255,255,.025);
+}
+.measure-category-tabs button{
+  min-width:0;
+  min-height:46px;
+  padding:9px 8px;
+  border:0;
+  border-right:1px solid var(--line);
+  border-radius:0;
+  background:transparent;
+  color:var(--ink);
+  font:inherit;
+  font-size:.88rem;
+  font-weight:850;
+  line-height:1.1;
+  text-align:center;
+  white-space:normal;
+}
+.measure-category-tabs button:last-child{border-right:0}
+.measure-category-tabs button.active{
+  background:var(--purple-soft);
+  color:var(--ink);
+  box-shadow:none;
+}
+.measure-history-single article{grid-template-columns:1.25fr .8fr 1fr}
+
+@media(max-width:600px){
+  .measure-category-tabs{margin-bottom:12px}
+  .measure-category-tabs button{min-height:42px;padding:7px 4px;font-size:.72rem}
+  .measure-history-single article{grid-template-columns:1.1fr .7fr 1fr;padding:9px 0;gap:5px}
+  .measure-history-single time{font-size:.72rem}
+  .measure-history-single span{font-size:.76rem}
+  .measure-history-single strong{font-size:.78rem}
+}
+
+
+/* LinaHub 17.1.9 — Measures overview + interactive progress charts */
+.measure-main-tabs{display:grid;grid-template-columns:.9fr .8fr 1.25fr 1.25fr;margin:0 0 12px;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--card);padding:0}
+.measure-main-tabs button{min-width:0;border:0;border-right:1px solid var(--line);border-radius:0;background:transparent;color:var(--text);padding:13px 8px;font:inherit;font-size:.82rem;font-weight:800;white-space:nowrap}
+.measure-main-tabs button:last-child{border-right:0}.measure-main-tabs button.active{background:var(--purple-soft);box-shadow:inset 0 0 0 1px rgba(255,255,255,.05)}
+.measure-chart-card{padding:18px!important}.measure-chart-heading{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:8px}.measure-chart-current{display:grid;text-align:right}.measure-chart-current small{color:var(--muted)}.measure-chart-current strong{font-size:1.08rem}
+.measure-chart-wrap{width:100%;overflow:hidden;border-radius:18px;background:rgba(10,7,28,.22);border:1px solid var(--line-thin);padding:8px}.measure-progress-chart{display:block;width:100%;height:auto;min-height:250px;overflow:visible}.measure-chart-grid{stroke:rgba(255,255,255,.10);stroke-width:1}.measure-chart-axis{fill:var(--muted);font-size:12px}.measure-chart-line{fill:none;stroke:url(#none);stroke:var(--accent,#d47ce7);stroke-width:5;stroke-linecap:round;stroke-linejoin:round}.measure-chart-dot{fill:#f2b6ed;stroke:#fff;stroke-width:3;cursor:pointer;transition:r .15s ease,filter .15s ease}.measure-chart-dot:hover,.measure-chart-dot:focus,.measure-chart-dot.selected{r:11;filter:drop-shadow(0 0 7px rgba(238,165,235,.9));outline:none}
+.measure-chart-tooltip{min-height:52px;margin-top:10px;border-radius:15px;background:var(--purple-soft);display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 14px;text-align:center}.measure-chart-tooltip span{color:var(--muted)}.measure-chart-tooltip strong+span{color:var(--text);font-weight:800}.measure-chart-footer{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:10px;margin-top:8px;color:var(--muted);font-size:.75rem}.measure-chart-footer strong{color:var(--text);background:var(--purple-soft);padding:5px 9px;border-radius:999px}.measure-chart-footer span:last-child{text-align:right}
+@media(max-width:600px){.measure-main-tabs{grid-template-columns:1fr 1fr;margin-bottom:10px;border-radius:18px}.measure-main-tabs button{padding:10px 5px;font-size:.69rem;border-bottom:1px solid var(--line)}.measure-main-tabs button:nth-child(2){border-right:0}.measure-main-tabs button:nth-child(3),.measure-main-tabs button:nth-child(4){border-bottom:0}.measure-chart-card{padding:12px!important}.measure-progress-chart{min-height:210px}.measure-chart-wrap{padding:3px}.measure-chart-heading h2{font-size:1.05rem}.measure-chart-current strong{font-size:.92rem}}
+
+
+/* LinaHub 17.2.0 — Measures default overview, time ranges and full history */
+.measure-range-tabs{display:grid;grid-template-columns:repeat(5,1fr);gap:0;margin:12px 0 14px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:rgba(14,10,34,.26)}
+.measure-range-tabs button{min-width:0;border:0;border-right:1px solid var(--line);background:transparent;color:var(--muted);padding:11px 7px;font:inherit;font-size:.78rem;white-space:nowrap}
+.measure-range-tabs button:last-child{border-right:0}.measure-range-tabs button.active{background:var(--purple-soft);color:var(--text);font-weight:800}
+.measure-history-card{margin-top:12px;padding:18px!important}.measure-history-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}.measure-history-heading b{display:grid;place-items:center;min-width:34px;height:34px;border-radius:999px;background:var(--purple-soft)}
+.measure-history-list article{display:grid;grid-template-columns:1fr 1fr auto;align-items:center;gap:12px;padding:13px 2px;border-bottom:1px solid var(--line-thin)}.measure-history-list article:last-child{border-bottom:0}.measure-history-list time{color:var(--muted);font-size:.82rem}.measure-history-list span{font-weight:700}.measure-history-list strong{text-align:right}
+@media(max-width:600px){.measure-range-tabs{grid-template-columns:repeat(3,1fr);border-radius:16px}.measure-range-tabs button{padding:9px 4px;font-size:.68rem;border-bottom:1px solid var(--line)}.measure-range-tabs button:nth-child(3){border-right:0}.measure-range-tabs button:nth-child(4),.measure-range-tabs button:nth-child(5){border-bottom:0}.measure-range-tabs button:nth-child(5){border-right:0}.measure-history-card{padding:12px!important}.measure-history-list article{grid-template-columns:1fr auto;padding:10px 0;gap:5px 10px}.measure-history-list span{grid-column:1}.measure-history-list strong{grid-column:2;grid-row:1 / span 2}.measure-history-list time{font-size:.72rem}.measure-history-list span,.measure-history-list strong{font-size:.78rem}}

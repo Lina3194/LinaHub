@@ -1,0 +1,76 @@
+/* LinaHub 17.2.9 — dedicated compact Medication Day layout.
+   Loaded last so shared card and phone rules cannot enlarge it. */
+@media screen and (max-width: 768px) {
+  .med-page .med-date-card.card {
+    display:grid!important;
+    grid-template-columns:minmax(0,1fr) 126px!important;
+    align-items:center!important;
+    width:100%!important;
+    min-height:0!important;
+    height:auto!important;
+    margin:0 0 9px!important;
+    padding:9px 10px!important;
+    gap:8px!important;
+    border-radius:17px!important;
+    box-sizing:border-box!important;
+  }
+  .med-page .med-date-card>div{min-width:0!important}
+  .med-page .med-date-card .section-kicker{font-size:.56rem!important;line-height:1!important;margin:0!important}
+  .med-page .med-date-card h2{font-size:.88rem!important;line-height:1.1!important;margin:2px 0 0!important;white-space:nowrap!important}
+  .med-page #medSelectedDate.med-day-picker.field{
+    width:126px!important;max-width:126px!important;min-width:0!important;
+    height:34px!important;min-height:34px!important;
+    padding:4px 6px!important;border-radius:11px!important;
+    font-size:.68rem!important;line-height:1!important;
+    justify-self:end!important;box-sizing:border-box!important;
+  }
+
+  .med-page .med-quick-list.card{
+    width:100%!important;min-height:0!important;height:auto!important;
+    margin:0 0 9px!important;padding:0!important;
+    border-radius:17px!important;overflow:hidden!important;
+  }
+  .med-page .med-quick-list>.empty{
+    display:flex!important;flex-direction:column!important;justify-content:center!important;
+    min-height:68px!important;height:auto!important;
+    padding:12px 11px!important;margin:0!important;box-sizing:border-box!important;
+  }
+  .med-page .med-quick-list>.empty h2{font-size:.88rem!important;line-height:1.08!important;margin:0 0 3px!important}
+  .med-page .med-quick-list>.empty p{font-size:.66rem!important;line-height:1.22!important;margin:0!important}
+
+  .med-page details.med-completed.card{
+    width:100%!important;min-height:0!important;height:auto!important;
+    margin:0!important;padding:0!important;border-radius:17px!important;overflow:hidden!important;
+  }
+  .med-page details.med-completed>summary{
+    min-height:38px!important;height:38px!important;padding:6px 9px!important;
+    gap:6px!important;font-size:.78rem!important;line-height:1!important;box-sizing:border-box!important;
+  }
+  .med-page details.med-completed>summary::before{font-size:.62rem!important}
+  .med-page details.med-completed>summary>small{font-size:.57rem!important}
+  .med-page .med-completed-list{padding:2px 8px 4px!important}
+  .med-page .med-completed-row{
+    display:grid!important;grid-template-columns:32px minmax(0,1fr) 28px!important;
+    align-items:center!important;gap:7px!important;
+    min-height:48px!important;height:auto!important;padding:5px 0!important;
+  }
+  .med-page .med-completed-row .med-photo{
+    width:32px!important;height:32px!important;min-width:32px!important;min-height:32px!important;
+    border-radius:10px!important;font-size:1rem!important;object-fit:cover!important;
+  }
+  .med-page .med-completed-copy{gap:0!important;min-width:0!important}
+  .med-page .med-completed-copy strong{font-size:.78rem!important;line-height:1.05!important}
+  .med-page .med-completed-meta{display:flex!important;flex-wrap:nowrap!important;gap:5px!important;line-height:1!important;white-space:nowrap!important}
+  .med-page .med-completed-meta b{font-size:.58rem!important}
+  .med-page .med-completed-meta em{font-size:.54rem!important}
+  .med-page .med-completed-row>button.mini{
+    grid-column:3!important;width:28px!important;min-width:28px!important;max-width:28px!important;
+    height:28px!important;min-height:28px!important;padding:0!important;margin:0!important;
+    border-radius:9px!important;font-size:0!important;display:grid!important;place-items:center!important;
+  }
+  .med-page .med-completed-row>button.mini::before{content:"◷"!important;font-size:.88rem!important;line-height:1!important}
+}
+@media screen and (max-width: 370px) {
+  .med-page .med-date-card.card{grid-template-columns:minmax(0,1fr) 112px!important}
+  .med-page #medSelectedDate.med-day-picker.field{width:112px!important;max-width:112px!important;font-size:.61rem!important}
+}

@@ -1,0 +1,709 @@
+
+
+
+function renderSeasonalAtmosphere(theme){
+  let layer=document.querySelector("#seasonalAtmosphere");
+  if(!layer){
+    layer=document.createElement("div");
+    layer.id="seasonalAtmosphere";
+    layer.className="seasonal-atmosphere";
+    layer.setAttribute("aria-hidden","true");
+    document.body.appendChild(layer);
+  }
+  if(layer.dataset.theme===theme) return;
+  layer.dataset.theme=theme;
+  const symbols={plain:[],glitter:["✦","✧","⋆","✨"],floral:["🌸","✿","❀","🌺"],spring:["🌸","🌷","✿","❀"],summer:["✨","☀","✦","•"],autumn:["🍂","🍁","❧","•"],winter:["❄","❅","✧","•"]}[theme]||[];
+  const count=theme==="plain"?0:theme==="winter"?34:theme==="summer"?22:theme==="glitter"?36:28;
+  layer.innerHTML=Array.from({length:count},(_,i)=>{
+    const left=(i*37%101), delay=-((i*1.37)%14), duration=8+(i*0.73%10), size=12+(i*7%18), drift=-35+(i*19%70);
+    return `<i style="--left:${left}%;--delay:${delay}s;--duration:${duration}s;--size:${size}px;--drift:${drift}px">${symbols[i%symbols.length]}</i>`;
+  }).join("");
+}
+/* LinaHub 17.0 — Measures, aquarium maintenance and theme polish */
+function lina17DateList(values){return (Array.isArray(values)?values:[]).slice().filter(Boolean).sort().reverse()}
+function linaMeasureRangeStart(range){
+  const now=new Date(`${today()}T23:59:59`);
+  const start=new Date(now);
+  if(range==="week")start.setDate(start.getDate()-6);
+  else if(range==="month")start.setMonth(start.getMonth()-1);
+  else if(range==="3months")start.setMonth(start.getMonth()-3);
+  else if(range==="6months")start.setMonth(start.getMonth()-6);
+  else if(range==="year")start.setFullYear(start.getFullYear()-1);
+  return start;
+}
+function linaMeasureChart(category){
+  const all=(category.entries||[]).map(item=>({date:String(item.date||""),value:Number(item.value)})).filter(item=>item.date&&Number.isFinite(item.value)).sort((a,b)=>a.date.localeCompare(b.date));
+  const range=["week","month","3months","6months","year"].includes(window.linaMeasureRange)?window.linaMeasureRange:"week";
+  const start=linaMeasureRangeStart(range);
+  const clean=all.filter(item=>new Date(`${item.date}T12:00:00`)>=start);
+  const rangeLabel={week:"Week",month:"Month","3months":"3 months","6months":"6 months",year:"Year"};
+  const controls=`<nav class="measure-range-tabs" role="tablist" aria-label="Chart time range">
+    ${[["week","Week"],["month","Month"],["3months","3 months"],["6months","6 months"],["year","Year"]].map(([key,label])=>`<button type="button" class="${range===key?"active":""}" data-measure-range="${key}" role="tab" aria-selected="${range===key}">${label}</button>`).join("")}
+  </nav>`;
+  let chart;
+  if(!clean.length){
+    chart=`<section class="card measure-chart-card"><div class="measure-chart-heading"><div><span class="section-kicker">Progress chart</span><h2>${category.label}</h2></div></div>${controls}<div class="empty"><p>No ${category.short.toLowerCase()} entries in this ${rangeLabel[range].toLowerCase()}.</p></div></section>`;
+  }else{
+    const width=720,height=300,padL=48,padR=24,padT=28,padB=46;
+    const values=clean.map(x=>x.value),minRaw=Math.min(...values),maxRaw=Math.max(...values);
+    const spread=Math.max(maxRaw-minRaw,category.unit==="kg"?.5:2);
+    const min=minRaw-spread*.18,max=maxRaw+spread*.18;
+    const x=i=>clean.length===1?(padL+(width-padL-padR)/2):padL+i*((width-padL-padR)/(clean.length-1));
+    const y=v=>padT+(max-v)*(height-padT-padB)/(max-min||1);
+    const points=clean.map((item,i)=>`${x(i).toFixed(1)},${y(item.value).toFixed(1)}`).join(" ");
+    const grid=Array.from({length:4},(_,i)=>{const yy=padT+i*(height-padT-padB)/3;const val=max-i*(max-min)/3;return `<line x1="${padL}" y1="${yy}" x2="${width-padR}" y2="${yy}" class="measure-chart-grid"/><text x="${padL-8}" y="${yy+4}" text-anchor="end" class="measure-chart-axis">${val.toFixed(category.unit==="kg"?1:0)}</text>`}).join("");
+    const dots=clean.map((item,i)=>`<circle class="measure-chart-dot" cx="${x(i)}" cy="${y(item.value)}" r="8" tabindex="0" role="button" aria-label="${formatDate(item.date)} ${item.value} ${category.unit}" data-chart-date="${esc(item.date)}" data-chart-value="${esc(item.value)}" data-chart-unit="${category.unit}"></circle>`).join("");
+    const first=clean[0],last=clean[clean.length-1],change=last.value-first.value;
+    chart=`<section class="card measure-chart-card">
+      <div class="measure-chart-heading"><div><span class="section-kicker">Progress chart</span><h2>${category.label}</h2></div><div class="measure-chart-current"><small>Latest</small><strong>${last.value} ${category.unit}</strong></div></div>
+      ${controls}
+      <div class="measure-chart-wrap"><svg class="measure-progress-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="${category.label} progress over time">${grid}<polyline class="measure-chart-line" points="${points}"/>${dots}</svg></div>
+      <div class="measure-chart-tooltip" id="measureChartTooltip"><span>Tap a dot to see the date and value</span></div>
+      <div class="measure-chart-footer"><span>${formatDate(first.date)}</span><strong>${change===0?"No change":`${change>0?"+":""}${change.toFixed(category.unit==="kg"?2:1)} ${category.unit}`}</strong><span>${formatDate(last.date)}</span></div>
+    </section>`;
+  }
+  const history=`<section class="card measure-history-card"><div class="measure-history-heading"><div><span class="section-kicker">History</span><h2>All ${category.short.toLowerCase()} entries</h2></div><b>${all.length}</b></div>
+    <div class="measure-history-list">${all.length?all.slice().reverse().map(item=>`<article><time>${formatDate(item.date)}</time><span>${category.icon} ${category.short}</span><strong>${item.value} ${category.unit}</strong></article>`).join(""):`<div class="empty"><p>No entries yet.</p></div>`}</div>
+  </section>`;
+  return chart+history;
+}
+function HealthPage(){
+  const weights=(data.weightEntries||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const measures=(data.measurements||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  const latestWeight=weights[0],latestMeasure=measures[0];
+  const selected=["overview","weight","waist","tummy"].includes(window.linaHealthMeasureTab)?window.linaHealthMeasureTab:"overview";
+  const categories={
+    weight:{label:"Weight",short:"Weight",icon:"⚖️",unit:"kg",entries:weights.map(x=>({date:x.date,value:x.value??x.weight}))},
+    waist:{label:"Measurement (W)",short:"Waist",icon:"📏",unit:"cm",entries:measures.filter(x=>x.waist!==""&&x.waist!=null).map(x=>({date:x.date,value:x.waist}))},
+    tummy:{label:"Measurement (T)",short:"Tummy",icon:"〰️",unit:"cm",entries:measures.filter(x=>x.tummy!==""&&x.tummy!=null).map(x=>({date:x.date,value:x.tummy}))}
+  };
+  const overview=`<section class="measure-hero card">
+      <div><span class="section-kicker">Latest measurements</span><h2>Your progress, without the clutter</h2><p>Only the three measurements that matter to you.</p></div>
+      <div class="measure-summary-grid">
+        <article><span>⚖️</span><small>Weight</small><strong>${latestWeight?.value||latestWeight?.weight||"—"}<em>${latestWeight?" kg":""}</em></strong></article>
+        <article><span>📏</span><small>Waist</small><strong>${latestMeasure?.waist??"—"}<em>${latestMeasure?.waist!=null&&latestMeasure?.waist!==""?" cm":""}</em></strong></article>
+        <article><span>〰️</span><small>Tummy</small><strong>${latestMeasure?.tummy??"—"}<em>${latestMeasure?.tummy!=null&&latestMeasure?.tummy!==""?" cm":""}</em></strong></article>
+      </div>
+    </section>
+    <section class="card measure-entry-card"><div class="section-title-row"><div><span class="section-kicker">New entry</span><h2>Add today’s measures</h2></div></div>
+      <label class="compact-measure-date">Date<input class="field" id="measureDate" type="date" value="${today()}"></label>
+      <div class="health-measure-fields">
+        <label><span>⚖️ Weight</span><div class="measure-input-wrap"><input class="field" id="weightValue" inputmode="decimal" type="number" step="0.1" placeholder="0.0"><b>kg</b></div></label>
+        <label><span>📏 Waist</span><div class="measure-input-wrap"><input class="field" id="measureWaist" inputmode="decimal" type="number" step="0.1" placeholder="0.0"><b>cm</b></div></label>
+        <label><span>〰️ Tummy</span><div class="measure-input-wrap"><input class="field" id="measureTummy" inputmode="decimal" type="number" step="0.1" placeholder="0.0"><b>cm</b></div></label>
+      </div><button class="primary measure-save" id="saveMeasures">Save measurements</button>
+    </section>`;
+  return shell(`${head("Measures","A simple record of weight, waist and tummy")}
+    <nav class="measure-main-tabs" role="tablist" aria-label="Measures sections">
+      <button type="button" class="${selected==="overview"?"active":""}" data-measure-tab="overview" role="tab" aria-selected="${selected==="overview"}">Overview</button>
+      <button type="button" class="${selected==="weight"?"active":""}" data-measure-tab="weight" role="tab" aria-selected="${selected==="weight"}">Weight</button>
+      <button type="button" class="${selected==="waist"?"active":""}" data-measure-tab="waist" role="tab" aria-selected="${selected==="waist"}">Measurement (W)</button>
+      <button type="button" class="${selected==="tummy"?"active":""}" data-measure-tab="tummy" role="tab" aria-selected="${selected==="tummy"}">Measurement (T)</button>
+    </nav>
+    ${selected==="overview"?overview:linaMeasureChart(categories[selected])}`,'health');
+}
+function bindHealth(){
+  document.querySelectorAll("[data-measure-tab]").forEach(button=>button.onclick=()=>{window.linaHealthMeasureTab=button.dataset.measureTab;render();});
+  document.querySelectorAll("[data-measure-range]").forEach(button=>button.onclick=()=>{window.linaMeasureRange=button.dataset.measureRange;render();});
+  document.querySelectorAll(".measure-chart-dot").forEach(dot=>{
+    const show=()=>{const box=document.querySelector("#measureChartTooltip");if(!box)return;box.innerHTML=`<strong>${formatDate(dot.dataset.chartDate)}</strong><span>${dot.dataset.chartValue} ${dot.dataset.chartUnit}</span>`;document.querySelectorAll(".measure-chart-dot.selected").forEach(x=>x.classList.remove("selected"));dot.classList.add("selected")};
+    dot.onclick=show;dot.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();show()}};
+  });
+  const save=document.querySelector("#saveMeasures"); if(!save)return;
+  save.onclick=()=>{const date=document.querySelector("#measureDate").value||today(),weight=document.querySelector("#weightValue").value,waist=document.querySelector("#measureWaist").value,tummy=document.querySelector("#measureTummy").value;if(!weight&&!waist&&!tummy){toast("Add at least one measurement");return}
+    if(weight){data.weightEntries=data.weightEntries||[];data.weightEntries.push({id:`weight-${Date.now()}`,date,value:Number(weight)})}
+    if(waist||tummy){data.measurements=data.measurements||[];data.measurements.push({id:`measure-${Date.now()}`,date,waist:waist===""?"":Number(waist),tummy:tummy===""?"":Number(tummy)})}
+    saveData();toast("Measurements saved ✨");render();};
+}
+function lina17Maintenance(tank){tank.maintenance=tank.maintenance||{};tank.maintenance.history=tank.maintenance.history||{};["waterChange","clean","spongeChange","filterChange"].forEach(k=>tank.maintenance.history[k]=Array.isArray(tank.maintenance.history[k])?tank.maintenance.history[k]:[]);return tank.maintenance}
+function lina17DaysBetween(fromDate,toDate){
+  if(!fromDate||!toDate)return null;
+  const a=new Date(`${fromDate}T12:00:00`),b=new Date(`${toDate}T12:00:00`);
+  if(Number.isNaN(a.getTime())||Number.isNaN(b.getTime()))return null;
+  return Math.round((b-a)/86400000);
+}
+function lina17RelativeCareDate(date,{futureLabel="Due",pastLabel="ago",empty="Not logged"}={}){
+  if(!date)return empty;
+  const diff=lina17DaysBetween(today(),date);
+  if(diff===0)return "Today";
+  if(diff===1)return "Due tomorrow";
+  if(diff>1)return `${futureLabel} in ${diff} days`;
+  if(diff===-1)return "Yesterday";
+  return `${Math.abs(diff)} days ${pastLabel}`;
+}
+function lina17MaintenanceDue(lastDate,cycleDays){
+  if(!lastDate)return "Not logged";
+  if(!cycleDays)return lina17RelativeCareDate(lastDate,{empty:"Not logged"});
+  const due=new Date(`${lastDate}T12:00:00`);due.setDate(due.getDate()+cycleDays);
+  return lina17RelativeCareDate(due.toISOString().slice(0,10));
+}
+function lina17FeedDate(feed){
+  if(feed?.date)return String(feed.date).slice(0,10);
+  if(feed?.createdAt){const d=new Date(feed.createdAt);if(!Number.isNaN(d.getTime()))return d.toISOString().slice(0,10)}
+  return "";
+}
+function lina17FeedTime(feed){
+  if(feed?.time)return String(feed.time).slice(0,5);
+  if(feed?.createdAt){const d=new Date(feed.createdAt);if(!Number.isNaN(d.getTime()))return d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
+  return "";
+}
+function lina17FeedTimestamp(date,time){
+  const safeDate=date||today();
+  const safeTime=time||new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"});
+  const parsed=new Date(`${safeDate}T${safeTime}:00`);
+  return Number.isNaN(parsed.getTime())?new Date().toISOString():parsed.toISOString();
+}
+function lina17SortedFeeds(tank){
+  return (tank.feeds||[]).map((feed,index)=>({feed,index,date:lina17FeedDate(feed),time:lina17FeedTime(feed)})).sort((a,b)=>`${b.date} ${b.time}`.localeCompare(`${a.date} ${a.time}`));
+}
+function lina17LatestFeed(tank){
+  const latest=lina17SortedFeeds(tank)[0];
+  if(!latest||!latest.date)return "Not logged";
+  return latest.date===today()?`Today${latest.time?` · ${latest.time}`:""}`:`${formatDate(latest.date)}${latest.time?` · ${latest.time}`:""}`;
+}
+function AquariumsPage(){return shell(`${head("Aquariums","Feeding and maintenance at a glance")}
+  <div class="aquarium-grid">${(data.aquariums||[]).map(tank=>{const m=lina17Maintenance(tank),tileKey=tank.id==="girls-tank"?"girlsTank":tank.id==="boys-tank"?"boysTank":"",photo=tank.photo||(tileKey?data.homeImages?.[tileKey]:"");return `<section class="card aquarium-dashboard-card status-good"><button class="tank-dashboard-open" data-route="tank" data-route-id="${esc(tank.id)}"><span class="tank-dashboard-image">${photo?`<img src="${photo}" alt="${esc(tank.name)}">`:`<span>${tank.emoji||"🐠"}</span>`}</span><span class="tank-dashboard-main"><strong>${esc(tank.name)}</strong><span class="tank-dashboard-rows"><small><b>🌡️ Temp</b><em>${esc(tank.temperature||"Not set")}${tank.temperature&&!String(tank.temperature).includes("°")?"°C":""}</em></small><small><b>🐟 Last feed</b><em>${esc(lina17LatestFeed(tank))}</em></small><small><b>💧 Water</b><em>${esc(lina17MaintenanceDue(m.waterChange,7))}</em></small><small><b>🧽 Sponge</b><em>${esc(m.spongeChange?lina17RelativeCareDate(m.spongeChange,{pastLabel:"ago"}):"Not logged")}</em></small><small><b>⚙️ Filter</b><em>${esc(m.filterChange?lina17RelativeCareDate(m.filterChange,{pastLabel:"ago"}):"Not logged")}</em></small></span></span><b class="tank-card-arrow">›</b></button></section>`}).join("")}</div>`,"pets")}
+function AquariumTankPage(){const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return AquariumsPage();const m=lina17Maintenance(tank);const feeds=lina17SortedFeeds(tank);const now=new Date(),defaultTime=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;const jobs=[["waterChange","Water Change","💧"],["clean","Tank Clean","🫧"],["spongeChange","Sponge Clean","🧽"],["filterChange","Filter Change","⚙️"]];return shell(`${head(tank.name,"Aquarium care",true)}
+  <section class="card aquarium-temperature-card"><div class="aquarium-temperature-copy"><span class="section-kicker">🌡️ Temperature</span><h2>${tank.temperature!==""?`${esc(tank.temperature)}°C`:"Not recorded"}</h2><small>${tank.temperatureUpdated?`Updated ${new Date(tank.temperatureUpdated).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"})}`:"Add the current tank temperature"}</small></div><div class="aquarium-temperature-controls"><label><span>°C</span><input class="field" id="tankTemperature" type="number" inputmode="decimal" step="0.1" min="0" max="50" value="${esc(tank.temperature)}" placeholder="25.0"></label><button class="primary" id="saveTankTemperature">Save</button></div></section>
+  <section class="card aquarium-feeds"><details><summary><span><strong>🍽️ Feeding</strong><small>${feeds.length} saved feed entr${feeds.length===1?"y":"ies"}</small></span><b>⌄</b></summary><div class="feed-list">${feeds.length?feeds.map(({feed,index,date,time})=>`<div class="compact-feed-row"><span><strong>${esc(feed.food||feed.name||"Fed")}</strong><small>${date?formatDate(date):"Date not recorded"}${time?` · ${esc(time)}`:""}</small></span><button class="mini danger" data-delete-feed="${index}">×</button></div>`).join(""):"<p class='muted-copy'>No feeding entries yet.</p>"}<div class="feed-add-grid"><label><span>Date</span><input class="field" id="feedDate" type="date" value="${today()}" max="${today()}"></label><label><span>Time</span><input class="field" id="feedTime" type="time" value="${defaultTime}"></label><label class="feed-note-field"><span>Food / note</span><input class="field" id="feedName" placeholder="Food or feeding note"></label><button class="secondary" id="addFeed">Log feed</button></div></div></details></section>
+  <section class="card aquarium-maintenance-card"><div class="section-title-row"><div><span class="section-kicker">Maintenance</span><h2>Care log</h2></div></div><div class="maintenance-rows">${jobs.map(([key,label,icon])=>`<article class="maintenance-row"><span class="maintenance-icon">${icon}</span><div><strong>${label}</strong><small>${m[key]?`Last: ${formatDate(m[key])}`:"Not logged yet"}</small></div><input class="field" type="date" data-maintenance-date="${key}" value="${m[key]||today()}"><button class="secondary" data-save-maintenance="${key}">Log</button></article>`).join("")}</div></section>
+  <section class="aquarium-history-grid">${jobs.map(([key,label,icon])=>`<details class="card maintenance-history"><summary><span>${icon} ${label} history</span><b>${m.history[key].length}</b></summary><div>${lina17DateList(m.history[key]).length?lina17DateList(m.history[key]).map(date=>`<div class="history-date-row"><span>${formatDate(date)}</span><button class="mini danger" data-delete-maintenance="${key}" data-date="${date}">×</button></div>`).join(""):"<p class='muted-copy'>No history yet.</p>"}</div></details>`).join("")}</section>`,"pets")}
+function bindAquariums(){const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return;const m=lina17Maintenance(tank);document.querySelector("#saveTankTemperature")?.addEventListener("click",()=>{const input=document.querySelector("#tankTemperature");const value=String(input?.value??"").trim();if(value===""){toast("Enter a temperature first");input?.focus();return}const number=Number(value);if(!Number.isFinite(number)||number<0||number>50){toast("Enter a temperature between 0 and 50°C");input?.focus();return}tank.temperature=number.toFixed(1).replace(/\.0$/,"");tank.temperatureUpdated=new Date().toISOString();saveData();toast(`Temperature saved: ${tank.temperature}°C`);render()});document.querySelector("#tankTemperature")?.addEventListener("keydown",event=>{if(event.key==="Enter")document.querySelector("#saveTankTemperature")?.click()});document.querySelector("#addFeed")?.addEventListener("click",()=>{const note=document.querySelector("#feedName")?.value.trim()||"Fed",date=document.querySelector("#feedDate")?.value||today(),time=document.querySelector("#feedTime")?.value||"";if(date>today()){toast("Choose today or an earlier date");return}tank.feeds=tank.feeds||[];tank.feeds.push({id:`feed-${Date.now()}`,food:note,date,time,createdAt:lina17FeedTimestamp(date,time)});saveData();toast("Feed logged 🍽️");render()});document.querySelectorAll("[data-delete-feed]").forEach(b=>b.onclick=()=>{tank.feeds.splice(Number(b.dataset.deleteFeed),1);saveData();render()});document.querySelectorAll("[data-save-maintenance]").forEach(b=>b.onclick=()=>{const key=b.dataset.saveMaintenance,date=document.querySelector(`[data-maintenance-date='${key}']`).value||today();m[key]=date;if(!m.history[key].includes(date))m.history[key].push(date);saveData();toast("Maintenance logged");render()});document.querySelectorAll("[data-delete-maintenance]").forEach(b=>b.onclick=()=>{const a=m.history[b.dataset.deleteMaintenance];m.history[b.dataset.deleteMaintenance]=a.filter(x=>x!==b.dataset.date);saveData();render()})}
+
+/* Plants page and plant profiles are provided by pages/plants.js.
+   Do not redefine them here: doing so overrides the working click/navigation code. */
+function lina17InsertStandardBanner(key,src,routeAtRequest){
+  if(!src||route!==routeAtRequest)return;
+  const app=document.querySelector("#app");
+  if(!app||app.querySelector(".module-banner"))return;
+  const header=app.querySelector(".page-head");
+  if(!header)return;
+  const banner=document.createElement("section");
+  banner.className="module-banner";
+  banner.setAttribute("aria-label",`${key} banner`);
+  const image=document.createElement("img");
+  image.src=src;
+  image.alt="";
+  image.addEventListener("error",()=>{
+    banner.remove();
+    toast("The saved banner could not be displayed. Please choose the image again.");
+  },{once:true});
+  banner.appendChild(image);
+  header.insertAdjacentElement("afterend",banner);
+}
+
+function lina17StandardBanner(routeName){
+  const keyMap={
+    journal:"journal",today:"today",todo:"todo",plants:"plants",plant:"plants",
+    medication:"medication",pokemon:"pokemon",pets:"pets",tank:"pets",house:"house",
+    period:"period",treasures:"treasures"
+  };
+  const key=keyMap[routeName];
+  if(!key)return;
+  const routeAtRequest=route;
+  const src=data.moduleBanners?.[key]||"";
+  if(src){
+    lina17InsertStandardBanner(key,src,routeAtRequest);
+    return;
+  }
+
+  // The main JSON deliberately does not contain image data. Always fall back to
+  // IndexedDB here as well, so a refresh, cloud sync or later re-render cannot
+  // temporarily replace a saved banner with an empty value.
+  if(window.LinaImage){
+    LinaImage.load(`banner:${key}`).then(saved=>{
+      if(!saved)return;
+      data.moduleBanners=data.moduleBanners||{};
+      data.moduleBanners[key]=saved;
+      lina17InsertStandardBanner(key,saved,routeAtRequest);
+    }).catch(()=>{});
+  }
+}
+
+function lina17HeaderIllustration(routeName){
+  const art={
+    plants:{emoji:"🪴",bits:["🌿","🌸","✨"]},
+    plant:{emoji:"🪴",bits:["🌿","🌸","✨"]},
+    pets:{emoji:"🐠",bits:["🫧","🌿","✨"]},
+    tank:{emoji:"🐠",bits:["🫧","🌿","✨"]},
+    todo:{emoji:"📋",bits:["🌸","✏️","✨"]},
+    journal:{emoji:"📔",bits:["✨","🌙","🌸"]},
+    today:{emoji:"📔",bits:["✨","🌙","🌸"]},
+    budget:{emoji:"👛",bits:["🪙","🌸","✨"]},
+    health:{emoji:"📏",bits:["💗","✨","〰️"]},
+    house:{emoji:"🏡",bits:["🌸","🪴","✨"]}
+  }[routeName];
+  if(!art)return;
+  const header=document.querySelector(".page-head");
+  if(!header||header.querySelector(".lina-header-art"))return;
+  if((routeName==="plants"||routeName==="plant")&&data.moduleBanners?.plants)return;
+  const el=document.createElement("div");
+  el.className=`lina-header-art lina-header-art-${routeName}`;
+  el.setAttribute("aria-hidden","true");
+  el.innerHTML=`<span class="header-art-main">${art.emoji}</span>${art.bits.map((x,i)=>`<i style="--i:${i}">${x}</i>`).join("")}`;
+  header.appendChild(el);
+}
+
+function render(){
+  // Always open Measures on Overview when entering the page.
+  // Re-renders while already inside Measures (for chart tabs/ranges) keep the selected tab.
+  if(route === "health" && window.__linaLastRenderedRoute !== "health") {
+    window.linaHealthMeasureTab = "overview";
+  }
+  window.__linaLastRenderedRoute = route;
+  resetSwipePreview();
+  document.body.classList.toggle("dark",data.theme==="dark");
+  const seasonalThemes=["plain","glitter","floral","spring","summer","autumn","winter"];
+  if(!seasonalThemes.includes(data.colorTheme)) data.colorTheme="floral";
+  document.body.dataset.colorTheme=data.colorTheme;
+  renderSeasonalAtmosphere(data.colorTheme);
+  document.body.dataset.route=route; // Styling metadata only; navigation clicks are restricted to explicit controls.
+  document.querySelectorAll(".route-atmosphere").forEach(el=>el.remove());
+
+  const pages={
+    home:HomePage,
+    journal:JournalPage,
+    today:TodayPage,
+    todo:TodoPage,
+    plants:PlantsPage,
+    plant:PlantProfilePage,
+    settings:SettingsPage,
+    health:HealthPage,
+    hobbies:HobbiesPage,
+    books:BooksPage,
+    gaming:()=>SimplePage("Gaming","🎮","Your games and progress","gaming"),
+    medication:MedicationPage,
+    shopping:ShoppingPage,
+    pokemon:PokemonPage,
+    pets:AquariumsPage,
+    tank:AquariumTankPage,
+    house:HousePage,
+    period:PeriodPage,
+    budget:BudgetPage,
+    treasures:TreasureRoomPage,
+    history:HistoryPage
+  };
+
+  const pageFactory=pages[route]||HomePage;
+  document.querySelector("#app").innerHTML=pageFactory();
+
+  // LinaHub 17.0.7: Household must never show the Shopping promo/card.
+  if(route==="house"){
+    document.querySelectorAll("#app .card, #app section, #app article").forEach(el=>{
+      const text=(el.textContent||"").replace(/\s+/g," ").trim();
+      if(/Open shopping list|Manage groceries|Shopping\s+\d+\s+remaining|HOUSEHOLD.*Shopping/i.test(text)){
+        const card=el.closest(".card")||el;
+        card.remove();
+      }
+    });
+  }
+  lina17StandardBanner(route);
+  lina17HeaderIllustration(route);
+
+  const atmosphere=document.createElement("div");
+  atmosphere.className=`route-atmosphere atmosphere-${route}`;
+  atmosphere.setAttribute("aria-hidden","true");
+
+  if(route==="plants"||route==="plant"){
+    // Use real numeric values here. CSS cannot reliably calculate modulo or multiplication
+    // from --i on Safari/iOS, which was leaving the petals without a usable size/position.
+    atmosphere.innerHTML=Array.from({length:26},(_,i)=>{
+      const x=(3+(i*17)%94).toFixed(1);
+      const size=10+(i%6)*2;
+      const duration=(9+(i%7)*1.15).toFixed(2);
+      const delay=(-((i*1.37)%15)).toFixed(2);
+      const drift=(18+(i%5)*8)*(i%2===0?1:-1);
+      const driftBack=(-drift*0.55).toFixed(1);
+      const driftEnd=(drift*0.35).toFixed(1);
+      const opacity=(0.58+(i%4)*0.09).toFixed(2);
+      return `<i class="sakura-petal" style="--x:${x}%;--petal-size:${size}px;--fall-duration:${duration}s;--fall-delay:${delay}s;--drift:${drift}px;--drift-back:${driftBack}px;--drift-end:${driftEnd}px;--petal-opacity:${opacity}" aria-hidden="true"><svg viewBox="0 0 24 30" focusable="false"><path d="M12 29C8.6 24.3 2.2 21.2 1.4 13.9C.8 8.8 3.8 3.7 8.2 2.2C10.5 1.4 11.8 3.2 12 6.1C12.2 3.2 13.5 1.4 15.8 2.2C20.2 3.7 23.2 8.8 22.6 13.9C21.8 21.2 15.4 24.3 12 29Z"/><path class="sakura-vein" d="M12 27C11.7 20.8 11.8 14.8 12 8.2"/></svg></i>`;
+    }).join("");
+  }else if(route==="pets"||route==="tank"){
+    atmosphere.classList.add("aquarium-side-bubbles");
+    atmosphere.innerHTML=Array.from({length:20},(_,i)=>`<i class="aqua-bubble" style="--i:${i}"></i>`).join("");
+  }
+
+  document.body.appendChild(atmosphere);
+
+  if(route==="home") bindHome();
+  if(route==="journal") bindJournal();
+  if(route==="today") bindToday();
+  if(route==="todo") bindTodo();
+  if(route==="plants"||route==="plant") bindPlants();
+  if(route==="pokemon") bindPokemon();
+  if(route==="house") bindHouse();
+  if(route==="medication") bindMedication();
+  if(route==="shopping") bindShopping();
+  if(route==="hobbies") bindHobbies();
+  if(route==="books") bindBooks();
+  if(route==="health") bindHealth();
+  if(route==="settings") bindSimple();
+  if(route==="period") bindPeriod();
+  if(route==="budget") bindBudget();
+  if(route==="treasures") bindTreasures();
+  if(route==="history") bindHistory();
+  if(route==="pets"||route==="tank") bindAquariums();
+  bindBottomNavigation();
+  linaMaybeOpenDailyCheckin();
+}
+
+
+
+function bindBottomNavigation(){
+  document.querySelectorAll(".bottom button[data-route]").forEach(button=>{
+    button.addEventListener("click",event=>{
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      go(button.dataset.route,button.dataset.routeId||"");
+    });
+    button.addEventListener("touchend",event=>{
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      go(button.dataset.route,button.dataset.routeId||"");
+    },{passive:false});
+  });
+}
+
+function setupNavigation(){
+  if(window.__linaNavigationReady) return;
+  window.__linaNavigationReady=true;
+
+  document.addEventListener("click",event=>{
+    const hourlyButton=event.target.closest("[data-open-hourly-checkin]");
+    if(hourlyButton){event.preventDefault();event.stopPropagation();openHourlyCheckin();return;}
+
+    const dailyButton=event.target.closest("[data-open-daily-checkin]");
+    if(dailyButton){event.preventDefault();event.stopPropagation();openDailyCheckin(true);return;}
+
+    const healthTabButton=event.target.closest("[data-health-tab]");
+    if(healthTabButton){
+      event.preventDefault();event.stopPropagation();
+      go("health",healthTabButton.dataset.healthTab||"dashboard");return;
+    }
+
+    const backButton=event.target.closest("[data-back]");
+    if(backButton){
+      event.preventDefault();
+      event.stopPropagation();
+      animateBackNavigation(backButton.dataset.back||"home");
+      return;
+    }
+
+    const routeButton=event.target.closest("button[data-route],a[data-route],[role='button'][data-route]");
+    if(routeButton){
+      event.preventDefault();
+      event.stopPropagation();
+      go(routeButton.dataset.route,routeButton.dataset.routeId||"");
+    }
+  });
+}
+
+function animateBackNavigation(fallback="home"){
+  suppressNextPageAnimation=true;
+  goBack(fallback);
+}
+
+function setupSwipeBack(){
+  if(window.__linaSwipeReady) return;
+  window.__linaSwipeReady=true;
+
+  let tracking=false;
+  let horizontal=false;
+  let startX=0;
+  let startY=0;
+  let currentX=0;
+  let page=null;
+  const edgeWidth=52;
+  const triggerDistance=78;
+
+  const isBlockedTarget=target=>{
+    if(!(target instanceof Element)) return true;
+    return !!target.closest(
+      "input,textarea,select,option,label,.drag-handle,.table-wrap,.tokens,.scale,.energy-picker,.priority-picker,.profile-tabs,[contenteditable='true']"
+    );
+  };
+
+  const cleanup=()=>{
+    tracking=false;
+    horizontal=false;
+    if(page){
+      page.classList.remove("swipe-dragging","swipe-completing","swipe-cancelling");
+      page.style.transform="";
+      page.style.opacity="";
+    }
+    document.body.classList.remove("swipe-back-active");
+    document.documentElement.style.removeProperty("--swipe-progress");
+    page=null;
+  };
+
+  document.addEventListener("touchstart",event=>{
+    if(event.touches.length!==1) return;
+    const touch=event.touches[0];
+
+    if(
+      route==="home" ||
+      touch.clientX>edgeWidth ||
+      document.body.classList.contains("reordering") ||
+      isBlockedTarget(event.target)
+    ) return;
+
+    tracking=true;
+    horizontal=false;
+    startX=currentX=touch.clientX;
+    startY=touch.clientY;
+    page=document.querySelector(".shell");
+  },{passive:true});
+
+  document.addEventListener("touchmove",event=>{
+    if(!tracking||event.touches.length!==1) return;
+
+    const touch=event.touches[0];
+    const dx=touch.clientX-startX;
+    const dy=touch.clientY-startY;
+
+    if(!horizontal){
+      if(Math.abs(dx)<8 && Math.abs(dy)<8) return;
+      if(Math.abs(dy)>Math.abs(dx) || dx<=0){
+        cleanup();
+        return;
+      }
+      horizontal=true;
+      document.body.classList.add("swipe-back-active");
+      page?.classList.add("swipe-dragging");
+    }
+
+    event.preventDefault();
+    currentX=touch.clientX;
+    const translated=Math.min(Math.max(0,dx),220);
+    const progress=Math.min(translated/220,1);
+
+    if(page){
+      page.style.transform=`translate3d(${translated}px,0,0)`;
+      page.style.opacity=String(1-progress*.12);
+    }
+    document.documentElement.style.setProperty("--swipe-progress",String(progress));
+  },{passive:false});
+
+  const finish=()=>{
+    if(!tracking) return;
+    const distance=currentX-startX;
+
+    if(horizontal && distance>=triggerDistance && page){
+      tracking=false;
+      page.classList.remove("swipe-dragging");
+      page.classList.add("swipe-completing");
+
+      let completed=false;
+      const done=()=>{
+        if(completed) return;
+        completed=true;
+        suppressNextPageAnimation=true;
+        cleanup();
+        // Medication tabs are subviews. A swipe from Add Medication, History or Stock
+        // must first return to the main Medication overview instead of reopening the same tab.
+        if(route==="medication" && data.medicationView?.tab!=="today") {
+          data.medicationView.tab="today";
+          data.medicationView.date=typeof medLocalDate==="function"?medLocalDate():today();
+          medicationDateTouched=false;
+          saveData();
+          render();
+        } else {
+          goBack("home");
+        }
+      };
+
+      page.addEventListener("transitionend",done,{once:true});
+      setTimeout(done,260);
+      return;
+    }
+
+    if(page&&horizontal){
+      tracking=false;
+      page.classList.remove("swipe-dragging");
+      page.classList.add("swipe-cancelling");
+
+      let cancelled=false;
+      const done=()=>{
+        if(cancelled) return;
+        cancelled=true;
+        cleanup();
+      };
+
+      page.addEventListener("transitionend",done,{once:true});
+      setTimeout(done,240);
+    }else{
+      cleanup();
+    }
+  };
+
+  document.addEventListener("touchend",finish,{passive:true});
+  document.addEventListener("touchcancel",cleanup,{passive:true});
+  window.addEventListener("blur",cleanup);
+}
+function resetSwipePreview(){
+  const page=document.querySelector(".shell");
+  if(!page) return;
+  page.classList.remove("swipe-dragging","swipe-completing","swipe-cancelling");
+  page.style.transform="";
+  page.style.opacity="";
+  document.body.classList.remove("swipe-back-active");
+  document.documentElement.style.removeProperty("--swipe-progress");
+}
+
+
+let linaNotificationTimer=null;
+function linaNotificationConfig(){
+  data.notifications=data.notifications||{};
+  const cfg=data.notifications;
+  cfg.enabled=!!cfg.enabled;
+  cfg.medication=cfg.medication!==false;
+  cfg.todayTasks=cfg.todayTasks!==false;
+  cfg.dayCheckins=!!cfg.dayCheckins;
+  cfg.dayCheckinStart=cfg.dayCheckinStart||"08:00";
+  cfg.dayCheckinEnd=cfg.dayCheckinEnd||"22:00";
+  cfg.dayCheckinEvery=Math.max(1,Number(cfg.dayCheckinEvery)||1);
+  cfg.medicationTimes=Array.isArray(cfg.medicationTimes)&&cfg.medicationTimes.length?cfg.medicationTimes:[cfg.medicationTime||"09:00"];
+  cfg.todayTimes=Array.isArray(cfg.todayTimes)&&cfg.todayTimes.length?cfg.todayTimes:[cfg.todayTime||"09:15"];
+  cfg.medicationTimes=[...new Set(cfg.medicationTimes.filter(Boolean))].sort();
+  cfg.todayTimes=[...new Set(cfg.todayTimes.filter(Boolean))].sort();
+  cfg.lastSent=cfg.lastSent||{};
+  delete cfg.medicationTime; delete cfg.todayTime;
+  return cfg;
+}
+
+async function linaRequestNotificationPermission(){
+  if(!("Notification" in window)){toast("Notifications are not supported on this device");return false}
+  if(Notification.permission==="granted") return true;
+  if(Notification.permission==="denied"){toast("Notifications are blocked in your browser settings");return false}
+  try{
+    const permission=await Notification.requestPermission();
+    document.querySelector("#notificationPermission")?.replaceChildren(document.createTextNode(permission));
+    if(permission!=="granted") toast("Notification permission was not allowed");
+    return permission==="granted";
+  }catch{toast("Notifications could not be enabled");return false}
+}
+async function linaShowNotification(title,options={}){
+  if(!("Notification" in window)||Notification.permission!=="granted") return false;
+  const payload={icon:"./icons/icon-192.png",badge:"./icons/icon-192.png",...options};
+  try{
+    const registration=await navigator.serviceWorker?.ready;
+    if(registration?.showNotification){await registration.showNotification(title,payload);return true}
+    new Notification(title,payload);return true;
+  }catch{return false}
+}
+function linaPendingMedicationCount(dateValue){
+  try{
+    ensureMedicationData();
+    return data.medications.filter(m=>medDueOn(m,dateValue)).reduce((sum,m)=>{
+      if(m.scheduleType==="prn") return sum;
+      return sum+Math.max(0,(Number(m.dosesPerDay)||1)-medLogsFor(m.id,dateValue).length);
+    },0);
+  }catch{return 0}
+}
+function linaPendingTodayTaskCount(dateValue){
+  return (data.personalTasks||[]).filter(task=>!task.done&&(task.deadline||task.date)===dateValue).length;
+}
+async function linaCheckNotifications(){
+  const cfg=linaNotificationConfig();
+  if(!cfg.enabled||Notification.permission!=="granted") return;
+  const now=new Date(),dateValue=medLocalDate(now),clock=now.toTimeString().slice(0,5);
+  for(const reminderTime of cfg.medicationTimes){
+    const sentKey=`medication:${dateValue}:${reminderTime}`;
+    if(cfg.medication!==false&&clock>=reminderTime&&!cfg.lastSent[sentKey]){
+      const count=linaPendingMedicationCount(dateValue);
+      if(count>0) await linaShowNotification("Medication reminder",{body:`${count} ${count===1?"dose is":"doses are"} still due today.`,tag:`linahub-med-${dateValue}-${reminderTime}`,data:{route:"medication"}});
+      cfg.lastSent[sentKey]=true; saveData();
+    }
+  }
+  for(const reminderTime of cfg.todayTimes){
+    const sentKey=`today:${dateValue}:${reminderTime}`;
+    if(cfg.todayTasks!==false&&clock>=reminderTime&&!cfg.lastSent[sentKey]){
+      const count=linaPendingTodayTaskCount(dateValue);
+      if(count>0) await linaShowNotification("Today in LinaHub",{body:`You have ${count} unfinished ${count===1?"task":"tasks"} due today.`,tag:`linahub-today-${dateValue}-${reminderTime}`,data:{route:"today"}});
+      cfg.lastSent[sentKey]=true; saveData();
+    }
+  }
+  if(cfg.dayCheckins){
+    const toMinutes=value=>{const [h,m]=String(value||"00:00").split(":").map(Number);return h*60+m};
+    const nowMinutes=now.getHours()*60+now.getMinutes(),startMinutes=toMinutes(cfg.dayCheckinStart),endMinutes=toMinutes(cfg.dayCheckinEnd),step=cfg.dayCheckinEvery*60;
+    if(nowMinutes>=startMinutes&&nowMinutes<=endMinutes){
+      const slot=startMinutes+Math.floor((nowMinutes-startMinutes)/step)*step;
+      const slotHour=String(Math.floor(slot/60)).padStart(2,"0"),slotMinute=String(slot%60).padStart(2,"0"),slotTime=`${slotHour}:${slotMinute}`;
+      const sentKey=`flower:${dateValue}:${slotTime}`;
+      const alreadyLogged=(data.dayCheckins||[]).some(entry=>entry.date===dateValue&&String(entry.time||"")>=slotTime&&toMinutes(entry.time)<slot+step);
+      if(nowMinutes-slot<=15&&!alreadyLogged&&!cfg.lastSent[sentKey]){
+        await linaShowNotification("How are your energy and mood? 🌸",{body:"Add a quick check-in and grow today’s bouquet.",tag:`linahub-flower-${dateValue}-${slotTime}`,data:{route:"journal"}});
+        cfg.lastSent[sentKey]=true;saveData();
+      }
+    }
+  }
+}
+
+function linaStartNotificationChecks(){
+  clearInterval(linaNotificationTimer);
+  linaCheckNotifications();
+  linaNotificationTimer=setInterval(linaCheckNotifications,60000);
+}
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){linaCheckNotifications();linaMaybeOpenDailyCheckin();}});
+window.addEventListener("focus",()=>{linaCheckNotifications();linaMaybeOpenDailyCheckin();});
+
+setupNavigation();
+setupSwipeBack();
+linaStartNotificationChecks();
+
+
+if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("message",event=>{if(event.data?.type==="LINAHUB_ROUTE")go(event.data.route||"home")});}
+
+if("serviceWorker" in navigator){
+  window.addEventListener("load",async()=>{
+    try{
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1747",{updateViaCache:"none"});
+      await registration.update();
+      let refreshed=false;
+      navigator.serviceWorker.addEventListener("controllerchange",()=>{
+        if(refreshed) return;
+        refreshed=true;
+        window.location.reload();
+      });
+    }catch{}
+  });
+}
+
+// Restore all IndexedDB images before the first render. Previously LinaHub
+// rendered blank image fields first and only hydrated afterwards, allowing a
+// refresh/cloud re-render to wipe a banner that had just appeared.
+(async()=>{
+  try{await hydrateLinaMedia();}catch(error){console.error("Could not restore saved images",error);}
+  render();
+})();
+
+/* LinaHub 17.2.6 — format decimal sleep duration as hours and minutes */
+(function(){
+  function formatSleepHours(value){
+    const decimal=Number(value);
+    if(!Number.isFinite(decimal)||decimal<0)return null;
+    let totalMinutes=Math.round(decimal*60);
+    const hours=Math.floor(totalMinutes/60);
+    const minutes=totalMinutes%60;
+    return `${hours}h ${minutes}m`;
+  }
+
+  function fixSleepDurationDisplay(root=document){
+    const nodes=root.querySelectorAll ? root.querySelectorAll('*') : [];
+    nodes.forEach((node)=>{
+      if(node.children.length) return;
+      const text=(node.textContent||'').trim();
+      const match=text.match(/^(-?\d+(?:\.\d+)?)h$/i);
+      if(!match) return;
+      const card=node.closest('.stat,.card,[class*="sleep"],[class*="summary"],button,li,section,div');
+      if(!card || !/sleep/i.test(card.textContent||'')) return;
+      const formatted=formatSleepHours(match[1]);
+      if(formatted && formatted!==text) node.textContent=formatted;
+    });
+  }
+
+  const run=()=>fixSleepDurationDisplay(document);
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded',run,{once:true});
+  else run();
+  new MutationObserver(run).observe(document.documentElement,{subtree:true,childList:true,characterData:true});
+})();

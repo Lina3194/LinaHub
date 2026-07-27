@@ -1,4 +1,4 @@
-/* LinaHub 17.4.2 — one reliable image pipeline for all uploads. */
+/* LinaHub 17.4.4 — one reliable image pipeline for all uploads. */
 (function(){
   "use strict";
   const DB_NAME="linahub-media";

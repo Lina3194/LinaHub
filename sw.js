@@ -1,9 +1,9 @@
-const BUILD_VERSION = 'linahub-v17.4.6';
-const CACHE='linahub-v17-4-4';
+const BUILD_VERSION = 'linahub-v17.4.6-plants-click-fix';
+const CACHE='linahub-v17-4-6-plants-click-fix';
 const ASSETS=[
 "./",
 "./index.html",
-"./app.js?v=1746",
+"./app.js?v=1746plants",
 "./core/media.js?v=1746",
 "./core/data.js?v=1746",
 "./pages/simple.js?v=1746",

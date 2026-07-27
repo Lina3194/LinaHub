@@ -170,50 +170,8 @@ function AquariumTankPage(){const tank=(data.aquariums||[]).find(x=>x.id===route
   <section class="aquarium-history-grid">${jobs.map(([key,label,icon])=>`<details class="card maintenance-history"><summary><span>${icon} ${label} history</span><b>${m.history[key].length}</b></summary><div>${lina17DateList(m.history[key]).length?lina17DateList(m.history[key]).map(date=>`<div class="history-date-row"><span>${formatDate(date)}</span><button class="mini danger" data-delete-maintenance="${key}" data-date="${date}">×</button></div>`).join(""):"<p class='muted-copy'>No history yet.</p>"}</div></details>`).join("")}</section>`,"pets")}
 function bindAquariums(){const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return;const m=lina17Maintenance(tank);document.querySelector("#saveTankTemperature")?.addEventListener("click",()=>{const input=document.querySelector("#tankTemperature");const value=String(input?.value??"").trim();if(value===""){toast("Enter a temperature first");input?.focus();return}const number=Number(value);if(!Number.isFinite(number)||number<0||number>50){toast("Enter a temperature between 0 and 50°C");input?.focus();return}tank.temperature=number.toFixed(1).replace(/\.0$/,"");tank.temperatureUpdated=new Date().toISOString();saveData();toast(`Temperature saved: ${tank.temperature}°C`);render()});document.querySelector("#tankTemperature")?.addEventListener("keydown",event=>{if(event.key==="Enter")document.querySelector("#saveTankTemperature")?.click()});document.querySelector("#addFeed")?.addEventListener("click",()=>{const note=document.querySelector("#feedName")?.value.trim()||"Fed",date=document.querySelector("#feedDate")?.value||today(),time=document.querySelector("#feedTime")?.value||"";if(date>today()){toast("Choose today or an earlier date");return}tank.feeds=tank.feeds||[];tank.feeds.push({id:`feed-${Date.now()}`,food:note,date,time,createdAt:lina17FeedTimestamp(date,time)});saveData();toast("Feed logged 🍽️");render()});document.querySelectorAll("[data-delete-feed]").forEach(b=>b.onclick=()=>{tank.feeds.splice(Number(b.dataset.deleteFeed),1);saveData();render()});document.querySelectorAll("[data-save-maintenance]").forEach(b=>b.onclick=()=>{const key=b.dataset.saveMaintenance,date=document.querySelector(`[data-maintenance-date='${key}']`).value||today();m[key]=date;if(!m.history[key].includes(date))m.history[key].push(date);saveData();toast("Maintenance logged");render()});document.querySelectorAll("[data-delete-maintenance]").forEach(b=>b.onclick=()=>{const a=m.history[b.dataset.deleteMaintenance];m.history[b.dataset.deleteMaintenance]=a.filter(x=>x!==b.dataset.date);saveData();render()})}
 
-function lina17PlantLight(plant){
-  if(plant.light)return plant.light;
-  const n=String(plant.name||"").toLowerCase();
-  if(n.includes("lemon")||n.includes("basil")||n.includes("oregano")||n.includes("nemesia"))return "Bright light / some sun";
-  if(n.includes("orchid")||n.includes("spider")||n.includes("prayer"))return "Bright indirect light";
-  return "Check care guide";
-}
-
-function lina17PlantWateringCycle(plant){
-  const direct=Number(plant?.wateringDays);
-  if(Number.isFinite(direct)&&direct>0)return direct;
-  try{
-    const guide=typeof encyclopediaEntry==="function"?encyclopediaEntry(plant?.guideId||plant?.id,plant?.name):null;
-    const guided=Number(guide?.wateringDays);
-    if(Number.isFinite(guided)&&guided>0)return guided;
-  }catch{}
-  return 7;
-}
-function lina17PlantWaterStatus(plant){
-  if(!plant.lastWatered)return "Watering not logged";
-  const cycle=lina17PlantWateringCycle(plant);
-  const due=new Date(`${plant.lastWatered}T12:00:00`);due.setDate(due.getDate()+cycle);
-  const diff=lina17DaysBetween(today(),due.toISOString().slice(0,10));
-  if(diff===0)return "Water today";
-  if(diff===1)return "Water tomorrow";
-  if(diff>1)return `Water in ${diff} days`;
-  return `Water overdue by ${Math.abs(diff)} day${Math.abs(diff)===1?"":"s"}`;
-}
-function lina17PlantStatusClass(plant){
-  if(!plant.lastWatered)return "status-neutral";
-  const cycle=lina17PlantWateringCycle(plant);
-  const due=new Date(`${plant.lastWatered}T12:00:00`);due.setDate(due.getDate()+cycle);
-  const diff=lina17DaysBetween(today(),due.toISOString().slice(0,10));
-  return diff<0?"status-overdue":diff<=1?"status-soon":"status-good";
-}
-function PlantsPage(){
-  return shell(`${head("Plants","Care for your green babies")}
-    <div class="plant-dashboard-list">${(data.plants||[]).map(plant=>`<button class="card plant-dashboard-card ${lina17PlantStatusClass(plant)}" data-route="plant" data-route-id="${esc(plant.id)}">
-      <span class="plant-dashboard-photo">${plant.photo?`<img src="${plant.photo}" alt="${esc(plant.name)}">`:`<span>${plant.emoji||"🌿"}</span>`}</span>
-      <span class="plant-dashboard-copy"><strong>${esc(plant.name)}</strong><small>💧 ${esc(lina17PlantWaterStatus(plant))}</small><small>☀️ ${esc(lina17PlantLight(plant))}</small><small>🌱 ${plant.lastFed?`Last fed ${formatDate(plant.lastFed)}`:"Feeding not logged"}</small><small>📷 ${plant.photo?"Photo added":"Add photo"}</small></span><b>›</b>
-    </button>`).join("")}</div>`,"plants");
-}
-
-
+/* Plants page and plant profiles are provided by pages/plants.js.
+   Do not redefine them here: doing so overrides the working click/navigation code. */
 function lina17InsertStandardBanner(key,src,routeAtRequest){
   if(!src||route!==routeAtRequest)return;
   const app=document.querySelector("#app");
@@ -699,7 +657,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1746",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1746plants",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

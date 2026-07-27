@@ -206,31 +206,60 @@ function lina17PlantStatusClass(plant){
   return diff<0?"status-overdue":diff<=1?"status-soon":"status-good";
 }
 function PlantsPage(){
-  const gardenBanner=data.moduleBanners?.plants||"";
   return shell(`${head("Plants","Care for your green babies")}
-    ${gardenBanner?`<section class="module-banner plants-module-banner" aria-label="Plants banner"><img src="${gardenBanner}" alt="Garden banner"></section>`:""}
-    <div class="plant-dashboard-list">${(data.plants||[]).map(plant=>`<button type="button" class="card plant-dashboard-card ${lina17PlantStatusClass(plant)}" data-route="plant" data-route-id="${esc(plant.id)}">
+    <div class="plant-dashboard-list">${(data.plants||[]).map(plant=>`<button class="card plant-dashboard-card ${lina17PlantStatusClass(plant)}" data-route="plant" data-route-id="${esc(plant.id)}">
       <span class="plant-dashboard-photo">${plant.photo?`<img src="${plant.photo}" alt="${esc(plant.name)}">`:`<span>${plant.emoji||"🌿"}</span>`}</span>
       <span class="plant-dashboard-copy"><strong>${esc(plant.name)}</strong><small>💧 ${esc(lina17PlantWaterStatus(plant))}</small><small>☀️ ${esc(lina17PlantLight(plant))}</small><small>🌱 ${plant.lastFed?`Last fed ${formatDate(plant.lastFed)}`:"Feeding not logged"}</small><small>📷 ${plant.photo?"Photo added":"Add photo"}</small></span><b>›</b>
     </button>`).join("")}</div>`,"plants");
 }
 
-function lina17InsertPlantsBanner(){
-  if(route!=="plants") return;
-  const banner=data.moduleBanners?.plants||"";
-  if(!banner) return;
-  const page=document.querySelector("#app .page");
-  const header=page?.querySelector(".page-head");
-  if(!page||!header||page.querySelector(".plants-module-banner")) return;
-  const section=document.createElement("section");
-  section.className="module-banner plants-module-banner";
-  section.setAttribute("aria-label","Plants banner");
-  const img=document.createElement("img");
-  img.src=banner;
-  img.alt="Garden banner";
-  img.addEventListener("error",()=>section.remove(),{once:true});
-  section.appendChild(img);
-  header.insertAdjacentElement("afterend",section);
+
+function lina17InsertStandardBanner(key,src,routeAtRequest){
+  if(!src||route!==routeAtRequest)return;
+  const app=document.querySelector("#app");
+  if(!app||app.querySelector(".module-banner"))return;
+  const header=app.querySelector(".page-head");
+  if(!header)return;
+  const banner=document.createElement("section");
+  banner.className="module-banner";
+  banner.setAttribute("aria-label",`${key} banner`);
+  const image=document.createElement("img");
+  image.src=src;
+  image.alt="";
+  image.addEventListener("error",()=>{
+    banner.remove();
+    toast("The saved banner could not be displayed. Please choose the image again.");
+  },{once:true});
+  banner.appendChild(image);
+  header.insertAdjacentElement("afterend",banner);
+}
+
+function lina17StandardBanner(routeName){
+  const keyMap={
+    journal:"journal",today:"today",todo:"todo",plants:"plants",plant:"plants",
+    medication:"medication",pokemon:"pokemon",pets:"pets",tank:"pets",house:"house",
+    period:"period",treasures:"treasures"
+  };
+  const key=keyMap[routeName];
+  if(!key)return;
+  const routeAtRequest=route;
+  const src=data.moduleBanners?.[key]||"";
+  if(src){
+    lina17InsertStandardBanner(key,src,routeAtRequest);
+    return;
+  }
+
+  // The main JSON deliberately does not contain image data. Always fall back to
+  // IndexedDB here as well, so a refresh, cloud sync or later re-render cannot
+  // temporarily replace a saved banner with an empty value.
+  if(window.LinaImage){
+    LinaImage.load(`banner:${key}`).then(saved=>{
+      if(!saved)return;
+      data.moduleBanners=data.moduleBanners||{};
+      data.moduleBanners[key]=saved;
+      lina17InsertStandardBanner(key,saved,routeAtRequest);
+    }).catch(()=>{});
+  }
 }
 
 function lina17HeaderIllustration(routeName){
@@ -299,7 +328,6 @@ function render(){
 
   const pageFactory=pages[route]||HomePage;
   document.querySelector("#app").innerHTML=pageFactory();
-  lina17InsertPlantsBanner();
 
   // LinaHub 17.0.7: Household must never show the Shopping promo/card.
   if(route==="house"){
@@ -311,6 +339,7 @@ function render(){
       }
     });
   }
+  lina17StandardBanner(route);
   lina17HeaderIllustration(route);
 
   const atmosphere=document.createElement("div");
@@ -670,7 +699,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=17410",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1746",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{
@@ -682,6 +711,9 @@ if("serviceWorker" in navigator){
   });
 }
 
+// Restore all IndexedDB images before the first render. Previously LinaHub
+// rendered blank image fields first and only hydrated afterwards, allowing a
+// refresh/cloud re-render to wipe a banner that had just appeared.
 (async()=>{
   try{await hydrateLinaMedia();}catch(error){console.error("Could not restore saved images",error);}
   render();

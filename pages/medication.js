@@ -194,21 +194,8 @@ function MedicationPage(){
       <button class="${tab==="stock"?"active":""}" data-med-tab="stock">▣<small>Stock</small></button>
     </nav>`,"medication");
 }
-function medCompressPhoto(file){
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onerror=()=>reject(new Error("Could not read photo"));
-    reader.onload=()=>{
-      const img=new Image();
-      img.onerror=()=>reject(new Error("Could not open photo"));
-      img.onload=()=>{
-        const max=420,scale=Math.min(1,max/Math.max(img.width,img.height));
-        const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));
-        canvas.getContext("2d").drawImage(img,0,0,canvas.width,canvas.height);
-        resolve(canvas.toDataURL("image/jpeg",.78));
-      };img.src=reader.result;
-    };reader.readAsDataURL(file);
-  });
+async function medCompressPhoto(file){
+  return LinaImage.process(file,{width:420,height:420,fit:"contain",quality:.78,allowUpscale:false});
 }
 function medFillForm(m){
   document.querySelector("#medEditId").value=m.id;
@@ -315,7 +302,7 @@ function bindMedication(){
   document.querySelector("#medScheduleType")?.addEventListener("change",e=>document.querySelector("#medWeekdays").classList.toggle("hidden",e.target.value!=="weekdays"));
   document.querySelector("#medPhotoInput")?.addEventListener("change",async e=>{
     const file=e.target.files?.[0];if(!file)return;
-    try{const photo=await medCompressPhoto(file);document.querySelector("#medPhotoData").value=photo;document.querySelector("#medPhotoPreview").innerHTML=`<img src="${photo}" alt="Medication preview">`;document.querySelector("#removeMedPhoto").classList.remove("hidden")}catch{toast("That photo could not be added")}
+    try{const photo=await medCompressPhoto(file);document.querySelector("#medPhotoData").value=photo;document.querySelector("#medPhotoPreview").innerHTML=`<img src="${photo}" alt="Medication preview">`;document.querySelector("#removeMedPhoto").classList.remove("hidden")}catch(error){toast(LinaImage.friendlyError(error))}
   });
   document.querySelector("#removeMedPhoto")?.addEventListener("click",()=>{document.querySelector("#medPhotoData").value="";document.querySelector("#medPhotoPreview").textContent="💊";document.querySelector("#removeMedPhoto").classList.add("hidden")});
   document.querySelector("#saveMedication")?.addEventListener("click",()=>{

@@ -1,90 +1,20 @@
 
 const STORAGE_KEY="linahub-data";
-// LinaHub 17.4.0 — store every tile picture and banner separately from localStorage.
-const LINAHUB_MEDIA_DB="linahub-media";
-const LINAHUB_MEDIA_STORE="images";
-function openLinaMediaDb(){
-  return new Promise((resolve,reject)=>{
-    if(!("indexedDB" in window)){reject(new Error("IndexedDB unavailable"));return}
-    const request=indexedDB.open(LINAHUB_MEDIA_DB,1);
-    request.onupgradeneeded=()=>{
-      const db=request.result;
-      if(!db.objectStoreNames.contains(LINAHUB_MEDIA_STORE)) db.createObjectStore(LINAHUB_MEDIA_STORE);
-    };
-    request.onsuccess=()=>resolve(request.result);
-    request.onerror=()=>reject(request.error||new Error("Could not open image storage"));
-  });
-}
-async function saveLinaImage(key,value){
-  const db=await openLinaMediaDb();
-  return new Promise((resolve,reject)=>{
-    const tx=db.transaction(LINAHUB_MEDIA_STORE,"readwrite");
-    tx.objectStore(LINAHUB_MEDIA_STORE).put(value,key);
-    tx.oncomplete=()=>{db.close();resolve(true)};
-    tx.onerror=()=>{db.close();reject(tx.error||new Error("Could not save image"))};
-  });
-}
-async function loadLinaImage(key){
-  try{
-    const db=await openLinaMediaDb();
-    return await new Promise((resolve,reject)=>{
-      const tx=db.transaction(LINAHUB_MEDIA_STORE,"readonly");
-      const request=tx.objectStore(LINAHUB_MEDIA_STORE).get(key);
-      request.onsuccess=()=>resolve(request.result||"");
-      request.onerror=()=>reject(request.error);
-      tx.oncomplete=()=>db.close();
-    });
-  }catch{return ""}
-}
-async function deleteLinaImage(key){
-  try{
-    const db=await openLinaMediaDb();
-    return await new Promise((resolve,reject)=>{
-      const tx=db.transaction(LINAHUB_MEDIA_STORE,"readwrite");
-      tx.objectStore(LINAHUB_MEDIA_STORE).delete(key);
-      tx.oncomplete=()=>{db.close();resolve(true)};
-      tx.onerror=()=>{db.close();reject(tx.error)};
-    });
-  }catch{return false}
-}
+// LinaHub 17.4.2 — shared image storage wrappers (same IndexedDB database/store as before).
+async function saveLinaImage(key,value){return LinaImage.save(key,value)}
+async function loadLinaImage(key){try{return await LinaImage.load(key)}catch{return ""}}
+async function deleteLinaImage(key){try{return await LinaImage.remove(key)}catch{return false}}
 async function hydrateLinaMedia(){
   data.homeImages=data.homeImages||{};
   data.moduleBanners=data.moduleBanners||{};
   let changed=false;
-
-  // First migrate any older pictures that are still embedded in localStorage.
-  for(const [key,value] of Object.entries(data.homeImages)){
-    if(/^data:image\//.test(value||"")){
-      try{await saveLinaImage(`tab:${key}`,value)}catch{}
-    }
-  }
-  for(const [key,value] of Object.entries(data.moduleBanners)){
-    if(/^data:image\//.test(value||"")){
-      try{await saveLinaImage(`banner:${key}`,value)}catch{}
-    }
-  }
-
-  const tabKeys=[
-    "home","today","todo","shopping","settings","journal","plants","pokemon","pets","house","budget","treasures","journey",
-    "sleep","medication","period","weight","measurements","shoppingFridge","shoppingFreezer","shoppingPantry","shoppingCleaning","shoppingToiletries",
-    "rooms","inventory","girlsTank","boysTank","aquariumMaintenance","bills","savings","income","expenses"
-  ];
+  for(const [key,value] of Object.entries(data.homeImages)){if(/^data:image\//.test(value||"")){try{await saveLinaImage(`tab:${key}`,value)}catch{}}}
+  for(const [key,value] of Object.entries(data.moduleBanners)){if(/^data:image\//.test(value||"")){try{await saveLinaImage(`banner:${key}`,value)}catch{}}}
+  const tabKeys=["home","today","todo","shopping","settings","journal","plants","pokemon","pets","house","budget","treasures","journey","sleep","medication","period","weight","measurements","shoppingFridge","shoppingFreezer","shoppingPantry","shoppingCleaning","shoppingToiletries","rooms","inventory","girlsTank","boysTank","aquariumMaintenance","bills","savings","income","expenses"];
   const bannerKeys=["journal","today","todo","plants","medication","pokemon","pets","house","period","treasures"];
-
-  for(const key of tabKeys){
-    const saved=await loadLinaImage(`tab:${key}`);
-    if(saved && data.homeImages[key]!==saved){data.homeImages[key]=saved;changed=true}
-  }
-  for(const key of bannerKeys){
-    const saved=await loadLinaImage(`banner:${key}`);
-    if(saved && data.moduleBanners[key]!==saved){data.moduleBanners[key]=saved;changed=true}
-  }
-
-  for(const [tabKey,tankId] of [["girlsTank","girls-tank"],["boysTank","boys-tank"]]){
-    const saved=data.homeImages[tabKey]||"";
-    const tank=(data.aquariums||[]).find(item=>item.id===tankId);
-    if(tank && tank.photo!==saved){tank.photo=saved;changed=true}
-  }
+  for(const key of tabKeys){const saved=await loadLinaImage(`tab:${key}`);if(saved&&data.homeImages[key]!==saved){data.homeImages[key]=saved;changed=true}}
+  for(const key of bannerKeys){const saved=await loadLinaImage(`banner:${key}`);if(saved&&data.moduleBanners[key]!==saved){data.moduleBanners[key]=saved;changed=true}}
+  for(const [tabKey,tankId] of [["girlsTank","girls-tank"],["boysTank","boys-tank"]]){const saved=data.homeImages[tabKey]||"";const tank=(data.aquariums||[]).find(item=>item.id===tankId);if(tank&&tank.photo!==saved){tank.photo=saved;changed=true}}
   return changed;
 }
 

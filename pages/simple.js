@@ -201,194 +201,99 @@ function bindSimple(){
   }
 
 
-  function resizeTabImage(file){
-    return new Promise((resolve,reject)=>{
-      const reader=new FileReader();
-      reader.onerror=()=>reject(new Error("Could not read image"));
-      reader.onload=()=>{
-        const img=new Image();
-        img.onerror=()=>reject(new Error("Could not open image"));
-        img.onload=()=>{
-          const size=420;
-          const scale=Math.max(size/img.width,size/img.height);
-          const width=img.width*scale,height=img.height*scale;
-          const canvas=document.createElement("canvas");
-          canvas.width=size;canvas.height=size;
-          const ctx=canvas.getContext("2d");
-          ctx.drawImage(img,(size-width)/2,(size-height)/2,width,height);
-          resolve(canvas.toDataURL("image/jpeg",0.86));
-        };
-        img.src=reader.result;
-      };
-      reader.readAsDataURL(file);
-    });
+  function imageErrorMessage(error){
+    return window.LinaImage?.friendlyError?.(error)||"That image could not be saved. Please try again.";
   }
 
+  function updateImageSettingCard(input,value,type){
+    const isBanner=type==="banner";
+    const card=input.closest(isBanner?".banner-art-setting":".tab-art-setting");
+    const key=isBanner?input.dataset.bannerImage:input.dataset.tabImage;
+    const preview=card?.querySelector(isBanner?".banner-art-preview":".tab-art-preview");
+    const pick=card?.querySelector(isBanner?`[data-pick-banner-image="${key}"]`:`[data-pick-tab-image="${key}"]`);
+    if(preview) preview.innerHTML=`<img src="${value}" alt="">`;
+    if(pick) pick.textContent="Change";
+  }
 
-  document.querySelectorAll("[data-pick-tab-image]").forEach(button=>{
-    button.onclick=()=>{
-      rememberSettingsPosition();rememberOpenAccordions();
-      const input=document.querySelector(`[data-tab-image="${button.dataset.pickTabImage}"]`);
-      if(input){
-        input.value="";
-        input.click();
-      }
-    };
-  });
-
-  document.querySelectorAll("[data-tab-image]").forEach(input=>{
-    input.onchange=async e=>{
-      const file=e.target.files?.[0];
-      if(!file) return;
-      if(!file.type.startsWith("image/")){toast("Choose an image file");return}
+  function bindRemoveImageButton(button,type){
+    button.onclick=async()=>{
+      const isBanner=type==="banner";
+      const key=isBanner?button.dataset.removeBannerImage:button.dataset.removeTabImage;
       try{
-        data.homeImages=data.homeImages||{};
-        const resizedImage=await resizeTabImage(file);
-        data.homeImages[input.dataset.tabImage]=resizedImage;
-        await saveLinaImage(`tab:${input.dataset.tabImage}`,resizedImage);
-        if(input.dataset.tabImage==="girlsTank"||input.dataset.tabImage==="boysTank"){
-          const tankId=input.dataset.tabImage==="girlsTank"?"girls-tank":"boys-tank";
-          const tank=(data.aquariums||[]).find(item=>item.id===tankId);
-          if(tank) tank.photo=resizedImage;
+        await LinaImage.remove(`${isBanner?"banner":"tab"}:${key}`);
+        if(isBanner) delete data.moduleBanners?.[key]; else delete data.homeImages?.[key];
+        if(!isBanner&&(key==="girlsTank"||key==="boysTank")){
+          const tank=(data.aquariums||[]).find(item=>item.id===(key==="girlsTank"?"girls-tank":"boys-tank"));
+          if(tank) tank.photo="";
         }
+        saveData();
+        const card=button.closest(isBanner?".banner-art-setting":".tab-art-setting");
+        const preview=card?.querySelector(isBanner?".banner-art-preview":".tab-art-preview");
+        if(preview) preview.innerHTML=`<span>${esc(data.homeIcons?.[key]||data.moduleIcons?.[key]||"✨")}</span>`;
+        const pick=card?.querySelector(isBanner?`[data-pick-banner-image="${key}"]`:`[data-pick-tab-image="${key}"]`);
+        if(pick) pick.textContent=isBanner?"Add":"Add image";
+        button.remove();toast(isBanner?"Banner removed":"Picture removed");
+      }catch(error){toast(imageErrorMessage(error));}
+    };
+  }
+
+  function addRemoveButton(input,type){
+    const isBanner=type==="banner";
+    const card=input.closest(isBanner?".banner-art-setting":".tab-art-setting");
+    const key=isBanner?input.dataset.bannerImage:input.dataset.tabImage;
+    const selector=isBanner?`[data-remove-banner-image="${key}"]`:`[data-remove-tab-image="${key}"]`;
+    if(!card||card.querySelector(selector)) return;
+    const remove=document.createElement("button");
+    remove.type="button";remove.className="mini danger";
+    if(isBanner){remove.dataset.removeBannerImage=key;remove.textContent="×";remove.setAttribute("aria-label","Remove banner");}
+    else{remove.dataset.removeTabImage=key;remove.textContent="Remove";}
+    card.querySelector(isBanner?".banner-art-actions":".tab-art-actions")?.appendChild(remove);
+    bindRemoveImageButton(remove,type);
+  }
+
+  function bindUniversalImagePicker(type){
+    const isBanner=type==="banner";
+    const pickSelector=isBanner?"[data-pick-banner-image]":"[data-pick-tab-image]";
+    const inputSelector=isBanner?"[data-banner-image]":"[data-tab-image]";
+    document.querySelectorAll(pickSelector).forEach(button=>{
+      button.onclick=()=>{
+        rememberSettingsPosition();rememberOpenAccordions();
+        const key=isBanner?button.dataset.pickBannerImage:button.dataset.pickTabImage;
+        const input=document.querySelector(isBanner?`[data-banner-image="${key}"]`:`[data-tab-image="${key}"]`);
+        if(input){input.value="";input.click();}
+      };
+    });
+    document.querySelectorAll(inputSelector).forEach(input=>{
+      input.onchange=async event=>{
+        const file=event.target.files?.[0];if(!file)return;
+        const key=isBanner?input.dataset.bannerImage:input.dataset.tabImage;
+        const previous=isBanner?data.moduleBanners?.[key]:data.homeImages?.[key];
         try{
+          const value=await LinaImage.upload({file,key:`${isBanner?"banner":"tab"}:${key}`,width:isBanner?1400:420,height:isBanner?560:420,fit:"cover",quality:isBanner?.84:.82});
+          if(isBanner){data.moduleBanners=data.moduleBanners||{};data.moduleBanners[key]=value;}
+          else{
+            data.homeImages=data.homeImages||{};data.homeImages[key]=value;
+            if(key==="girlsTank"||key==="boysTank"){
+              const tank=(data.aquariums||[]).find(item=>item.id===(key==="girlsTank"?"girls-tank":"boys-tank"));
+              if(tank) tank.photo=value;
+            }
+          }
           if(!saveData()) throw new Error("Could not save app data");
-          toast("Tab picture added 🌸");rememberSettingsPosition();rememberOpenAccordions();
-          const card=input.closest(".tab-art-setting");
-          const preview=card?.querySelector(".tab-art-preview");
-          if(preview) preview.innerHTML=`<img src="${data.homeImages[input.dataset.tabImage]}" alt="">`;
-          const changeButton=card?.querySelector(`[data-pick-tab-image="${input.dataset.tabImage}"]`);
-          if(changeButton) changeButton.textContent="Change";
-          if(card&&!card.querySelector(`[data-remove-tab-image="${input.dataset.tabImage}"]`)){
-            const remove=document.createElement("button");remove.type="button";remove.className="mini danger";remove.dataset.removeTabImage=input.dataset.tabImage;remove.textContent="Remove";
-            card.querySelector(".tab-art-actions")?.appendChild(remove);
-            remove.addEventListener("click",()=>{
-              const key=input.dataset.tabImage;
-              delete data.homeImages[key];
-              deleteLinaImage(`tab:${key}`);
-              if(key==="girlsTank"||key==="boysTank"){
-                const tankId=key==="girlsTank"?"girls-tank":"boys-tank";
-                const tank=(data.aquariums||[]).find(item=>item.id===tankId);
-                if(tank) tank.photo="";
-              }
-              saveData();
-              if(preview) preview.innerHTML=`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`;
-              if(changeButton) changeButton.textContent="Add image";
-              remove.remove();toast("Picture removed");
-            });
-          }
+          updateImageSettingCard(input,value,type);addRemoveButton(input,type);
+          rememberSettingsPosition();rememberOpenAccordions();
+          toast(isBanner?"Banner picture saved 🌙":"Tab picture saved 🌸");
         }catch(error){
-          delete data.homeImages[input.dataset.tabImage];
-          toast("Storage is full — remove an older picture first");
-        }
-      }catch(error){toast("That picture could not be added")}
-    };
-  });
-  document.querySelectorAll("[data-remove-tab-image]").forEach(button=>{
-    button.onclick=()=>{
-      if(data.homeImages) delete data.homeImages[button.dataset.removeTabImage];
-      deleteLinaImage(`tab:${button.dataset.removeTabImage}`);
-      if(button.dataset.removeTabImage==="girlsTank"||button.dataset.removeTabImage==="boysTank"){
-        const tankId=button.dataset.removeTabImage==="girlsTank"?"girls-tank":"boys-tank";
-        const tank=(data.aquariums||[]).find(item=>item.id===tankId);
-        if(tank) tank.photo="";
-      }
-      saveData();
-      const card=button.closest(".tab-art-setting");
-      const preview=card?.querySelector(".tab-art-preview");
-      if(preview) preview.innerHTML=`<span>${esc(data.homeIcons?.[button.dataset.removeTabImage]||"✨")}</span>`;
-      const changeButton=card?.querySelector(`[data-pick-tab-image="${button.dataset.removeTabImage}"]`);
-      if(changeButton) changeButton.textContent="Add image";
-      button.remove();toast("Picture removed");
-    };
-  });
-
-
-  function resizeBannerImage(file){
-    return new Promise((resolve,reject)=>{
-      const reader=new FileReader();
-      reader.onerror=()=>reject(new Error("Could not read image"));
-      reader.onload=()=>{
-        const img=new Image();
-        img.onerror=()=>reject(new Error("Could not open image"));
-        img.onload=()=>{
-          const width=1400,height=560;
-          const scale=Math.max(width/img.width,height/img.height);
-          const drawW=img.width*scale,drawH=img.height*scale;
-          const canvas=document.createElement("canvas");
-          canvas.width=width;canvas.height=height;
-          const ctx=canvas.getContext("2d");
-          ctx.drawImage(img,(width-drawW)/2,(height-drawH)/2,drawW,drawH);
-          resolve(canvas.toDataURL("image/jpeg",0.86));
-        };
-        img.src=reader.result;
+          if(isBanner){data.moduleBanners=data.moduleBanners||{};if(previous)data.moduleBanners[key]=previous;else delete data.moduleBanners[key];}
+          else{data.homeImages=data.homeImages||{};if(previous)data.homeImages[key]=previous;else delete data.homeImages[key];}
+          toast(imageErrorMessage(error));
+        }finally{input.value="";}
       };
-      reader.readAsDataURL(file);
     });
+    document.querySelectorAll(isBanner?"[data-remove-banner-image]":"[data-remove-tab-image]").forEach(button=>bindRemoveImageButton(button,type));
   }
 
-
-  document.querySelectorAll("[data-pick-banner-image]").forEach(button=>{
-    button.onclick=()=>{
-      rememberSettingsPosition();rememberOpenAccordions();
-      const input=document.querySelector(`[data-banner-image="${button.dataset.pickBannerImage}"]`);
-      if(input){
-        input.value="";
-        input.click();
-      }
-    };
-  });
-
-  document.querySelectorAll("[data-banner-image]").forEach(input=>{
-    input.onchange=async e=>{
-      const file=e.target.files?.[0];
-      if(!file) return;
-      if(!file.type.startsWith("image/")){toast("Choose an image file");return}
-      try{
-        data.moduleBanners=data.moduleBanners||{};
-        data.moduleBanners[input.dataset.bannerImage]=await resizeBannerImage(file);
-        await saveLinaImage(`banner:${input.dataset.bannerImage}`,data.moduleBanners[input.dataset.bannerImage]);
-        try{
-          saveData();
-          toast("Banner picture added 🌙");rememberSettingsPosition();rememberOpenAccordions();
-          const card=input.closest(".banner-art-setting");
-          const preview=card?.querySelector(".banner-art-preview");
-          const changeButton=card?.querySelector(`[data-pick-banner-image="${input.dataset.bannerImage}"]`);
-          if(preview) preview.innerHTML=`<img src="${data.moduleBanners[input.dataset.bannerImage]}" alt="">`;
-          if(changeButton) changeButton.textContent="Change";
-          if(card&&!card.querySelector(`[data-remove-banner-image="${input.dataset.bannerImage}"]`)){
-            const remove=document.createElement("button");
-            remove.type="button";remove.className="mini danger";remove.dataset.removeBannerImage=input.dataset.bannerImage;remove.textContent="×";
-            remove.setAttribute("aria-label","Remove banner");
-            card.querySelector(".banner-art-actions")?.appendChild(remove);
-            remove.addEventListener("click",()=>{
-              const key=input.dataset.bannerImage;
-              delete data.moduleBanners[key];deleteLinaImage(`banner:${key}`);saveData();
-              if(preview) preview.innerHTML=`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`;
-              if(changeButton) changeButton.textContent="Add";
-              remove.remove();toast("Banner removed");
-            });
-          }
-        }catch(error){
-          delete data.moduleBanners[input.dataset.bannerImage];
-          toast("Storage is full — remove an older picture first");
-        }
-      }catch(error){toast("That banner could not be added")}
-    };
-  });
-  document.querySelectorAll("[data-remove-banner-image]").forEach(button=>{
-    button.onclick=()=>{
-      if(data.moduleBanners) delete data.moduleBanners[button.dataset.removeBannerImage];
-      deleteLinaImage(`banner:${button.dataset.removeBannerImage}`);
-      saveData();
-      const card=button.closest(".banner-art-setting");
-      const preview=card?.querySelector(".banner-art-preview");
-      if(preview) preview.innerHTML=`<span>${esc(data.homeIcons?.[button.dataset.removeBannerImage]||"✨")}</span>`;
-      const changeButton=card?.querySelector(`[data-pick-banner-image="${button.dataset.removeBannerImage}"]`);
-      if(changeButton) changeButton.textContent="Add";
-      button.remove();toast("Banner removed");
-    };
-  });
+  bindUniversalImagePicker("tab");
+  bindUniversalImagePicker("banner");
 
   const exp=document.querySelector("#exportData");
   if(exp) exp.onclick=()=>{

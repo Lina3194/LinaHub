@@ -83,7 +83,7 @@ function encyclopediaCard(g,owned){return `<article class="encyclopedia-card">
 
 function PlantTile(p){
   const s=plantStatus(p);
-  return `<article class="plant-tile" data-plant-name="${esc(p.name.toLowerCase())}" data-plant-id="${esc(p.id)}">
+  return `<article class="plant-tile" data-plant-name="${esc(p.name.toLowerCase())}" data-plant-id="${esc(p.id)}" data-open-plant="${esc(p.id)}" role="button" tabindex="0">
     <button type="button" class="plant-tile-open" data-route="plant" data-route-id="${esc(p.id)}" aria-label="Open ${esc(p.name)}">
       <div class="plant-tile-art">${plantPhotoSrc(p)?`<img src="${plantPhotoSrc(p)}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div>
       <div class="plant-tile-copy"><h2>${esc(p.name)}</h2><p>${p.lastWatered?`Watered ${esc(formatDate(p.lastWatered))}`:"Not watered yet"}</p><em class="status-chip ${s.className}">${s.icon} ${s.text}</em></div>
@@ -144,6 +144,16 @@ function addEncyclopediaPlant(id){const g=PLANT_ENCYCLOPEDIA.find(x=>x.id===id);
 function bindPlants(){
   // Plant cards use a direct handler so opening a profile does not depend on
   // delegated document clicks (not consistently fired by some mobile PWAs).
+  document.querySelectorAll(".plant-tile[data-open-plant]").forEach(tile=>{
+    const open=event=>{
+      if(event.target.closest("[data-water-now],[data-plant-menu],[data-plant-action]")) return;
+      event.preventDefault();
+      event.stopPropagation();
+      go("plant",tile.dataset.openPlant||"");
+    };
+    tile.onclick=open;
+    tile.onkeydown=event=>{if(event.key==="Enter"||event.key===" ") open(event)};
+  });
   document.querySelectorAll(".plant-tile-open[data-route='plant']").forEach(button=>{
     button.onclick=event=>{
       event.preventDefault();

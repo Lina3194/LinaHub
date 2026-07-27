@@ -157,7 +157,7 @@ function homeTile(item,editing){
       <div class="module module-${item.id}">${content}<button type="button" class="home-tile-edit-button" data-edit-home-tile="${item.id}">✎ Edit</button></div>
     </article>`;
   }
-  return `<article class="home-tile-wrap size-${item.size}" data-home-id="${item.id}">
+  return `<article class="home-tile-wrap size-${item.size}" data-home-id="${item.id}" data-tile-route="${route}"${extra} role="button" tabindex="0">
     <button type="button" class="module module-${item.id}" data-route="${route}"${extra}>${content}<span class="home-tile-chevron">›</span></button>
   </article>`;
 }
@@ -415,8 +415,19 @@ function bindHome(){
   // Bind Home tiles directly as well as through the document router. This keeps
   // navigation reliable on touch browsers where decorative/editing layers can
   // prevent the delegated click from reaching the document.
+  document.querySelectorAll(".home-layout .home-tile-wrap[data-tile-route]").forEach(tile=>{
+    const open=event=>{
+      if(data.homeEditing) return;
+      event.preventDefault();
+      event.stopPropagation();
+      go(tile.dataset.tileRoute,tile.dataset.routeId||"");
+    };
+    tile.onclick=open;
+    tile.onkeydown=event=>{if(event.key==="Enter"||event.key===" ") open(event)};
+  });
   document.querySelectorAll(".home-layout button[data-route]").forEach(button=>{
     button.onclick=event=>{
+      if(data.homeEditing) return;
       event.preventDefault();
       event.stopPropagation();
       go(button.dataset.route,button.dataset.routeId||"");

@@ -234,15 +234,29 @@ function periodAverage(values){return values.length?Math.round(values.reduce((su
 function periodStartFromFlow(date,flow){
   if(!["light","medium","heavy"].includes(flow)||!date||date>today()) return false;
   const cycles=data.periodCycles=Array.isArray(data.periodCycles)?data.periodCycles:[];
-  if(cycles.some(c=>c?.start&&date>=c.start&&date<=(c.end||today()))) return false;
+  const containing=cycles.find(c=>c?.start&&date>=c.start&&date<=(c.end||today()));
 
-  // A real flow entry supersedes the old forecast. Close any stale open cycle
-  // before this date, then make the logged date the new actual cycle start.
+  // A flow entry inside a normal, already-recorded period belongs to that cycle.
+  // An old cycle left open for many days is stale: close it and make this date
+  // the actual start of a new cycle, replacing the forecast immediately.
+  if(containing){
+    const age=periodDaysBetween(containing.start,date);
+    if(containing.end||age<=10) return false;
+
+    const loggedFlowDates=Object.entries(data.periodEntries||{})
+      .filter(([entryDate,entry])=>entryDate>=containing.start&&entryDate<date&&["spotting","light","medium","heavy"].includes(entry?.flow))
+      .map(([entryDate])=>entryDate)
+      .sort();
+    const sensibleEnd=loggedFlowDates.at(-1)||periodIso(new Date(periodDate(containing.start).getTime()+4*86400000));
+    containing.end=sensibleEnd<date?sensibleEnd:periodIso(new Date(periodDate(date).getTime()-86400000));
+  }
+
+  // Do not duplicate an existing cycle start.
+  if(cycles.some(c=>c?.start===date)) return false;
+
   cycles.forEach(c=>{
     if(c?.start&&!c.end&&c.start<date){
-      const previousDay=new Date(`${date}T12:00:00`);
-      previousDay.setDate(previousDay.getDate()-1);
-      c.end=periodIso(previousDay);
+      c.end=periodIso(new Date(periodDate(date).getTime()-86400000));
     }
   });
   cycles.push({id:`cycle-${Date.now()}`,start:date,end:"",source:"flow"});

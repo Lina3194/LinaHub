@@ -30,6 +30,134 @@ const CLOUD_STATE={
 };
 localStorage.setItem("linahub-device-id",CLOUD_STATE.deviceId);
 
+const CLOUD_IMAGE_PREFIX="image--";
+const CLOUD_RAW_UPLOAD=LinaImage.upload.bind(LinaImage);
+const CLOUD_RAW_REMOVE=LinaImage.remove.bind(LinaImage);
+
+function cloudImageDocId(storageKey){return `${CLOUD_IMAGE_PREFIX}${encodeURIComponent(storageKey)}`}
+function cloudImageKeyFromDocId(docId){
+  if(!String(docId||"").startsWith(CLOUD_IMAGE_PREFIX)) return "";
+  try{return decodeURIComponent(String(docId).slice(CLOUD_IMAGE_PREFIX.length))}catch{return ""}
+}
+function isInlineImage(value){return /^data:image\//.test(String(value||""))}
+
+function cloudImagesForModule(name){
+  const images=new Map();
+  const add=(key,value)=>{if(key&&isInlineImage(value))images.set(String(key),value)};
+  if(name==="settings"){
+    Object.entries(data.homeImages||{}).forEach(([key,value])=>add(`tab:${key}`,value));
+    Object.entries(data.moduleBanners||{}).forEach(([key,value])=>add(`banner:${key}`,value));
+  }
+  if(name==="plants") (data.plants||[]).forEach(item=>add(item.photoKey||`plant:${item.id}`,item.photo));
+  if(name==="aquariums") (data.aquariums||[]).forEach(item=>add(item.photoKey||`aquarium:${item.id}`,item.photo));
+  if(name==="medication") (data.medications||[]).forEach(item=>add(item.photoKey||`medication:${item.id}`,item.photo));
+  return images;
+}
+
+function cloudSafeModulePayload(name){
+  const payload=modulePayload(name);
+  // Images are synced as separate Firestore documents. Keeping them out of the
+  // normal module documents prevents the 1 MiB Firestore document limit from
+  // making a phone silently miss one banner or photo.
+  if(name==="settings"){
+    delete payload.homeImages;
+    delete payload.moduleBanners;
+  }
+  if(name==="plants"&&Array.isArray(payload.plants)) payload.plants=payload.plants.map(item=>({...item,photo:""}));
+  if(name==="aquariums"&&Array.isArray(payload.aquariums)) payload.aquariums=payload.aquariums.map(item=>({...item,photo:""}));
+  if(name==="medication"&&Array.isArray(payload.medications)) payload.medications=payload.medications.map(item=>({...item,photo:""}));
+  return payload;
+}
+
+function putCloudImageIntoData(storageKey,value){
+  if(storageKey.startsWith("tab:")){
+    data.homeImages=data.homeImages||{};
+    data.homeImages[storageKey.slice(4)]=value;
+    return;
+  }
+  if(storageKey.startsWith("banner:")){
+    data.moduleBanners=data.moduleBanners||{};
+    data.moduleBanners[storageKey.slice(7)]=value;
+    return;
+  }
+  const collections=[
+    ["plant:",data.plants||[]],
+    ["aquarium:",data.aquariums||[]],
+    ["medication:",data.medications||[]]
+  ];
+  for(const [prefix,items] of collections){
+    if(!storageKey.startsWith(prefix)) continue;
+    const item=items.find(entry=>(entry.photoKey||`${prefix}${entry.id}`)===storageKey);
+    if(item){item.photoKey=storageKey;item.photo=value}
+    return;
+  }
+}
+
+function removeCloudImageFromData(storageKey){
+  if(storageKey.startsWith("tab:")){delete data.homeImages?.[storageKey.slice(4)];return}
+  if(storageKey.startsWith("banner:")){delete data.moduleBanners?.[storageKey.slice(7)];return}
+  const collections=[
+    ["plant:",data.plants||[]],
+    ["aquarium:",data.aquariums||[]],
+    ["medication:",data.medications||[]]
+  ];
+  for(const [prefix,items] of collections){
+    if(!storageKey.startsWith(prefix)) continue;
+    const item=items.find(entry=>(entry.photoKey||`${prefix}${entry.id}`)===storageKey);
+    if(item)item.photo="";
+    return;
+  }
+}
+
+async function persistCloudImage(storageKey,value){
+  if(!storageKey||!isInlineImage(value)) return false;
+  await LinaImage.save(storageKey,value);
+  putCloudImageIntoData(storageKey,value);
+  return true;
+}
+
+async function removeCloudImageLocally(storageKey){
+  if(!storageKey)return;
+  await CLOUD_RAW_REMOVE(storageKey).catch(()=>{});
+  removeCloudImageFromData(storageKey);
+}
+
+async function pushCloudImage(storageKey,value){
+  if(!CLOUD_STATE.user||!navigator.onLine||!isInlineImage(value))return;
+  const ref=firebase.firestore().doc(`users/${CLOUD_STATE.user.uid}/modules/${cloudImageDocId(storageKey)}`);
+  await ref.set({storageKey,value,schemaVersion:1750,deviceId:CLOUD_STATE.deviceId,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:false});
+}
+
+async function deleteCloudImage(storageKey){
+  if(!CLOUD_STATE.user||!navigator.onLine||!storageKey)return;
+  await firebase.firestore().doc(`users/${CLOUD_STATE.user.uid}/modules/${cloudImageDocId(storageKey)}`).delete();
+}
+
+async function pushCloudImagesForModule(name){
+  for(const [storageKey,value] of cloudImagesForModule(name)) await pushCloudImage(storageKey,value);
+}
+
+async function pushAllCloudImages(){
+  for(const name of ["settings","plants","aquariums","medication"]) await pushCloudImagesForModule(name);
+}
+
+// Upload and removal remain one universal image pipeline, but a signed-in
+// device also mirrors the changed image immediately for the other devices.
+LinaImage.upload=async options=>{
+  const value=await CLOUD_RAW_UPLOAD(options);
+  if(CLOUD_STATE.user&&CLOUD_STATE.ready&&navigator.onLine){
+    pushCloudImage(options?.key,value).catch(error=>console.error("Cloud image upload",error));
+  }
+  return value;
+};
+LinaImage.remove=async storageKey=>{
+  const result=await CLOUD_RAW_REMOVE(storageKey);
+  if(CLOUD_STATE.user&&CLOUD_STATE.ready&&navigator.onLine){
+    deleteCloudImage(storageKey).catch(error=>console.error("Cloud image removal",error));
+  }
+  return result;
+};
+
 
 let cloudRenderTimer=null;
 function quietCloudRender(){
@@ -85,7 +213,7 @@ function applyModule(payload){
     data[key]=payload[key];
   });
 }
-function localSaveOnly(){localStorage.setItem(STORAGE_KEY,JSON.stringify(data))}
+function localSaveOnly(){return originalSaveData()}
 
 const originalSaveData=saveData;
 saveData=function(){
@@ -105,8 +233,9 @@ function queueCloudModule(name){
 async function pushCloudModule(name){
   if(!CLOUD_STATE.user||!navigator.onLine) return setCloudStatus("offline");
   try{
+    await pushCloudImagesForModule(name);
     const ref=firebase.firestore().doc(`users/${CLOUD_STATE.user.uid}/modules/${name}`);
-    await ref.set({...modulePayload(name),schemaVersion:1685,deviceId:CLOUD_STATE.deviceId,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:false});
+    await ref.set({...cloudSafeModulePayload(name),schemaVersion:1750,deviceId:CLOUD_STATE.deviceId,updatedAt:firebase.firestore.FieldValue.serverTimestamp()},{merge:false});
     setCloudStatus("synced");
   }catch(error){console.error("LinaHub cloud upload",error);setCloudStatus("error")}
 }
@@ -114,7 +243,7 @@ async function uploadAllModules(){
   setCloudStatus("syncing");
   for(const name of Object.keys(CLOUD_MODULES)) await pushCloudModule(name);
   const meta=firebase.firestore().doc(`users/${CLOUD_STATE.user.uid}/meta/profile`);
-  await meta.set({schemaVersion:1685,migratedAt:firebase.firestore.FieldValue.serverTimestamp(),deviceId:CLOUD_STATE.deviceId},{merge:true});
+  await meta.set({schemaVersion:1750,migratedAt:firebase.firestore.FieldValue.serverTimestamp(),deviceId:CLOUD_STATE.deviceId},{merge:true});
   localStorage.setItem(`linahub-cloud-migrated-${CLOUD_STATE.user.uid}`,"1");
   setCloudStatus("synced");
 }
@@ -127,9 +256,20 @@ async function downloadAllModules(){
     console.error("LinaHub server download failed",error);
     throw new Error("Could not reach Firebase. Check the internet connection and try again.");
   }
-  const found=new Set();
+  const found=new Set(),imageDocs=[];
   CLOUD_STATE.applyingRemote=true;
-  snap.forEach(doc=>{found.add(doc.id);applyModule(doc.data())});
+  snap.forEach(doc=>{
+    if(String(doc.id).startsWith(CLOUD_IMAGE_PREFIX)){imageDocs.push(doc);return}
+    found.add(doc.id);applyModule(doc.data());
+  });
+  // Restore this device's already-saved images after image-free module payloads,
+  // then apply any newer per-image cloud documents.
+  try{await hydrateLinaMedia()}catch(error){console.error("Could not restore local images",error)}
+  for(const doc of imageDocs){
+    const remote=doc.data()||{};
+    const storageKey=remote.storageKey||cloudImageKeyFromDocId(doc.id);
+    try{await persistCloudImage(storageKey,remote.value)}catch(error){console.error("Could not persist cloud image",storageKey,error)}
+  }
   localSaveOnly();
   CLOUD_STATE.lastSnapshot=JSON.stringify(data);
   CLOUD_STATE.applyingRemote=false;
@@ -146,18 +286,45 @@ function stopCloudListeners(){CLOUD_STATE.unsubscribers.forEach(fn=>fn());CLOUD_
 function startCloudListeners(){
   stopCloudListeners();
   Object.keys(CLOUD_MODULES).forEach(name=>{
-    const unsub=firebase.firestore().doc(`users/${CLOUD_STATE.user.uid}/modules/${name}`).onSnapshot({includeMetadataChanges:true},snap=>{
+    const unsub=firebase.firestore().doc(`users/${CLOUD_STATE.user.uid}/modules/${name}`).onSnapshot({includeMetadataChanges:true},async snap=>{
       if(!snap.exists||snap.metadata.hasPendingWrites) return;
       const remote=snap.data();
       if(remote.deviceId===CLOUD_STATE.deviceId) return setCloudStatus("synced");
       CLOUD_STATE.applyingRemote=true;
-      applyModule(remote);localSaveOnly();CLOUD_STATE.lastSnapshot=JSON.stringify(data);
-      CLOUD_STATE.applyingRemote=false;
+      try{
+        applyModule(remote);
+        // Cloud images are data URLs in memory. Mirror them to IndexedDB on this
+        // device so banners and photos survive refreshes and PWA restarts.
+        await hydrateLinaMedia();
+        localSaveOnly();
+        CLOUD_STATE.lastSnapshot=JSON.stringify(data);
+      }catch(error){
+        console.error("Could not apply cloud update",error);
+        setCloudStatus("error");
+        return;
+      }finally{CLOUD_STATE.applyingRemote=false}
       setCloudStatus(snap.metadata.fromCache&&!navigator.onLine?"offline":"synced");
       quietCloudRender();
     },error=>{console.error("LinaHub listener",error);setCloudStatus("error")});
     CLOUD_STATE.unsubscribers.push(unsub);
   });
+  const imageUnsub=firebase.firestore().collection(`users/${CLOUD_STATE.user.uid}/modules`).onSnapshot({includeMetadataChanges:true},async snapshot=>{
+    let changed=false;
+    for(const change of snapshot.docChanges()){
+      if(!String(change.doc.id).startsWith(CLOUD_IMAGE_PREFIX)) continue;
+      if(change.doc.metadata.hasPendingWrites) continue;
+      const remote=change.doc.data()||{};
+      if(remote.deviceId===CLOUD_STATE.deviceId&&change.type!=="removed") continue;
+      const storageKey=remote.storageKey||cloudImageKeyFromDocId(change.doc.id);
+      try{
+        if(change.type==="removed") await removeCloudImageLocally(storageKey);
+        else await persistCloudImage(storageKey,remote.value);
+        changed=true;
+      }catch(error){console.error("Could not apply cloud image",storageKey,error)}
+    }
+    if(changed){localSaveOnly();CLOUD_STATE.lastSnapshot=JSON.stringify(data);quietCloudRender()}
+  },error=>{console.error("LinaHub image listener",error)});
+  CLOUD_STATE.unsubscribers.push(imageUnsub);
 }
 async function firstCloudSetup(){
   let meta;
@@ -172,6 +339,7 @@ async function firstCloudSetup(){
   }else{
     await downloadAllModules();
   }
+  try{await hydrateLinaMedia();await pushAllCloudImages()}catch(error){console.error("LinaHub image sync setup",error)}
   CLOUD_STATE.ready=true;
   startCloudListeners();
 }

@@ -30,7 +30,7 @@ function lina17InsertStandardBanner(key,src,routeAtRequest){
   const header=app.querySelector(".page-head");
   if(!header)return;
   const banner=document.createElement("section");
-  banner.className="module-banner";
+  banner.className=`module-banner${key==="plants"?" plants-module-banner":""}`;
   banner.setAttribute("aria-label",`${key} banner`);
   const image=document.createElement("img");
   image.src=src;
@@ -508,7 +508,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1748",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1750",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

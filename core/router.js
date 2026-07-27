@@ -22,7 +22,7 @@ function moduleBanner(active){
     journal:"Journal",today:"Today",todo:"To-do",shopping:"Shopping",health:"Measures",hobbies:"Hobbies",books:"Books",gaming:"Gaming",
     plants:"Plants",medication:"Medication",pokemon:"Pokémon GO",pets:"Aquariums",house:"House",period:"Period Tracker",budget:"Budget & Bills",treasures:"Treasure Room"
   };
-  return `<section class="module-banner">
+  return `<section class="module-banner ${active==="plants"?"plants-module-banner":""}">
     <img src="${image}" alt="">
     <span>${esc(names[active]||active)}</span>
   </section>`;

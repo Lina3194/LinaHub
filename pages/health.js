@@ -305,13 +305,29 @@ function linaSaveDailyCheckin(backdrop,dateValue,complete){
   const deepSleepHours=bounded("#dailyDeepSleepHours",24),deepSleepMinutes=bounded("#dailyDeepSleepMinutes",59);
   const sleepTotalMinutes=sleepHours*60+sleepMinutes,deepSleepTotalMinutes=deepSleepHours*60+deepSleepMinutes;
   const entry={date:dateValue,updatedAt:new Date().toISOString(),sleepHours,sleepMinutes,sleepTotalMinutes,sleep:sleepTotalMinutes/60,deepSleepHours,deepSleepMinutes,deepSleepTotalMinutes,deepSleep:deepSleepTotalMinutes/60,sleepQuality:selected("sleep"),weight:val("#dailyWeight"),waist:val("#dailyWaist"),tummy:val("#dailyTummy"),energy:selected("energy"),mood:selected("mood"),pain:selected("pain"),tablets:[...backdrop.querySelectorAll("[data-daily-med]:checked")].map(x=>String(x.dataset.dailyMed))};
-  data.morningCheckins=data.morningCheckins||{};data.morningCheckins[dateValue]=entry;
+  data.morningCheckins=data.morningCheckins||{};
   if(entry.weight){data.weightEntries=Array.isArray(data.weightEntries)?data.weightEntries:[];data.weightEntries=data.weightEntries.filter(x=>!(x.date===dateValue&&x.source==="daily-checkin"));data.weightEntries.push({id:`weight-${Date.now()}`,date:dateValue,weight:Number(entry.weight),value:Number(entry.weight),unit:"kg",source:"daily-checkin",createdAt:entry.updatedAt});}
   if(entry.sleepTotalMinutes||entry.deepSleepTotalMinutes){data.sleepEntries=Array.isArray(data.sleepEntries)?data.sleepEntries:[];data.sleepEntries=data.sleepEntries.filter(x=>!(x.date===dateValue&&x.source==="daily-checkin"));data.sleepEntries.push({id:`sleep-${Date.now()}`,date:dateValue,totalMinutes:entry.sleepTotalMinutes,deepMinutes:entry.deepSleepTotalMinutes,quality:entry.sleepQuality,source:"daily-checkin",createdAt:entry.updatedAt});}
   if(entry.waist||entry.tummy){data.measurements=Array.isArray(data.measurements)?data.measurements:[];data.measurements=data.measurements.filter(x=>!(x.date===dateValue&&x.source==="daily-checkin"));data.measurements.push({id:`measure-${Date.now()}`,date:dateValue,waist:entry.waist,tummy:entry.tummy,source:"daily-checkin",createdAt:entry.updatedAt});}
   data.checkins=data.checkins||{};data.checkins[dateValue]={...(data.checkins[dateValue]||{}),sleep:entry.sleepQuality,energy:entry.energy,mood:entry.mood,pain:entry.pain,savedAt:entry.updatedAt};
   data.medicationHistory=Array.isArray(data.medicationHistory)?data.medicationHistory:[];
-  entry.tablets.forEach(medId=>{if(!data.medicationHistory.some(x=>String(x.medId)===medId&&x.date===dateValue)){data.medicationHistory.push({id:`dose-${Date.now()}-${Math.random().toString(36).slice(2,6)}`,medId,date:dateValue,time:new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}),notes:"Daily check-in",source:"daily-checkin",createdAt:entry.updatedAt});}});
+  const previousTablets=Array.isArray(data.morningCheckins?.[dateValue]?.tablets)?data.morningCheckins[dateValue].tablets.map(String):[];
+  const selectedTablets=entry.tablets.map(String);
+  const addedTablets=selectedTablets.filter(medId=>!previousTablets.includes(medId));
+  const removedTablets=previousTablets.filter(medId=>!selectedTablets.includes(medId));
+
+  addedTablets.forEach(medId=>{
+    if(data.medicationHistory.some(x=>String(x.medId)===medId&&x.date===dateValue&&x.source==="daily-checkin"))return;
+    const stockAdjusted=typeof medAdjustStockForDose==="function"?medAdjustStockForDose(medId,-1):false;
+    data.medicationHistory.push({id:`dose-${Date.now()}-${Math.random().toString(36).slice(2,6)}`,medId,date:dateValue,time:new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}),notes:"Daily check-in",source:"daily-checkin",createdAt:entry.updatedAt,stockAdjusted});
+  });
+
+  removedTablets.forEach(medId=>{
+    const matching=data.medicationHistory.filter(x=>String(x.medId)===medId&&x.date===dateValue&&x.source==="daily-checkin");
+    matching.forEach(log=>{if(log.stockAdjusted&&typeof medAdjustStockForDose==="function")medAdjustStockForDose(medId,1)});
+    data.medicationHistory=data.medicationHistory.filter(x=>!(String(x.medId)===medId&&x.date===dateValue&&x.source==="daily-checkin"));
+  });
+  data.morningCheckins[dateValue]=entry;
   if(complete){data.dailyCheckinCompleted=data.dailyCheckinCompleted||{};data.dailyCheckinCompleted[dateValue]=entry.updatedAt;delete data.dailyCheckinRemindAt?.[dateValue];}
   else{data.dailyCheckinRemindAt=data.dailyCheckinRemindAt||{};data.dailyCheckinRemindAt[dateValue]=Date.now()+60*60*1000;}
   saveData();

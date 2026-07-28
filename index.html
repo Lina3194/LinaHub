@@ -23,7 +23,7 @@
   <link rel="stylesheet" href="./styles/phone-ui-1714.css?v=1751">
 <script>
 (function(){
-  const BUILD="17.5.2";
+  const BUILD="17.5.3";
   const KEY="linahub-clean-build";
   if(localStorage.getItem(KEY)!==BUILD){
     localStorage.setItem(KEY,BUILD);
@@ -31,8 +31,8 @@
     if("serviceWorker" in navigator){cleanup.push(navigator.serviceWorker.getRegistrations().then(rs=>Promise.all(rs.map(r=>r.unregister()))).catch(()=>{}));}
     if("caches" in window){cleanup.push(caches.keys().then(keys=>Promise.all(keys.map(k=>caches.delete(k)))).catch(()=>{}));}
     Promise.all(cleanup).finally(()=>{
-      if(!sessionStorage.getItem("linahub-reloaded-17.5.2")){
-        sessionStorage.setItem("linahub-reloaded-17.5.2","1");
+      if(!sessionStorage.getItem("linahub-reloaded-17.5.3")){
+        sessionStorage.setItem("linahub-reloaded-17.5.3","1");
         const url=new URL(location.href);
         url.searchParams.set("build","1751");
         location.replace(url.toString());

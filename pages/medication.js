@@ -36,6 +36,26 @@ function ensureMedicationData(){
     });
     data.medicationHistoryMigrated=true;
   }
+  // v17.5.4: repair only the old Daily Check-in doses that were logged
+  // without changing stock. Other historical dose records are deliberately left
+  // alone because those routes already reduced stock in earlier versions.
+  if(Number(data.medicationStockReconciliationVersion||0)<1){
+    let changed=false;
+    data.medicationHistory.forEach(log=>{
+      if(log?.source!=="daily-checkin"||log.stockAdjusted===true||log.stockReconciled===true)return;
+      const med=data.medications.find(item=>String(item.id)===String(log.medId));
+      if(!med){log.stockReconciled=true;changed=true;return}
+      const current=Math.max(0,Math.floor(Number(med.stock)||0));
+      if(current>0){med.stock=current-1;log.stockAdjusted=true}
+      else log.stockAdjusted=false;
+      log.stockReconciled=true;
+      log.stockReconciledAt=new Date().toISOString();
+      changed=true;
+    });
+    data.medicationStockReconciliationVersion=1;
+    changed=true;
+    if(changed&&typeof saveData==="function") saveData();
+  }
 }
 function medDateLabel(value){
   if(!value)return "";

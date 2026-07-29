@@ -6,6 +6,18 @@ const SHOPPING_CATEGORIES=[
   {id:"toiletries",name:"Toiletries",iconKey:"shoppingToiletries",fallback:"🧴",hint:"Bathroom and personal care"}
 ];
 
+const DEFAULT_SHOPPING_ITEMS={
+  fridge:[
+    "Gnocchi","Galaxy bar","Minced beef","Sausages","Edam slices","Cucumber","Houmous","Carrots","Peach iced tea","Pink sauce","Chocolate milk","Cream cheese","Pineapple juice","Block cheese","Ham","Jam","Tesco Apples","Mayonnaise","Tomatoes","Unsalted butter","Yoghurt","Avocado","Butter","Salsa","Chicken","Chocolate digestives","Tomato purée","Jalapeños","Milk","Ketchup"
+  ],
+  freezer:[
+    "Pies","Peas","Burgers","Mash","Curly fries","Mini pizzas","Prawns","Strawberry banana mix","Spinach","Chopped peppers","Sweetcorn","Broccoli","Raspberries","Pineapple"
+  ],
+  pantry:[
+    "Pizza bake rolls","Chocolate-covered raisins","Pistachios","Chilli peanuts","Breadcrumbs","Lemons","Rice","Potatoes","Penne","Pesto","Spaghetti","Rice wine vinegar","Wraps","Curry base","Burger buns","Chopped tomato","Naan bread","Tomato passata","Honey","Baked beans (baby)","Shells","Mirin","Special K","Coco pops shells","Frosties","Bran Flakes","Doritos","Spirali","Onions","Bread","Beans","Eggs","Poppadoms","Baked beans","Tuna","Peanut butter","Soy sauce","Garlic","Noodles","Sesame oil","Arborio rice","Shaoshing wine","Sriracha","Apple cider vinegar","Dark soy sauce","Can of chickpeas","Worcestershire sauce","Olive oil","Oats","Popcorn"
+  ]
+};
+
 function normaliseShoppingCategory(value=""){
   const text=String(value).toLowerCase();
   if(text.includes("freezer")||text.includes("frozen")) return "freezer";
@@ -15,45 +27,92 @@ function normaliseShoppingCategory(value=""){
   return "pantry";
 }
 
+function shoppingDefaultId(category,name){
+  return `regular-${category}-${String(name).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}`;
+}
+
 function ensureShoppingData(){
   data.shoppingItems=Array.isArray(data.shoppingItems)?data.shoppingItems:[];
-  data.shoppingItems=data.shoppingItems.map(item=>({...item,category:normaliseShoppingCategory(item.category)}));
+  data.shoppingItems=data.shoppingItems.map(item=>{
+    const isRegular=item.isRegular===true;
+    const needed=typeof item.needed==="boolean"?item.needed:!item.done;
+    return {...item,category:normaliseShoppingCategory(item.category),isRegular,needed,done:!needed};
+  });
   data.shoppingView=data.shoppingView||{};
   data.shoppingView.category=SHOPPING_CATEGORIES.some(c=>c.id===data.shoppingView.category)?data.shoppingView.category:"all";
+  data.shoppingView.mode=data.shoppingView.mode==="regular"?"regular":"needed";
+  data.shoppingView.editId=data.shoppingView.editId||"";
+
+  if(!data.shoppingDefaultsInitialised){
+    Object.entries(DEFAULT_SHOPPING_ITEMS).forEach(([category,names])=>{
+      names.forEach(name=>{
+        const id=shoppingDefaultId(category,name);
+        const exists=data.shoppingItems.some(item=>String(item.id)===id || (item.isRegular&&item.category===category&&String(item.name).toLowerCase()===name.toLowerCase()));
+        if(!exists) data.shoppingItems.push({id,name,quantity:"",category,isRegular:true,needed:false,done:true,createdAt:new Date().toISOString(),completedAt:""});
+      });
+    });
+    data.shoppingDefaultsInitialised=true;
+    saveData();
+  }
 }
 
 function shoppingCategory(id){return SHOPPING_CATEGORIES.find(c=>c.id===id)||SHOPPING_CATEGORIES[2]}
 
-function shoppingItemRow(item){
+function shoppingItemRow(item,{master=false}={}){
   const category=shoppingCategory(item.category);
-  return `<article class="shopping-item ${item.done?"shopping-item-done":""}">
-    <button type="button" class="shopping-check ${item.done?"done":""}" data-shopping-toggle="${esc(item.id)}" aria-label="${item.done?"Put back on list":"Mark as bought"}">${item.done?"✓":""}</button>
-    <div class="shopping-item-copy"><strong>${esc(item.name)}</strong><small>${item.quantity?`${esc(item.quantity)} · `:""}${esc(category.name)}</small></div>
-    <button type="button" class="shopping-delete" data-shopping-delete="${esc(item.id)}" aria-label="Delete ${esc(item.name)}">×</button>
+  const editing=String(data.shoppingView.editId)===String(item.id);
+  if(editing){
+    return `<article class="shopping-item shopping-item-editing">
+      <div class="shopping-edit-fields">
+        <input class="field" id="shoppingEditName" value="${esc(item.name)}" maxlength="80" aria-label="Item name">
+        <input class="field" id="shoppingEditQuantity" value="${esc(item.quantity||"")}" maxlength="30" placeholder="Usual quantity (optional)" aria-label="Usual quantity">
+        <select class="field" id="shoppingEditCategory">${SHOPPING_CATEGORIES.map(c=>`<option value="${c.id}" ${item.category===c.id?"selected":""}>${c.name}</option>`).join("")}</select>
+      </div>
+      <div class="shopping-edit-actions">
+        <button type="button" class="small-btn primary" data-shopping-save-edit="${esc(item.id)}">Save</button>
+        <button type="button" class="small-btn" data-shopping-cancel-edit>Cancel</button>
+        <button type="button" class="small-btn danger" data-shopping-delete="${esc(item.id)}">Delete</button>
+      </div>
+    </article>`;
+  }
+  const label=item.isRegular?(item.needed?"Needed":"In stock"):(item.needed?"One-off":"Bought");
+  return `<article class="shopping-item ${item.needed?"":"shopping-item-done"} ${item.isRegular?"shopping-regular-item":"shopping-oneoff-item"}">
+    <button type="button" class="shopping-check ${item.needed?"needed":"done"}" data-shopping-toggle="${esc(item.id)}" aria-label="${item.needed?"Mark as bought":"Mark as needed"}">${item.needed?"":"✓"}</button>
+    <div class="shopping-item-copy"><strong>${esc(item.name)}</strong><small>${item.quantity?`${esc(item.quantity)} · `:""}${esc(category.name)} · ${label}</small></div>
+    ${item.isRegular||master?`<button type="button" class="shopping-edit" data-shopping-edit="${esc(item.id)}" aria-label="Edit ${esc(item.name)}">✎</button>`:`<button type="button" class="shopping-delete" data-shopping-delete="${esc(item.id)}" aria-label="Delete ${esc(item.name)}">×</button>`}
   </article>`;
 }
 
 function ShoppingPage(){
   ensureShoppingData();
   const active=data.shoppingView.category||"all";
+  const mode=data.shoppingView.mode||"needed";
   const items=data.shoppingItems||[];
-  const needed=items.filter(item=>!item.done);
-  const filtered=active==="all"?needed:needed.filter(item=>item.category===active);
-  const bought=items.filter(item=>item.done);
+  const needed=items.filter(item=>item.needed);
+  const regular=items.filter(item=>item.isRegular);
+  const visible=mode==="regular"
+    ?(active==="all"?regular:regular.filter(item=>item.category===active))
+    :(active==="all"?needed:needed.filter(item=>item.category===active));
   const categoryTiles=SHOPPING_CATEGORIES.map(category=>{
     const count=needed.filter(item=>item.category===category.id).length;
+    const regularCount=regular.filter(item=>item.category===category.id).length;
     return `<button type="button" class="shopping-category-tile ${active===category.id?"active":""}" data-shopping-category="${category.id}">
       <span class="shopping-category-art">${moduleVisual(category.iconKey,category.fallback,"module-tile-image")}</span>
-      <span class="shopping-category-copy"><strong>${category.name}</strong><small>${count?`${count} item${count===1?"":"s"} to buy`:category.hint}</small></span>
+      <span class="shopping-category-copy"><strong>${category.name}</strong><small>${regularCount?`${regularCount} regular item${regularCount===1?"":"s"}`:category.hint}</small></span>
       <b>${count}</b>
     </button>`;
   }).join("");
 
   return shell(`${head("Shopping","Add it at home, tick it off in the shop")}
     <section class="card shopping-overview-card">
-      <div><span class="section-kicker">Shopping list</span><h2>${needed.length?`${needed.length} item${needed.length===1?"":"s"} still needed`:"Your list is clear"}</h2><p>${needed.length?"Choose a category or view the full list below.":"Add something whenever you notice you are running low."}</p></div>
+      <div><span class="section-kicker">Shopping list</span><h2>${needed.length?`${needed.length} item${needed.length===1?"":"s"} still needed`:"Your list is clear"}</h2><p>${needed.length?"Your regular and one-off items appear together here.":"Mark a regular item as needed or add a one-off item."}</p></div>
       <span class="shopping-overview-count">${needed.length}</span>
     </section>
+
+    <div class="shopping-mode-tabs" role="tablist">
+      <button type="button" class="${mode==="needed"?"active":""}" data-shopping-mode="needed">Needed now</button>
+      <button type="button" class="${mode==="regular"?"active":""}" data-shopping-mode="regular">All regular items</button>
+    </div>
 
     <section class="shopping-category-grid">${categoryTiles}</section>
 
@@ -66,17 +125,16 @@ function ShoppingPage(){
         <input class="field" id="shoppingQuantity" type="text" maxlength="30" placeholder="Quantity (optional)">
         <select class="field" id="shoppingCategory">${SHOPPING_CATEGORIES.map(c=>`<option value="${c.id}" ${active===c.id?"selected":""}>${c.name}</option>`).join("")}</select>
       </div>
+      <label class="shopping-regular-choice"><input type="checkbox" id="shoppingSaveRegular"> <span>Save as a regular item</span><small>New items are one-off unless you tick this.</small></label>
     </section>
 
     <section class="shopping-list-section">
       <div class="section-title-row">
-        <h2>${active==="all"?"Everything to buy":shoppingCategory(active).name}</h2>
+        <h2>${mode==="regular"?(active==="all"?"All regular items":`${shoppingCategory(active).name} regular items`):(active==="all"?"Everything to buy":shoppingCategory(active).name)}</h2>
         ${active!=="all"?`<button type="button" class="small-btn" data-shopping-category="all">View all</button>`:""}
       </div>
-      <div class="shopping-list">${filtered.length?filtered.map(shoppingItemRow).join(""):`<div class="card empty shopping-empty"><span>✓</span><p>${active==="all"?"Nothing left to buy.":`Nothing needed for ${shoppingCategory(active).name.toLowerCase()}.`}</p></div>`}</div>
+      <div class="shopping-list">${visible.length?visible.map(item=>shoppingItemRow(item,{master:mode==="regular"})).join(""):`<div class="card empty shopping-empty"><span>✓</span><p>${mode==="regular"?"No regular items in this category yet.":active==="all"?"Nothing left to buy.":`Nothing needed for ${shoppingCategory(active).name.toLowerCase()}.`}</p></div>`}</div>
     </section>
-
-    ${bought.length?`<details class="card shopping-bought-details"><summary>Bought today (${bought.length})</summary><div class="shopping-list">${bought.map(shoppingItemRow).join("")}</div><button type="button" class="small-btn danger shopping-clear" id="clearBoughtShopping">Clear bought</button></details>`:""}
   `,"shopping");
 }
 
@@ -89,18 +147,43 @@ function bindShopping(){
     if(!name){toast("Add an item first");nameInput?.focus();return;}
     const quantity=(page.querySelector("#shoppingQuantity")?.value||"").trim();
     const category=page.querySelector("#shoppingCategory")?.value||"pantry";
-    data.shoppingItems.unshift({id:`shop-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,name,quantity,category,done:false,createdAt:new Date().toISOString(),completedAt:""});
+    const isRegular=!!page.querySelector("#shoppingSaveRegular")?.checked;
+    data.shoppingItems.unshift({id:`shop-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,name,quantity,category,isRegular,needed:true,done:false,createdAt:new Date().toISOString(),completedAt:""});
+    data.shoppingView.mode="needed";
     saveData();render();requestAnimationFrame(()=>document.querySelector("#shoppingName")?.focus());
   };
   page?.querySelector("#addShoppingItem")?.addEventListener("click",addItem);
   nameInput?.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();addItem();}});
   page?.addEventListener("click",event=>{
+    const modeButton=event.target.closest("[data-shopping-mode]");
+    if(modeButton){data.shoppingView.mode=modeButton.dataset.shoppingMode;data.shoppingView.editId="";saveData();render();return;}
     const category=event.target.closest("[data-shopping-category]");
-    if(category){data.shoppingView.category=category.dataset.shoppingCategory;saveData();render();return;}
+    if(category){data.shoppingView.category=category.dataset.shoppingCategory;data.shoppingView.editId="";saveData();render();return;}
     const toggle=event.target.closest("[data-shopping-toggle]");
-    if(toggle){const item=data.shoppingItems.find(x=>String(x.id)===String(toggle.dataset.shoppingToggle));if(item){item.done=!item.done;item.completedAt=item.done?new Date().toISOString():"";saveData();render();}return;}
+    if(toggle){
+      const item=data.shoppingItems.find(x=>String(x.id)===String(toggle.dataset.shoppingToggle));
+      if(item){
+        if(item.isRegular){
+          item.needed=!item.needed;item.done=!item.needed;item.completedAt=item.needed?"":new Date().toISOString();
+        }else if(item.needed){
+          data.shoppingItems=data.shoppingItems.filter(x=>String(x.id)!==String(item.id));
+        }
+        saveData();render();
+      }
+      return;
+    }
+    const edit=event.target.closest("[data-shopping-edit]");
+    if(edit){data.shoppingView.editId=edit.dataset.shoppingEdit;saveData();render();return;}
+    if(event.target.closest("[data-shopping-cancel-edit]")){data.shoppingView.editId="";saveData();render();return;}
+    const saveEdit=event.target.closest("[data-shopping-save-edit]");
+    if(saveEdit){
+      const item=data.shoppingItems.find(x=>String(x.id)===String(saveEdit.dataset.shoppingSaveEdit));
+      const newName=(page.querySelector("#shoppingEditName")?.value||"").trim();
+      if(!newName){toast("Item name cannot be empty");return;}
+      if(item){item.name=newName;item.quantity=(page.querySelector("#shoppingEditQuantity")?.value||"").trim();item.category=page.querySelector("#shoppingEditCategory")?.value||item.category;}
+      data.shoppingView.editId="";saveData();render();return;
+    }
     const remove=event.target.closest("[data-shopping-delete]");
-    if(remove){data.shoppingItems=data.shoppingItems.filter(x=>String(x.id)!==String(remove.dataset.shoppingDelete));saveData();render();return;}
-    if(event.target.closest("#clearBoughtShopping")){data.shoppingItems=data.shoppingItems.filter(item=>!item.done);saveData();render();toast("Bought items cleared");}
+    if(remove){data.shoppingItems=data.shoppingItems.filter(x=>String(x.id)!==String(remove.dataset.shoppingDelete));data.shoppingView.editId="";saveData();render();return;}
   });
 }

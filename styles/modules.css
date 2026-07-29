@@ -745,3 +745,16 @@ body:not(.dark) .module-section-tabs button.active{background:linear-gradient(13
 .health-metric-heading{display:flex;align-items:center;gap:10px}
 .health-metric-heading .health-metric-icon{width:30px;height:30px;color:var(--gold)}
 @media(max-width:560px){.measures-section-tabs{gap:7px}.measures-section-tabs button{padding-left:8px;padding-right:8px;gap:5px;font-size:.78rem}.measures-section-tabs .health-metric-icon{width:19px;height:19px}}
+
+/* Shopping master list 17.5.5 */
+.shopping-mode-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:0 0 14px;padding:5px;border:1px solid var(--line);border-radius:18px;background:var(--card)}
+.shopping-mode-tabs button{border:0;border-radius:13px;padding:11px 12px;background:transparent;color:var(--muted);font-weight:800}
+.shopping-mode-tabs button.active{background:var(--purple-soft);color:var(--purple);box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--purple) 35%,transparent)}
+.shopping-regular-choice{display:grid;grid-template-columns:auto 1fr;column-gap:9px;align-items:center;padding:11px 12px;border:1px solid var(--line);border-radius:15px;background:var(--card-soft);cursor:pointer}
+.shopping-regular-choice input{width:19px;height:19px;accent-color:var(--purple)}
+.shopping-regular-choice span{font-weight:800}.shopping-regular-choice small{grid-column:2;color:var(--muted);font-size:.72rem;margin-top:2px}
+.shopping-edit{width:36px;height:36px;border:0;border-radius:50%;background:var(--purple-soft);color:var(--purple);font-size:1rem;font-weight:900}
+.shopping-check.needed{background:var(--card-soft);border-color:var(--purple);box-shadow:inset 0 0 0 2px color-mix(in srgb,var(--purple) 18%,transparent)}
+.shopping-regular-item.shopping-item-done{opacity:.82}.shopping-regular-item.shopping-item-done strong{text-decoration:none}
+.shopping-item-editing{display:block;padding:13px}.shopping-edit-fields{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,.8fr) minmax(0,1fr);gap:8px}.shopping-edit-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+@media(max-width:600px){.shopping-edit-fields{grid-template-columns:1fr}.shopping-mode-tabs button{font-size:.82rem;padding:10px 7px}.shopping-item{grid-template-columns:38px minmax(0,1fr) 34px;padding:9px;gap:8px}.shopping-check{width:38px;height:38px;border-radius:12px}.shopping-edit,.shopping-delete{width:34px;height:34px}.shopping-regular-choice{padding:10px}}

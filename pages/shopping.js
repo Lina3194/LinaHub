@@ -158,7 +158,19 @@ function bindShopping(){
     const modeButton=event.target.closest("[data-shopping-mode]");
     if(modeButton){data.shoppingView.mode=modeButton.dataset.shoppingMode;data.shoppingView.editId="";saveData();render();return;}
     const category=event.target.closest("[data-shopping-category]");
-    if(category){data.shoppingView.category=category.dataset.shoppingCategory;data.shoppingView.editId="";saveData();render();return;}
+    if(category){
+      data.shoppingView.category=category.dataset.shoppingCategory;
+      if(category.classList.contains("shopping-category-tile") && category.dataset.shoppingCategory!=="all"){
+        data.shoppingView.mode="regular";
+      }
+      data.shoppingView.editId="";
+      saveData();
+      render();
+      if(category.classList.contains("shopping-category-tile")){
+        requestAnimationFrame(()=>document.querySelector(".shopping-list-section")?.scrollIntoView({behavior:"smooth",block:"start"}));
+      }
+      return;
+    }
     const toggle=event.target.closest("[data-shopping-toggle]");
     if(toggle){
       const item=data.shoppingItems.find(x=>String(x.id)===String(toggle.dataset.shoppingToggle));

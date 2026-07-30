@@ -128,13 +128,28 @@ function quickWaterPlant(id){
 function bindPlantTileControls(){
   document.querySelectorAll("[data-quick-water]").forEach(button=>button.onclick=e=>{e.preventDefault();e.stopPropagation();quickWaterPlant(button.dataset.quickWater)});
 }
+function plantWateringCalendars(history){
+  const dates=[...new Set((history||[]).filter(Boolean))].sort();
+  if(!dates.length)return `<p>No watering history yet.</p>`;
+  const months=[...new Set(dates.map(date=>date.slice(0,7)))].sort().reverse();
+  return `<div class="plant-water-calendars">${months.map(month=>{
+    const [year,monthNumber]=month.split("-").map(Number);
+    const first=new Date(year,monthNumber-1,1);
+    const daysInMonth=new Date(year,monthNumber,0).getDate();
+    const mondayOffset=(first.getDay()+6)%7;
+    const watered=new Set(dates.filter(date=>date.startsWith(month)).map(date=>Number(date.slice(8,10))));
+    const cells=[];
+    for(let i=0;i<mondayOffset;i++)cells.push(`<span class="plant-cal-day empty" aria-hidden="true"></span>`);
+    for(let day=1;day<=daysInMonth;day++)cells.push(`<span class="plant-cal-day ${watered.has(day)?"watered":""}" ${watered.has(day)?`title="Watered ${esc(formatDate(`${month}-${String(day).padStart(2,"0")}`))}"`:""}>${day}</span>`);
+    return `<section class="plant-water-month"><h3>${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</h3><div class="plant-cal-weekdays">${["M","T","W","T","F","S","S"].map(day=>`<span>${day}</span>`).join("")}</div><div class="plant-cal-grid">${cells.join("")}</div></section>`;
+  }).join("")}</div>`;
+}
+
 function PlantsPage(){
   const attention=data.plants.filter(p=>plantStatus(p).className==="attention").length;
-  const wateringHistory=data.plants.flatMap(plant=>(Array.isArray(plant.history)?plant.history:[]).map(date=>({date,plantId:plant.id,plantName:plant.name,emoji:plant.emoji||"🌿"}))).sort((a,b)=>b.date.localeCompare(a.date));
   return shell(`${head("Garden","Your enchanted plant family")}
     <div class="plant-search"><span>⌕</span><input id="plantSearch" placeholder="Search plants…"><span>${attention?`🔔 ${attention}`:"✓"}</span></div>
     <div class="plant-tile-grid" id="plantList">${data.plants.map(PlantTile).join("")}</div>
-    <section class="card clean-card garden-watering-history"><span class="section-kicker">💧 History</span><h2>Plant watering history</h2><div class="history-list">${wateringHistory.length?wateringHistory.map(entry=>`<button type="button" class="history-row garden-history-row" data-history-plant="${esc(entry.plantId)}"><span>${esc(entry.emoji)}</span><span><strong>${esc(entry.plantName)}</strong><small>${esc(formatDate(entry.date))}</small></span><span>›</span></button>`).join(""):`<p>No watering history yet.</p>`}</div></section>
   `,"plants");
 }
 
@@ -144,8 +159,8 @@ function PlantProfilePage(){
   return shell(`${head(p.name,"Plant profile","plants")}
     <section class="card plant-profile-head"><div class="plant-photo-large">${plantPhotoSrc(p)?`<img src="${plantPhotoSrc(p)}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div><div class="plant-profile-actions"><label class="secondary upload-label">📷 Add / change photo<input id="plantPhoto" type="file" accept="image/*" hidden></label><em class="status-chip ${status.className}">${status.icon} ${status.text}</em></div></section>
     <div class="profile-tabs" role="tablist" aria-label="Plant profile sections">${[["care","Care"],["history","History"],["notes","Notes"]].map(([id,label])=>`<button type="button" role="tab" aria-selected="${active===id}" data-plant-tab="${id}" class="${active===id?"active":""}">${label}</button>`).join("")}</div>
-    <div class="plant-tab-panel ${active==="care"?"active":""}"><section class="care-summary"><div><small>Last watered</small><strong>${p.lastWatered?formatDate(p.lastWatered):"Not yet"}</strong></div><div><small>Water every</small><strong>${Number(p.wateringDays)||guide?.wateringDays||7} days</strong></div><div><small>Next watering</small><strong>${p.lastWatered?formatDate(addDays(p.lastWatered,Number(p.wateringDays)||guide?.wateringDays||7)):"Water today"}</strong></div></section><section class="card clean-card"><span class="section-kicker">Care</span><h2>Log watering</h2><div class="dated-action"><label class="date-picker-shell" aria-label="Watering date"><span>📅</span><input id="plantWaterDate" type="date" value="${today()}" max="${today()}"></label><button type="button" class="primary" id="waterPlant">💧 Log watering</button></div><p class="helper-text">Today is selected automatically. Open the calendar to record an earlier watering.</p></section><section class="card clean-card"><span class="section-kicker">Recent history</span><h2>Watering history</h2><div class="history-list">${history.length?history.slice(0,5).map(d=>`<div class="history-row"><span>💧</span><span>${esc(formatDate(d))}</span><button type="button" class="icon-danger" data-water-delete="${esc(d)}" aria-label="Delete ${esc(formatDate(d))}">×</button></div>`).join(""):`<p>No watering history yet.</p>`}</div>${history.length>5?`<button type="button" class="secondary" data-open-water-history>View all ${history.length} entries</button>`:""}</section>${careGuideHtml(guide)}</div>
-    <div class="plant-tab-panel ${active==="history"?"active":""}"><section class="card clean-card"><span class="section-kicker">History</span><h2>Watering history</h2><div class="history-list">${history.length?history.map(d=>`<div class="history-row"><span>💧</span><span>${esc(formatDate(d))}</span><button type="button" class="icon-danger" data-water-delete="${esc(d)}" aria-label="Delete ${esc(formatDate(d))}">×</button></div>`).join(""):`<p>No watering history yet.</p>`}</div></section></div>
+    <div class="plant-tab-panel ${active==="care"?"active":""}"><section class="care-summary"><div><small>Last watered</small><strong>${p.lastWatered?formatDate(p.lastWatered):"Not yet"}</strong></div><div><small>Water every</small><strong>${Number(p.wateringDays)||guide?.wateringDays||7} days</strong></div><div><small>Next watering</small><strong>${p.lastWatered?formatDate(addDays(p.lastWatered,Number(p.wateringDays)||guide?.wateringDays||7)):"Water today"}</strong></div></section><section class="card clean-card"><span class="section-kicker">Care</span><h2>Log watering</h2><div class="dated-action"><label class="date-picker-shell" aria-label="Watering date"><span>📅</span><input id="plantWaterDate" type="date" value="${today()}" max="${today()}"></label><button type="button" class="primary" id="waterPlant">💧 Log watering</button></div><p class="helper-text">Today is selected automatically. Open the calendar to record an earlier watering.</p></section>${careGuideHtml(guide)}</div>
+    <div class="plant-tab-panel ${active==="history"?"active":""}"><section class="card clean-card plant-calendar-card"><span class="section-kicker">💧 History</span><h2>Watering calendar</h2><p class="helper-text">Blue dates show when ${esc(p.name)} was watered.</p>${plantWateringCalendars(history)}</section></div>
     <div class="plant-tab-panel ${active==="notes"?"active":""}"><section class="card clean-card"><span class="section-kicker">Notes</span><h2>Care notes</h2><textarea class="field plant-notes" rows="6" placeholder="Care notes, growth updates, anything you notice...">${esc(p.notes)}</textarea><button type="button" class="primary" id="savePlantNotes">Save notes</button></section></div>
   `,"plants");
 }
@@ -153,7 +168,6 @@ function addEncyclopediaPlant(id){const g=PLANT_ENCYCLOPEDIA.find(x=>x.id===id);
 function bindPlants(){
   bindPlantTileControls();
   document.querySelector("#plantSearch")?.addEventListener("input",e=>{const q=e.target.value.toLowerCase();document.querySelectorAll("[data-plant-name]").forEach(tile=>tile.hidden=!tile.dataset.plantName.includes(q))});
-  document.querySelectorAll("[data-history-plant]").forEach(button=>button.addEventListener("click",()=>go("plant",button.dataset.historyPlant)));
   document.querySelector("#encyclopediaSearch")?.addEventListener("input",e=>{
     plantUi.encyclopediaSearch=e.target.value;
     const q=e.target.value.trim().toLowerCase();
@@ -180,7 +194,6 @@ function bindPlants(){
   document.querySelectorAll("[data-plant-tab]").forEach(button=>button.addEventListener("click",()=>{data.plantProfileTab=button.dataset.plantTab;saveData();render()}));
   document.querySelector("#waterPlant")?.addEventListener("click",()=>{const p=data.plants.find(x=>x.id===routeId);if(!p)return;const date=document.querySelector("#plantWaterDate")?.value||today();if(date>today()){toast("Choose today or an earlier date");return}p.history=Array.isArray(p.history)?p.history:[];if(!p.history.includes(date))p.history.push(date);p.history.sort();p.lastWatered=p.history[p.history.length-1]||"";saveData();toast(`${p.name} watering logged 💧`);render()});
   document.querySelectorAll("[data-water-delete]").forEach(button=>button.addEventListener("click",()=>{const p=data.plants.find(x=>x.id===routeId);if(!p)return;p.history=(p.history||[]).filter(date=>date!==button.dataset.waterDelete);p.history.sort();p.lastWatered=p.history[p.history.length-1]||"";saveData();toast("Watering entry removed");render()}));
-  document.querySelector("[data-open-water-history]")?.addEventListener("click",()=>{data.plantProfileTab="history";saveData();render()});
   document.querySelector("#savePlantNotes")?.addEventListener("click",()=>{const p=data.plants.find(x=>x.id===routeId);if(!p)return;p.notes=document.querySelector(".plant-notes").value;saveData();toast("Plant notes saved 🌿")});
   document.querySelector("#plantPhoto")?.addEventListener("change",async e=>{
     const file=e.target.files?.[0]; if(!file)return;

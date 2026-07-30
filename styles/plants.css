@@ -224,3 +224,15 @@ body.dark .encyclopedia-card,body.dark .plant-main-tabs button{background:#10121
 .garden-history-row:last-child{border-bottom:0}
 .garden-history-row span:nth-child(2){display:flex;flex-direction:column;gap:2px}
 .garden-history-row small{color:var(--muted)}
+
+
+/* 17.6.5 per-plant watering calendar */
+.plant-water-calendars{display:grid;gap:16px;margin-top:16px}
+.plant-water-month{padding:14px;border:1px solid var(--line);border-radius:18px;background:rgba(10,12,26,.42)}
+.plant-water-month h3{margin:0 0 12px;text-align:center;font-size:1rem}
+.plant-cal-weekdays,.plant-cal-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px}
+.plant-cal-weekdays{margin-bottom:6px;color:var(--muted);font-size:.75rem;text-align:center;font-weight:700}
+.plant-cal-day{display:grid;place-items:center;aspect-ratio:1;border-radius:8px;font-size:.82rem;background:rgba(255,255,255,.035);border:1px solid transparent}
+.plant-cal-day.empty{background:transparent}
+.plant-cal-day.watered{background:#32aee8;color:#06131d;border-color:#8fdcff;font-weight:900;box-shadow:0 0 0 2px rgba(50,174,232,.18)}
+@media (min-width:700px){.plant-water-calendars{grid-template-columns:repeat(2,minmax(0,1fr))}}

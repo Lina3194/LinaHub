@@ -1,8 +1,8 @@
 function ensureHomeLayout(){
   const defaults=[
-    "journal","today","todo","plants",
+    "journal","plants",
     "pets","house","shopping","medication","measurements",
-    "period","pokemon","books","budget","gaming","treasures"
+    "period","pokemon","treasures"
   ];
   if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
   if(!Array.isArray(data.homeHidden)) data.homeHidden=[];
@@ -21,9 +21,11 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
-  // 16.80: keep Period on Home and remove the redundant Health dashboard tile.
-  data.homeLayout=data.homeLayout.filter(item=>!["hobbies","health"].includes(typeof item==="string"?item:item?.id));
-  data.homeHidden=data.homeHidden.filter(id=>id!=="hobbies"&&id!=="health"&&id!=="period");
+  // Keep the Home dashboard focused. These pages and their saved data remain available,
+  // but their tiles are intentionally removed from the main Home page.
+  const removedHomeTiles=new Set(["hobbies","health","today","todo","books","budget","gaming"]);
+  data.homeLayout=data.homeLayout.filter(item=>!removedHomeTiles.has(typeof item==="string"?item:item?.id));
+  data.homeHidden=data.homeHidden.filter(id=>!removedHomeTiles.has(id)&&id!=="period");
 
   const seen=new Set();
   data.homeLayout=data.homeLayout.filter(item=>{

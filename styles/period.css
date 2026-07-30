@@ -46,11 +46,3 @@ body:not(.dark) .period-care-pill.active{background:#cda7e8;color:#2c173b}
   .period-prediction-grid span{font-size:.61rem;line-height:1.15}
   .period-prediction-grid strong{font-size:.78rem;line-height:1.15;overflow-wrap:anywhere}
 }
-
-/* v17.5.9 editable period start and end dates */
-.period-date-range-card{margin:12px 0}
-.period-date-range-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin:12px 0}
-.period-date-range-grid label span{display:block;font-weight:800;margin:0 0 7px}
-.period-date-range-grid .field{width:100%}
-.period-date-range-help{margin:0 0 12px;color:var(--muted);font-size:.86rem}
-@media(max-width:760px){.period-date-range-grid{grid-template-columns:1fr;gap:9px}.period-date-range-card{padding:14px}}

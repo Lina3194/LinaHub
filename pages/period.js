@@ -448,15 +448,11 @@ function PeriodPage(){
   const activeProjectedEnd=stats.active?.start?periodAddDays(stats.active.start,Math.max(1,stats.averagePeriod)-1):"";
   const selectedCycle=(data.periodCycles||[]).find(c=>c.start&&selected>=c.start&&selected<=(c.end||(!c.end&&c===stats.active?activeProjectedEnd:today())));
   const selectedCyclePredicted=Boolean(stats.active&&selectedCycle===stats.active&&selected>today());
-  const rangeCycle=stats.active||stats.cycles[0]||null;
-  const rangeStart=rangeCycle?.start||today();
-  const rangeEnd=rangeCycle?.end||"";
   const tabs=`<div class="period-tabs"><button type="button" data-period-tab="today" class="${data.periodTab==="today"?"active":""}">Today</button><button type="button" data-period-tab="history" class="${data.periodTab==="history"?"active":""}">History</button><button type="button" data-period-tab="settings" class="${data.periodTab==="settings"?"active":""}">Settings</button></div>`;
   let content="";
   if(data.periodTab==="history") content=`<section class="card"><div class="section-title"><div><span class="section-kicker">📚 Your history</span><h2>Cycle history</h2></div><span class="period-import-count">${stats.cycles.length} periods</span></div><p>Tap a year to open or close it.</p><div class="timeline-list">${periodHistoryMarkup(stats.cycles)}</div></section>`;
   else if(data.periodTab==="settings") content=`<div class="period-stat-grid"><article class="stat"><span>Average cycle</span><strong>${stats.cycles.length>1?`${stats.averageCycle} days`:"—"}</strong><small>Based on completed history</small></article><article class="stat"><span>Average period</span><strong>${stats.cycles.some(c=>c.end)?`${stats.averagePeriod} days`:"—"}</strong><small>Based on completed periods</small></article><article class="stat"><span>Cycles logged</span><strong>${stats.cycles.length}</strong><small>Your private history</small></article></div>${data.periodEditOptions?periodOptionEditor():`<section class="card"><div class="section-title"><div><span class="section-kicker">✨ Customise</span><h2>Period-specific items</h2></div><button type="button" class="mini" id="editPeriodOptions">Edit items</button></div><p>Add, rename, hide or remove the small care options used in your daily log.</p></section>`}`;
   else content=`<section class="period-hero card"><div><span class="section-kicker">🌸 Cycle overview</span><h1>${stats.active?`Period day ${periodDaysBetween(stats.active.start,today())+1}`:stats.cycleDay?`Cycle day ${stats.cycleDay}`:"Ready when you are"}</h1><p>${stats.predicted?`Next period predicted around ${formatDate(stats.predicted)}.`:"Start your first cycle to begin predictions."}</p></div><div class="period-hero-actions">${stats.active?`<button type="button" class="primary" id="endPeriod">End period today</button>`:`<button type="button" class="primary" id="startPeriod">Start period today</button>`}</div></section>
-  <section class="card period-date-range-card"><div class="section-title"><div><span class="section-kicker">🗓️ Period dates</span><h2>Start and end date</h2></div></div><div class="period-date-range-grid"><label><span>Start date</span><input class="field" type="date" id="periodRangeStart" value="${rangeStart}"></label><label><span>End date</span><input class="field" type="date" id="periodRangeEnd" value="${rangeEnd}" min="${rangeStart}"></label></div><input type="hidden" id="periodRangeCycleId" value="${rangeCycle?.id||""}"><p class="period-date-range-help">Leave the end date blank while your period is still ongoing.</p><button type="button" class="primary" id="savePeriodRange">Save period dates</button></section>
   <div class="period-prediction-grid"><article class="stat"><span>Next period</span><strong>${stats.predicted?formatDate(stats.predicted):"—"}</strong></article><article class="stat"><span>Estimated ovulation</span><strong>${stats.ovulation?formatDate(stats.ovulation):"—"}</strong></article><article class="stat"><span>Estimated fertile window</span><strong>${stats.fertileStart?`${formatDate(stats.fertileStart)} – ${formatDate(stats.fertileEnd)}`:"—"}</strong></article></div>
   ${periodCalendar()}<section class="card period-log-card"><div class="section-title"><div><span class="section-kicker">${periodFlowEmoji(entry.flow)} Daily cycle log</span><h2>${formatDate(selected)}</h2></div>${selectedCycle?`<span class="period-day-badge">${selectedCyclePredicted?"Predicted period day":"Period day"} ${periodDaysBetween(selectedCycle.start,selected)+1}</span>`:""}</div><h3>Flow</h3><div class="period-compact-pills"><button type="button" class="period-care-pill ${entry.flow==="spotting"?"active":""}" data-period-flow="spotting">🩷 Spotting</button></div><div class="period-flow-picker period-flow-main">${[["light","🌸","Light"],["medium","🌺","Medium"],["heavy","❤️","Heavy"]].map(([value,emoji,label])=>`<button type="button" class="${entry.flow===value?"active":""}" data-period-flow="${value}"><span>${emoji}</span><strong>${label}</strong></button>`).join("")}</div><div class="period-section-head"><div><h3>Period care</h3><p>Tap anything you used today.</p></div></div><div class="period-care-pills">${data.periodOptions.filter(o=>!o.hidden).map(option=>option.type==="toggle"?`<button type="button" class="period-care-pill ${entry.options?.[option.id]===true?"active":""}" data-period-toggle="${option.id}">${esc(option.emoji)} ${esc(option.name)}</button>`:`<div class="period-care-field"><span>${esc(option.emoji)} ${esc(option.name)}</span>${periodOptionInput(option,entry.options?.[option.id])}</div>`).join("")}</div><button type="button" class="primary" id="savePeriodLog">Save this date</button></section><section class="card"><div class="section-title"><div><span class="section-kicker">💜 Connected</span><h2>Daily Check-in</h2></div><button type="button" class="mini" data-open-journal-date="${selected}">Open entry</button></div><p>Pain, mood, energy and sleep stay in your Journal.</p>${periodJournalSnapshot(selected)}</section>`;
   return shell(`${head("Period Tracker","Cycle overview, history and settings","home")}${tabs}${content}`,"period");
@@ -466,7 +462,29 @@ function bindPeriod(){
   ensurePeriodData();
   document.querySelectorAll("[data-period-tab]").forEach(button=>button.onclick=()=>{data.periodTab=button.dataset.periodTab;saveData();render()});
   document.querySelectorAll("[data-period-year]").forEach(button=>button.onclick=()=>{const year=button.dataset.periodYear;data.periodOpenYears[year]=!data.periodOpenYears[year];saveData();render()});
-  document.querySelectorAll("[data-period-date]").forEach(button=>button.onclick=()=>{data.periodSelectedDate=button.dataset.periodDate;saveData();render()});
+  document.querySelectorAll("[data-period-date]").forEach(button=>button.onclick=()=>{
+    const date=button.dataset.periodDate;
+    data.periodSelectedDate=date;
+    const completed=(data.periodCycles||[]).find(c=>c?.start&&c?.end&&date>=c.start&&date<=c.end);
+    const active=periodCurrentCycle();
+    if(completed){saveData();render();return}
+    if(!active){
+      if(confirm(`Start your period on ${formatDate(date)}?`)){
+        data.periodCycles.push({id:`cycle-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,start:date,end:"",source:"calendar"});
+        data.periodEntries[date]=data.periodEntries[date]||{};
+        data.periodEntries[date].cycleStart=true;
+        toast("Period started 🌸");
+      }
+      saveData();render();return;
+    }
+    if(date===active.start){toast("This is already your period start date");saveData();render();return}
+    if(date<active.start){toast("Choose a finish date on or after the start date");saveData();render();return}
+    if(confirm(`End your period on ${formatDate(date)}?`)){
+      active.end=date;
+      toast("Period ended and saved 💜");
+    }
+    saveData();render();
+  });
   document.querySelectorAll("[data-period-month]").forEach(button=>button.onclick=()=>{
     const [y,m]=data.periodCalendarMonth.split("-").map(Number);const next=new Date(y,m-1+Number(button.dataset.periodMonth),1);data.periodCalendarMonth=`${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,"0")}`;saveData();render();
   });
@@ -475,36 +493,6 @@ function bindPeriod(){
     const start=today();data.periodCycles.push({id:`cycle-${Date.now()}`,start,end:""});data.periodSelectedDate=start;data.periodCalendarMonth=start.slice(0,7);saveData();toast("Period started 🌸");render();
   });
   document.querySelector("#endPeriod")?.addEventListener("click",()=>{const cycle=periodCurrentCycle();if(!cycle)return;cycle.end=today();saveData();toast("Period ended and saved 💜");render()});
-  document.querySelector("#periodRangeStart")?.addEventListener("change",event=>{const end=document.querySelector("#periodRangeEnd");if(end)end.min=event.target.value||""});
-  document.querySelector("#savePeriodRange")?.addEventListener("click",()=>{
-    const start=document.querySelector("#periodRangeStart")?.value||"";
-    const end=document.querySelector("#periodRangeEnd")?.value||"";
-    const cycleId=document.querySelector("#periodRangeCycleId")?.value||"";
-    if(!start){toast("Choose a period start date");return}
-    if(end&&end<start){toast("The end date cannot be before the start date");return}
-    let cycle=(data.periodCycles||[]).find(item=>item.id===cycleId)||null;
-    if(!cycle) cycle=(data.periodCycles||[]).find(item=>item.start===start)||null;
-    const oldStart=cycle?.start||"";
-    if(!cycle){cycle={id:`cycle-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,start,end:"",source:"manual-dates"};data.periodCycles.push(cycle)}
-    cycle.start=start;
-    cycle.end=end;
-    cycle.source=cycle.source||"manual-dates";
-    data.periodCycles=data.periodCycles.filter(item=>item===cycle||item.start!==start);
-    data.periodCycles.forEach(item=>{
-      if(item!==cycle&&!item.end){
-        if(item.start<start)item.end=periodAddDays(start,-1);
-        else if(!end||item.start<=end)item.end=periodAddDays(item.start,0);
-      }
-    });
-    if(oldStart&&oldStart!==start&&data.periodEntries?.[oldStart]) delete data.periodEntries[oldStart].cycleStart;
-    data.periodEntries[start]=data.periodEntries[start]||{};
-    data.periodEntries[start].cycleStart=true;
-    data.periodSelectedDate=start;
-    data.periodCalendarMonth=start.slice(0,7);
-    saveData();
-    toast(end?"Period dates saved 💜":"Period start saved 🌸");
-    render();
-  });
   document.querySelectorAll("[data-period-flow]").forEach(button=>button.onclick=()=>{
     const date=data.periodSelectedDate;
     data.periodEntries[date]=data.periodEntries[date]||{};

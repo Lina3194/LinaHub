@@ -130,18 +130,11 @@ function bindPlantTileControls(){
 }
 function PlantsPage(){
   const attention=data.plants.filter(p=>plantStatus(p).className==="attention").length;
-  const q=plantUi.encyclopediaSearch.toLowerCase();
-  const guides=PLANT_ENCYCLOPEDIA.filter(g=>[g.name,g.scientific,g.light,g.water].join(" ").toLowerCase().includes(q));
-  const opened=PLANT_ENCYCLOPEDIA.find(g=>g.id===plantUi.encyclopediaOpen);
+  const wateringHistory=data.plants.flatMap(plant=>(Array.isArray(plant.history)?plant.history:[]).map(date=>({date,plantId:plant.id,plantName:plant.name,emoji:plant.emoji||"🌿"}))).sort((a,b)=>b.date.localeCompare(a.date));
   return shell(`${head("Garden","Your enchanted plant family")}
-    <section class="plant-garden-hero card"><div><span class="section-kicker">🌸 Enchanted garden</span><h1>${plantUi.view==="collection"?"My garden":"Plant encyclopedia"}</h1><p>${plantUi.view==="collection"?"A little home for watering, photos and care notes.":"Care guidance that works even when LinaHub is offline."}</p></div><div class="blossom-branch" aria-hidden="true"><span>🌸</span><span>🌸</span><span>🌸</span></div></section>
-    <div class="plant-main-tabs"><button class="${plantUi.view==="collection"?"active":""}" data-plant-view="collection">🪴 My garden</button><button class="${plantUi.view==="encyclopedia"?"active":""}" data-plant-view="encyclopedia">📖 Encyclopedia</button></div>
-    ${plantUi.view==="collection"?`
-      <div class="plant-search"><span>⌕</span><input id="plantSearch" placeholder="Search plants…"><span>${attention?`🔔 ${attention}`:"✓"}</span></div>
-      <div class="plant-tile-grid" id="plantList">${data.plants.map(PlantTile).join("")}</div>`:`
-      <div class="plant-search"><span>⌕</span><input id="encyclopediaSearch" value="${esc(plantUi.encyclopediaSearch)}" placeholder="Search name or care need…"><span>📖 ${guides.length}</span></div>
-      <div class="encyclopedia-actions"><button type="button" class="secondary" id="addCustomPlant">＋ Add a plant not listed</button></div><div class="encyclopedia-grid" id="encyclopediaGrid">${guides.map(g=>encyclopediaCard(g,data.plants.some(p=>(p.guideId||p.id)===g.id))).join("")||`<section class="card encyclopedia-empty"><p>No matching plants found.</p></section>`}</div>`}
-    ${opened?`<div class="plant-guide-backdrop" data-close-guide><section class="plant-guide-modal"><button class="poke-detail-close" data-close-guide>×</button>${careGuideHtml(opened)}${data.plants.some(p=>(p.guideId||p.id)===opened.id)?"":`<button class="primary full-width" data-add-guide="${opened.id}">Add to my garden</button>`}</section></div>`:""}
+    <div class="plant-search"><span>⌕</span><input id="plantSearch" placeholder="Search plants…"><span>${attention?`🔔 ${attention}`:"✓"}</span></div>
+    <div class="plant-tile-grid" id="plantList">${data.plants.map(PlantTile).join("")}</div>
+    <section class="card clean-card garden-watering-history"><span class="section-kicker">💧 History</span><h2>Plant watering history</h2><div class="history-list">${wateringHistory.length?wateringHistory.map(entry=>`<button type="button" class="history-row garden-history-row" data-history-plant="${esc(entry.plantId)}"><span>${esc(entry.emoji)}</span><span><strong>${esc(entry.plantName)}</strong><small>${esc(formatDate(entry.date))}</small></span><span>›</span></button>`).join(""):`<p>No watering history yet.</p>`}</div></section>
   `,"plants");
 }
 
@@ -159,8 +152,8 @@ function PlantProfilePage(){
 function addEncyclopediaPlant(id){const g=PLANT_ENCYCLOPEDIA.find(x=>x.id===id);if(!g)return;if(data.plants.some(p=>(p.guideId||p.id)===id)){toast("That plant is already in your collection");return}data.plants.push({id:`${id}-${Date.now()}`,guideId:id,name:g.name,emoji:g.emoji,notes:"",lastWatered:"",history:[],photo:"",wateringDays:g.wateringDays});saveData();plantUi.encyclopediaOpen=null;plantUi.view="collection";render();toast(`${g.name} added to your garden 🌿`)}
 function bindPlants(){
   bindPlantTileControls();
-  document.querySelectorAll("[data-plant-view]").forEach(b=>b.onclick=()=>{plantUi.view=b.dataset.plantView;plantUi.encyclopediaOpen=null;render()});
   document.querySelector("#plantSearch")?.addEventListener("input",e=>{const q=e.target.value.toLowerCase();document.querySelectorAll("[data-plant-name]").forEach(tile=>tile.hidden=!tile.dataset.plantName.includes(q))});
+  document.querySelectorAll("[data-history-plant]").forEach(button=>button.addEventListener("click",()=>go("plant",button.dataset.historyPlant)));
   document.querySelector("#encyclopediaSearch")?.addEventListener("input",e=>{
     plantUi.encyclopediaSearch=e.target.value;
     const q=e.target.value.trim().toLowerCase();

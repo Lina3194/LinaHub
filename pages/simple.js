@@ -71,7 +71,7 @@ function SettingsPage(){
       <div class="icon-setting-groups">
         ${[
           ["Bottom navigation",[["home","Home","⌂"],["today","Today","✅"],["todo","To-do","📝"],["shopping","Shopping","🛒"],["settings","Settings","⚙️"]]],
-          ["Main tiles",[["journal","Daily Check-in","📖"],["plants","Garden","🌿"],["pokemon","Pokémon GO","🔴"],["pets","Aquariums","🐠"],["house","House","🏡"],["budget","Budget & Bills","💷"],["treasures","Treasure Room","✨"],["journey","Today's Journey","✨"]]],
+          ["Main tiles",[["journal","Daily Check-in","📖"],["plants","Garden","🌿"],["pokemon","Pokémon GO","🔴"],["pets","Aquariums","🐠"],["house","House","🏡"],["treasures","Treasure Room","✨"],["journey","Today's Journey","✨"]]],
           ["Trackers",[["sleep","Sleep","😴"],["medication","Medication","💊"],["period","Period","🌸"],["weight","Weight","⚖️"],["measurements","Measurements","📏"]]],
           ["Shopping",[["shoppingFridge","Fridge","❄️"],["shoppingFreezer","Freezer","🧊"],["shoppingPantry","Pantry","🥫"],["shoppingCleaning","Cleaning Supplies","🧽"],["shoppingToiletries","Toiletries","🧴"]]],
           ["House & Aquariums",[["rooms","Rooms","🏠"],["inventory","Inventory","📦"],["girlsTank","Girls Tank","🩷"],["boysTank","Boys Tank","💙"],["aquariumMaintenance","Maintenance","🫧"]]],
@@ -107,7 +107,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version 17.5.9<br><br>27 Jul 2026</p>`,"settings");
+  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.6.4")}<br><br>30 Jul 2026</p>`,"settings");
 }
 
 function bindSimple(){

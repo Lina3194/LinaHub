@@ -274,6 +274,11 @@ function periodStartCycleFromFlow(date){
     if(continuation.end&&date>continuation.end) continuation.end=date;
     return continuation;
   }
+  const recentClosed=periodSortedCycles().find(cycle=>cycle?.start&&cycle?.end&&periodAddDays(cycle.end,1)===date&&periodDaysBetween(cycle.start,date)<=14);
+  if(recentClosed){
+    recentClosed.end=date;
+    return recentClosed;
+  }
   const previousDay=periodAddDays(date,-1);
   data.periodCycles.forEach(cycle=>{
     if(cycle.start&&cycle.start<date&&!cycle.end) cycle.end=previousDay;
@@ -435,7 +440,7 @@ function periodHistoryMarkup(cycles){
     return `<section class="period-history-year"><button type="button" class="period-year-toggle" data-period-year="${year}" aria-expanded="${open}"><span>${year}</span><small>${grouped[year].length} cycles</small><b>${open?"−":"+"}</b></button>${open?`<div class="period-year-cycles">${grouped[year].map(c=>{
       const periodLength=c.end?periodDaysBetween(c.start,c.end)+1:null;
       const cycleLength=periodCycleLength(c,ascending);
-      return `<article class="history-card"><div class="history-date"><strong>${formatDate(c.start)}${c.end?` – ${formatDate(c.end)}`:""}</strong><span>${cycleLength?`${cycleLength}-day cycle · `:""}${periodLength?`${periodLength}-day period`:"Ongoing"}${c.source==="historical-import"?" · imported history":""}</span></div><button type="button" class="mini danger" data-cycle-delete="${c.id}">Delete</button></article>`;
+      return `<article class="history-card"><div class="history-date"><strong>${formatDate(c.start)}${c.end?` – ${formatDate(c.end)}`:""}</strong><span>${cycleLength?`${cycleLength}-day cycle · `:""}${periodLength?`${periodLength}-day period`:"Ongoing"}${c.source==="historical-import"?" · imported history":""}</span></div><div class="history-card-actions"><button type="button" class="mini" data-cycle-edit="${c.id}">Edit dates</button><button type="button" class="mini danger" data-cycle-delete="${c.id}">Delete</button></div></article>`;
     }).join("")}</div>`:""}</section>`;
   }).join("");
 }
@@ -485,6 +490,71 @@ function periodDateDialog(date,action,onConfirm){
   overlay.querySelector("[data-period-dialog-confirm]").onclick=()=>{close();onConfirm()};
 }
 
+function periodEditCycleDialog(cycle){
+  if(!cycle?.start) return;
+  document.querySelector("#periodDateDialog")?.remove();
+  const overlay=document.createElement("div");
+  overlay.id="periodDateDialog";
+  overlay.className="period-date-dialog-backdrop";
+  overlay.innerHTML=`<section class="period-date-dialog period-edit-cycle-dialog" role="dialog" aria-modal="true" aria-labelledby="periodEditCycleTitle">
+    <button type="button" class="period-date-dialog-close" aria-label="Close">×</button>
+    <div class="period-date-dialog-icon">🗓️</div>
+    <span class="section-kicker">Edit period</span>
+    <h2 id="periodEditCycleTitle">Change period dates</h2>
+    <p>This updates the same period. Your daily flow, care logs and history stay intact.</p>
+    <label class="period-edit-date-field"><span>Start date</span><input type="date" class="field" data-edit-period-start value="${cycle.start}"></label>
+    <label class="period-edit-date-field"><span>End date</span><input type="date" class="field" data-edit-period-end value="${cycle.end||""}" min="${cycle.start}"></label>
+    <div class="period-date-dialog-actions">
+      <button type="button" class="secondary" data-period-dialog-cancel>Cancel</button>
+      <button type="button" class="primary" data-period-dialog-confirm>Save changes</button>
+    </div>
+  </section>`;
+  document.body.appendChild(overlay);
+  document.body.classList.add("period-dialog-open");
+  const startInput=overlay.querySelector("[data-edit-period-start]");
+  const endInput=overlay.querySelector("[data-edit-period-end]");
+  startInput.onchange=()=>{endInput.min=startInput.value;if(endInput.value&&endInput.value<startInput.value)endInput.value=startInput.value};
+  const close=()=>{overlay.remove();document.body.classList.remove("period-dialog-open")};
+  overlay.querySelector(".period-date-dialog-close").onclick=close;
+  overlay.querySelector("[data-period-dialog-cancel]").onclick=close;
+  overlay.onclick=event=>{if(event.target===overlay)close()};
+  overlay.querySelector("[data-period-dialog-confirm]").onclick=()=>{
+    const nextStart=startInput.value;
+    const nextEnd=endInput.value;
+    if(!nextStart){toast("Choose a start date");return}
+    if(nextEnd&&nextEnd<nextStart){toast("The end date cannot be before the start date");return}
+    const clash=(data.periodCycles||[]).find(other=>other!==cycle&&other.start&&nextStart<=(other.end||other.start)&&(nextEnd||nextStart)>=other.start);
+    if(clash){toast("Those dates overlap another saved period");return}
+    if(data.periodEntries?.[cycle.start]) delete data.periodEntries[cycle.start].cycleStart;
+    cycle.start=nextStart;
+    cycle.end=nextEnd;
+    data.periodEntries[nextStart]=data.periodEntries[nextStart]||{};
+    data.periodEntries[nextStart].cycleStart=true;
+    data.periodSelectedDate=nextEnd||nextStart;
+    data.periodCalendarMonth=data.periodSelectedDate.slice(0,7);
+    saveData();
+    close();
+    toast("Period dates updated 💜");
+    render();
+  };
+}
+
+function periodExtendDialog(cycle,date){
+  periodDateDialog(date,"end",()=>{
+    cycle.end=date;
+    saveData();
+    toast("Period extended to this date 💜");
+    render();
+  });
+  const dialog=document.querySelector("#periodDateDialog");
+  if(dialog){
+    dialog.querySelector(".section-kicker").textContent="Continue this period";
+    dialog.querySelector("h2").textContent="Extend your period?";
+    dialog.querySelector("p").textContent="This date is directly after your last period day, so it will extend the same period instead of starting a new cycle.";
+    dialog.querySelector("[data-period-dialog-confirm]").textContent="Extend period";
+  }
+}
+
 function bindPeriod(){
   ensurePeriodData();
   document.querySelectorAll("[data-period-tab]").forEach(button=>button.onclick=()=>{data.periodTab=button.dataset.periodTab;saveData();render()});
@@ -494,8 +564,18 @@ function bindPeriod(){
     data.periodSelectedDate=date;
     const completed=(data.periodCycles||[]).find(c=>c?.start&&c?.end&&date>=c.start&&date<=c.end);
     const active=periodCurrentCycle();
-    if(completed){saveData();render();return}
+    if(completed){
+      saveData();render();
+      periodEditCycleDialog(completed);
+      return;
+    }
     if(!active){
+      const latestCompleted=periodSortedCycles().find(c=>c?.start&&c?.end);
+      if(latestCompleted&&periodAddDays(latestCompleted.end,1)===date){
+        saveData();render();
+        periodExtendDialog(latestCompleted,date);
+        return;
+      }
       saveData();render();
       periodDateDialog(date,"start",()=>{
         data.periodCycles.push({id:`cycle-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,start:date,end:"",source:"calendar"});
@@ -505,7 +585,7 @@ function bindPeriod(){
       });
       return;
     }
-    if(date===active.start){toast("This is already your period start date");saveData();render();return}
+    if(date===active.start){periodEditCycleDialog(active);return}
     if(date<active.start){toast("Choose a finish date on or after the start date");saveData();render();return}
     saveData();render();
     periodDateDialog(date,"end",()=>{
@@ -547,5 +627,6 @@ function bindPeriod(){
   document.querySelectorAll("[data-option-hide]").forEach(button=>button.onclick=()=>{const option=data.periodOptions.find(o=>o.id===button.dataset.optionHide);option.hidden=!option.hidden;saveData();render()});
   document.querySelectorAll("[data-option-delete]").forEach(button=>button.onclick=()=>{const option=data.periodOptions.find(o=>o.id===button.dataset.optionDelete);if(!confirm(`Delete “${option.name}” from the list? Past logs will remain stored.`))return;data.periodOptions=data.periodOptions.filter(o=>o.id!==option.id);saveData();render()});
   document.querySelectorAll("[data-option-move]").forEach(button=>button.onclick=()=>{const index=data.periodOptions.findIndex(o=>o.id===button.dataset.optionId);const target=button.dataset.optionMove==="up"?index-1:index+1;if(index<0||target<0||target>=data.periodOptions.length)return;[data.periodOptions[index],data.periodOptions[target]]=[data.periodOptions[target],data.periodOptions[index]];saveData();render()});
+  document.querySelectorAll("[data-cycle-edit]").forEach(button=>button.onclick=()=>{const cycle=(data.periodCycles||[]).find(c=>c.id===button.dataset.cycleEdit);if(cycle)periodEditCycleDialog(cycle)});
   document.querySelectorAll("[data-cycle-delete]").forEach(button=>button.onclick=()=>{if(!confirm("Delete this cycle from history?"))return;data.periodCycles=data.periodCycles.filter(c=>c.id!==button.dataset.cycleDelete);saveData();render()});
 }

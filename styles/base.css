@@ -1978,10 +1978,49 @@ body[data-route="house"] .shopping-household-card{display:none!important}
 }
 .page-head{padding-right:0!important;}
 
-/* LinaHub 17.8.1 — banners remain visible in phone/PWA layouts */
-.module-banner{width:100%;min-height:150px;display:flex;box-sizing:border-box}
+/* LinaHub 17.8.2 — crop banners correctly on desktop and phone */
+.module-banner{
+  width:100%;
+  min-height:0;
+  aspect-ratio:5 / 1;
+  max-height:210px;
+  display:flex;
+  box-sizing:border-box;
+  padding:0;
+  margin:4px 0 14px;
+  align-items:stretch;
+  background:#23153a;
+}
+.module-banner>img{
+  display:block!important;
+  visibility:visible!important;
+  opacity:1!important;
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center 78%;
+}
+.module-banner>span{
+  position:absolute;
+  left:18px;
+  bottom:14px;
+  z-index:2;
+}
+.plants-module-banner{
+  aspect-ratio:5 / 1;
+  max-height:235px;
+}
 @media(max-width:560px){
-  .module-banner{min-height:112px;margin:0 0 12px;border-radius:18px;padding:12px}
-  .module-banner>img{display:block!important;visibility:visible!important;opacity:1!important;object-fit:cover}
-  .module-banner>span{font-size:1rem}
+  .module-banner{
+    aspect-ratio:3.2 / 1;
+    max-height:none;
+    margin:0 0 12px;
+    border-radius:18px;
+  }
+  .module-banner>img{
+    object-fit:cover;
+    object-position:center 78%;
+  }
+  .module-banner>span{font-size:1rem;left:14px;bottom:10px}
+  .plants-module-banner{aspect-ratio:3.15 / 1;min-height:0;border-radius:21px;margin-top:6px;margin-bottom:13px}
 }

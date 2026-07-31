@@ -630,3 +630,24 @@ function bindPeriod(){
   document.querySelectorAll("[data-cycle-edit]").forEach(button=>button.onclick=()=>{const cycle=(data.periodCycles||[]).find(c=>c.id===button.dataset.cycleEdit);if(cycle)periodEditCycleDialog(cycle)});
   document.querySelectorAll("[data-cycle-delete]").forEach(button=>button.onclick=()=>{if(!confirm("Delete this cycle from history?"))return;data.periodCycles=data.periodCycles.filter(c=>c.id!==button.dataset.cycleDelete);saveData();render()});
 }
+
+/* LinaHub 17.8.0 — period history protection and unlimited on-demand projections */
+periodRemoveFlowCycleStart=function(date){
+  /* Removing one day's flow must never delete the saved cycle. The cycle dates
+     are edited only through the calendar/history date editor. */
+  if(data.periodEntries?.[date]) delete data.periodEntries[date].flow;
+};
+periodPredictionStartsUntil=function(stats,endDate){
+  if(!stats?.predicted||!stats?.averageCycle||!endDate)return [];
+  const starts=[];let cursor=stats.predicted;
+  /* Predictions are generated as far as the month the user navigates to, rather
+     than being stored as a finite list. */
+  while(cursor<=endDate&&starts.length<5000){starts.push(cursor);cursor=periodAddDays(cursor,stats.averageCycle)}
+  return starts;
+};
+function periodSanitiseCycles1780(){
+  data.periodCycles=Array.isArray(data.periodCycles)?data.periodCycles:[];
+  const seen=new Set();data.periodCycles=data.periodCycles.filter(c=>{if(!c?.start)return false;const key=`${c.start}|${c.end||""}`;if(seen.has(key))return false;seen.add(key);if(c.end&&c.end<c.start)c.end=c.start;return true});
+}
+const ensurePeriodDataBase1780=ensurePeriodData;
+ensurePeriodData=function(){ensurePeriodDataBase1780();periodSanitiseCycles1780()};

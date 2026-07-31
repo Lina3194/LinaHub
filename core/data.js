@@ -309,6 +309,12 @@ function normalizeAquarium(tank,i){
         clean:Array.isArray(tank?.maintenance?.history?.clean)?tank.maintenance.history.clean:[],
         spongeChange:Array.isArray(tank?.maintenance?.history?.spongeChange)?tank.maintenance.history.spongeChange:[],
         filterChange:Array.isArray(tank?.maintenance?.history?.filterChange)?tank.maintenance.history.filterChange:[]
+      },
+      intervals:{
+        waterChange:Math.max(1,Number(tank?.maintenance?.intervals?.waterChange)||7),
+        clean:Math.max(1,Number(tank?.maintenance?.intervals?.clean)||14),
+        spongeChange:Math.max(1,Number(tank?.maintenance?.intervals?.spongeChange)||21),
+        filterChange:Math.max(1,Number(tank?.maintenance?.intervals?.filterChange)||42)
       }
     }
   };
@@ -322,7 +328,9 @@ function normalizePlant(p,i){
     id:p.id||`plant-${i}`,name:p.name||"Plant",emoji:p.emoji||"🌿",notes:p.notes||"",
     lastWatered:p.lastWatered||"",history:Array.isArray(p.history)?p.history:[],photo:p.photo||"",
     photoKey:p.photoKey||`plant:${p.id||`plant-${i}`}`,guideId:p.guideId||"",wateringDays:Number(p.wateringDays)||0,
-    light:p.light||"",lastFed:p.lastFed||""
+    light:p.light||"",lastFed:p.lastFed||"",feedingHistory:Array.isArray(p.feedingHistory)?p.feedingHistory:[],
+    repotHistory:Array.isArray(p.repotHistory)?p.repotHistory:[],photoHistory:Array.isArray(p.photoHistory)?p.photoHistory:[],
+    reminderEnabled:p.reminderEnabled!==false
   };
 }
 

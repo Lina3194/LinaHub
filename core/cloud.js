@@ -14,7 +14,7 @@ const CLOUD_MODULES={
   pokemon:["pokemonFriends","pokemonSeededVersion"],
   aquariums:["aquariums"],
   house:["houseControlsCollapsed","houseOpenRooms","houseRooms","houseTasks"],
-  medication:["medications","medicationLog","medicationHistory","medicationHistoryMigrated","medicationView"],
+  medication:["medications","medicationLog","medicationHistory","medicationHistoryMigrated","medicationView","medicationStockAudit","medicationStockReconciliationVersion"],
   period:["periodEntries","periodCycles","periodOptions","periodSelectedDate","periodCalendarMonth","periodEditOptions","periodTab","periodOpenYears"],
   budget:["bills","budgetEntries","savingsEntries"],
   health:["weightEntries","measurements","healthPromptLog","sleepEntries","healthSleepEntries"],

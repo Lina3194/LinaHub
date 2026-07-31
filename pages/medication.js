@@ -351,3 +351,25 @@ function bindMedication(){
 }
 
 
+
+/* LinaHub 17.8.0 — medication stock audit, refills and low-stock warnings */
+const medAdjustStockForDoseBase1780=medAdjustStockForDose;
+medAdjustStockForDose=function(medId,change,reason="dose"){
+  const med=(data.medications||[]).find(x=>String(x.id)===String(medId));if(!med)return false;
+  const before=Math.max(0,Math.floor(Number(med.stock)||0)),ok=medAdjustStockForDoseBase1780(medId,change),after=Math.max(0,Math.floor(Number(med.stock)||0));
+  if(ok&&before!==after){data.medicationStockAudit=Array.isArray(data.medicationStockAudit)?data.medicationStockAudit:[];data.medicationStockAudit.push({id:medUid("stock"),medId:String(medId),before,after,change:after-before,reason,date:medLocalDate(),createdAt:new Date().toISOString()})}
+  return ok;
+};
+const medicationStockTabBase1780=medicationStockTab;
+medicationStockTab=function(){
+  data.medicationStockAudit=Array.isArray(data.medicationStockAudit)?data.medicationStockAudit:[];
+  return `<section class="card"><div class="section-title"><div><span class="section-kicker">📦 Stock</span><h2>Tablet stock</h2></div></div>${data.medications.length?`<div class="med-stock-list">${data.medications.map(m=>{const count=Math.max(0,Math.floor(Number(m.stock)||0)),low=count<=Math.max(3,Number(m.lowStockThreshold)||7),audit=data.medicationStockAudit.filter(x=>String(x.medId)===String(m.id)).slice(-6).reverse();return `<article class="med-stock-expanded ${low?"low-stock":""}"><div class="med-stock-main"><div><strong>${esc(m.name)}</strong><small>${esc(m.dose||"")}${low?" · Low stock":""}</small></div><span class="med-stock-count">${count} left</span></div><div class="med-stock-actions"><button class="mini primary" data-med-refill="${esc(m.id)}">+ Refill</button><button class="mini" data-med-correct="${esc(m.id)}">Correct count</button><label>Warn at <input type="number" min="0" max="999" value="${Math.max(0,Number(m.lowStockThreshold)||7)}" data-med-low-threshold="${esc(m.id)}"></label></div><details><summary>Stock history (${audit.length})</summary><div class="med-stock-audit">${audit.map(a=>`<div><span>${medDateLabel(a.date)} · ${esc(a.reason)}</span><b>${a.before} → ${a.after}</b></div>`).join("")||"<p>No stock changes recorded yet.</p>"}</div></details></article>`}).join("")}</div>`:"<p>Add medication first.</p>"}</section>`;
+};
+const bindMedicationBase1780=bindMedication;
+bindMedication=function(){
+  bindMedicationBase1780();
+  data.medicationStockAudit=Array.isArray(data.medicationStockAudit)?data.medicationStockAudit:[];
+  document.querySelectorAll("[data-med-refill]").forEach(b=>b.onclick=()=>{const med=data.medications.find(x=>String(x.id)===String(b.dataset.medRefill));if(!med)return;const amount=Number(prompt(`How many ${med.name} tablets were added?`,`28`));if(!Number.isInteger(amount)||amount<=0)return;const before=med.stock||0;med.stock=before+amount;data.medicationStockAudit.push({id:medUid("stock"),medId:med.id,before,after:med.stock,change:amount,reason:"Refill",date:medLocalDate(),createdAt:new Date().toISOString()});saveData();toast(`${amount} tablets added`);render()});
+  document.querySelectorAll("[data-med-correct]").forEach(b=>b.onclick=()=>{const med=data.medications.find(x=>String(x.id)===String(b.dataset.medCorrect));if(!med)return;const next=Number(prompt(`Actual ${med.name} stock`,String(med.stock||0)));if(!Number.isInteger(next)||next<0)return;const note=prompt("Reason for correction","Manual count")||"Manual correction",before=med.stock||0;med.stock=next;data.medicationStockAudit.push({id:medUid("stock"),medId:med.id,before,after:next,change:next-before,reason:note,date:medLocalDate(),createdAt:new Date().toISOString()});saveData();toast("Stock corrected with audit record");render()});
+  document.querySelectorAll("[data-med-low-threshold]").forEach(input=>input.onchange=()=>{const med=data.medications.find(x=>String(x.id)===String(input.dataset.medLowThreshold));if(!med)return;med.lowStockThreshold=Math.max(0,Math.floor(Number(input.value)||0));saveData();render()});
+};

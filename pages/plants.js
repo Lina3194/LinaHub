@@ -63,7 +63,7 @@ function plantStatus(p){
   const days=Math.floor((new Date(today()+"T12:00:00")-new Date(p.lastWatered+"T12:00:00"))/86400000);
   return days>=threshold?{text:`${days} days ago`,className:"attention",icon:"🔔",days,threshold}:{text:"All good",className:"good",icon:"🌿",days,threshold};
 }
-function plantProfileTab(){return ["care","history","notes"].includes(data.plantProfileTab)?data.plantProfileTab:"care"}
+function plantProfileTab(){return ["care","history","photos","notes"].includes(data.plantProfileTab)?data.plantProfileTab:"care"}
 function careGuideHtml(guide){
   if(!guide)return `<section class="card clean-card"><h2>No care guide linked yet</h2><p>Open the encyclopedia and choose the closest match for this plant.</p></section>`;
   return `<section class="card clean-card plant-care-guide">
@@ -210,4 +210,77 @@ function bindPlants(){
       toast(LinaImage.friendlyError(error));
     }
   });
+}
+
+/* LinaHub 17.8.0 — Garden timeline, editable calendar and reminders */
+function plantEnsureExtendedData(p){
+  p.history=Array.isArray(p.history)?p.history:[];
+  p.feedingHistory=Array.isArray(p.feedingHistory)?p.feedingHistory:[];
+  p.repotHistory=Array.isArray(p.repotHistory)?p.repotHistory:[];
+  p.photoHistory=Array.isArray(p.photoHistory)?p.photoHistory:[];
+  if(typeof p.reminderEnabled!=="boolean")p.reminderEnabled=true;
+  data.plantCalendarMonthById=data.plantCalendarMonthById||{};
+}
+function plantMonthShift(value,offset){const [y,m]=String(value||today().slice(0,7)).split("-").map(Number);const d=new Date(y,m-1+Number(offset||0),1);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`}
+function plantTimelineCalendar(p){
+  plantEnsureExtendedData(p);
+  const month=data.plantCalendarMonthById[p.id]||today().slice(0,7);
+  const [year,monthNumber]=month.split("-").map(Number),first=new Date(year,monthNumber-1,1),days=new Date(year,monthNumber,0).getDate(),leading=(first.getDay()+6)%7;
+  const watered=new Set(p.history.filter(x=>x.startsWith(month))),fed=new Set(p.feedingHistory.filter(x=>x.startsWith(month))),repotted=new Set(p.repotHistory.filter(x=>x.startsWith(month)));
+  const cells=[];for(let i=0;i<leading;i++)cells.push('<span class="plant-cal-day empty"></span>');
+  for(let day=1;day<=days;day++){
+    const date=`${month}-${String(day).padStart(2,"0")}`,classes=[watered.has(date)?"watered":"",fed.has(date)?"fed":"",repotted.has(date)?"repotted":""].filter(Boolean).join(" ");
+    const marks=`${watered.has(date)?'<i class="water-mark"></i>':""}${fed.has(date)?'<i class="feed-mark"></i>':""}${repotted.has(date)?'<i class="repot-mark"></i>':""}`;
+    cells.push(`<button type="button" class="plant-cal-day ${classes}" data-plant-calendar-date="${date}"><span>${day}</span>${marks}</button>`);
+  }
+  return `<div class="plant-calendar-head"><button type="button" class="mini" data-plant-month="-1">‹</button><strong>${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</strong><button type="button" class="mini" data-plant-month="1">›</button></div><div class="plant-cal-weekdays">${["M","T","W","T","F","S","S"].map(x=>`<span>${x}</span>`).join("")}</div><div class="plant-cal-grid">${cells.join("")}</div><div class="plant-calendar-legend"><span><i class="water"></i>Watered</span><span><i class="feed"></i>Fed</span><span><i class="repot"></i>Repotted</span></div>`;
+}
+function plantReminderText(p,guide){
+  plantEnsureExtendedData(p);const every=Number(p.wateringDays)||guide?.wateringDays||7;
+  if(!p.reminderEnabled)return "Reminder off";
+  if(!p.lastWatered)return "Watering reminder: today";
+  const due=addDays(p.lastWatered,every),diff=Math.round((new Date(`${due}T12:00:00`)-new Date(`${today()}T12:00:00`))/86400000);
+  return diff<0?`Overdue by ${Math.abs(diff)} day${Math.abs(diff)===1?"":"s"}`:diff===0?"Due today":`Due in ${diff} day${diff===1?"":"s"}`;
+}
+function plantPhotoTimelineHtml(p){
+  plantEnsureExtendedData(p);const rows=[...p.photoHistory].sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  if(!rows.length)return '<p class="muted-copy">No photo timeline yet. New profile photos will be added here automatically.</p>';
+  return `<div class="plant-photo-timeline">${rows.map(item=>{const src=LinaImage.peek(item.key)||"";return `<article>${src?`<img src="${src}" alt="${esc(p.name)} on ${esc(formatDate(item.date))}">`:'<span>📷</span>'}<div><strong>${formatDate(item.date)}</strong><small>${esc(item.note||"Plant photo")}</small></div><button type="button" class="mini danger" data-plant-photo-delete="${esc(item.key)}">×</button></article>`}).join("")}</div>`;
+}
+function PlantProfilePage(){
+  const p=data.plants.find(x=>x.id===routeId);if(!p)return PlantsPage();plantEnsureExtendedData(p);
+  const status=plantStatus(p),active=plantProfileTab(),guide=encyclopediaEntry(p.guideId||p.id,p.name),every=Number(p.wateringDays)||guide?.wateringDays||7;
+  return shell(`${head(p.name,"Plant profile","plants")}
+    <section class="card plant-profile-head"><div class="plant-photo-large">${plantPhotoSrc(p)?`<img src="${plantPhotoSrc(p)}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div><div class="plant-profile-actions"><label class="secondary upload-label">📷 Add / change photo<input id="plantPhoto" type="file" accept="image/*" hidden></label><em class="status-chip ${status.className}">${status.icon} ${status.text}</em></div></section>
+    <div class="profile-tabs">${[["care","Care"],["history","Calendar"],["photos","Photos"],["notes","Notes"]].map(([id,label])=>`<button type="button" data-plant-tab="${id}" class="${active===id?"active":""}">${label}</button>`).join("")}</div>
+    <div class="plant-tab-panel ${active==="care"?"active":""}"><section class="care-summary"><div><small>Last watered</small><strong>${p.lastWatered?formatDate(p.lastWatered):"Not yet"}</strong></div><div><small>Water every</small><strong>${every} days</strong></div><div><small>Reminder</small><strong class="${plantReminderText(p,guide).startsWith("Overdue")?"plant-overdue":""}">${esc(plantReminderText(p,guide))}</strong></div></section>
+      <section class="card clean-card plant-care-actions"><span class="section-kicker">Care log</span><h2>Water, feed or repot</h2><div class="plant-action-grid"><label><span>Date</span><input class="field" id="plantCareDate" type="date" value="${today()}" max="${today()}"></label><button class="primary" id="waterPlant">💧 Watered</button><button class="secondary" id="feedPlant">🌱 Fed</button><button class="secondary" id="repotPlant">🪴 Repotted</button></div><label class="plant-reminder-toggle"><input type="checkbox" id="plantReminderEnabled" ${p.reminderEnabled?"checked":""}><span>Use this plant's last watering date for reminders</span></label></section>${careGuideHtml(guide)}</div>
+    <div class="plant-tab-panel ${active==="history"?"active":""}"><section class="card clean-card plant-calendar-card"><span class="section-kicker">History</span><h2>Plant care calendar</h2><p class="helper-text">Tap a coloured date to edit or remove its care records.</p>${plantTimelineCalendar(p)}</section></div>
+    <div class="plant-tab-panel ${active==="photos"?"active":""}"><section class="card clean-card"><span class="section-kicker">Photo timeline</span><h2>${esc(p.name)} over time</h2>${plantPhotoTimelineHtml(p)}</section></div>
+    <div class="plant-tab-panel ${active==="notes"?"active":""}"><section class="card clean-card"><span class="section-kicker">Notes</span><h2>Care notes</h2><textarea class="field plant-notes" rows="6">${esc(p.notes)}</textarea><button type="button" class="primary" id="savePlantNotes">Save notes</button></section></div>`,'plants');
+}
+function bindPlants(){
+  bindPlantTileControls();
+  document.querySelector("#plantSearch")?.addEventListener("input",e=>{const q=e.target.value.toLowerCase();document.querySelectorAll("[data-plant-name]").forEach(tile=>tile.hidden=!tile.dataset.plantName.includes(q))});
+  document.querySelectorAll("[data-plant-tab]").forEach(b=>b.onclick=()=>{data.plantProfileTab=b.dataset.plantTab;saveData();render()});
+  const p=data.plants.find(x=>x.id===routeId);if(!p)return;plantEnsureExtendedData(p);
+  document.querySelectorAll("[data-plant-month]").forEach(b=>b.onclick=()=>{data.plantCalendarMonthById[p.id]=plantMonthShift(data.plantCalendarMonthById[p.id]||today().slice(0,7),b.dataset.plantMonth);saveData();render()});
+  document.querySelectorAll("[data-plant-calendar-date]").forEach(b=>b.onclick=()=>{
+    const date=b.dataset.plantCalendarDate,hasW=p.history.includes(date),hasF=p.feedingHistory.includes(date),hasR=p.repotHistory.includes(date);
+    const action=prompt(`${formatDate(date)}\nType: water, feed, repot, or remove`,hasW?"water":hasF?"feed":hasR?"repot":"water");if(!action)return;
+    const value=action.trim().toLowerCase();
+    if(value==="remove"){p.history=p.history.filter(x=>x!==date);p.feedingHistory=p.feedingHistory.filter(x=>x!==date);p.repotHistory=p.repotHistory.filter(x=>x!==date)}
+    else if(value.startsWith("water")){p.history=p.history.filter(x=>x!==date);p.history.push(date)}
+    else if(value.startsWith("feed")){p.feedingHistory=p.feedingHistory.filter(x=>x!==date);p.feedingHistory.push(date)}
+    else if(value.startsWith("repot")){p.repotHistory=p.repotHistory.filter(x=>x!==date);p.repotHistory.push(date)}
+    [p.history,p.feedingHistory,p.repotHistory].forEach(a=>a.sort());p.lastWatered=p.history.at(-1)||"";p.lastFed=p.feedingHistory.at(-1)||"";saveData();render();
+  });
+  const careDate=()=>document.querySelector("#plantCareDate")?.value||today();
+  document.querySelector("#waterPlant")?.addEventListener("click",()=>{const d=careDate();if(!p.history.includes(d))p.history.push(d);p.history.sort();p.lastWatered=p.history.at(-1)||"";saveData();toast("Watering logged 💧");render()});
+  document.querySelector("#feedPlant")?.addEventListener("click",()=>{const d=careDate();if(!p.feedingHistory.includes(d))p.feedingHistory.push(d);p.feedingHistory.sort();p.lastFed=p.feedingHistory.at(-1)||"";saveData();toast("Feeding logged 🌱");render()});
+  document.querySelector("#repotPlant")?.addEventListener("click",()=>{const d=careDate();if(!p.repotHistory.includes(d))p.repotHistory.push(d);p.repotHistory.sort();saveData();toast("Repotting logged 🪴");render()});
+  document.querySelector("#plantReminderEnabled")?.addEventListener("change",e=>{p.reminderEnabled=e.target.checked;saveData();render()});
+  document.querySelector("#savePlantNotes")?.addEventListener("click",()=>{p.notes=document.querySelector(".plant-notes").value;saveData();toast("Plant notes saved 🌿")});
+  document.querySelector("#plantPhoto")?.addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;try{const stamp=Date.now(),key=`plant-timeline:${p.id}:${stamp}`,value=await LinaImage.upload({file,key,width:1000,height:1000,fit:"contain",quality:.82,allowUpscale:false});p.photoKey=plantPhotoKey(p);await LinaImage.save(p.photoKey,value);p.photo=value;p.photoHistory.push({key,date:today(),createdAt:new Date().toISOString(),note:"Plant photo"});saveData();toast("Photo added to timeline 📷");render()}catch(error){toast(LinaImage.friendlyError(error))}});
+  document.querySelectorAll("[data-plant-photo-delete]").forEach(b=>b.onclick=async()=>{if(!confirm("Remove this photo from the timeline?"))return;await LinaImage.remove(b.dataset.plantPhotoDelete).catch(()=>{});p.photoHistory=p.photoHistory.filter(x=>x.key!==b.dataset.plantPhotoDelete);saveData();render()});
 }

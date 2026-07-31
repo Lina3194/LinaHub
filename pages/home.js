@@ -146,15 +146,13 @@ function homeTileStatus(id){
 function homeTile(item,editing){
   const [defaultTitle,subtitle,fallback]=HOME_TILE_INFO[item.id];
   const title=data.homeTileNames?.[item.id]||defaultTitle;
-  // Keep these Home tiles simple: their old custom artwork included extra decorative
-  // mini-icons that made the dashboard look cluttered. The saved images are left
-  // untouched in Settings, but are deliberately not rendered on these tiles.
-  const simpleTileIds=new Set(["journal","house","pets","measurements"]);
-  const useCustomArtwork=!!data.homeImages?.[item.id]&&!simpleTileIds.has(item.id);
+  // Always keep the user's chosen main tile artwork. Decorative corner marks are
+  // removed in CSS instead of hiding or replacing the actual uploaded image.
+  const useCustomArtwork=!!data.homeImages?.[item.id];
   const art=useCustomArtwork
     ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
     : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1767" alt="Poké Ball"></span>`
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1768" alt="Poké Ball"></span>`
       : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const route=item.id==="measurements"?"health":item.id;
   const extra=item.id==="measurements"?' data-route-id="log"':"";

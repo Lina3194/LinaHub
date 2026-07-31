@@ -483,3 +483,11 @@ body.home-tile-scroll-locked .home-tile-wrap{
   .home-overview-grid article>span{font-size:1.35rem}
   .home-overview-grid article b{font-size:.68rem}
 }
+
+
+/* LinaHub 17.6.8 — retain main tile artwork; remove only tiny top-right decorations */
+body[data-route="home"] .home-tile-wrap .module::after,
+body[data-route="home"] .home-tile-wrap .module::before {
+  content:none !important;
+  display:none !important;
+}

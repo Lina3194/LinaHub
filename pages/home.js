@@ -146,23 +146,14 @@ function homeTileStatus(id){
 function homeTile(item,editing){
   const [defaultTitle,subtitle,fallback]=HOME_TILE_INFO[item.id];
   const title=data.homeTileNames?.[item.id]||defaultTitle;
-  // Always keep the user's chosen main tile artwork. Decorative corner marks are
-  // removed in CSS instead of hiding or replacing the actual uploaded image.
-  // House and Aquariums use cleaned built-in artwork. Old uploaded versions may
-  // still exist in local/cloud storage, but they must not override these tiles.
-  const fixedArtwork={
-    house:"./icons/home-house-clean.png?v=1771",
-    pets:"./icons/home-aquarium-clean.png?v=1771"
-  };
-  const forcedArtwork=fixedArtwork[item.id]||"";
-  const useCustomArtwork=!forcedArtwork&&!!data.homeImages?.[item.id];
-  const art=forcedArtwork
-    ? `<span class="module-image"><img src="${forcedArtwork}" alt=""></span>`
-    : useCustomArtwork
-      ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
-      : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-        ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1771" alt="Poké Ball"></span>`
-        : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
+  // Keep the user's chosen main tile artwork. Only the tiny decorative corner
+  // marks are removed separately; the actual tile image itself must stay intact.
+  const useCustomArtwork=!!data.homeImages?.[item.id];
+  const art=useCustomArtwork
+    ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
+    : item.id==="pokemon" && !(data.homeIcons?.[item.id])
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1772" alt="Poké Ball"></span>`
+      : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const route=item.id==="measurements"?"health":item.id;
   const extra=item.id==="measurements"?' data-route-id="log"':"";
   const content=`${art}<strong>${esc(title)}</strong><small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span>`;

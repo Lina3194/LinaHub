@@ -43,31 +43,39 @@ function lina17InsertStandardBanner(key,src,routeAtRequest){
   header.insertAdjacentElement("afterend",banner);
 }
 
+function linaBannerKey(routeName){
+  return ({
+    journal:"journal",today:"today",todo:"todo",shopping:"shopping",
+    plants:"plants",plant:"plants",medication:"medication",pokemon:"pokemon",
+    pets:"pets",tank:"pets",house:"house",health:"health",period:"period",
+    treasures:"treasures",hobbies:"hobbies",books:"books",gaming:"gaming"
+  })[routeName]||"";
+}
+
+function linaBannerValue(key){
+  if(!key) return "";
+  return data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||"";
+}
+
 function lina17StandardBanner(routeName){
-  const keyMap={
-    journal:"journal",today:"today",todo:"todo",plants:"plants",plant:"plants",
-    medication:"medication",pokemon:"pokemon",pets:"pets",tank:"pets",house:"house",
-    period:"period",treasures:"treasures"
-  };
-  const key=keyMap[routeName];
+  const key=linaBannerKey(routeName);
   if(!key)return;
   const routeAtRequest=route;
-  const src=data.moduleBanners?.[key]||"";
+  const src=linaBannerValue(key);
   if(src){
     lina17InsertStandardBanner(key,src,routeAtRequest);
     return;
   }
 
-  // The main JSON deliberately does not contain image data. Always fall back to
-  // IndexedDB here as well, so a refresh, cloud sync or later re-render cannot
-  // temporarily replace a saved banner with an empty value.
+  // Always ask IndexedDB directly. This is essential on iOS/Android PWAs,
+  // where the page can render before a cloud-restored banner is in memory.
   if(window.LinaImage){
     LinaImage.load(`banner:${key}`).then(saved=>{
-      if(!saved)return;
+      if(!saved||route!==routeAtRequest)return;
       data.moduleBanners=data.moduleBanners||{};
       data.moduleBanners[key]=saved;
       lina17InsertStandardBanner(key,saved,routeAtRequest);
-    }).catch(()=>{});
+    }).catch(error=>console.error("Could not restore banner",key,error));
   }
 }
 
@@ -507,7 +515,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1780",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1781",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

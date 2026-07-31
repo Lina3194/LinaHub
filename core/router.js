@@ -16,15 +16,16 @@ function nav(active){
 }
 
 function moduleBanner(active){
-  const image=data.moduleBanners?.[active];
+  const key=typeof linaBannerKey==="function"?linaBannerKey(active):({plant:"plants",tank:"pets"})[active]||active;
+  const image=data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||"";
   if(!image||active==="home"||active==="settings") return "";
   const names={
-    journal:"Journal",today:"Today",todo:"To-do",shopping:"Shopping",health:"Measures",hobbies:"Hobbies",books:"Books",gaming:"Gaming",
-    plants:"Plants",medication:"Medication",pokemon:"Pokémon GO",pets:"Aquariums",house:"House",period:"Period Tracker",budget:"Budget & Bills",treasures:"Treasure Room"
+    journal:"Daily Check-in",today:"Today",todo:"To-do",shopping:"Shopping",health:"Measurements",hobbies:"Hobbies",books:"Books",gaming:"Gaming",
+    plants:"Garden",medication:"Medication",pokemon:"Pokémon GO",pets:"Aquariums",house:"House",period:"Period Tracker",treasures:"Treasure Room"
   };
-  return `<section class="module-banner ${active==="plants"?"plants-module-banner":""}">
+  return `<section class="module-banner ${key==="plants"?"plants-module-banner":""}">
     <img src="${image}" alt="">
-    <span>${esc(names[active]||active)}</span>
+    <span>${esc(names[key]||key)}</span>
   </section>`;
 }
 

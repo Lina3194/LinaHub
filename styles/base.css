@@ -1977,3 +1977,11 @@ body[data-route="house"] .shopping-household-card{display:none!important}
   content:none!important;
 }
 .page-head{padding-right:0!important;}
+
+/* LinaHub 17.8.1 — banners remain visible in phone/PWA layouts */
+.module-banner{width:100%;min-height:150px;display:flex;box-sizing:border-box}
+@media(max-width:560px){
+  .module-banner{min-height:112px;margin:0 0 12px;border-radius:18px;padding:12px}
+  .module-banner>img{display:block!important;visibility:visible!important;opacity:1!important;object-fit:cover}
+  .module-banner>span{font-size:1rem}
+}

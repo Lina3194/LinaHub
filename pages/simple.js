@@ -86,15 +86,18 @@ function SettingsPage(){
       <div class="banner-art-grid">
         ${[
           ["journal","Daily Check-in"],["today","Today"],["todo","To-do"],
-          ["plants","Plants"],["medication","Medication"],["pokemon","Pokémon GO"],["pets","Aquariums"],["house","House"],["period","Period Tracker"],["treasures","Treasure Room"]
+          ["plants","Garden"],["pets","Aquariums"],["house","House"],["shopping","Shopping"],
+          ["medication","Medication"],["health","Measurements"],["period","Period Tracker"],
+          ["pokemon","Pokémon GO"],["treasures","Treasure Room"],
+          ["hobbies","Self Care"],["books","Books"],["gaming","Gaming"]
         ].map(([key,label])=>`
           <article class="banner-art-setting">
-            <div class="banner-art-preview">${data.moduleBanners?.[key]?`<img src="${data.moduleBanners[key]}" alt="">`:`<span>${esc(data.homeIcons?.[key]||"✨")}</span>`}</div>
+            <div class="banner-art-preview">${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`))?`<img src="${data.moduleBanners?.[key]||window.LinaImage.peek(`banner:${key}`)}" alt="">`:`<span>${esc(data.homeIcons?.[key]||data.moduleIcons?.[key]||"✨")}</span>`}</div>
             <strong>${label}</strong>
             <div class="banner-art-actions">
-              <button type="button" class="secondary compact-upload" data-pick-banner-image="${key}">${data.moduleBanners?.[key]?"Change":"Add"}</button>
+              <button type="button" class="secondary compact-upload" data-pick-banner-image="${key}">${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`))?"Change":"Add"}</button>
               <input type="file" accept="image/*" data-banner-image="${key}" hidden>
-              ${data.moduleBanners?.[key]?`<button class="mini danger" data-remove-banner-image="${key}" aria-label="Remove ${label} banner">×</button>`:""}
+              ${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`))?`<button class="mini danger" data-remove-banner-image="${key}" aria-label="Remove ${label} banner">×</button>`:""}
             </div>
           </article>`).join("")}
       </div>
@@ -107,7 +110,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.8.0")}<br><br>31 Jul 2026</p>`,"settings");
+  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.8.1")}<br><br>31 Jul 2026</p>`,"settings");
 }
 
 function bindSimple(){
@@ -269,7 +272,10 @@ function bindSimple(){
         const key=isBanner?input.dataset.bannerImage:input.dataset.tabImage;
         const previous=isBanner?data.moduleBanners?.[key]:data.homeImages?.[key];
         try{
-          const value=await LinaImage.upload({file,key:`${isBanner?"banner":"tab"}:${key}`,width:isBanner?1400:420,height:isBanner?560:420,fit:"cover",quality:isBanner?0.84:0.82});
+          const storageKey=`${isBanner?"banner":"tab"}:${key}`;
+          const value=await LinaImage.upload({file,key:storageKey,width:isBanner?1400:420,height:isBanner?560:420,fit:"cover",quality:isBanner?0.84:0.82});
+          const verified=await LinaImage.load(storageKey);
+          if(!verified) throw new Error("Saved image could not be restored");
           if(isBanner){data.moduleBanners=data.moduleBanners||{};data.moduleBanners[key]=value;}
           else{
             data.homeImages=data.homeImages||{};data.homeImages[key]=value;

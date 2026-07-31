@@ -75,14 +75,14 @@ function lina17HeaderIllustration(routeName){
   const art={
     plants:{emoji:"🪴",bits:["🌿","🌸","✨"]},
     plant:{emoji:"🪴",bits:["🌿","🌸","✨"]},
-    pets:{emoji:"🐠",bits:["🫧","🌿","✨"]},
-    tank:{emoji:"🐠",bits:["🫧","🌿","✨"]},
+    pets:{emoji:"🐠",bits:[]},
+    tank:{emoji:"🐠",bits:[]},
     todo:{emoji:"📋",bits:["🌸","✏️","✨"]},
-    journal:{emoji:"📔",bits:["✨","🌙","🌸"]},
-    today:{emoji:"📔",bits:["✨","🌙","🌸"]},
+    journal:{emoji:"📔",bits:[]},
+    today:{emoji:"📔",bits:[]},
     budget:{emoji:"👛",bits:["🪙","🌸","✨"]},
-    health:{emoji:"📏",bits:["💗","✨","〰️"]},
-    house:{emoji:"🏡",bits:["🌸","🪴","✨"]}
+    health:{emoji:"📏",bits:[]},
+    house:{emoji:"🏡",bits:[]}
   }[routeName];
   if(!art)return;
   const header=document.querySelector(".page-head");

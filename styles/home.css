@@ -485,7 +485,7 @@ body.home-tile-scroll-locked .home-tile-wrap{
 }
 
 
-/* LinaHub 17.6.8 — retain main tile artwork; remove only tiny top-right decorations */
+/* LinaHub 17.6.9 — retain main tile artwork; remove only tiny top-right decorations */
 body[data-route="home"] .home-tile-wrap .module::after,
 body[data-route="home"] .home-tile-wrap .module::before {
   content:none !important;

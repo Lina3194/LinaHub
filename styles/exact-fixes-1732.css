@@ -132,7 +132,7 @@ body[data-route="pokemon"] .shell {
 }
 
 
-/* LinaHub 17.6.8 — clean shopping tiles and correct aquarium desktop maintenance */
+/* LinaHub 17.6.9 — clean shopping tiles and correct aquarium desktop maintenance */
 .shopping-category-tile::after{display:none!important;content:none!important}
 .shopping-category-tile>b{display:none!important}
 .shopping-category-tile{grid-template-columns:auto minmax(0,1fr)!important;overflow:visible!important}

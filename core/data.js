@@ -48,6 +48,7 @@ async function hydrateLinaMedia(){
     const tank=data.aquariums.find(item=>item.id===tankId);
     if(tank&&saved&&tank.photo!==saved){tank.photo=saved;changed=true}
   }
+  if(await applyTileArtworkCleanup1770()) changed=true;
   return changed;
 }
 
@@ -377,6 +378,29 @@ function loadData(){
   }catch{
     return structuredClone(DEFAULT_DATA);
   }
+}
+
+
+async function applyTileArtworkCleanup1770(){
+  if(data.tileArtworkCleanup1770) return false;
+  data.homeImages=data.homeImages||{};
+  let changed=false;
+  const replacements={
+    house:"./icons/home-house-clean.png?v=1770",
+    pets:"./icons/home-aquarium-clean.png?v=1770"
+  };
+  for(const [key,value] of Object.entries(replacements)){
+    if(data.homeImages[key]!==value){
+      data.homeImages[key]=value;
+      changed=true;
+    }
+    try{await deleteLinaImage(`tab:${key}`)}catch{}
+  }
+  if(data.tileArtworkCleanup1770!==true){
+    data.tileArtworkCleanup1770=true;
+    changed=true;
+  }
+  return changed;
 }
 
 function moduleIcon(key,fallback="✨"){

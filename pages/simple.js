@@ -76,7 +76,7 @@ function SettingsPage(){
           ["Shopping",[["shoppingFridge","Fridge","❄️"],["shoppingFreezer","Freezer","🧊"],["shoppingPantry","Pantry","🥫"],["shoppingCleaning","Cleaning Supplies","🧽"],["shoppingToiletries","Toiletries","🧴"]]],
           ["House & Aquariums",[["rooms","Rooms","🏠"],["inventory","Inventory","📦"],["girlsTank","Girls Tank","🩷"],["boysTank","Boys Tank","💙"],["aquariumMaintenance","Maintenance","🫧"]]],
           ["Budget",[["bills","Bills","🧾"],["savings","Savings","💰"],["income","Income","💷"],["expenses","Expenses","💸"]]]
-        ].map(([group,items])=>`<section class="icon-setting-group"><h3>${group}</h3><div class="tab-art-grid">${items.map(([key,label,fallback])=>`<article class="tab-art-setting"><div class="tab-art-preview">${data.homeImages?.[key]?`<img src="${data.homeImages[key]}" alt="">`:`<span>${esc(moduleIcon(key,fallback))}</span>`}</div><div class="tab-art-copy"><strong>${label}</strong></div><div class="tab-art-actions"><button type="button" class="secondary compact-upload" data-pick-tab-image="${key}">${data.homeImages?.[key]?"Change":"Add image"}</button><input type="file" accept="image/*" data-tab-image="${key}" hidden>${data.homeImages?.[key]?`<button type="button" class="mini danger" data-remove-tab-image="${key}">Remove</button>`:""}</div></article>`).join("")}</div></section>`).join("")}
+        ].map(([group,items])=>`<section class="icon-setting-group"><h3>${group}</h3><div class="tab-art-grid">${items.map(([key,label,fallback])=>`<article class="tab-art-setting"><div class="tab-art-preview">${key==="house"?`<img src="./icons/home-house-clean.png?v=1771" alt="">`:key==="pets"?`<img src="./icons/home-aquarium-clean.png?v=1771" alt="">`:data.homeImages?.[key]?`<img src="${data.homeImages[key]}" alt="">`:`<span>${esc(moduleIcon(key,fallback))}</span>`}</div><div class="tab-art-copy"><strong>${label}</strong></div><div class="tab-art-actions"><button type="button" class="secondary compact-upload" data-pick-tab-image="${key}">${data.homeImages?.[key]?"Change":"Add image"}</button><input type="file" accept="image/*" data-tab-image="${key}" hidden>${data.homeImages?.[key]?`<button type="button" class="mini danger" data-remove-tab-image="${key}">Remove</button>`:""}</div></article>`).join("")}</div></section>`).join("")}
       </div>
       </div>
     </section>
@@ -107,7 +107,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.7.0")}<br><br>31 Jul 2026</p>`,"settings");
+  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.7.1")}<br><br>31 Jul 2026</p>`,"settings");
 }
 
 function bindSimple(){

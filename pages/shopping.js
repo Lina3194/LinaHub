@@ -99,7 +99,6 @@ function ShoppingPage(){
     return `<button type="button" class="shopping-category-tile ${active===category.id?"active":""}" data-shopping-category="${category.id}">
       <span class="shopping-category-art">${moduleVisual(category.iconKey,category.fallback,"module-tile-image")}</span>
       <span class="shopping-category-copy"><strong>${category.name}</strong><small>${regularCount?`${regularCount} regular item${regularCount===1?"":"s"}`:category.hint}</small></span>
-      <b>${count}</b>
     </button>`;
   }).join("");
 

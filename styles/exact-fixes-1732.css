@@ -130,3 +130,83 @@ body[data-route="pokemon"] .shell {
     line-height: 1 !important;
   }
 }
+
+
+/* LinaHub 17.6.6 — clean shopping tiles and correct aquarium desktop maintenance */
+.shopping-category-tile::after{display:none!important;content:none!important}
+.shopping-category-tile>b{display:none!important}
+.shopping-category-tile{grid-template-columns:auto minmax(0,1fr)!important;overflow:visible!important}
+
+@media (min-width:601px){
+  body[data-route="tank"] .maintenance-rows{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    gap:10px!important;
+  }
+  body[data-route="tank"] .maintenance-row{
+    display:grid!important;
+    grid-template-columns:minmax(260px,1fr) minmax(330px,.9fr)!important;
+    align-items:center!important;
+    gap:16px!important;
+    min-height:82px!important;
+    padding:12px 14px!important;
+    border:1px solid var(--line)!important;
+    border-radius:18px!important;
+    background:rgba(255,255,255,.025)!important;
+  }
+  body[data-route="tank"] .maintenance-quick-button{
+    grid-column:1!important;
+    grid-row:1!important;
+    width:100%!important;
+    min-width:0!important;
+    display:grid!important;
+    grid-template-columns:42px minmax(0,1fr) auto!important;
+    align-items:center!important;
+    gap:12px!important;
+    padding:0!important;
+    border:0!important;
+    background:transparent!important;
+    color:inherit!important;
+    text-align:left!important;
+  }
+  body[data-route="tank"] .maintenance-quick-button .maintenance-icon{
+    width:42px!important;
+    height:42px!important;
+    display:grid!important;
+    place-items:center!important;
+    border-radius:13px!important;
+    background:var(--purple-soft)!important;
+    font-size:1.2rem!important;
+  }
+  body[data-route="tank"] .maintenance-quick-button span:nth-child(2){min-width:0!important;display:block!important}
+  body[data-route="tank"] .maintenance-quick-button strong{display:block!important;font-size:.92rem!important;line-height:1.2!important}
+  body[data-route="tank"] .maintenance-quick-button small{display:block!important;margin-top:3px!important;font-size:.72rem!important;line-height:1.2!important;color:var(--muted)!important}
+  body[data-route="tank"] .maintenance-quick-button>b{display:block!important;opacity:.5!important}
+  body[data-route="tank"] .maintenance-date-controls{
+    grid-column:2!important;
+    grid-row:1!important;
+    display:grid!important;
+    grid-template-columns:minmax(180px,1fr) auto!important;
+    align-items:center!important;
+    gap:10px!important;
+    width:100%!important;
+    min-width:0!important;
+    margin:0!important;
+  }
+  body[data-route="tank"] .maintenance-date-controls .field,
+  body[data-route="tank"] .maintenance-date-controls .secondary{
+    grid-column:auto!important;
+    grid-row:auto!important;
+    width:100%!important;
+    min-width:0!important;
+    height:42px!important;
+    min-height:42px!important;
+    margin:0!important;
+    font-size:.82rem!important;
+  }
+  body[data-route="tank"] .maintenance-date-controls .secondary{
+    width:auto!important;
+    padding-inline:14px!important;
+    white-space:nowrap!important;
+  }
+}

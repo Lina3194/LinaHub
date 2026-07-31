@@ -1968,3 +1968,12 @@ body[data-route="house"] .shopping-household-card{display:none!important}
 @media(max-width:600px){
   .plants-module-banner{min-height:132px;border-radius:21px;margin-top:6px;margin-bottom:13px}
 }
+
+
+/* LinaHub 17.7.3 — no decorative illustrations in page-header top-right corners */
+.lina-header-art,
+.page-head > .lina-header-art{
+  display:none!important;
+  content:none!important;
+}
+.page-head{padding-right:0!important;}

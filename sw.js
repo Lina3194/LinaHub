@@ -1,4 +1,4 @@
-const BUILD_VERSION = "linahub-v17.9.8";
+const BUILD_VERSION = "linahub-v17.9.9";
 const CACHE = BUILD_VERSION;
 const ASSETS = [
   "./",
@@ -15,7 +15,7 @@ const ASSETS = [
   "./styles/plants.css?v=1793",
   "./styles/modules.css?v=1793",
   "./styles/period.css?v=1793",
-  "./styles/treasures.css?v=1793",
+  "./styles/treasures.css?v=1799",
   "./styles/phone-final-fixes.css?v=1793",
   "./styles/phone-ui-1714.css?v=1793",
   "./styles/phone-ui-1715.css?v=1793",
@@ -42,7 +42,7 @@ const ASSETS = [
   "./pages/simple.js?v=1793",
   "./pages/aquariums.js?v=1793",
   "./pages/period.js?v=1793",
-  "./pages/treasures.js?v=1793",
+  "./pages/treasures.js?v=1799",
   "./pages/budget.js?v=1793",
   "./pages/history.js?v=1793",
   "./app.js?v=1793",

@@ -195,66 +195,61 @@ function treasureHint(t){
 function collectedTreasures(){return TREASURE_DEFINITIONS.filter(t=>treasureState(t.id)?.collected)}
 function waitingTreasures(){return TREASURE_DEFINITIONS.filter(t=>treasureState(t.id)&&!treasureState(t.id).collected)}
 function visibleBookTreasures(){return TREASURE_DEFINITIONS.filter(t=>!t.hidden||treasureState(t.id)?.collected)}
-function treasureTrinket(t){
-  const labels={
-    "golden-lemon":"A tiny golden lemon from your lemon tree",
-    "surprise-bloom":"A little pink rose from your first rose plant",
-    "first-plant":"A tiny first seedling",
-    "five-plants":"A little potted plant",
-    "ten-plants":"A leafy garden sprig",
-    "orchid-keeper":"A delicate orchid bloom",
-    "herb-garden":"A small bundle of herbs",
-    "plant-photo":"A miniature framed garden portrait",
-    "first-journal":"A tiny leather journal",
-    "journal-seven":"A little writing quill",
-    "journal-thirty":"A miniature stack of journals",
-    "journal-hundred":"A tiny archive box",
-    "midnight-visitor":"A silver moon charm",
-    "early-bird":"A sunrise charm",
-    "first-task":"A tiny handwritten list",
-    "ten-tasks":"A little completed checklist",
-    "house-care":"A miniature home",
-    "sanctuary-key":"A tiny brass key",
-    "first-med":"A little care bottle",
-    "med-ten":"A comforting cup of tea",
-    "cycle-bloom":"A cycle flower charm",
-    "gentle-heart":"A small purple heart",
-    "little-aquarium":"A tiny glass fish",
-    "aquarium-care":"A little shell",
-    "two-tanks":"A cluster of water bubbles",
-    "collector-five":"A small crystal ball",
-    "collector-twelve":"A cut gem",
-    "room-visitor":"A tiny candle",
-    "all-shelves":"A miniature curator crown"
+function treasureJewelProfile(t){
+  const shapes=["oval","pear","emerald","marquise","cushion","round"];
+  const palettes={
+    Garden:["emerald","moss","peridot"],
+    Journal:["amethyst","violet","sapphire"],
+    Home:["ruby","garnet","amber"],
+    Wellness:["rose","lavender","opal"],
+    Aquariums:["aqua","sapphire","teal"],
+    Hidden:["midnight","opal","champagne"]
   };
-  return `<i class="shelf-trinket trinket-${t.id}" data-treasure="${t.id}" title="${labels[t.id]||t.name}" aria-label="${labels[t.id]||t.name}"><span>${t.icon}</span></i>`;
+  const categoryOffset={Garden:0,Journal:2,Home:4,Wellness:1,Aquariums:3,Hidden:5}[t.category]||0;
+  const index=Math.max(0,TREASURE_DEFINITIONS.findIndex(x=>x.id===t.id));
+  const toneSet=palettes[t.category]||palettes.Hidden;
+  return {shape:shapes[(index+categoryOffset)%shapes.length],tone:toneSet[index%toneSet.length]};
+}
+function treasureJewel(t,options={}){
+  const profile=treasureJewelProfile(t),rarity=treasureRarity(t).toLowerCase();
+  const classes=["jewel-piece",`shape-${profile.shape}`,`tone-${profile.tone}`,`rarity-${rarity}`];
+  if(options.small)classes.push("jewel-small");
+  if(options.modal)classes.push("jewel-modal-size");
+  if(options.locked)classes.push("jewel-locked");
+  return `<span class="${classes.join(" ")}" aria-hidden="true"><span class="jewel-filigree"></span><span class="jewel-setting"><i class="jewel-gem"></i><i class="jewel-prong prong-one"></i><i class="jewel-prong prong-two"></i><i class="jewel-prong prong-three"></i><i class="jewel-prong prong-four"></i></span></span>`;
+}
+function treasureShelfJewel(t){
+  return `<button type="button" class="shelf-jewel" data-treasure="${t.id}" title="${t.name}" aria-label="Open ${t.name}">${treasureJewel(t)}<span class="shelf-jewel-name">${t.name}</span></button>`;
 }
 
 function TreasureRoomPage(){
   ensureTreasureData();
   const collected=collectedTreasures(),waiting=waitingTreasures();
   return shell(`
-    ${head("Treasure Room","Your enchanted archive","home")}
-    <section class="treasure-intro"><div><span class="section-kicker">LinaHub Sanctuary</span><h1>Your Treasure Room</h1><p>Each shelf keeps the moments, habits and little victories you have gathered.</p></div><div class="treasure-count"><b>${collected.length}</b><small>discovered</small></div></section>
-    <section class="treasure-library" aria-label="Enchanted treasure bookcase">
-      <div class="library-moon"></div>
-      <div class="grand-bookcase">
-        <div class="bookcase-crown"><span>✦</span><b>THE TREASURE ARCHIVE</b><span>✦</span></div>
-        ${TREASURE_SHELVES.map(category=>{const items=collected.filter(t=>t.category===category).slice(0,10);return `<button class="archive-shelf" data-shelf="${category}" aria-label="${category} shelf"><span class="shelf-display">${items.map(t=>treasureTrinket(t)).join("")}${Array.from({length:Math.max(0,10-items.length)},()=>`<i class="shelf-empty"><span>✧</span></i>`).join("")}</span></button>`}).join("")}
+    ${head("Treasure Room","Your private jewel archive","home")}
+    <section class="treasure-intro"><div><span class="section-kicker">LinaHub Collection</span><h1>Your Jewel Archive</h1><p>Each jewel marks a habit, memory or little victory you have gathered.</p></div><div class="treasure-count"><b>${collected.length}</b><small>discovered</small></div></section>
+    <section class="treasure-library" aria-label="Antique jewellery display case">
+      <div class="velvet-bloom velvet-bloom-one"></div><div class="velvet-bloom velvet-bloom-two"></div>
+      <div class="grand-jewel-case">
+        <div class="jewel-case-crown"><span>❦</span><div><small>THE PRIVATE COLLECTION</small><b>JEWEL ARCHIVE</b></div><span>❦</span></div>
+        <div class="jewel-case-inner">
+          ${TREASURE_SHELVES.map(category=>{const items=collected.filter(t=>t.category===category).slice(0,10);return `<section class="archive-jewel-row" data-shelf="${category}" aria-label="${category} jewels"><header><span>${category}</span><small>${items.length} ${items.length===1?"jewel":"jewels"}</small></header><div class="jewel-shelf"><div class="jewel-shelf-display">${items.map(t=>treasureShelfJewel(t)).join("")}${Array.from({length:Math.max(0,10-items.length)},()=>`<span class="jewel-empty" aria-hidden="true"><i></i></span>`).join("")}</div></div></section>`}).join("")}
+        </div>
       </div>
     </section>
-    ${waiting.length?`<section class="waiting-table card"><div><span class="section-kicker">New treasure discovered</span><h2>${waiting.length} waiting to be opened</h2><p>Your archive has found something new.</p></div><button class="gift-parcel" id="collectTreasure"><span>✦</span><b>Discover</b></button></section>`:""}
-    <section class="card treasure-book"><div class="section-title"><div><span class="section-kicker">Treasure Book</span><h2>Your discoveries</h2></div><small>${collected.length}/${TREASURE_DEFINITIONS.length}</small></div><div class="treasure-grid">${visibleBookTreasures().map(t=>{const s=treasureState(t.id);return s?.collected?`<button class="treasure-card" data-treasure="${t.id}"><span>${t.icon}</span><strong>${t.name}</strong><small>${t.category} · ${treasureRarity(t)}</small></button>`:`<button type="button" class="treasure-card locked" data-locked-treasure="${t.id}" onclick="openTreasureHintModal('${t.id}')" aria-label="Undiscovered ${t.category} treasure. Tap for a hint."><span>?</span><strong>Undiscovered</strong><small>${t.category} · Tap for a hint</small></button>`}).join("")}</div></section>
+    ${waiting.length?`<section class="waiting-table card"><div><span class="section-kicker">New jewel discovered</span><h2>${waiting.length} waiting to be set</h2><p>Your collection has found something new.</p></div><button class="gift-parcel" id="collectTreasure"><span>◆</span><b>Reveal jewel</b></button></section>`:""}
+    <section class="card treasure-book"><div class="section-title"><div><span class="section-kicker">Jewel Index</span><h2>Your collection</h2></div><small>${collected.length}/${TREASURE_DEFINITIONS.length}</small></div><div class="treasure-grid">${visibleBookTreasures().map(t=>{const s=treasureState(t.id);return s?.collected?`<button class="treasure-card" data-treasure="${t.id}">${treasureJewel(t,{small:true})}<span class="treasure-card-copy"><strong>${t.name}</strong><small>${t.category} · ${treasureRarity(t)}</small></span><i class="treasure-card-arrow">›</i></button>`:`<button type="button" class="treasure-card locked" data-locked-treasure="${t.id}" onclick="openTreasureHintModal('${t.id}')" aria-label="Undiscovered ${t.category} treasure. Tap for a hint.">${treasureJewel(t,{small:true,locked:true})}<span class="treasure-card-copy"><strong>Undiscovered</strong><small>${t.category} · Tap for a hint</small></span><i class="treasure-card-arrow">?</i></button>`}).join("")}</div></section>
     <div id="treasureModal"></div>
   `,"treasures");
 }
+
 function openTreasureModal(id,newlyCollected=false){
   const t=TREASURE_DEFINITIONS.find(x=>x.id===id);if(!t)return;
   const s=treasureState(id);
   closeTreasureModal();
   const portal=document.createElement("div");
   portal.id="treasureModalPortal";
-  portal.innerHTML=`<div class="treasure-modal-backdrop"><div class="treasure-modal ${newlyCollected?"reveal":""}" role="dialog" aria-modal="true" aria-label="${t.name}"><button class="modal-close" data-close-treasure aria-label="Close treasure">×</button><div class="modal-sparkles">✦　✧　✦</div><div class="modal-treasure-icon">${t.icon}</div><span class="section-kicker">${newlyCollected?"New treasure discovered":t.category}</span><h2>${t.name}</h2><div class="treasure-rarity">${treasureRarity(t)}</div><p>${t.story}</p><small>Discovered ${new Date(s?.unlockedAt||Date.now()).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}</small></div></div>`;
+  portal.innerHTML=`<div class="treasure-modal-backdrop"><div class="treasure-modal ${newlyCollected?"reveal":""}" role="dialog" aria-modal="true" aria-label="${t.name}"><button class="modal-close" data-close-treasure aria-label="Close treasure">×</button><div class="modal-sparkles">✦　✧　✦</div><div class="modal-treasure-icon">${treasureJewel(t,{modal:true})}</div><span class="section-kicker">${newlyCollected?"New treasure discovered":t.category}</span><h2>${t.name}</h2><div class="treasure-rarity">${treasureRarity(t)}</div><p>${t.story}</p><small>Discovered ${new Date(s?.unlockedAt||Date.now()).toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"})}</small></div></div>`;
   document.body.appendChild(portal);
   document.body.classList.add("treasure-modal-open");
   bindTreasureModal();
@@ -264,7 +259,7 @@ function openTreasureHintModal(id){
   closeTreasureModal();
   const portal=document.createElement("div");
   portal.id="treasureModalPortal";
-  portal.innerHTML=`<div class="treasure-modal-backdrop"><div class="treasure-modal treasure-hint-modal" role="dialog" aria-modal="true" aria-label="Hint for an undiscovered treasure"><button class="modal-close" data-close-treasure aria-label="Close hint">×</button><div class="modal-sparkles">✧　✦　✧</div><div class="locked-treasure-mark">?</div><span class="section-kicker">Hidden treasure</span><h2>Still undiscovered</h2><div class="hint-label">A little hint</div><p>${treasureHint(t)}</p><small>${t.category} shelf</small></div></div>`;
+  portal.innerHTML=`<div class="treasure-modal-backdrop"><div class="treasure-modal treasure-hint-modal" role="dialog" aria-modal="true" aria-label="Hint for an undiscovered treasure"><button class="modal-close" data-close-treasure aria-label="Close hint">×</button><div class="modal-sparkles">✧　✦　✧</div><div class="locked-treasure-mark">${treasureJewel(t,{modal:true,locked:true})}</div><span class="section-kicker">Hidden treasure</span><h2>Still undiscovered</h2><div class="hint-label">A little hint</div><p>${treasureHint(t)}</p><small>${t.category} shelf</small></div></div>`;
   document.body.appendChild(portal);
   document.body.classList.add("treasure-modal-open");
   bindTreasureModal();
@@ -287,5 +282,4 @@ function bindTreasures(){
   document.querySelector("#collectTreasure")?.addEventListener("click",()=>{const n=waitingTreasures()[0];if(!n)return;data.treasures[n.id].collected=true;saveData();openTreasureModal(n.id,true)});
   document.querySelectorAll("[data-treasure]").forEach(c=>c.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openTreasureModal(c.dataset.treasure)}));
   document.querySelectorAll("[data-locked-treasure]").forEach(c=>c.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openTreasureHintModal(c.dataset.lockedTreasure)}));
-  document.querySelectorAll("[data-shelf]").forEach(s=>s.addEventListener("click",()=>{const first=collectedTreasures().find(t=>t.category===s.dataset.shelf);if(first)openTreasureModal(first.id);else toast("This shelf is waiting for its first treasure")}));
 }

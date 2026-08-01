@@ -349,13 +349,8 @@ function JournalSleepPage(){
   const meta=trackerMetricMeta(metric);
   const yearKey=journalSleepYearKey();
   const yearNumber=Number(yearKey);
-  const yearsInHistory=rows.map(row=>Number(row.date.slice(0,4))).filter(Boolean).sort((a,b)=>a-b);
-  const earliestYear=yearsInHistory[0]||new Date().getFullYear();
-  const latestYear=yearsInHistory[yearsInHistory.length-1]||new Date().getFullYear();
-  const nextDisabled=yearNumber>=latestYear;
-  const prevDisabled=yearNumber<=earliestYear;
   return shell(`<div class="tracker-page-compact tracker-page-year">${head("Journal","Yearly wellness tracker")}${journalTabs("sleep")}
-    <section class="card sleep-calendar-controls tracker-hero-card"><div><span class="section-kicker">Yearly wellness tracker</span><h2>${yearKey}</h2><p class="tracker-helper">Today: ${esc(new Date(today()+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}))} · ${meta.label}</p></div><label><span>Tracker</span><select class="field" id="journalSleepMetric"><option value="sleep" ${metric==="sleep"?"selected":""}>Sleep</option><option value="deep" ${metric==="deep"?"selected":""}>Deep sleep</option><option value="pain" ${metric==="pain"?"selected":""}>Pain</option><option value="mood" ${metric==="mood"?"selected":""}>Mood</option><option value="energy" ${metric==="energy"?"selected":""}>Energy</option></select></label><div class="sleep-month-arrows"><button type="button" data-sleep-year-step="-1" aria-label="Previous year" ${prevDisabled?"disabled":""}>‹</button><button type="button" data-sleep-year-step="1" aria-label="Next year" ${nextDisabled?"disabled":""}>›</button></div><div class="tracker-metric-tabs">${trackerMetricButtons(metric)}</div></section>
+    <section class="card sleep-calendar-controls tracker-hero-card"><div><span class="section-kicker">Yearly wellness tracker</span><h2>${yearKey}</h2><p class="tracker-helper">Today: ${esc(new Date(today()+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}))} · ${meta.label}</p></div><label><span>Tracker</span><select class="field" id="journalSleepMetric"><option value="sleep" ${metric==="sleep"?"selected":""}>Sleep</option><option value="deep" ${metric==="deep"?"selected":""}>Deep sleep</option><option value="pain" ${metric==="pain"?"selected":""}>Pain</option><option value="mood" ${metric==="mood"?"selected":""}>Mood</option><option value="energy" ${metric==="energy"?"selected":""}>Energy</option></select></label><div class="sleep-month-arrows tracker-year-controls"><button type="button" data-sleep-year-step="-1" aria-label="Previous year">‹</button><button type="button" class="tracker-today-button" data-tracker-today>Today</button><button type="button" data-sleep-year-step="1" aria-label="Next year">›</button></div><div class="tracker-metric-tabs">${trackerMetricButtons(metric)}</div></section>
     ${journalSleepCalendar(rows,metric,yearKey)}
     ${journalTrackerLegend(metric)}
     ${journalSleepEditModal(rows,metric)}</div>` ,"journal");
@@ -387,7 +382,13 @@ function bindJournal(){
  document.querySelector("#journalSleepMetric")?.addEventListener("change",event=>{data.journalSleepMetric=event.target.value;saveData();render()});
  document.querySelectorAll("[data-tracker-metric]").forEach(button=>button.onclick=()=>{data.journalSleepMetric=button.dataset.trackerMetric||"sleep";saveData();render()});
  document.querySelectorAll("[data-sleep-year-step]").forEach(button=>button.onclick=()=>{const year=Number(journalSleepYearKey())+Number(button.dataset.sleepYearStep||0);data.journalSleepYear=String(year);saveData();render()});
- document.querySelectorAll("[data-sleep-date]").forEach(button=>button.onclick=()=>{data.journalSleepEditDate=button.dataset.sleepDate;saveData();render()});
+ document.querySelector("[data-tracker-today]")?.addEventListener("click",()=>{data.journalSleepYear=String(new Date().getFullYear());data.journalSleepMonth=today().slice(0,7);saveData();render();requestAnimationFrame(()=>document.querySelector(".tracker-year-month.is-current-month")?.scrollIntoView({block:"center",behavior:"smooth"}))});
+ const openTrackerDate=date=>{if(!date)return;data.journalSleepEditDate=date;saveData();render()};
+ document.querySelector(".tracker-year-grid")?.addEventListener("click",event=>{const button=event.target.closest("[data-sleep-date]");if(!button)return;event.preventDefault();event.stopPropagation();openTrackerDate(button.dataset.sleepDate)});
+ if(document.querySelector(".tracker-page-year")&&journalSleepYearKey()===String(new Date().getFullYear())&&!sessionStorage.getItem("linahub-year-tracker-positioned")){
+   sessionStorage.setItem("linahub-year-tracker-positioned","1");
+   requestAnimationFrame(()=>setTimeout(()=>document.querySelector(".tracker-year-month.is-current-month")?.scrollIntoView({block:"center"}),80));
+ }
  document.querySelectorAll("[data-close-sleep-edit]").forEach(button=>button.onclick=closeSleepEditor);
  document.querySelector("#sleepEditBackdrop")?.addEventListener("click",event=>{if(event.target.id!=="sleepEditBackdrop")return;closeSleepEditor()});
  if(sleepEditBackdrop){

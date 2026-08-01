@@ -1959,3 +1959,44 @@ body.dark .tracker-calendar-day:focus-visible{background:rgba(255,255,255,.075)!
   .tracker-year-dot{width:5px;height:5px}
   .tracker-year-note{display:none}
 }
+
+/* LinaHub 17.9.22 — reliable year calendar controls */
+.tracker-year-controls{
+  display:flex!important;
+  align-items:center;
+  gap:5px!important;
+}
+.tracker-year-controls .tracker-today-button{
+  width:auto!important;
+  min-width:58px!important;
+  padding:0 10px!important;
+  font-size:.68rem!important;
+  font-weight:800;
+}
+.tracker-year-grid,
+.tracker-year-month,
+.tracker-year-days{
+  position:relative;
+  z-index:2;
+}
+.tracker-year-day{
+  position:relative;
+  z-index:3;
+  pointer-events:auto!important;
+  touch-action:manipulation;
+  cursor:pointer;
+  -webkit-tap-highlight-color:rgba(176,132,255,.18);
+  user-select:none;
+}
+.tracker-year-day>*{pointer-events:none}
+.tracker-year-day:hover,
+.tracker-year-day:focus-visible{
+  transform:translateY(-1px);
+  border-color:rgba(235,216,255,.4);
+  outline:none;
+}
+.tracker-year-day:active{transform:scale(.96)}
+@media(max-width:560px){
+  .tracker-year-day{min-height:30px!important}
+  .tracker-year-controls .tracker-today-button{min-width:54px!important;padding-inline:7px!important;font-size:.62rem!important}
+}

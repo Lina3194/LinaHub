@@ -35,21 +35,11 @@ const TRACKER_META={
     {label:"Amazing",blurb:"Plenty in the tank",fill:"#f2b8c8",glow:"rgba(255,192,218,.28)",accent:"#fff2ba",level:"66%"}
   ]}
 };
-const TRACKER_DOODLE_POSITIONS=[
-  [50,16],[63,16],[76,16],
-  [32,23],[50,25],[64,25],[79,24],
-  [36,34],[52,35],[67,35],
-  [24,43],[42,44],[58,45],[72,44],[83,39],
-  [26,54],[42,54],[58,55],[74,54],
-  [24,66],[44,66],[60,66],[76,67],
-  [28,80],[42,75],[55,80],[67,79],
-  [39,90],[52,90],[64,90],[77,89]
-];
-const TRACKER_DOODLE_ART={
-  sleep:{title:'Sleep Tracker',shape:'star',accent:'☾'},
-  mood:{title:'Mood Tracker',shape:'heart',accent:'♡'},
-  pain:{title:'Pain Tracker',shape:'petal',accent:'✿'},
-  energy:{title:'Energy Tracker',shape:'circle',accent:'✧'}
+const TRACKER_ART={
+  sleep:{title:"Sleep Tracker",accent:"☾"},
+  mood:{title:"Mood Tracker",accent:"♡"},
+  pain:{title:"Pain Tracker",accent:"✦"},
+  energy:{title:"Energy Tracker",accent:"✧"}
 };
 
 function journalDate(){return data.journalSelectedDate||today()}
@@ -209,20 +199,15 @@ function trackerColourSwatch(metric,value,extraClass=""){
   const empty=value===null||value===undefined||value==="";
   return `<span class="tracker-colour-swatch ${empty?"is-empty":""} ${extraClass}" style="${trackerButtonStyle(metric,value)}" aria-hidden="true"></span>`;
 }
-function trackerTokenShape(shape){
-  if(shape==="star") return `<svg viewBox="0 0 100 100" class="tracker-token-svg" focusable="false" aria-hidden="true"><path d="M50 8 61 36 91 36 66 54 75 84 50 66 25 84 34 54 9 36 39 36Z"/></svg>`;
-  if(shape==="petal") return `<svg viewBox="0 0 100 100" class="tracker-token-svg" focusable="false" aria-hidden="true"><path d="M50 12C65 12 79 22 84 36C88 47 85 60 77 70C69 80 57 88 45 88C30 88 18 77 14 63C10 50 13 34 24 24C31 17 40 12 50 12Z"/></svg>`;
-  if(shape==="circle") return `<svg viewBox="0 0 100 100" class="tracker-token-svg" focusable="false" aria-hidden="true"><circle cx="50" cy="50" r="38"/></svg>`;
-  return `<svg viewBox="0 0 100 90" class="tracker-token-svg" focusable="false" aria-hidden="true"><path d="M50 82C22 62 8 48 8 28C8 14 18 4 31 4C40 4 47 8 50 15C53 8 60 4 69 4C82 4 92 14 92 28C92 48 78 62 50 82Z"/></svg>`;
+function trackerHeartSvg(){
+  return `<svg viewBox="0 0 100 90" class="tracker-heart-svg" focusable="false" aria-hidden="true"><path d="M50 82C22 62 8 48 8 28C8 14 18 4 31 4C40 4 47 8 50 15C53 8 60 4 69 4C82 4 92 14 92 28C92 48 78 62 50 82Z"/></svg>`;
 }
-function trackerTokenMarkup(metric,day,value,date,index){
+function trackerTokenMarkup(metric,day,value,date){
   const logged=!(value===null||value===undefined||value==="");
   const tone=trackerTone(metric,value);
-  const art=TRACKER_DOODLE_ART[metric]||TRACKER_DOODLE_ART.mood;
-  const [x,y]=TRACKER_DOODLE_POSITIONS[index]||[50,50];
-  return `<button type="button" class="tracker-doodle-token ${logged?"logged":"empty"} shape-${art.shape}" data-sleep-date="${date}" style="${trackerButtonStyle(metric,value)};--x:${x}%;--y:${y}%" aria-label="${esc(dateLabel(date))}. ${esc(logged?`${trackerMetricMeta(metric).label}: ${tone.label}`:"Not logged")}">
-    <span class="tracker-doodle-token-shape" aria-hidden="true">${trackerTokenShape(art.shape)}</span>
-    <span class="tracker-doodle-token-number">${day}</span>
+  return `<button type="button" class="tracker-heart-day ${logged?"logged":"empty"}" data-sleep-date="${date}" style="${trackerButtonStyle(metric,value)}" aria-label="${esc(dateLabel(date))}. ${esc(logged?`${trackerMetricMeta(metric).label}: ${tone.label}`:"Not logged")}">
+    <span class="tracker-heart-shape" aria-hidden="true">${trackerHeartSvg()}</span>
+    <span class="tracker-heart-number">${day}</span>
   </button>`;
 }
 function journalSleepEditModal(rows,metric){
@@ -254,44 +239,31 @@ function journalSleepCalendar(rows,metric,monthKey){
   const [year,month]=monthKey.split("-").map(Number);
   const daysInMonth=new Date(year,month,0).getDate();
   const meta=trackerMetricMeta(metric);
-  const art=TRACKER_DOODLE_ART[metric]||TRACKER_DOODLE_ART.mood;
+  const art=TRACKER_ART[metric]||TRACKER_ART.mood;
   const tokens=[];
   for(let day=1;day<=daysInMonth;day++){
     const date=`${monthKey}-${String(day).padStart(2,"0")}`;
     const row=rows.find(item=>item.date===date);
     const value=row?journalSleepMetricValue(row,metric):null;
-    tokens.push(trackerTokenMarkup(metric,day,value,date,day-1));
+    tokens.push(trackerTokenMarkup(metric,day,value,date));
   }
-  return `<section class="card journal-tracker-card tracker-sketch-card tracker-metric-${metric}">
-    <div class="tracker-sketch-sheet">
-      <div class="tracker-sketch-title">${esc(art.title)}</div>
-      <div class="tracker-sketch-stage">
-        <svg viewBox="0 0 320 470" class="tracker-sketch-jar" aria-hidden="true" focusable="false">
-          <g fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M104 63h112"/>
-            <path d="M96 75h128"/>
-            <path d="M98 88c0 12 4 17 6 20"/>
-            <path d="M218 88c0 12-4 17-6 20"/>
-            <path d="M108 108c-4 18-8 40-10 76-3 55-3 143 4 190 6 42 18 63 59 69 41-6 53-27 59-69 7-47 7-135 4-190-2-36-6-58-10-76"/>
-            <path d="M91 103c8 1 22 2 69 2h0c47 0 61-1 69-2"/>
-            <path d="M112 387c27 8 72 8 98 0"/>
-            <path d="M74 96c8 1 11 0 15-3"/>
-            <path d="M247 93c4 3 7 4 15 3"/>
-            <path d="M98 57c-5-8-13-11-23-9 8 5 14 11 20 19"/>
-            <path d="M99 56c-5-3-11-3-18 0"/>
-          </g>
-        </svg>
-        <div class="tracker-sketch-token-layer">${tokens.join("")}</div>
+  return `<section class="card journal-tracker-card tracker-jar-card tracker-metric-${metric}">
+    <div class="tracker-paper">
+      <div class="tracker-hand-title">${esc(art.title)}</div>
+      <div class="tracker-jar-wrap-clean">
+        <div class="tracker-jar-ribbon" aria-hidden="true"><i></i><b></b><span></span></div>
+        <div class="tracker-jar-lid-clean" aria-hidden="true"></div>
+        <div class="tracker-jar-clean">
+          <div class="tracker-heart-grid">${tokens.join("")}</div>
+        </div>
       </div>
-      <div class="tracker-sketch-legend-inline">${meta.options.map((option,index)=>`<span class="tracker-inline-chip" style="${trackerButtonStyle(metric,index)}"><i></i>${esc(option.label)}</span>`).join("")}</div>
-      <p class="tracker-sheet-helper">Tap any day to log or edit ${meta.label.toLowerCase()}.</p>
+      <p class="tracker-jar-helper">Tap any heart to log or edit ${meta.label.toLowerCase()}.</p>
     </div>
   </section>`;
 }
 function journalTrackerLegend(metric){
   const meta=trackerMetricMeta(metric);
-  const art=TRACKER_DOODLE_ART[metric]||TRACKER_DOODLE_ART.mood;
-  return `<section class="card tracker-key-card tracker-sketch-key"><div class="section-title"><div><span class="section-kicker">${art.accent} ${meta.label} key</span><h2>${meta.label} levels</h2></div></div><div class="tracker-sketch-key-list">${meta.options.map((option,index)=>`<div class="tracker-sketch-key-item" style="${trackerButtonStyle(metric,index)}"><span class="tracker-sketch-key-swatch">${trackerTokenShape(art.shape)}</span><span><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></span></div>`).join("")}</div></section>`;
+  return `<section class="card tracker-key-card tracker-heart-key"><div class="section-title"><div><span class="section-kicker">${meta.icon} ${meta.label} key</span><h2>${meta.label} levels</h2></div></div><div class="tracker-heart-key-list">${meta.options.map((option,index)=>`<div class="tracker-heart-key-item" style="${trackerButtonStyle(metric,index)}"><span class="tracker-heart-key-icon" aria-hidden="true">${trackerHeartSvg()}</span><span><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></span></div>`).join("")}</div></section>`;
 }
 function JournalSleepPage(){
   const rows=journalSleepHistory();

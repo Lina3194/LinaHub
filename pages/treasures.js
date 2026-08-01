@@ -211,12 +211,13 @@ function treasureJewelProfile(t){
   return {shape:shapes[(index+categoryOffset)%shapes.length],tone:toneSet[index%toneSet.length]};
 }
 function treasureJewel(t,options={}){
-  const profile=treasureJewelProfile(t),rarity=treasureRarity(t).toLowerCase();
-  const classes=["jewel-piece",`shape-${profile.shape}`,`tone-${profile.tone}`,`rarity-${rarity}`];
-  if(options.small)classes.push("jewel-small");
-  if(options.modal)classes.push("jewel-modal-size");
-  if(options.locked)classes.push("jewel-locked");
-  return `<span class="${classes.join(" ")}" aria-hidden="true"><span class="jewel-filigree"></span><span class="jewel-setting"><i class="jewel-gem"></i><i class="jewel-prong prong-one"></i><i class="jewel-prong prong-two"></i><i class="jewel-prong prong-three"></i><i class="jewel-prong prong-four"></i></span></span>`;
+  const rarity=treasureRarity(t).toLowerCase();
+  const categoryClass=`cat-${String(t.category||"hidden").toLowerCase().replace(/[^a-z]+/g,"-")}`;
+  const classes=["jewel-piece","treasure-bloom",categoryClass,`rarity-${rarity}`];
+  if(options.small)classes.push("jewel-small","treasure-bloom-small");
+  if(options.modal)classes.push("jewel-modal-size","treasure-bloom-modal");
+  if(options.locked)classes.push("jewel-locked","treasure-bloom-locked");
+  return `<span class="${classes.join(" ")}" aria-hidden="true"><span class="treasure-bloom-petals"></span><span class="treasure-bloom-core">${esc(t.icon||"✿")}</span><span class="treasure-bloom-leaf treasure-bloom-leaf-left"></span><span class="treasure-bloom-leaf treasure-bloom-leaf-right"></span></span>`;
 }
 function treasureShelfJewel(t){
   return `<button type="button" class="shelf-jewel" data-treasure="${t.id}" title="${t.name}" aria-label="Open ${t.name}">${treasureJewel(t)}<span class="shelf-jewel-name">${t.name}</span></button>`;
@@ -228,7 +229,7 @@ function TreasureRoomPage(){
   return shell(`
     ${head("Treasure Room","A little blooming collection of your wins","home")}
     <section class="treasure-intro treasure-intro-floral"><div><span class="section-kicker">LinaHub Collection</span><h1>Treasure Room</h1><p>A little blooming shelf of habits, memories and tiny wins you have collected.</p></div><div class="treasure-count"><b>${collected.length}</b><small>discovered</small></div></section>
-    <section class="treasure-library treasure-library-floral" aria-label="Floral keepsake shelves">
+    <section class="treasure-library treasure-library-floral" aria-label="Treasure room shelves">
       <div class="velvet-bloom velvet-bloom-one"></div><div class="velvet-bloom velvet-bloom-two"></div>
       <div class="grand-jewel-case">
         <div class="jewel-case-crown jewel-case-crown-floral"><span>❀</span><div><small>THE BLOOMING COLLECTION</small><b>TREASURE ROOM</b></div><span>❀</span></div>

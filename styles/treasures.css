@@ -84,3 +84,113 @@
   .treasure-library-floral{padding:16px 8px 22px!important}
   .jewel-case-crown-floral b{font-size:.78rem!important}
 }
+
+/* LinaHub 17.9.25 — restore floral treasure room, remove gem look */
+.treasure-library-floral{
+  background:
+    radial-gradient(circle at 15% 10%,rgba(255,181,213,.18),transparent 25%),
+    radial-gradient(circle at 85% 18%,rgba(190,132,255,.14),transparent 26%),
+    radial-gradient(circle at 50% 100%,rgba(255,176,200,.1),transparent 32%),
+    linear-gradient(145deg,#180c24,#261438 52%,#120a20)!important;
+}
+.treasure-library-floral .velvet-bloom-one{background:rgba(214,120,170,.48)!important;filter:blur(28px)!important}
+.treasure-library-floral .velvet-bloom-two{background:rgba(128,88,212,.34)!important;filter:blur(26px)!important}
+.jewel-case-crown-floral{
+  border-color:rgba(236,173,209,.36)!important;
+  box-shadow:inset 0 1px rgba(255,255,255,.06),inset 0 -9px 20px rgba(0,0,0,.2),0 0 24px rgba(228,154,202,.08)!important;
+}
+.jewel-case-inner{background:linear-gradient(180deg,rgba(30,11,33,.34),rgba(8,2,17,.34))!important}
+.archive-jewel-row header span{color:#ffd8a8!important}
+.archive-jewel-row header small{color:#dcc6d6!important}
+.jewel-shelf{padding-top:4px!important}
+.jewel-shelf-display{min-height:118px!important}
+.shelf-jewel{height:66px!important}
+.shelf-jewel-name{color:#dcc8da!important;font-size:.56rem!important;letter-spacing:.01em!important}
+.jewel-empty i{
+  width:22px!important;height:16px!important;border-radius:12px!important;
+  border:1px solid rgba(255,197,225,.12)!important;
+  background:linear-gradient(180deg,rgba(255,255,255,.03),rgba(255,255,255,.01))!important;
+}
+
+/* floral treasure pieces */
+.treasure-bloom{
+  position:relative!important;
+  width:42px!important;
+  height:52px!important;
+  display:grid!important;
+  place-items:center!important;
+  transform:none!important;
+  filter:drop-shadow(0 6px 8px rgba(0,0,0,.32));
+}
+.treasure-bloom-petals{
+  position:absolute;
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:
+    radial-gradient(circle at 50% 14%,rgba(255,255,255,.65),transparent 18%),
+    radial-gradient(circle at 50% 86%,rgba(255,255,255,.18),transparent 20%),
+    radial-gradient(circle at 14% 50%,rgba(255,255,255,.18),transparent 20%),
+    radial-gradient(circle at 86% 50%,rgba(255,255,255,.18),transparent 20%),
+    radial-gradient(circle at 28% 26%,rgba(255,255,255,.12),transparent 18%),
+    radial-gradient(circle at 72% 26%,rgba(255,255,255,.12),transparent 18%),
+    radial-gradient(circle at 28% 74%,rgba(255,255,255,.12),transparent 18%),
+    radial-gradient(circle at 72% 74%,rgba(255,255,255,.12),transparent 18%),
+    linear-gradient(180deg,rgba(255,255,255,.08),rgba(255,255,255,.02));
+  box-shadow:inset 0 0 0 1px rgba(255,255,255,.2),0 0 16px rgba(255,210,233,.14);
+}
+.treasure-bloom-core{
+  position:relative;
+  z-index:2;
+  width:21px;
+  height:21px;
+  border-radius:50%;
+  display:grid;
+  place-items:center;
+  font-size:12px;
+  line-height:1;
+  background:radial-gradient(circle at 35% 30%,#fff8f0,#f7e4a8 58%,#ddb966 100%);
+  box-shadow:0 2px 7px rgba(0,0,0,.22),inset 0 1px 1px rgba(255,255,255,.8);
+}
+.treasure-bloom-leaf{
+  position:absolute;
+  bottom:3px;
+  width:10px;
+  height:6px;
+  background:linear-gradient(180deg,#8ccf95,#4f8f69);
+  border-radius:10px 10px 10px 0;
+  opacity:.95;
+}
+.treasure-bloom-leaf-left{left:10px;transform:rotate(-28deg)}
+.treasure-bloom-leaf-right{right:10px;transform:scaleX(-1) rotate(-28deg)}
+
+.treasure-bloom.cat-garden .treasure-bloom-petals{background-color:#6fba7b;background-image:radial-gradient(circle at 50% 14%,rgba(255,255,255,.55),transparent 18%),radial-gradient(circle at 50% 86%,rgba(255,255,255,.16),transparent 20%),radial-gradient(circle at 14% 50%,rgba(255,255,255,.18),transparent 20%),radial-gradient(circle at 86% 50%,rgba(255,255,255,.18),transparent 20%),linear-gradient(180deg,#a1d798,#4f8e5c)}
+.treasure-bloom.cat-journal .treasure-bloom-petals{background:radial-gradient(circle at 50% 14%,rgba(255,255,255,.55),transparent 18%),radial-gradient(circle at 50% 86%,rgba(255,255,255,.16),transparent 20%),radial-gradient(circle at 14% 50%,rgba(255,255,255,.18),transparent 20%),radial-gradient(circle at 86% 50%,rgba(255,255,255,.18),transparent 20%),linear-gradient(180deg,#9b89e6,#6552b9)}
+.treasure-bloom.cat-home .treasure-bloom-petals{background:radial-gradient(circle at 50% 14%,rgba(255,255,255,.55),transparent 18%),radial-gradient(circle at 50% 86%,rgba(255,255,255,.16),transparent 20%),radial-gradient(circle at 14% 50%,rgba(255,255,255,.18),transparent 20%),radial-gradient(circle at 86% 50%,rgba(255,255,255,.18),transparent 20%),linear-gradient(180deg,#f29ca1,#bf5c74)}
+.treasure-bloom.cat-wellness .treasure-bloom-petals{background:radial-gradient(circle at 50% 14%,rgba(255,255,255,.55),transparent 18%),radial-gradient(circle at 50% 86%,rgba(255,255,255,.16),transparent 20%),radial-gradient(circle at 14% 50%,rgba(255,255,255,.18),transparent 20%),radial-gradient(circle at 86% 50%,rgba(255,255,255,.18),transparent 20%),linear-gradient(180deg,#f3a1d9,#be73b0)}
+.treasure-bloom.cat-aquariums .treasure-bloom-petals{background:radial-gradient(circle at 50% 14%,rgba(255,255,255,.55),transparent 18%),radial-gradient(circle at 50% 86%,rgba(255,255,255,.16),transparent 20%),radial-gradient(circle at 14% 50%,rgba(255,255,255,.18),transparent 20%),radial-gradient(circle at 86% 50%,rgba(255,255,255,.18),transparent 20%),linear-gradient(180deg,#86cbe6,#468eb8)}
+.treasure-bloom.cat-hidden .treasure-bloom-petals{background:radial-gradient(circle at 50% 14%,rgba(255,255,255,.5),transparent 18%),radial-gradient(circle at 50% 86%,rgba(255,255,255,.16),transparent 20%),radial-gradient(circle at 14% 50%,rgba(255,255,255,.18),transparent 20%),radial-gradient(circle at 86% 50%,rgba(255,255,255,.18),transparent 20%),linear-gradient(180deg,#d6b27d,#8b6b46)}
+
+.treasure-bloom-small{width:38px!important;height:46px!important}
+.treasure-bloom-small .treasure-bloom-petals{width:32px;height:32px}
+.treasure-bloom-small .treasure-bloom-core{width:19px;height:19px;font-size:11px}
+.treasure-bloom-modal{width:58px!important;height:70px!important}
+.treasure-bloom-modal .treasure-bloom-petals{width:48px;height:48px}
+.treasure-bloom-modal .treasure-bloom-core{width:29px;height:29px;font-size:17px}
+.treasure-bloom-modal .treasure-bloom-leaf{bottom:5px;width:12px;height:7px}
+
+.treasure-bloom-locked{filter:grayscale(.55) opacity(.7) drop-shadow(0 4px 7px rgba(0,0,0,.35))}
+.treasure-bloom-locked .treasure-bloom-core{background:radial-gradient(circle at 35% 30%,#ece7ec,#c8becc 58%,#8d8194 100%)}
+.treasure-bloom.rarity-rare .treasure-bloom-petals,
+.treasure-bloom.rarity-epic .treasure-bloom-petals,
+.treasure-bloom.rarity-legendary .treasure-bloom-petals,
+.treasure-bloom.rarity-mythical .treasure-bloom-petals{box-shadow:inset 0 0 0 1px rgba(255,255,255,.2),0 0 18px rgba(255,220,182,.14)}
+.treasure-bloom.rarity-legendary .treasure-bloom-core,
+.treasure-bloom.rarity-mythical .treasure-bloom-core{box-shadow:0 0 12px rgba(255,228,154,.34),0 2px 7px rgba(0,0,0,.22),inset 0 1px 1px rgba(255,255,255,.8)}
+
+@media(max-width:620px){
+  .shelf-jewel{height:58px!important}
+  .treasure-bloom{width:36px!important;height:44px!important}
+  .treasure-bloom-petals{width:31px;height:31px}
+  .treasure-bloom-core{width:18px;height:18px;font-size:11px}
+}

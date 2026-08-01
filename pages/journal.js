@@ -237,16 +237,28 @@ function JournalTrendsPage(){
 }
 
 function bindJournal(){
+ // Remove any orphaned modal left outside #app by an earlier render.
+ document.querySelectorAll("body > #sleepEditBackdrop").forEach((node,index)=>{if(index>0||!data.journalSleepEditDate)node.remove()});
  const sleepEditBackdrop=document.querySelector("#sleepEditBackdrop");
  // Move the modal outside the animated page wrapper. A transformed ancestor makes
  // position:fixed relative to the app column on desktop instead of the viewport.
  if(sleepEditBackdrop&&sleepEditBackdrop.parentElement!==document.body)document.body.appendChild(sleepEditBackdrop);
+ const closeSleepEditor=()=>{
+   document.querySelector("body > #sleepEditBackdrop")?.remove();
+   data.journalSleepEditDate="";
+   saveData();
+   render();
+ };
  document.querySelectorAll("[data-journal-tab]").forEach(btn=>btn.onclick=()=>{data.journalTab=btn.dataset.journalTab;if(data.journalTab==="today")data.journalSelectedDate=today();if(data.journalTab==="sleep"&&!data.journalSleepMetric)data.journalSleepMetric="sleep";saveData();render()});
  document.querySelector("#journalSleepMetric")?.addEventListener("change",event=>{data.journalSleepMetric=event.target.value;saveData();render()});
  document.querySelectorAll("[data-sleep-month-step]").forEach(button=>button.onclick=()=>{const [year,month]=(data.journalSleepMonth||journalSleepMonthKey()).split("-").map(Number);const next=new Date(year,month-1+Number(button.dataset.sleepMonthStep),1,12);data.journalSleepMonth=`${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,"0")}`;saveData();render()});
  document.querySelectorAll("[data-sleep-date]").forEach(button=>button.onclick=()=>{if(!button.classList.contains("has-data"))return;data.journalSleepEditDate=button.dataset.sleepDate;saveData();render()});
- document.querySelectorAll("[data-close-sleep-edit]").forEach(button=>button.onclick=()=>{data.journalSleepEditDate="";saveData();render()});
- document.querySelector("#sleepEditBackdrop")?.addEventListener("click",event=>{if(event.target.id!=="sleepEditBackdrop")return;data.journalSleepEditDate="";saveData();render()});
+ document.querySelectorAll("[data-close-sleep-edit]").forEach(button=>button.onclick=closeSleepEditor);
+ document.querySelector("#sleepEditBackdrop")?.addEventListener("click",event=>{if(event.target.id!=="sleepEditBackdrop")return;closeSleepEditor()});
+ if(sleepEditBackdrop){
+   const escapeHandler=event=>{if(event.key!=="Escape")return;document.removeEventListener("keydown",escapeHandler);closeSleepEditor()};
+   document.addEventListener("keydown",escapeHandler);
+ }
  document.querySelector("#saveSleepCalendarEdit")?.addEventListener("click",()=>{
    const date=data.journalSleepEditDate;if(!date)return;
    const number=id=>Math.max(0,Number(document.querySelector(id)?.value)||0);
@@ -264,6 +276,7 @@ function bindJournal(){
    data.morningCheckins[date]={...(data.morningCheckins[date]||{}),sleepTotalMinutes:totalMinutes,deepSleepTotalMinutes:deepMinutes,sleep:totalMinutes/60,deepSleep:deepMinutes/60,sleepQuality:quality,pain,mood,energy,updatedAt:new Date().toISOString()};
    data.checkins=data.checkins||{};
    data.checkins[date]={...(data.checkins[date]||{}),sleep:quality,pain,mood,energy,savedAt:new Date().toISOString()};
+   document.querySelector("body > #sleepEditBackdrop")?.remove();
    data.journalSleepEditDate="";saveData();toast("Sleep record updated");render();
  });
  document.querySelector("#returnToday")?.addEventListener("click",()=>{data.journalSelectedDate=today();saveData();render()});

@@ -71,6 +71,8 @@ const DEFAULT_DATA={
   journalTab:"today",
   journalSelectedDate:"",
   journalTrendPeriod:"week",
+  journalSleepMetric:"sleep",
+  journalSleepMonth:"",
   homeIcons:{
     journal:"📖",health:"⚖️",hobbies:"🎮",plants:"🌿",medication:"💊",shopping:"🛒",shoppingFridge:"❄️",shoppingFreezer:"🧊",shoppingPantry:"🥫",shoppingCleaning:"🧽",shoppingToiletries:"🧴",
     pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",budget:"💷",treasures:"✨",settings:"⚙️"

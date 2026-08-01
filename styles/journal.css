@@ -149,7 +149,7 @@ body.reordering{
   .trend-day-picker input{font-size:.78rem;padding:7px 6px}
 }
 
-/* LinaHub 17.8.4 — Journal Sleep tab */
+/* LinaHub 17.8.5 — Journal Sleep tab */
 .journal-tabs-three{grid-template-columns:repeat(3,1fr)}
 .sleep-history-summary{margin-bottom:12px}
 .sleep-history-summary h2{margin:4px 0 5px}
@@ -177,4 +177,47 @@ body.reordering{
   .journal-wake-grid{gap:6px}
   .journal-wake-grid>div{padding:9px 3px}
   .journal-wake-grid b{font-size:.66rem}
+}
+
+/* LinaHub 17.8.5 — Sleep metric calendar and monthly chart */
+.sleep-calendar-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(180px,240px) auto;align-items:end;gap:12px;margin-bottom:12px}
+.sleep-calendar-controls h2{margin:4px 0 0}
+.sleep-calendar-controls label>span{display:block;margin-bottom:5px;color:var(--muted);font-size:.72rem}
+.sleep-month-arrows{display:flex;gap:7px}
+.sleep-month-arrows button{width:46px;height:46px;border:1px solid var(--line);border-radius:14px;background:var(--soft);color:var(--ink);font-size:1.55rem}
+.sleep-month-arrows button:disabled{opacity:.35}
+.journal-sleep-calendar{padding:14px}
+.sleep-calendar-weekdays,.sleep-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:7px}
+.sleep-calendar-weekdays{margin-bottom:7px;text-align:center;color:var(--muted);font-size:.68rem;font-weight:800}
+.sleep-calendar-day{min-width:0;aspect-ratio:1/.82;display:grid;align-content:space-between;justify-items:start;padding:8px;border:1px solid var(--line);border-radius:13px;background:var(--soft);color:var(--ink);text-align:left}
+.sleep-calendar-day.has-data{background:color-mix(in srgb,var(--purple) calc(var(--sleep-intensity) * 76%),var(--card));border-color:color-mix(in srgb,var(--purple) calc(var(--sleep-intensity) * 92%),var(--line));color:white}
+.sleep-calendar-day>span{font-size:.73rem;font-weight:800}
+.sleep-calendar-day>b{justify-self:center;align-self:center;font-size:.82rem;white-space:nowrap}
+.sleep-calendar-day>i{justify-self:center;color:var(--muted);font-style:normal}
+.sleep-calendar-day.is-empty{visibility:hidden}
+.sleep-calendar-day.no-data{cursor:default;opacity:.7}
+.sleep-calendar-legend{display:flex;align-items:center;justify-content:flex-end;gap:5px;margin-top:10px;color:var(--muted);font-size:.65rem}
+.sleep-calendar-legend i{width:15px;height:15px;border-radius:5px;background:color-mix(in srgb,var(--purple) calc(var(--sleep-intensity) * 76%),var(--card));border:1px solid var(--line)}
+.sleep-month-chart{margin-top:12px}
+.sleep-month-chart .section-title{align-items:flex-end}
+.sleep-month-chart .section-title strong{color:var(--purple)}
+.sleep-chart-svg{display:block;width:100%;height:auto;margin-top:10px;overflow:visible}
+.sleep-chart-grid line{stroke:var(--line);stroke-width:1}
+.sleep-chart-grid text,.sleep-chart-date{fill:var(--muted);font-size:11px}
+.sleep-chart-line{fill:none;stroke:var(--purple);stroke-width:4;stroke-linecap:round;stroke-linejoin:round}
+.sleep-chart-point{fill:var(--card);stroke:var(--purple);stroke-width:4}
+.sleep-calendar-help{margin:10px 4px 0;color:var(--muted);font-size:.75rem;text-align:center}
+@media(max-width:620px){
+  .sleep-calendar-controls{grid-template-columns:1fr auto;align-items:end}
+  .sleep-calendar-controls>div:first-child{grid-column:1/-1}
+  .sleep-calendar-controls label{min-width:0}
+  .sleep-month-arrows button{width:43px;height:43px}
+  .journal-sleep-calendar{padding:9px}
+  .sleep-calendar-weekdays,.sleep-calendar-grid{gap:4px}
+  .sleep-calendar-day{padding:5px 4px;border-radius:10px;aspect-ratio:1/.94}
+  .sleep-calendar-day>span{font-size:.62rem}
+  .sleep-calendar-day>b{font-size:.66rem}
+  .sleep-month-chart{padding:11px}
+  .sleep-month-chart .section-title{display:grid;gap:4px}
+  .sleep-chart-grid text,.sleep-chart-date{font-size:10px}
 }

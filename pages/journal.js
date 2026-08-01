@@ -86,20 +86,93 @@ function journalSleepHistory(){
     return Number(sleep.totalMinutes||morning.sleepTotalMinutes||0)>0||Number(sleep.deepMinutes||morning.deepSleepTotalMinutes||0)>0||[sleep.quality,morning.sleepQuality,checkin.sleep,morning.energy,checkin.energy,morning.mood,checkin.mood,morning.pain,checkin.pain].some(value=>value!==null&&value!==undefined&&value!=="");
   }).sort((a,b)=>b.date.localeCompare(a.date));
 }
+function journalSleepMetricValue(row,metric){
+  const sleep=row.sleep||{},morning=row.morning||{},checkin=row.checkin||{};
+  if(metric==="sleep"){
+    const minutes=Number(sleep.totalMinutes??morning.sleepTotalMinutes??0)||0;
+    return minutes>0?minutes/60:null;
+  }
+  if(metric==="deep"){
+    const minutes=Number(sleep.deepMinutes??morning.deepSleepTotalMinutes??0)||0;
+    return minutes>0?minutes/60:null;
+  }
+  const value=morning[metric]??checkin[metric];
+  return value===null||value===undefined||value===""?null:Number(value);
+}
+function journalSleepMetricInfo(metric){
+  return {
+    sleep:{label:"Sleep",unit:"hours",icon:"🌙",max:12},
+    deep:{label:"Deep sleep",unit:"hours",icon:"💤",max:4},
+    pain:{label:"Pain",unit:"level",icon:"☀️",max:4},
+    mood:{label:"Mood",unit:"level",icon:"💜",max:4},
+    energy:{label:"Energy",unit:"level",icon:"⚡",max:4}
+  }[metric]||{label:"Sleep",unit:"hours",icon:"🌙",max:12};
+}
+function journalSleepMetricLabel(metric,value){
+  if(value===null||value===undefined)return "";
+  if(metric==="sleep"||metric==="deep"){
+    const minutes=Math.round(Number(value)*60);
+    return journalSleepMinutesLabel(minutes);
+  }
+  const index=Math.max(0,Math.min(4,Math.round(Number(value))));
+  return SCALE_OPTIONS[metric]?.[index]?.[1]||String(index+1);
+}
+function journalSleepCellLabel(metric,value){
+  if(value===null||value===undefined)return "";
+  if(metric==="sleep"||metric==="deep")return `${Number(value).toFixed(Number(value)%1?1:0)}h`;
+  return String(Math.round(Number(value))+1);
+}
+function journalSleepMonthKey(){
+  const fallback=(journalSleepHistory()[0]?.date||today()).slice(0,7);
+  const value=/^\d{4}-\d{2}$/.test(data.journalSleepMonth||"")?data.journalSleepMonth:fallback;
+  data.journalSleepMonth=value;
+  return value;
+}
+function journalSleepCalendar(rows,metric,monthKey){
+  const [year,month]=monthKey.split("-").map(Number);
+  const first=new Date(year,month-1,1,12);
+  const daysInMonth=new Date(year,month,0,12).getDate();
+  const leading=(first.getDay()+6)%7;
+  const rowByDate=new Map(rows.map(row=>[row.date,row]));
+  const info=journalSleepMetricInfo(metric);
+  const cells=[];
+  for(let index=0;index<leading;index++)cells.push('<div class="sleep-calendar-day is-empty" aria-hidden="true"></div>');
+  for(let day=1;day<=daysInMonth;day++){
+    const date=`${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    const row=rowByDate.get(date);
+    const value=row?journalSleepMetricValue(row,metric):null;
+    const intensity=value===null?0:Math.max(.12,Math.min(1,Number(value)/info.max));
+    const label=value===null?"No record":`${info.label}: ${journalSleepMetricLabel(metric,value)}`;
+    cells.push(`<button type="button" class="sleep-calendar-day ${value===null?"no-data":"has-data"}" data-sleep-date="${date}" style="--sleep-intensity:${intensity}" aria-label="${esc(dateLabel(date))}. ${esc(label)}"><span>${day}</span>${value!==null?`<b>${esc(journalSleepCellLabel(metric,value))}</b>`:"<i>·</i>"}</button>`);
+  }
+  return `<section class="card journal-sleep-calendar"><div class="sleep-calendar-weekdays">${["Mon","Tue","Wed","Thu","Fri","Sat","Sun"].map(day=>`<span>${day}</span>`).join("")}</div><div class="sleep-calendar-grid">${cells.join("")}</div><div class="sleep-calendar-legend"><span>Less</span><i style="--sleep-intensity:.2"></i><i style="--sleep-intensity:.45"></i><i style="--sleep-intensity:.7"></i><i style="--sleep-intensity:1"></i><span>More</span></div></section>`;
+}
+function journalSleepChart(rows,metric,monthKey){
+  const info=journalSleepMetricInfo(metric);
+  const points=rows.filter(row=>row.date.startsWith(monthKey)).map(row=>({date:row.date,value:journalSleepMetricValue(row,metric)})).filter(point=>point.value!==null).sort((a,b)=>a.date.localeCompare(b.date));
+  if(!points.length)return `<section class="card sleep-month-chart"><div class="section-title"><div><span class="section-kicker">${info.icon} ${info.label} chart</span><h2>No records this month</h2></div></div><div class="trend-empty">Log a few days to see the monthly chart.</div></section>`;
+  const width=720,height=230,left=42,right=18,top=18,bottom=38;
+  const maxValue=Math.max(info.max,...points.map(point=>point.value));
+  const x=index=>points.length===1?(left+width-right)/2:left+index*(width-left-right)/(points.length-1);
+  const y=value=>top+(maxValue-value)/maxValue*(height-top-bottom);
+  const line=points.map((point,index)=>`${x(index)},${y(point.value)}`).join(" ");
+  const average=points.reduce((sum,point)=>sum+point.value,0)/points.length;
+  const ticks=[0,maxValue/2,maxValue];
+  return `<section class="card sleep-month-chart"><div class="section-title"><div><span class="section-kicker">${info.icon} ${info.label} chart</span><h2>${points.length} recorded day${points.length===1?"":"s"}</h2></div><strong>${metric==="sleep"||metric==="deep"?`${average.toFixed(1)}h average`:`${average.toFixed(1)} average`}</strong></div><svg class="sleep-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(info.label)} trend for ${esc(monthKey)}"><g class="sleep-chart-grid">${ticks.map(value=>`<line x1="${left}" y1="${y(value)}" x2="${width-right}" y2="${y(value)}"></line><text x="${left-8}" y="${y(value)+4}" text-anchor="end">${metric==="sleep"||metric==="deep"?`${value.toFixed(value%1?1:0)}h`:Math.round(value+1)}</text>`).join("")}</g><polyline class="sleep-chart-line" points="${line}"></polyline>${points.map((point,index)=>`<circle class="sleep-chart-point" cx="${x(index)}" cy="${y(point.value)}" r="5"><title>${dateLabel(point.date)}: ${journalSleepMetricLabel(metric,point.value)}</title></circle>`).join("")}${points.map((point,index)=>{if(points.length>12&&index%Math.ceil(points.length/8)!==0&&index!==points.length-1)return "";return `<text class="sleep-chart-date" x="${x(index)}" y="${height-12}" text-anchor="middle">${Number(point.date.slice(-2))}</text>`}).join("")}</svg></section>`;
+}
 function JournalSleepPage(){
   const rows=journalSleepHistory();
+  const metric=["sleep","deep","pain","mood","energy"].includes(data.journalSleepMetric)?data.journalSleepMetric:"sleep";
+  const monthKey=journalSleepMonthKey();
+  const monthDate=new Date(`${monthKey}-01T12:00:00`);
+  const monthTitle=monthDate.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
+  const latestMonth=(rows[0]?.date||today()).slice(0,7);
+  const nextDisabled=monthKey>=latestMonth;
   return shell(`${head("Journal","Sleep and how you felt when you woke up")}${journalTabs("sleep")}
-    <section class="card sleep-history-summary"><div><span class="section-kicker">🌙 Sleep history</span><h2>${rows.length?`${rows.length} recorded night${rows.length===1?"":"s"}`:"No sleep history yet"}</h2><p>Sleep duration and your waking check-in are shown together.</p></div></section>
-    <section class="journal-sleep-list">${rows.length?rows.map(row=>{
-      const sleep=row.sleep||{},morning=row.morning||{},checkin=row.checkin||{};
-      const total=Number(sleep.totalMinutes??morning.sleepTotalMinutes??0)||0;
-      const deep=Number(sleep.deepMinutes??morning.deepSleepTotalMinutes??0)||0;
-      const quality=sleep.quality??morning.sleepQuality??checkin.sleep;
-      const energy=journalWakeValue("energy",morning.energy??checkin.energy);
-      const mood=journalWakeValue("mood",morning.mood??checkin.mood);
-      const pain=journalWakeValue("pain",morning.pain??checkin.pain);
-      return `<article class="card journal-sleep-entry"><div class="journal-sleep-date"><span>🌙</span><div><strong>${dateLabel(row.date)}</strong><small>${journalSleepQualityLabel(quality)} sleep</small></div></div><div class="journal-sleep-times"><div><span>Total sleep</span><b>${journalSleepMinutesLabel(total)}</b></div><div><span>Deep sleep</span><b>${journalSleepMinutesLabel(deep)}</b></div></div><div class="journal-wake-grid"><div><span>${mood.emoji}</span><small>Mood</small><b>${mood.label}</b></div><div><span>${energy.emoji}</span><small>Energy</small><b>${energy.label}</b></div><div><span>${pain.emoji}</span><small>Pain</small><b>${pain.label}</b></div></div></article>`;
-    }).join(""):`<section class="card empty-state"><span>🌙</span><h2>No sleep entries yet</h2><p>Complete the Daily check-in after waking and your history will appear here.</p></section>`}</section>` ,"journal");
+    <section class="card sleep-calendar-controls"><div><span class="section-kicker">🌙 Sleep calendar</span><h2>${monthTitle}</h2></div><label><span>Show</span><select class="field" id="journalSleepMetric"><option value="sleep" ${metric==="sleep"?"selected":""}>Sleep</option><option value="deep" ${metric==="deep"?"selected":""}>Deep sleep</option><option value="pain" ${metric==="pain"?"selected":""}>Pain</option><option value="mood" ${metric==="mood"?"selected":""}>Mood</option><option value="energy" ${metric==="energy"?"selected":""}>Energy</option></select></label><div class="sleep-month-arrows"><button type="button" data-sleep-month-step="-1" aria-label="Previous month">‹</button><button type="button" data-sleep-month-step="1" aria-label="Next month" ${nextDisabled?"disabled":""}>›</button></div></section>
+    ${journalSleepCalendar(rows,metric,monthKey)}
+    ${journalSleepChart(rows,metric,monthKey)}
+    <p class="sleep-calendar-help">Tap a recorded date to open and edit that day in Journal.</p>` ,"journal");
 }
 
 function JournalTrendsPage(){
@@ -113,6 +186,9 @@ function JournalTrendsPage(){
 
 function bindJournal(){
  document.querySelectorAll("[data-journal-tab]").forEach(btn=>btn.onclick=()=>{data.journalTab=btn.dataset.journalTab;if(data.journalTab==="today")data.journalSelectedDate=today();saveData();render()});
+ document.querySelector("#journalSleepMetric")?.addEventListener("change",event=>{data.journalSleepMetric=event.target.value;saveData();render()});
+ document.querySelectorAll("[data-sleep-month-step]").forEach(button=>button.onclick=()=>{const [year,month]=(data.journalSleepMonth||journalSleepMonthKey()).split("-").map(Number);const next=new Date(year,month-1+Number(button.dataset.sleepMonthStep),1,12);data.journalSleepMonth=`${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,"0")}`;saveData();render()});
+ document.querySelectorAll("[data-sleep-date]").forEach(button=>button.onclick=()=>{if(!button.classList.contains("has-data"))return;data.journalSelectedDate=button.dataset.sleepDate;data.journalTab="today";saveData();render()});
  document.querySelector("#returnToday")?.addEventListener("click",()=>{data.journalSelectedDate=today();saveData();render()});
  document.querySelector("#openHistoryDate")?.addEventListener("click",()=>{const v=document.querySelector("#journalHistoryDate")?.value;if(!v)return;data.journalSelectedDate=v;data.journalTab="today";saveData();render()});
  document.querySelectorAll("[data-history-date]").forEach(btn=>btn.onclick=()=>{data.journalSelectedDate=btn.dataset.historyDate;data.journalTab="today";saveData();render()});

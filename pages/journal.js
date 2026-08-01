@@ -237,6 +237,10 @@ function JournalTrendsPage(){
 }
 
 function bindJournal(){
+ const sleepEditBackdrop=document.querySelector("#sleepEditBackdrop");
+ // Move the modal outside the animated page wrapper. A transformed ancestor makes
+ // position:fixed relative to the app column on desktop instead of the viewport.
+ if(sleepEditBackdrop&&sleepEditBackdrop.parentElement!==document.body)document.body.appendChild(sleepEditBackdrop);
  document.querySelectorAll("[data-journal-tab]").forEach(btn=>btn.onclick=()=>{data.journalTab=btn.dataset.journalTab;if(data.journalTab==="today")data.journalSelectedDate=today();if(data.journalTab==="sleep"&&!data.journalSleepMetric)data.journalSleepMetric="sleep";saveData();render()});
  document.querySelector("#journalSleepMetric")?.addEventListener("change",event=>{data.journalSleepMetric=event.target.value;saveData();render()});
  document.querySelectorAll("[data-sleep-month-step]").forEach(button=>button.onclick=()=>{const [year,month]=(data.journalSleepMonth||journalSleepMonthKey()).split("-").map(Number);const next=new Date(year,month-1+Number(button.dataset.sleepMonthStep),1,12);data.journalSleepMonth=`${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,"0")}`;saveData();render()});

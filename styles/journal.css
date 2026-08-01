@@ -223,7 +223,7 @@ body.reordering{
 }
 
 
-/* LinaHub 17.8.9 — edit sleep calendar records in place */
+/* LinaHub 17.9.0 — edit sleep calendar records in place */
 .sleep-calendar-day.has-data{cursor:pointer;transition:transform .15s ease,filter .15s ease}
 .sleep-calendar-day.has-data:hover,.sleep-calendar-day.has-data:focus-visible{transform:translateY(-2px);filter:brightness(1.08)}
 .sleep-edit-backdrop{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(7,4,18,.76);backdrop-filter:blur(8px);overflow:auto}
@@ -237,4 +237,21 @@ body.reordering{
   .sleep-edit-modal{width:min(620px,calc(100% - 8px));max-height:90vh;border-radius:25px;padding:17px 15px calc(17px + env(safe-area-inset-bottom));margin:auto}
   .sleep-edit-time-grid,.sleep-edit-fields{grid-template-columns:1fr}
   .sleep-edit-actions{position:sticky;bottom:0;padding-top:10px;background:var(--card)}
+}
+
+/* LinaHub 17.9.0 — centre Sleep editor against the full viewport */
+body > .sleep-edit-backdrop{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:18px!important;
+  margin:0!important;
+}
+body > .sleep-edit-backdrop .sleep-edit-modal{
+  width:min(620px,calc(100vw - 36px))!important;
+  margin:auto!important;
 }

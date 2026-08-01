@@ -218,10 +218,11 @@ function localSaveOnly(){return originalSaveData()}
 const originalSaveData=saveData;
 saveData=function(){
   const before=JSON.parse(CLOUD_STATE.lastSnapshot||"{}");
-  originalSaveData();
+  const saved=originalSaveData();
   CLOUD_STATE.lastSnapshot=JSON.stringify(data);
-  if(CLOUD_STATE.applyingRemote||!CLOUD_STATE.user||!CLOUD_STATE.ready) return;
+  if(CLOUD_STATE.applyingRemote||!CLOUD_STATE.user||!CLOUD_STATE.ready) return saved;
   Object.keys(CLOUD_MODULES).forEach(name=>{if(moduleChanged(name,before,data))queueCloudModule(name)});
+  return saved;
 };
 
 function queueCloudModule(name){

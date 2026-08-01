@@ -110,7 +110,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.2")}<br><br>1 Aug 2026</p>`,"settings");
+  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.3")}<br><br>1 Aug 2026</p>`,"settings");
 }
 
 function bindSimple(){
@@ -284,7 +284,7 @@ function bindSimple(){
               if(tank) tank.photo=value;
             }
           }
-          if(!saveData()) throw new Error("Could not save app data");
+          if(saveData()===false) throw new Error("Could not save app data");
           updateImageSettingCard(input,value,type);addRemoveButton(input,type);
           rememberSettingsPosition();rememberOpenAccordions();
           toast(isBanner?"Banner picture saved 🌙":"Tab picture saved 🌸");

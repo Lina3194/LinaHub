@@ -930,3 +930,35 @@ body.dark .tracker-calendar-day:focus-visible{background:rgba(255,255,255,.075)!
 .tracker-metric-pain .tracker-jar,.tracker-metric-pain .tracker-doodle-key-item{background-image:radial-gradient(circle at top right,rgba(212,203,255,.18),transparent 42%)}
 @media(max-width:860px){.tracker-doodle-key-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:560px){.tracker-illustrated-card{padding:18px 12px 16px;border-radius:24px}.tracker-sheet-title h2{font-size:1.7rem}.tracker-jar-wrap{max-width:100%;padding-top:34px}.tracker-jar-lid{width:150px;height:14px;border-width:2px}.tracker-jar-bow{transform:translateX(-118px) scale(.84);transform-origin:left top}.tracker-jar{padding:18px 8px 14px;border-width:3px;border-radius:28px 28px 36px 36px}.tracker-jar::before{inset:8px;border-radius:22px 22px 30px 30px}.tracker-jar-grid{gap:10px 8px;padding:4px 2px 0;max-width:292px}.tracker-token{width:38px;height:35px}.tracker-token-number{font-size:.95rem}.tracker-doodle-key-list{grid-template-columns:1fr}.tracker-sheet-helper{font-size:.9rem}}
+
+/* LinaHub 17.9.14 — cleaner illustrated trackers */
+.tracker-sketch-card{padding:24px 18px 18px;border-radius:28px;background:linear-gradient(180deg,#f8f5f2,#fffdfb);border:1px solid rgba(84,93,112,.14);box-shadow:0 16px 34px rgba(0,0,0,.14)}
+.tracker-sketch-sheet{color:#33404d}
+.tracker-sketch-title{font-family:"Brush Script MT","Segoe Script","Snell Roundhand",cursive;font-size:2.55rem;line-height:1.05;text-align:center;color:#2f3c49;margin:2px 0 12px}
+.tracker-sketch-stage{position:relative;width:min(100%,360px);aspect-ratio:320/470;margin:0 auto}
+.tracker-sketch-jar{position:absolute;inset:0;width:100%;height:100%;color:#5a6477}
+.tracker-sketch-token-layer{position:absolute;left:0;top:0;width:100%;height:100%}
+.tracker-doodle-token{position:absolute;left:var(--x);top:var(--y);transform:translate(-50%,-50%);width:52px;height:46px;border:0;background:transparent;padding:0;cursor:pointer;transition:transform .16s ease,filter .16s ease}
+.tracker-doodle-token:hover,.tracker-doodle-token:focus-visible{transform:translate(-50%,-52%);filter:drop-shadow(0 4px 8px rgba(0,0,0,.12));outline:none}
+.tracker-doodle-token-shape,.tracker-doodle-token-shape .tracker-token-svg{display:block;width:100%;height:100%}
+.tracker-token-svg path,.tracker-token-svg circle{fill:#fffdf9;stroke:#5a6477;stroke-width:4.5;vector-effect:non-scaling-stroke;transition:fill .16s ease}
+.tracker-doodle-token.logged .tracker-token-svg path,.tracker-doodle-token.logged .tracker-token-svg circle{fill:var(--tracker-fill)}
+.tracker-doodle-token.empty .tracker-token-svg path,.tracker-doodle-token.empty .tracker-token-svg circle{fill:#fffdf9}
+.tracker-doodle-token-number{position:absolute;inset:0;display:grid;place-items:center;font-weight:700;font-size:1.05rem;color:#424c5c;padding-top:1px}
+.tracker-doodle-token.shape-star .tracker-doodle-token-number{font-size:.98rem;padding-top:2px}.tracker-doodle-token.shape-petal .tracker-doodle-token-number{padding-top:2px}.tracker-doodle-token.shape-circle .tracker-doodle-token-number{padding-top:0}
+.tracker-sketch-legend-inline{display:flex;flex-wrap:wrap;justify-content:center;gap:10px 12px;margin:10px auto 0;max-width:520px}
+.tracker-inline-chip{display:inline-flex;align-items:center;gap:7px;padding:5px 10px;border-radius:999px;background:#fff;border:1px solid rgba(84,93,112,.14);color:#5d6777;font-size:.82rem;box-shadow:0 2px 6px rgba(0,0,0,.04)}
+.tracker-inline-chip i{display:block;width:14px;height:14px;border-radius:50%;background:var(--tracker-fill);border:2px solid rgba(84,93,112,.58)}
+.tracker-sheet-helper{margin:12px 0 0;text-align:center;color:#7a838f;font-size:.93rem}
+.tracker-sketch-key{border-radius:24px;background:linear-gradient(180deg,#f8f5f2,#fffdfb);border:1px solid rgba(84,93,112,.14);box-shadow:0 12px 26px rgba(0,0,0,.10)}
+.tracker-sketch-key .section-kicker{color:#8b6f8e}.tracker-sketch-key .section-title h2{color:#33404d}
+.tracker-sketch-key-list{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:12px}
+.tracker-sketch-key-item{display:flex;align-items:center;gap:10px;padding:12px;border-radius:18px;background:#fff;border:1px solid rgba(84,93,112,.12)}
+.tracker-sketch-key-swatch{display:block;width:30px;height:27px;flex:0 0 auto}.tracker-sketch-key-swatch .tracker-token-svg{width:100%;height:100%}.tracker-sketch-key-swatch .tracker-token-svg path,.tracker-sketch-key-swatch .tracker-token-svg circle{fill:var(--tracker-fill);stroke:#5a6477;stroke-width:5.5}
+.tracker-sketch-key-item strong{display:block;color:#394553}.tracker-sketch-key-item small{display:block;color:#7a838f;line-height:1.25}
+.tracker-metric-mood .tracker-sketch-card,.tracker-metric-mood.tracker-sketch-card{background:linear-gradient(180deg,#fcf7f9,#fffdfc)}
+.tracker-metric-sleep .tracker-sketch-card,.tracker-metric-sleep.tracker-sketch-card{background:linear-gradient(180deg,#f7f8fc,#fffdfc)}
+.tracker-metric-pain .tracker-sketch-card,.tracker-metric-pain.tracker-sketch-card{background:linear-gradient(180deg,#faf7fc,#fffdfc)}
+.tracker-metric-energy .tracker-sketch-card,.tracker-metric-energy.tracker-sketch-card{background:linear-gradient(180deg,#fff9f2,#fffdfb)}
+@media(max-width:860px){.tracker-sketch-key-list{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px){.tracker-sketch-card{padding:18px 10px 16px;border-radius:24px}.tracker-sketch-title{font-size:2.2rem}.tracker-sketch-stage{width:min(100%,330px)}.tracker-doodle-token{width:46px;height:40px}.tracker-doodle-token-number{font-size:.98rem}.tracker-sketch-key-list{grid-template-columns:1fr}.tracker-inline-chip{font-size:.78rem;padding:5px 9px}.tracker-sheet-helper{font-size:.88rem}}

@@ -213,6 +213,7 @@ function journalSleepChart(rows,metric,monthKey){
 function JournalSleepPage(){
   const rows=journalSleepHistory();
   const metric=["sleep","deep","pain","mood","energy"].includes(data.journalSleepMetric)?data.journalSleepMetric:"sleep";
+  if(data.journalSleepMetric!==metric){data.journalSleepMetric=metric;saveData();}
   const monthKey=journalSleepMonthKey();
   const monthDate=new Date(`${monthKey}-01T12:00:00`);
   const monthTitle=monthDate.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
@@ -236,7 +237,7 @@ function JournalTrendsPage(){
 }
 
 function bindJournal(){
- document.querySelectorAll("[data-journal-tab]").forEach(btn=>btn.onclick=()=>{data.journalTab=btn.dataset.journalTab;if(data.journalTab==="today")data.journalSelectedDate=today();saveData();render()});
+ document.querySelectorAll("[data-journal-tab]").forEach(btn=>btn.onclick=()=>{data.journalTab=btn.dataset.journalTab;if(data.journalTab==="today")data.journalSelectedDate=today();if(data.journalTab==="sleep"&&!data.journalSleepMetric)data.journalSleepMetric="sleep";saveData();render()});
  document.querySelector("#journalSleepMetric")?.addEventListener("change",event=>{data.journalSleepMetric=event.target.value;saveData();render()});
  document.querySelectorAll("[data-sleep-month-step]").forEach(button=>button.onclick=()=>{const [year,month]=(data.journalSleepMonth||journalSleepMonthKey()).split("-").map(Number);const next=new Date(year,month-1+Number(button.dataset.sleepMonthStep),1,12);data.journalSleepMonth=`${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,"0")}`;saveData();render()});
  document.querySelectorAll("[data-sleep-date]").forEach(button=>button.onclick=()=>{if(!button.classList.contains("has-data"))return;data.journalSleepEditDate=button.dataset.sleepDate;saveData();render()});

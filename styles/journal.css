@@ -221,3 +221,15 @@ body.reordering{
   .sleep-month-chart .section-title{display:grid;gap:4px}
   .sleep-chart-grid text,.sleep-chart-date{font-size:10px}
 }
+
+
+/* LinaHub 17.8.7 — edit sleep calendar records in place */
+.sleep-calendar-day.has-data{cursor:pointer;transition:transform .15s ease,filter .15s ease}
+.sleep-calendar-day.has-data:hover,.sleep-calendar-day.has-data:focus-visible{transform:translateY(-2px);filter:brightness(1.08)}
+.sleep-edit-backdrop{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(7,4,18,.76);backdrop-filter:blur(8px);overflow:auto}
+.sleep-edit-modal{width:min(620px,100%);max-height:92vh;overflow:auto;padding:19px;border:1px solid var(--line);border-radius:25px;background:var(--card);box-shadow:0 24px 70px rgba(0,0,0,.5)}
+.sleep-edit-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:15px}.sleep-edit-head h2{margin:4px 0 0}.sleep-edit-head>button{width:40px;height:40px;border:1px solid var(--line);border-radius:13px;background:var(--soft);color:var(--ink);font-size:1.55rem}
+.sleep-edit-time-grid,.sleep-edit-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.sleep-edit-time-grid label>span,.sleep-edit-fields label>span{display:block;margin-bottom:6px;color:var(--muted);font-size:.76rem}
+.sleep-edit-time{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr) auto;align-items:center;gap:7px}.sleep-edit-time b{color:var(--muted)}
+.sleep-edit-fields{margin-top:14px}.sleep-edit-actions{display:grid;grid-template-columns:1fr 1.35fr;gap:10px;margin-top:17px}
+@media(max-width:560px){.sleep-edit-backdrop{align-items:flex-end;padding:0}.sleep-edit-modal{max-height:90vh;border-radius:25px 25px 0 0;padding:17px 15px calc(17px + env(safe-area-inset-bottom))}.sleep-edit-time-grid,.sleep-edit-fields{grid-template-columns:1fr}.sleep-edit-actions{position:sticky;bottom:0;padding-top:10px;background:var(--card)}}

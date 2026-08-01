@@ -24,23 +24,33 @@ function renderSeasonalAtmosphere(theme){
 /* Plants page and plant profiles are provided by pages/plants.js.
    Do not redefine them here: doing so overrides the working click/navigation code. */
 function lina17InsertStandardBanner(key,src,routeAtRequest){
-  if(!src||route!==routeAtRequest)return;
+  if(!src||route!==routeAtRequest)return false;
   const app=document.querySelector("#app");
-  if(!app||app.querySelector(".module-banner"))return;
+  if(!app)return false;
   const header=app.querySelector(".page-head");
-  if(!header)return;
+  if(!header)return false;
+
+  const existing=app.querySelector(".module-banner");
+  if(existing){
+    const current=existing.querySelector("img")?.getAttribute("src")||"";
+    if(current===src)return true;
+    existing.remove();
+  }
+
   const banner=document.createElement("section");
   banner.className=`module-banner${key==="plants"?" plants-module-banner":""}`;
   banner.setAttribute("aria-label",`${key} banner`);
   const image=document.createElement("img");
   image.src=src;
   image.alt="";
+  image.decoding="async";
   image.addEventListener("error",()=>{
-    banner.remove();
-    toast("The saved banner could not be displayed. Please choose the image again.");
+    if(banner.isConnected)banner.remove();
+    console.error("Saved banner could not be displayed",key);
   },{once:true});
   banner.appendChild(image);
   header.insertAdjacentElement("afterend",banner);
+  return true;
 }
 
 function linaBannerKey(routeName){
@@ -52,32 +62,39 @@ function linaBannerKey(routeName){
   })[routeName]||"";
 }
 
-function linaBannerValue(key){
-  if(!key) return "";
-  return data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||"";
+async function linaResolveBanner(key){
+  if(!key)return "";
+  const inMemory=data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||"";
+  if(inMemory)return inMemory;
+  if(!window.LinaImage)return "";
+  try{
+    const saved=await LinaImage.load(`banner:${key}`);
+    if(saved){
+      data.moduleBanners=data.moduleBanners||{};
+      data.moduleBanners[key]=saved;
+      return saved;
+    }
+  }catch(error){console.error("Could not restore banner",key,error)}
+  return "";
 }
 
 function lina17StandardBanner(routeName){
   const key=linaBannerKey(routeName);
   if(!key)return;
   const routeAtRequest=route;
-  const src=linaBannerValue(key);
-  if(src){
-    lina17InsertStandardBanner(key,src,routeAtRequest);
-    return;
-  }
-
-  // Always ask IndexedDB directly. This is essential on iOS/Android PWAs,
-  // where the page can render before a cloud-restored banner is in memory.
-  if(window.LinaImage){
-    LinaImage.load(`banner:${key}`).then(saved=>{
-      if(!saved||route!==routeAtRequest)return;
-      data.moduleBanners=data.moduleBanners||{};
-      data.moduleBanners[key]=saved;
-      lina17InsertStandardBanner(key,saved,routeAtRequest);
-    }).catch(error=>console.error("Could not restore banner",key,error));
-  }
+  const attempt=async()=>{
+    if(route!==routeAtRequest)return;
+    const src=await linaResolveBanner(key);
+    if(src&&route===routeAtRequest)lina17InsertStandardBanner(key,src,routeAtRequest);
+  };
+  attempt();
+  // Mobile PWAs can restore IndexedDB/cloud images just after the first render.
+  // Retry briefly so a valid saved banner never stays blank after app startup.
+  [180,650,1600].forEach(delay=>setTimeout(attempt,delay));
 }
+
+window.addEventListener("linahub:media-ready",()=>lina17StandardBanner(route));
+document.addEventListener("linahub:cloud-images-ready",()=>lina17StandardBanner(route));
 
 function lina17HeaderIllustration(routeName){
   const art={
@@ -515,7 +532,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1785",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1787",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{
@@ -532,7 +549,9 @@ if("serviceWorker" in navigator){
 // refresh/cloud re-render to wipe a banner that had just appeared.
 (async()=>{
   try{await hydrateLinaMedia();}catch(error){console.error("Could not restore saved images",error);}
+  window.dispatchEvent(new Event("linahub:media-ready"));
   render();
+  window.dispatchEvent(new Event("linahub:media-ready"));
 })();
 
 /* LinaHub 17.2.6 — format decimal sleep duration as hours and minutes */

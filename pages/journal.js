@@ -128,6 +128,38 @@ function journalSleepMonthKey(){
   data.journalSleepMonth=value;
   return value;
 }
+function journalSleepSelect(name,value){
+  return `<select class="field" id="sleepEdit${name[0].toUpperCase()+name.slice(1)}"><option value="">Not recorded</option>${SCALE_OPTIONS[name].map((item,index)=>`<option value="${index}" ${Number(value)===index?"selected":""}>${item[0]} ${item[1]}</option>`).join("")}</select>`;
+}
+function journalSleepEditModal(rows){
+  const date=data.journalSleepEditDate||"";
+  if(!date)return "";
+  const row=rows.find(item=>item.date===date)||{date,sleep:null,morning:null,checkin:null};
+  const sleep=row.sleep||{},morning=row.morning||{},checkin=row.checkin||{};
+  const total=Number(sleep.totalMinutes??morning.sleepTotalMinutes??0)||0;
+  const deep=Number(sleep.deepMinutes??morning.deepSleepTotalMinutes??0)||0;
+  const quality=sleep.quality??morning.sleepQuality??checkin.sleep??"";
+  const energy=morning.energy??checkin.energy??"";
+  const mood=morning.mood??checkin.mood??"";
+  const pain=morning.pain??checkin.pain??"";
+  return `<div class="sleep-edit-backdrop" id="sleepEditBackdrop">
+    <section class="sleep-edit-modal" role="dialog" aria-modal="true" aria-labelledby="sleepEditTitle">
+      <div class="sleep-edit-head"><div><span class="section-kicker">🌙 Edit sleep record</span><h2 id="sleepEditTitle">${esc(dateLabel(date))}</h2></div><button type="button" data-close-sleep-edit aria-label="Close">×</button></div>
+      <div class="sleep-edit-time-grid">
+        <label><span>Total sleep</span><div class="sleep-edit-time"><input class="field" id="sleepEditHours" type="number" min="0" max="24" inputmode="numeric" value="${Math.floor(total/60)}"><b>h</b><input class="field" id="sleepEditMinutes" type="number" min="0" max="59" inputmode="numeric" value="${total%60}"><b>m</b></div></label>
+        <label><span>Deep sleep</span><div class="sleep-edit-time"><input class="field" id="sleepEditDeepHours" type="number" min="0" max="12" inputmode="numeric" value="${Math.floor(deep/60)}"><b>h</b><input class="field" id="sleepEditDeepMinutes" type="number" min="0" max="59" inputmode="numeric" value="${deep%60}"><b>m</b></div></label>
+      </div>
+      <div class="sleep-edit-fields">
+        <label><span>Sleep quality</span>${journalSleepSelect("sleep",quality)}</label>
+        <label><span>Pain on waking</span>${journalSleepSelect("pain",pain)}</label>
+        <label><span>Mood on waking</span>${journalSleepSelect("mood",mood)}</label>
+        <label><span>Energy on waking</span>${journalSleepSelect("energy",energy)}</label>
+      </div>
+      <div class="sleep-edit-actions"><button type="button" class="secondary" data-close-sleep-edit>Cancel</button><button type="button" class="primary" id="saveSleepCalendarEdit">Save changes</button></div>
+    </section>
+  </div>`;
+}
+
 function journalSleepCalendar(rows,metric,monthKey){
   const [year,month]=monthKey.split("-").map(Number);
   const first=new Date(year,month-1,1,12);
@@ -172,7 +204,8 @@ function JournalSleepPage(){
     <section class="card sleep-calendar-controls"><div><span class="section-kicker">🌙 Sleep calendar</span><h2>${monthTitle}</h2></div><label><span>Show</span><select class="field" id="journalSleepMetric"><option value="sleep" ${metric==="sleep"?"selected":""}>Sleep</option><option value="deep" ${metric==="deep"?"selected":""}>Deep sleep</option><option value="pain" ${metric==="pain"?"selected":""}>Pain</option><option value="mood" ${metric==="mood"?"selected":""}>Mood</option><option value="energy" ${metric==="energy"?"selected":""}>Energy</option></select></label><div class="sleep-month-arrows"><button type="button" data-sleep-month-step="-1" aria-label="Previous month">‹</button><button type="button" data-sleep-month-step="1" aria-label="Next month" ${nextDisabled?"disabled":""}>›</button></div></section>
     ${journalSleepCalendar(rows,metric,monthKey)}
     ${journalSleepChart(rows,metric,monthKey)}
-    <p class="sleep-calendar-help">Tap a recorded date to open and edit that day in Journal.</p>` ,"journal");
+    <p class="sleep-calendar-help">Tap a recorded date to edit its sleep and waking details.</p>
+    ${journalSleepEditModal(rows)}` ,"journal");
 }
 
 function JournalTrendsPage(){
@@ -188,7 +221,28 @@ function bindJournal(){
  document.querySelectorAll("[data-journal-tab]").forEach(btn=>btn.onclick=()=>{data.journalTab=btn.dataset.journalTab;if(data.journalTab==="today")data.journalSelectedDate=today();saveData();render()});
  document.querySelector("#journalSleepMetric")?.addEventListener("change",event=>{data.journalSleepMetric=event.target.value;saveData();render()});
  document.querySelectorAll("[data-sleep-month-step]").forEach(button=>button.onclick=()=>{const [year,month]=(data.journalSleepMonth||journalSleepMonthKey()).split("-").map(Number);const next=new Date(year,month-1+Number(button.dataset.sleepMonthStep),1,12);data.journalSleepMonth=`${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,"0")}`;saveData();render()});
- document.querySelectorAll("[data-sleep-date]").forEach(button=>button.onclick=()=>{if(!button.classList.contains("has-data"))return;data.journalSelectedDate=button.dataset.sleepDate;data.journalTab="today";saveData();render()});
+ document.querySelectorAll("[data-sleep-date]").forEach(button=>button.onclick=()=>{if(!button.classList.contains("has-data"))return;data.journalSleepEditDate=button.dataset.sleepDate;saveData();render()});
+ document.querySelectorAll("[data-close-sleep-edit]").forEach(button=>button.onclick=()=>{data.journalSleepEditDate="";saveData();render()});
+ document.querySelector("#sleepEditBackdrop")?.addEventListener("click",event=>{if(event.target.id!=="sleepEditBackdrop")return;data.journalSleepEditDate="";saveData();render()});
+ document.querySelector("#saveSleepCalendarEdit")?.addEventListener("click",()=>{
+   const date=data.journalSleepEditDate;if(!date)return;
+   const number=id=>Math.max(0,Number(document.querySelector(id)?.value)||0);
+   const clampMinutes=value=>Math.max(0,Math.min(59,Math.round(value)));
+   const totalMinutes=Math.round(number("#sleepEditHours"))*60+clampMinutes(number("#sleepEditMinutes"));
+   const deepMinutes=Math.round(number("#sleepEditDeepHours"))*60+clampMinutes(number("#sleepEditDeepMinutes"));
+   if(deepMinutes>totalMinutes&&totalMinutes>0){toast("Deep sleep cannot be longer than total sleep");return}
+   const optional=id=>{const value=document.querySelector(id)?.value;return value===""?null:Number(value)};
+   const quality=optional("#sleepEditSleep"),pain=optional("#sleepEditPain"),mood=optional("#sleepEditMood"),energy=optional("#sleepEditEnergy");
+   data.sleepEntries=Array.isArray(data.sleepEntries)?data.sleepEntries:[];
+   const existing=data.sleepEntries.filter(entry=>entry?.date===date).sort((a,b)=>String(b.createdAt||"").localeCompare(String(a.createdAt||"")))[0];
+   data.sleepEntries=data.sleepEntries.filter(entry=>entry?.date!==date);
+   if(totalMinutes||deepMinutes||quality!==null){data.sleepEntries.push({...existing,id:existing?.id||`sleep-${Date.now()}`,date,totalMinutes,deepMinutes,quality,source:existing?.source||"daily-checkin",createdAt:new Date().toISOString()})}
+   data.morningCheckins=data.morningCheckins||{};
+   data.morningCheckins[date]={...(data.morningCheckins[date]||{}),sleepTotalMinutes:totalMinutes,deepSleepTotalMinutes:deepMinutes,sleep:totalMinutes/60,deepSleep:deepMinutes/60,sleepQuality:quality,pain,mood,energy,updatedAt:new Date().toISOString()};
+   data.checkins=data.checkins||{};
+   data.checkins[date]={...(data.checkins[date]||{}),sleep:quality,pain,mood,energy,savedAt:new Date().toISOString()};
+   data.journalSleepEditDate="";saveData();toast("Sleep record updated");render();
+ });
  document.querySelector("#returnToday")?.addEventListener("click",()=>{data.journalSelectedDate=today();saveData();render()});
  document.querySelector("#openHistoryDate")?.addEventListener("click",()=>{const v=document.querySelector("#journalHistoryDate")?.value;if(!v)return;data.journalSelectedDate=v;data.journalTab="today";saveData();render()});
  document.querySelectorAll("[data-history-date]").forEach(btn=>btn.onclick=()=>{data.journalSelectedDate=btn.dataset.historyDate;data.journalTab="today";saveData();render()});

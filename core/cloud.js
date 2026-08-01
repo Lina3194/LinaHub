@@ -339,7 +339,7 @@ async function firstCloudSetup(){
   }else{
     await downloadAllModules();
   }
-  try{await hydrateLinaMedia();await pushAllCloudImages()}catch(error){console.error("LinaHub image sync setup",error)}
+  try{await hydrateLinaMedia();document.dispatchEvent(new Event("linahub:cloud-images-ready"));await pushAllCloudImages()}catch(error){console.error("LinaHub image sync setup",error)}
   CLOUD_STATE.ready=true;
   startCloudListeners();
 }

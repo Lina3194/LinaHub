@@ -223,7 +223,7 @@ body.reordering{
 }
 
 
-/* LinaHub 17.8.7 — edit sleep calendar records in place */
+/* LinaHub 17.8.8 — edit sleep calendar records in place */
 .sleep-calendar-day.has-data{cursor:pointer;transition:transform .15s ease,filter .15s ease}
 .sleep-calendar-day.has-data:hover,.sleep-calendar-day.has-data:focus-visible{transform:translateY(-2px);filter:brightness(1.08)}
 .sleep-edit-backdrop{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:18px;background:rgba(7,4,18,.76);backdrop-filter:blur(8px);overflow:auto}

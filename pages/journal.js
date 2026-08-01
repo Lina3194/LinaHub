@@ -86,41 +86,52 @@ function journalSleepHistory(){
     return Number(sleep.totalMinutes||morning.sleepTotalMinutes||0)>0||Number(sleep.deepMinutes||morning.deepSleepTotalMinutes||0)>0||[sleep.quality,morning.sleepQuality,checkin.sleep,morning.energy,checkin.energy,morning.mood,checkin.mood,morning.pain,checkin.pain].some(value=>value!==null&&value!==undefined&&value!=="");
   }).sort((a,b)=>b.date.localeCompare(a.date));
 }
+function journalStoredMinutes(sleep,morning,type){
+  const minuteKeys=type==="deep"
+    ? [sleep.deepMinutes,sleep.deepSleepTotalMinutes,morning.deepSleepTotalMinutes,morning.deepMinutes]
+    : [sleep.totalMinutes,sleep.sleepTotalMinutes,morning.sleepTotalMinutes,morning.totalMinutes];
+  const explicit=minuteKeys.map(Number).find(value=>Number.isFinite(value)&&value>0);
+  if(explicit!==undefined)return Math.round(explicit);
+  const hourKeys=type==="deep"
+    ? [sleep.deepSleep,sleep.deepHours,morning.deepSleep,morning.deepHours]
+    : [sleep.sleep,sleep.hours,morning.sleep,morning.sleepHours];
+  const hours=hourKeys.map(Number).find(value=>Number.isFinite(value)&&value>0);
+  return hours!==undefined?Math.round(hours*60):0;
+}
 function journalSleepMetricValue(row,metric){
   const sleep=row.sleep||{},morning=row.morning||{},checkin=row.checkin||{};
-  if(metric==="sleep"){
-    const minutes=Number(sleep.totalMinutes??morning.sleepTotalMinutes??0)||0;
-    return minutes>0?minutes/60:null;
-  }
-  if(metric==="deep"){
-    const minutes=Number(sleep.deepMinutes??morning.deepSleepTotalMinutes??0)||0;
-    return minutes>0?minutes/60:null;
+  if(metric==="sleep"||metric==="deep"){
+    const minutes=journalStoredMinutes(sleep,morning,metric);
+    return minutes>0?minutes:null;
   }
   const value=morning[metric]??checkin[metric];
   return value===null||value===undefined||value===""?null:Number(value);
 }
 function journalSleepMetricInfo(metric){
   return {
-    sleep:{label:"Sleep",unit:"hours",icon:"🌙",max:12},
-    deep:{label:"Deep sleep",unit:"hours",icon:"💤",max:4},
+    sleep:{label:"Sleep",unit:"minutes",icon:"🌙",max:720},
+    deep:{label:"Deep sleep",unit:"minutes",icon:"💤",max:240},
     pain:{label:"Pain",unit:"level",icon:"☀️",max:4},
     mood:{label:"Mood",unit:"level",icon:"💜",max:4},
     energy:{label:"Energy",unit:"level",icon:"⚡",max:4}
-  }[metric]||{label:"Sleep",unit:"hours",icon:"🌙",max:12};
+  }[metric]||{label:"Sleep",unit:"minutes",icon:"🌙",max:720};
+}
+function journalSleepMetricEmoji(metric,value){
+  if(!["pain","mood","energy"].includes(metric)||value===null||value===undefined)return "";
+  const index=Math.max(0,Math.min(4,Math.round(Number(value))));
+  return SCALE_OPTIONS[metric]?.[index]?.[0]||"·";
 }
 function journalSleepMetricLabel(metric,value){
   if(value===null||value===undefined)return "";
-  if(metric==="sleep"||metric==="deep"){
-    const minutes=Math.round(Number(value)*60);
-    return journalSleepMinutesLabel(minutes);
-  }
+  if(metric==="sleep"||metric==="deep")return journalSleepMinutesLabel(Math.round(Number(value)));
   const index=Math.max(0,Math.min(4,Math.round(Number(value))));
-  return SCALE_OPTIONS[metric]?.[index]?.[1]||String(index+1);
+  const option=SCALE_OPTIONS[metric]?.[index];
+  return option?`${option[0]} ${option[1]}`:String(index+1);
 }
 function journalSleepCellLabel(metric,value){
   if(value===null||value===undefined)return "";
-  if(metric==="sleep"||metric==="deep")return `${Number(value).toFixed(Number(value)%1?1:0)}h`;
-  return String(Math.round(Number(value))+1);
+  if(metric==="sleep"||metric==="deep")return journalSleepMinutesLabel(Math.round(Number(value)));
+  return journalSleepMetricEmoji(metric,value);
 }
 function journalSleepMonthKey(){
   const fallback=(journalSleepHistory()[0]?.date||today()).slice(0,7);
@@ -190,7 +201,14 @@ function journalSleepChart(rows,metric,monthKey){
   const line=points.map((point,index)=>`${x(index)},${y(point.value)}`).join(" ");
   const average=points.reduce((sum,point)=>sum+point.value,0)/points.length;
   const ticks=[0,maxValue/2,maxValue];
-  return `<section class="card sleep-month-chart"><div class="section-title"><div><span class="section-kicker">${info.icon} ${info.label} chart</span><h2>${points.length} recorded day${points.length===1?"":"s"}</h2></div><strong>${metric==="sleep"||metric==="deep"?`${average.toFixed(1)}h average`:`${average.toFixed(1)} average`}</strong></div><svg class="sleep-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(info.label)} trend for ${esc(monthKey)}"><g class="sleep-chart-grid">${ticks.map(value=>`<line x1="${left}" y1="${y(value)}" x2="${width-right}" y2="${y(value)}"></line><text x="${left-8}" y="${y(value)+4}" text-anchor="end">${metric==="sleep"||metric==="deep"?`${value.toFixed(value%1?1:0)}h`:Math.round(value+1)}</text>`).join("")}</g><polyline class="sleep-chart-line" points="${line}"></polyline>${points.map((point,index)=>`<circle class="sleep-chart-point" cx="${x(index)}" cy="${y(point.value)}" r="5"><title>${dateLabel(point.date)}: ${journalSleepMetricLabel(metric,point.value)}</title></circle>`).join("")}${points.map((point,index)=>{if(points.length>12&&index%Math.ceil(points.length/8)!==0&&index!==points.length-1)return "";return `<text class="sleep-chart-date" x="${x(index)}" y="${height-12}" text-anchor="middle">${Number(point.date.slice(-2))}</text>`}).join("")}</svg></section>`;
+  const averageLabel=metric==="sleep"||metric==="deep"
+    ? `${journalSleepMinutesLabel(Math.round(average))} average`
+    : `${journalSleepMetricEmoji(metric,average)} ${journalSleepMetricLabel(metric,average).replace(/^\S+\s/,"")} average`;
+  const tickLabel=value=>{
+    if(metric==="sleep"||metric==="deep")return value===0?"0m":journalSleepMinutesLabel(Math.round(value));
+    return journalSleepMetricEmoji(metric,value);
+  };
+  return `<section class="card sleep-month-chart"><div class="section-title"><div><span class="section-kicker">${info.icon} ${info.label} chart</span><h2>${points.length} recorded day${points.length===1?"":"s"}</h2></div><strong>${esc(averageLabel)}</strong></div><svg class="sleep-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${esc(info.label)} trend for ${esc(monthKey)}"><g class="sleep-chart-grid">${ticks.map(value=>`<line x1="${left}" y1="${y(value)}" x2="${width-right}" y2="${y(value)}"></line><text x="${left-8}" y="${y(value)+4}" text-anchor="end">${esc(tickLabel(value))}</text>`).join("")}</g><polyline class="sleep-chart-line" points="${line}"></polyline>${points.map((point,index)=>`<circle class="sleep-chart-point" cx="${x(index)}" cy="${y(point.value)}" r="5"><title>${dateLabel(point.date)}: ${journalSleepMetricLabel(metric,point.value)}</title></circle>`).join("")}${points.map((point,index)=>{if(points.length>12&&index%Math.ceil(points.length/8)!==0&&index!==points.length-1)return "";return `<text class="sleep-chart-date" x="${x(index)}" y="${height-12}" text-anchor="middle">${Number(point.date.slice(-2))}</text>`}).join("")}</svg></section>`;
 }
 function JournalSleepPage(){
   const rows=journalSleepHistory();

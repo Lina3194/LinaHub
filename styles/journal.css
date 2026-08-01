@@ -1608,3 +1608,253 @@ body.dark .tracker-calendar-day:focus-visible{background:rgba(255,255,255,.075)!
   .tracker-art-day-note{font-size:.5rem;min-height:1.25em}
   .tracker-art-flourish{margin-top:12px}
 }
+
+/* LinaHub 17.9.19 — compact the entire tracker page */
+.tracker-page-compact{
+  width:100%;
+  max-width:620px;
+  margin:0 auto;
+}
+.tracker-page-compact .page-head{
+  min-height:48px!important;
+  margin:0 0 8px!important;
+  gap:9px!important;
+}
+.tracker-page-compact .page-head .back{
+  width:38px!important;
+  height:38px!important;
+  border-radius:13px!important;
+  font-size:1.45rem!important;
+}
+.tracker-page-compact .page-head h1{
+  margin:0 0 2px!important;
+  font-size:1.55rem!important;
+  line-height:1!important;
+}
+.tracker-page-compact .page-head p{
+  margin:0!important;
+  font-size:.74rem!important;
+  line-height:1.2!important;
+}
+.tracker-page-compact .journal-tabs{
+  margin-bottom:8px!important;
+  padding:3px!important;
+  border-radius:14px!important;
+}
+.tracker-page-compact .journal-tabs button{
+  padding:7px 5px!important;
+  border-radius:10px!important;
+  font-size:.78rem!important;
+}
+.tracker-page-compact .tracker-hero-card{
+  grid-template-columns:minmax(0,1fr) 150px auto!important;
+  gap:8px 10px!important;
+  margin-bottom:8px!important;
+  padding:11px 12px!important;
+  border-radius:18px!important;
+}
+.tracker-page-compact .tracker-hero-card .section-kicker{
+  font-size:.58rem!important;
+  letter-spacing:.08em!important;
+}
+.tracker-page-compact .tracker-hero-card h2{
+  margin:2px 0 1px!important;
+  font-size:.98rem!important;
+  line-height:1.05!important;
+}
+.tracker-page-compact .tracker-helper{
+  margin:2px 0 0!important;
+  font-size:.66rem!important;
+  line-height:1.2!important;
+}
+.tracker-page-compact .tracker-hero-card label>span,
+.tracker-page-compact .tracker-month-row>span{
+  margin-bottom:4px!important;
+  font-size:.62rem!important;
+}
+.tracker-page-compact #journalSleepMetric{
+  min-height:34px!important;
+  height:34px!important;
+  padding:5px 30px 5px 9px!important;
+  border-radius:10px!important;
+  font-size:.78rem!important;
+}
+.tracker-page-compact .sleep-month-arrows{
+  gap:5px!important;
+}
+.tracker-page-compact .sleep-month-arrows button{
+  width:34px!important;
+  min-width:34px!important;
+  height:34px!important;
+  min-height:34px!important;
+  padding:0!important;
+  border-radius:10px!important;
+}
+.tracker-page-compact .tracker-month-row{
+  grid-column:1/-1;
+  min-width:0;
+}
+.tracker-page-compact .tracker-month-strip{
+  display:flex!important;
+  gap:5px!important;
+  overflow-x:auto;
+  scrollbar-width:none;
+  padding-bottom:1px;
+}
+.tracker-page-compact .tracker-month-strip::-webkit-scrollbar{display:none}
+.tracker-page-compact .tracker-month-pill{
+  flex:1 0 40px;
+  min-width:40px;
+  padding:6px 4px!important;
+  border-radius:9px!important;
+  font-size:.63rem!important;
+}
+.tracker-page-compact .tracker-metric-tabs{
+  grid-column:1/-1;
+  display:flex!important;
+  gap:5px!important;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.tracker-page-compact .tracker-metric-tabs::-webkit-scrollbar{display:none}
+.tracker-page-compact .tracker-metric-pill{
+  flex:1 0 92px;
+  min-width:92px;
+  padding:7px 7px!important;
+  border-radius:10px!important;
+  font-size:.72rem!important;
+}
+.tracker-page-compact .tracker-enchanted-card{
+  width:min(100%,540px);
+  margin:0 auto 8px!important;
+  padding:7px!important;
+  border-radius:21px!important;
+}
+.tracker-page-compact .tracker-enchanted-panel{
+  padding:13px 10px 10px!important;
+  border-radius:16px!important;
+}
+.tracker-page-compact .tracker-art-heading{
+  margin:0 auto 9px!important;
+}
+.tracker-page-compact .tracker-art-heading .section-kicker{
+  font-size:.52rem!important;
+  letter-spacing:.1em!important;
+}
+.tracker-page-compact .tracker-art-heading h2{
+  margin:3px 0 2px!important;
+  font-size:1.08rem!important;
+}
+.tracker-page-compact .tracker-art-heading p{
+  font-size:.64rem!important;
+}
+.tracker-page-compact .tracker-art-grid{
+  grid-template-columns:repeat(7,minmax(0,1fr))!important;
+  width:min(100%,430px)!important;
+  gap:8px 4px!important;
+  padding:9px 7px 10px!important;
+  border-radius:15px!important;
+}
+.tracker-page-compact .tracker-art-day{
+  min-height:50px!important;
+  gap:2px!important;
+}
+.tracker-page-compact .tracker-art-heart{
+  width:34px!important;
+  max-width:34px!important;
+  height:30px!important;
+}
+.tracker-page-compact .tracker-art-day-number{
+  top:6px!important;
+  font-size:.61rem!important;
+}
+.tracker-page-compact .tracker-art-day-note{
+  min-height:1.1em!important;
+  font-size:.43rem!important;
+  line-height:1.05!important;
+  white-space:nowrap;
+}
+.tracker-page-compact .tracker-art-flourish{
+  width:58%!important;
+  margin:9px auto 0!important;
+}
+.tracker-page-compact .tracker-enchanted-key{
+  width:min(100%,540px);
+  margin:0 auto!important;
+  padding:10px!important;
+  border-radius:18px!important;
+}
+.tracker-page-compact .tracker-enchanted-key .section-title{
+  margin-bottom:4px!important;
+}
+.tracker-page-compact .tracker-enchanted-key .section-title h2{
+  margin:2px 0 0!important;
+  font-size:.94rem!important;
+}
+.tracker-page-compact .tracker-enchanted-key .section-kicker{
+  font-size:.54rem!important;
+}
+.tracker-page-compact .tracker-enchanted-key-list{
+  display:flex!important;
+  gap:6px!important;
+  margin-top:6px!important;
+  overflow-x:auto;
+  scrollbar-width:none;
+}
+.tracker-page-compact .tracker-enchanted-key-list::-webkit-scrollbar{display:none}
+.tracker-page-compact .tracker-enchanted-key-item{
+  flex:1 0 96px;
+  min-width:96px;
+  gap:6px!important;
+  padding:7px!important;
+  border-radius:11px!important;
+}
+.tracker-page-compact .tracker-key-heart{
+  width:22px!important;
+  height:20px!important;
+}
+.tracker-page-compact .tracker-enchanted-key-item strong{
+  font-size:.62rem!important;
+}
+.tracker-page-compact .tracker-enchanted-key-item small{
+  display:none!important;
+}
+@media(max-width:560px){
+  .tracker-page-compact{max-width:100%}
+  .tracker-page-compact .page-head{min-height:42px!important;margin-bottom:6px!important}
+  .tracker-page-compact .page-head .back{width:34px!important;height:34px!important;font-size:1.25rem!important}
+  .tracker-page-compact .page-head h1{font-size:1.32rem!important}
+  .tracker-page-compact .page-head p{font-size:.66rem!important}
+  .tracker-page-compact .journal-tabs{margin-bottom:6px!important}
+  .tracker-page-compact .journal-tabs button{padding:6px 4px!important;font-size:.7rem!important}
+  .tracker-page-compact .tracker-hero-card{
+    grid-template-columns:minmax(0,1fr) auto!important;
+    gap:7px!important;
+    padding:9px!important;
+    border-radius:15px!important;
+  }
+  .tracker-page-compact .tracker-hero-card>div:first-child{grid-column:1/-1}
+  .tracker-page-compact .tracker-hero-card label{grid-column:1/2}
+  .tracker-page-compact .sleep-month-arrows{grid-column:2/3;align-self:end}
+  .tracker-page-compact .tracker-month-row,
+  .tracker-page-compact .tracker-metric-tabs{grid-column:1/-1}
+  .tracker-page-compact .tracker-month-pill{flex-basis:36px;min-width:36px;padding:5px 3px!important;font-size:.58rem!important}
+  .tracker-page-compact .tracker-metric-pill{flex-basis:78px;min-width:78px;padding:6px 5px!important;font-size:.66rem!important}
+  .tracker-page-compact .tracker-enchanted-card{padding:5px!important;border-radius:18px!important}
+  .tracker-page-compact .tracker-enchanted-panel{padding:10px 5px 8px!important;border-radius:14px!important}
+  .tracker-page-compact .tracker-art-heading{margin-bottom:7px!important}
+  .tracker-page-compact .tracker-art-heading h2{font-size:.96rem!important}
+  .tracker-page-compact .tracker-art-heading p{font-size:.58rem!important}
+  .tracker-page-compact .tracker-art-grid{
+    grid-template-columns:repeat(7,minmax(0,1fr))!important;
+    gap:6px 2px!important;
+    padding:7px 3px 8px!important;
+  }
+  .tracker-page-compact .tracker-art-day{min-height:43px!important}
+  .tracker-page-compact .tracker-art-heart{width:29px!important;max-width:29px!important;height:26px!important}
+  .tracker-page-compact .tracker-art-day-number{top:5px!important;font-size:.55rem!important}
+  .tracker-page-compact .tracker-art-day-note{font-size:.38rem!important}
+  .tracker-page-compact .tracker-art-flourish{margin-top:7px!important}
+  .tracker-page-compact .tracker-enchanted-key{padding:8px!important}
+  .tracker-page-compact .tracker-enchanted-key-item{flex-basis:88px;min-width:88px;padding:6px!important}
+}

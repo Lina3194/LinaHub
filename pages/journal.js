@@ -334,11 +334,11 @@ function JournalSleepPage(){
   const monthTitle=monthDate.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
   const latestMonth=(rows[0]?.date||today()).slice(0,7);
   const nextDisabled=monthKey>=latestMonth;
-  return shell(`${head("Journal","Monthly wellness tracker")}${journalTabs("sleep")}
+  return shell(`<div class="tracker-page-compact">${head("Journal","Monthly wellness tracker")}${journalTabs("sleep")}
     <section class="card sleep-calendar-controls tracker-hero-card"><div><span class="section-kicker">Monthly wellness tracker</span><h2>${monthTitle}</h2><p class="tracker-helper">${meta.prompt}</p></div><label><span>Tracker</span><select class="field" id="journalSleepMetric"><option value="sleep" ${metric==="sleep"?"selected":""}>Sleep</option><option value="deep" ${metric==="deep"?"selected":""}>Deep sleep</option><option value="pain" ${metric==="pain"?"selected":""}>Pain</option><option value="mood" ${metric==="mood"?"selected":""}>Mood</option><option value="energy" ${metric==="energy"?"selected":""}>Energy</option></select></label><div class="sleep-month-arrows"><button type="button" data-sleep-month-step="-1" aria-label="Previous month">‹</button><button type="button" data-sleep-month-step="1" aria-label="Next month" ${nextDisabled?"disabled":""}>›</button></div><div class="tracker-month-row"><span>Months</span>${trackerMonthStrip(monthKey,latestMonth)}</div><div class="tracker-metric-tabs">${trackerMetricButtons(metric)}</div></section>
     ${journalSleepCalendar(rows,metric,monthKey)}
     ${journalTrackerLegend(metric)}
-    ${journalSleepEditModal(rows,metric)}` ,"journal");
+    ${journalSleepEditModal(rows,metric)}</div>` ,"journal");
 }
 
 function JournalTrendsPage(){

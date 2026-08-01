@@ -1533,3 +1533,78 @@ body.dark .tracker-calendar-day:focus-visible{background:rgba(255,255,255,.075)!
   .tracker-art-day-note{font-size:.57rem;min-height:1.8em}
   .tracker-metric-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}
 }
+
+/* LinaHub 17.9.18 — smaller tracker and month strip */
+.tracker-hero-card{
+  grid-template-columns:minmax(0,1.1fr) minmax(180px,.62fr) auto!important;
+  gap:12px 14px!important;
+}
+.tracker-hero-card .section-kicker{font-size:.72rem!important}
+.tracker-hero-card h2{font-size:1.05rem!important}
+.tracker-hero-card label>span,
+.tracker-month-row>span{display:block;font-size:.78rem;color:#cbb7df;margin-bottom:6px}
+.tracker-month-row{grid-column:1/-1}
+.tracker-month-strip{
+  display:grid;
+  grid-template-columns:repeat(6,minmax(0,1fr));
+  gap:7px;
+}
+.tracker-month-pill{
+  border:1px solid rgba(209,186,247,.16);
+  background:rgba(255,255,255,.04);
+  color:#eadff7;
+  border-radius:12px;
+  padding:8px 6px;
+  font-size:.74rem;
+  font-weight:700;
+  line-height:1;
+}
+.tracker-month-pill.active{
+  background:linear-gradient(180deg,rgba(176,132,255,.28),rgba(98,70,153,.24));
+  border-color:rgba(232,210,255,.34);
+  color:#fff;
+}
+.tracker-month-pill:disabled{opacity:.36}
+.tracker-metric-tabs{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:8px!important}
+.tracker-metric-pill{padding:10px 8px!important;font-size:.9rem!important}
+.tracker-enchanted-card{padding:10px;border-radius:26px}
+.tracker-enchanted-panel{min-height:0;padding:22px 18px 18px;border-radius:20px}
+.tracker-art-heading{max-width:430px;margin:0 auto 16px}
+.tracker-art-heading .section-kicker{font-size:.62rem!important;letter-spacing:.11em}
+.tracker-art-heading h2{font-size:1.48rem!important;margin:5px 0 4px}
+.tracker-art-heading p{font-size:.82rem!important}
+.tracker-art-grid{width:min(100%,450px);gap:14px 8px;padding:14px 12px 16px;border-radius:22px}
+.tracker-art-day{min-height:72px;gap:4px}
+.tracker-art-heart{max-width:46px;height:40px}
+.tracker-art-day-number{top:8px;font-size:.75rem!important}
+.tracker-art-day-note{font-size:.56rem;min-height:1.5em;line-height:1.1}
+.tracker-enchanted-key-list{grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.tracker-enchanted-key-item{padding:9px 8px;border-radius:14px}
+.tracker-enchanted-key-item strong{font-size:.72rem}
+.tracker-enchanted-key-item small{font-size:.54rem}
+@media(max-width:760px){
+  .tracker-hero-card{grid-template-columns:1fr auto!important}
+  .tracker-hero-card label{grid-column:1/2}
+  .sleep-month-arrows{grid-column:2/3;grid-row:1/3;align-self:end}
+  .tracker-month-strip{grid-template-columns:repeat(4,minmax(0,1fr))}
+  .tracker-metric-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:560px){
+  .tracker-hero-card{grid-template-columns:1fr!important;gap:10px!important;padding:14px!important}
+  .sleep-month-arrows{grid-column:auto;grid-row:auto;justify-self:start}
+  .tracker-month-strip{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .tracker-month-pill{padding:7px 4px;font-size:.69rem;border-radius:10px}
+  .tracker-metric-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important}
+  .tracker-metric-pill{padding:9px 8px!important;font-size:.86rem!important}
+  .tracker-enchanted-card{padding:7px;border-radius:22px}
+  .tracker-enchanted-panel{padding:18px 8px 14px;border-radius:18px}
+  .tracker-art-heading{margin-bottom:12px}
+  .tracker-art-heading h2{font-size:1.28rem!important}
+  .tracker-art-heading p{font-size:.74rem!important}
+  .tracker-art-grid{width:100%;gap:11px 5px;padding:11px 5px 12px;border-radius:18px}
+  .tracker-art-day{min-height:62px}
+  .tracker-art-heart{max-width:39px;height:34px}
+  .tracker-art-day-number{top:7px;font-size:.66rem!important}
+  .tracker-art-day-note{font-size:.5rem;min-height:1.25em}
+  .tracker-art-flourish{margin-top:12px}
+}

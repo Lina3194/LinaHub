@@ -1,4 +1,4 @@
-const BUILD_VERSION = "linahub-v17.9.17";
+const BUILD_VERSION = "linahub-v17.9.18";
 const CACHE = BUILD_VERSION;
 const ASSETS = [
   "./",

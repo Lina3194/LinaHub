@@ -304,6 +304,8 @@ function journalSleepCalendar(rows,metric,monthKey){
   const [year,month]=monthKey.split("-").map(Number);
   const daysInMonth=new Date(year,month,0).getDate();
   const meta=trackerMetricMeta(metric);
+  const monthDate=new Date(`${monthKey}-01T12:00:00`);
+  const monthTitle=monthDate.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
   const tokens=[];
   for(let day=1;day<=daysInMonth;day++){
     const date=`${monthKey}-${String(day).padStart(2,"0")}`;
@@ -314,10 +316,14 @@ function journalSleepCalendar(rows,metric,monthKey){
   return `<section class="card journal-tracker-card tracker-enchanted-card tracker-metric-${metric}">
     <div class="tracker-enchanted-panel">
       ${trackerArtBackdrop(metric)}
-      <div class="tracker-art-heading">
-        <span class="section-kicker">Monthly ${meta.label}</span>
-        <h2>${meta.label} tracker</h2>
-        <p>${meta.prompt}</p>
+      <div class="tracker-calendar-bar">
+        <button type="button" class="tracker-calendar-arrow" data-sleep-month-step="-1" aria-label="Previous month">‹</button>
+        <div class="tracker-art-heading tracker-art-heading-compact">
+          <span class="section-kicker">${meta.label}</span>
+          <h2>${monthTitle}</h2>
+          <p>${meta.prompt}</p>
+        </div>
+        <button type="button" class="tracker-calendar-arrow" data-sleep-month-step="1" aria-label="Next month">›</button>
       </div>
       <div class="tracker-art-grid">${tokens.join("")}</div>
       <div class="tracker-art-flourish" aria-hidden="true"><i></i><span>✦</span><b></b></div>
@@ -332,12 +338,14 @@ function JournalSleepPage(){
   const rows=journalSleepHistory();
   const metric=["sleep","deep","pain","mood","energy"].includes(data.journalSleepMetric)?data.journalSleepMetric:"sleep";
   if(data.journalSleepMetric!==metric){data.journalSleepMetric=metric;saveData();}
-  const meta=trackerMetricMeta(metric);
   const monthKey=journalSleepMonthKey();
   const monthDate=new Date(`${monthKey}-01T12:00:00`);
   const monthTitle=monthDate.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
-  return shell(`<div class="tracker-page-compact">${head("Journal","Monthly wellness tracker")}${journalTabs("sleep")}
-    <section class="card sleep-calendar-controls tracker-hero-card"><div><span class="section-kicker">Monthly wellness tracker</span><h2>${monthTitle}</h2><p class="tracker-helper">Today: ${esc(new Date(today()+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}))}</p></div><label><span>Tracker</span><select class="field" id="journalSleepMetric"><option value="sleep" ${metric==="sleep"?"selected":""}>Sleep</option><option value="deep" ${metric==="deep"?"selected":""}>Deep sleep</option><option value="pain" ${metric==="pain"?"selected":""}>Pain</option><option value="mood" ${metric==="mood"?"selected":""}>Mood</option><option value="energy" ${metric==="energy"?"selected":""}>Energy</option></select></label><div class="sleep-month-arrows"><button type="button" data-sleep-month-step="-1" aria-label="Previous month">‹</button><button type="button" data-sleep-month-step="1" aria-label="Next month">›</button></div>${trackerDateSelectors(monthKey,rows)}<div class="tracker-metric-tabs">${trackerMetricButtons(metric)}</div></section>
+  return shell(`<div class="tracker-page-compact tracker-page-clean">${head("Journal","Monthly wellness tracker")}${journalTabs("sleep")}
+    <section class="card sleep-calendar-controls tracker-hero-card tracker-hero-simple">
+      <div><span class="section-kicker">Monthly wellness tracker</span><h2>${monthTitle}</h2><p class="tracker-helper">Today: ${esc(new Date(today()+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}))}</p></div>
+      <label class="tracker-picker-inline"><span>Tracker</span><select class="field" id="journalSleepMetric"><option value="sleep" ${metric==="sleep"?"selected":""}>Sleep</option><option value="deep" ${metric==="deep"?"selected":""}>Deep sleep</option><option value="pain" ${metric==="pain"?"selected":""}>Pain</option><option value="mood" ${metric==="mood"?"selected":""}>Mood</option><option value="energy" ${metric==="energy"?"selected":""}>Energy</option></select></label>
+    </section>
     ${journalSleepCalendar(rows,metric,monthKey)}
     ${journalTrackerLegend(metric)}
     ${journalSleepEditModal(rows,metric)}</div>` ,"journal");

@@ -29,3 +29,58 @@
 }
 
 @media(max-width:360px){.jewel-case-crown{padding-inline:33px}.archive-jewel-row header{max-width:70%}.jewel-piece{transform:scale(.76)}.shelf-jewel:hover .jewel-piece,.shelf-jewel:focus-visible .jewel-piece{transform:translateY(-2px) scale(.8)}}
+
+/* LinaHub 17.9.24 — floral treasure room restore */
+.treasure-intro-floral h1{
+  font-family:inherit!important;
+  color:#f8e8ff;
+}
+.treasure-library-floral{
+  border-color:rgba(226,158,205,.28)!important;
+  background:
+    radial-gradient(circle at 15% 10%,rgba(255,181,213,.16),transparent 25%),
+    radial-gradient(circle at 85% 18%,rgba(190,132,255,.12),transparent 26%),
+    radial-gradient(circle at 50% 100%,rgba(255,176,200,.08),transparent 32%),
+    linear-gradient(145deg,#170d22,#241233 52%,#110a1e)!important;
+}
+.treasure-library-floral:before{
+  opacity:.22!important;
+}
+.treasure-library-floral:after{
+  border-color:rgba(235,189,226,.16)!important;
+}
+.jewel-case-crown-floral{
+  background:
+    radial-gradient(circle at 50% 0,rgba(255,221,238,.12),transparent 56%),
+    linear-gradient(180deg,#47203c,#29142b)!important;
+  border-color:rgba(236,173,209,.32)!important;
+  color:#f0bfdc!important;
+}
+.jewel-case-crown-floral>span{color:#efb4d2!important}
+.jewel-case-crown-floral small{color:#ddbed0!important}
+.jewel-case-crown-floral b{color:#ffe4f2!important}
+.archive-jewel-row header span{color:#ffd68b!important}
+.archive-jewel-row:before,.archive-jewel-row:after{
+  background:linear-gradient(90deg,transparent,rgba(255,194,220,.5),rgba(255,215,136,.55),transparent)!important;
+}
+.waiting-table{
+  border-color:rgba(231,166,207,.25)!important;
+  background:linear-gradient(145deg,rgba(57,24,54,.94),rgba(24,12,31,.96))!important;
+}
+.gift-parcel{
+  border-color:rgba(241,183,216,.35)!important;
+  background:linear-gradient(180deg,#69375e,#3a1a33)!important;
+  color:#ffe8f6!important;
+}
+.treasure-book{
+  border-color:rgba(231,166,207,.18)!important;
+  background:linear-gradient(145deg,rgba(35,18,43,.95),rgba(17,11,27,.95))!important;
+}
+.treasure-book .section-title h2{color:#ffe4f2!important}
+.treasure-card:hover,.treasure-card:focus-visible{
+  background:linear-gradient(90deg,rgba(201,104,165,.16),transparent)!important;
+}
+@media(max-width:620px){
+  .treasure-library-floral{padding:16px 8px 22px!important}
+  .jewel-case-crown-floral b{font-size:.78rem!important}
+}

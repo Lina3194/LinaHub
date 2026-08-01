@@ -1946,3 +1946,104 @@ body.dark .tracker-calendar-day:focus-visible{background:rgba(255,255,255,.075)!
   .tracker-date-selectors .field{font-size:.7rem;padding-inline:8px 24px}
   .tracker-date-selectors .tracker-today-button{padding-inline:8px;font-size:.64rem}
 }
+
+/* LinaHub 17.9.24 — cleaner monthly tracker */
+.tracker-page-clean .tracker-hero-card{
+  display:flex!important;
+  align-items:flex-end;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 16px!important;
+}
+.tracker-page-clean .tracker-hero-card .section-kicker{
+  font-size:.68rem!important;
+}
+.tracker-page-clean .tracker-hero-card h2{
+  font-size:1.4rem!important;
+  margin:2px 0 4px!important;
+}
+.tracker-page-clean .tracker-helper{
+  font-size:.8rem!important;
+  margin:0!important;
+}
+.tracker-page-clean .tracker-picker-inline{
+  min-width:150px;
+  max-width:190px;
+  width:100%;
+}
+.tracker-page-clean .tracker-picker-inline span{
+  display:block;
+  margin-bottom:6px;
+  font-size:.72rem;
+  color:#ccbce3;
+}
+.tracker-page-clean .tracker-picker-inline select{
+  min-height:44px;
+}
+.tracker-page-clean .tracker-date-selectors,
+.tracker-page-clean .tracker-metric-tabs,
+.tracker-page-clean .sleep-month-arrows{
+  display:none!important;
+}
+.tracker-calendar-bar{
+  display:grid;
+  grid-template-columns:auto 1fr auto;
+  align-items:center;
+  gap:8px;
+  margin:0 auto 10px;
+  width:min(100%,520px);
+}
+.tracker-calendar-arrow{
+  width:42px;
+  height:42px;
+  border-radius:14px;
+  border:1px solid rgba(220,198,255,.16);
+  background:rgba(255,255,255,.06);
+  color:#f7f0ff;
+  font-size:1.55rem;
+  display:grid;
+  place-items:center;
+}
+.tracker-art-heading-compact{
+  margin:0!important;
+  max-width:none!important;
+}
+.tracker-art-heading-compact .section-kicker{
+  font-size:.66rem!important;
+}
+.tracker-art-heading-compact h2{
+  font-size:1.24rem!important;
+  margin:4px 0 2px!important;
+}
+.tracker-art-heading-compact p{
+  font-size:.74rem!important;
+}
+@media(max-width:560px){
+  .tracker-page-clean .tracker-hero-card{
+    display:grid!important;
+    grid-template-columns:1fr auto;
+    align-items:end;
+    padding:12px!important;
+  }
+  .tracker-page-clean .tracker-hero-card>div:first-child{
+    grid-column:1/-1;
+  }
+  .tracker-page-clean .tracker-picker-inline{
+    min-width:0;
+    max-width:165px;
+  }
+  .tracker-page-clean .tracker-picker-inline select{min-height:40px}
+  .tracker-calendar-bar{
+    width:100%;
+    gap:6px;
+    margin-bottom:8px;
+  }
+  .tracker-calendar-arrow{
+    width:38px;
+    height:38px;
+    border-radius:12px;
+    font-size:1.35rem;
+  }
+  .tracker-art-heading-compact h2{font-size:1.05rem!important}
+  .tracker-art-heading-compact p{font-size:.66rem!important}
+}

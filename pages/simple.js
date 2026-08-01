@@ -88,8 +88,7 @@ function SettingsPage(){
           ["journal","Daily Check-in"],["today","Today"],["todo","To-do"],
           ["plants","Garden"],["pets","Aquariums"],["house","House"],["shopping","Shopping"],
           ["medication","Medication"],["health","Measurements"],["period","Period Tracker"],
-          ["pokemon","Pokémon GO"],["treasures","Treasure Room"],
-          ["hobbies","Self Care"],["books","Books"],["gaming","Gaming"]
+          ["pokemon","Pokémon GO"],["treasures","Treasure Room"]
         ].map(([key,label])=>`
           <article class="banner-art-setting">
             <div class="banner-art-preview">${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`))?`<img src="${data.moduleBanners?.[key]||window.LinaImage.peek(`banner:${key}`)}" alt="">`:`<span>${esc(data.homeIcons?.[key]||data.moduleIcons?.[key]||"✨")}</span>`}</div>
@@ -110,7 +109,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.4")}<br><br>1 Aug 2026</p>`,"settings");
+  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.5")}<br><br>1 Aug 2026</p>`,"settings");
 }
 
 function bindSimple(){

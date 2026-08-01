@@ -1446,3 +1446,90 @@ body.dark .tracker-calendar-day:focus-visible{background:rgba(255,255,255,.075)!
   .tracker-art-grid{gap:9px 3px;padding-inline:5px}
   .tracker-art-day-number{font-size:.68rem}
 }
+
+/* LinaHub 17.9.17 — tracker fixes */
+#journalSleepMetric{
+  color:#f8f2ff!important;
+  background:rgba(19,15,37,.96)!important;
+  border:1px solid rgba(209,186,247,.18)!important;
+}
+#journalSleepMetric option,
+#journalSleepMetric optgroup{
+  color:#f8f2ff!important;
+  background:#1b1533!important;
+}
+.tracker-metric-tabs{
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+}
+.tracker-art-grid{
+  gap:18px 10px!important;
+  align-items:start;
+}
+.tracker-art-day{
+  display:flex!important;
+  flex-direction:column;
+  align-items:center;
+  justify-content:flex-start;
+  aspect-ratio:auto!important;
+  min-height:82px;
+  gap:6px;
+}
+.tracker-art-heart{
+  position:relative!important;
+  inset:auto!important;
+  width:100%;
+  max-width:58px;
+  height:49px;
+  flex:0 0 auto;
+}
+.tracker-art-day-number{
+  position:absolute!important;
+  top:10px;
+  left:50%;
+  transform:translateX(-50%);
+  width:max-content;
+  padding-bottom:0!important;
+}
+.tracker-art-day-note{
+  position:relative;
+  z-index:2;
+  display:block;
+  max-width:100%;
+  min-height:1.9em;
+  padding:0 2px;
+  text-align:center;
+  font-size:.63rem;
+  line-height:1.15;
+  color:#d8caec;
+}
+.tracker-art-day.logged .tracker-art-day-note{
+  color:#fff3ff;
+}
+.tracker-art-day.empty .tracker-art-day-note{
+  color:#8f81a9;
+}
+.tracker-deep-help{
+  margin:0 0 12px;
+  color:#cdbdde;
+  font-size:.9rem;
+  line-height:1.4;
+}
+.tracker-choice-grid .tracker-choice[style*="#7b4dff"],
+.tracker-choice-grid .tracker-choice[style*="#b084ff"],
+.tracker-choice-grid .tracker-choice[style*="#7ecbff"],
+.tracker-choice-grid .tracker-choice[style*="#9ce27d"],
+.tracker-choice-grid .tracker-choice[style*="#ffd166"],
+.tracker-choice-grid .tracker-choice[style*="#ff8fc7"]{
+  background:color-mix(in srgb,var(--tracker-fill) 12%,rgba(255,255,255,.04))!important;
+}
+@media(max-width:760px){
+  .tracker-metric-tabs{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+@media(max-width:560px){
+  .tracker-art-grid{grid-template-columns:repeat(4,minmax(0,1fr))!important;gap:14px 7px!important;padding:15px 9px 17px!important}
+  .tracker-art-day{min-height:78px;gap:5px}
+  .tracker-art-heart{max-width:52px;height:44px}
+  .tracker-art-day-number{top:8px;font-size:.72rem!important}
+  .tracker-art-day-note{font-size:.57rem;min-height:1.8em}
+  .tracker-metric-tabs{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+}

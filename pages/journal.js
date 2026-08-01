@@ -6,28 +6,28 @@ const SCALE_OPTIONS={
 };
 const JOURNAL_ORDER=["energy","mood","pain","spoons","water","selfcare","supports"];
 const TRACKER_META={
-  sleep:{label:"Sleep",icon:"☾",question:"How was your Sleep?",prompt:"Tap a bottle to log your Sleep for that day.",empty:"No sleep mood logged yet.",options:[
+  sleep:{label:"Sleep",icon:"☾",question:"How was your Sleep?",prompt:"Tap a gem to log your Sleep for that day.",empty:"No sleep mood logged yet.",options:[
     {label:"Very poor",blurb:"Restless or very little sleep",fill:"#6d46a8",glow:"rgba(182,130,255,.42)",accent:"#d6bcff",level:"26%"},
     {label:"Poor",blurb:"Light sleep or frequent wake ups",fill:"#8b73d6",glow:"rgba(179,160,255,.36)",accent:"#e6dbff",level:"38%"},
     {label:"Okay",blurb:"Some rest, but could be better",fill:"#8eb4f4",glow:"rgba(143,190,255,.33)",accent:"#eef6ff",level:"48%"},
     {label:"Good",blurb:"Solid sleep, felt rested",fill:"#f3c77a",glow:"rgba(255,211,140,.34)",accent:"#fff2d2",level:"58%"},
     {label:"Great",blurb:"Amazing sleep, refreshed",fill:"#f1b4cb",glow:"rgba(255,186,214,.34)",accent:"#fff2b8",level:"68%"}
   ]},
-  pain:{label:"Pain",icon:"✦",question:"How was your Pain?",prompt:"Tap a bottle to log your Pain for that day.",empty:"No pain level logged yet.",options:[
+  pain:{label:"Pain",icon:"✦",question:"How was your Pain?",prompt:"Tap a gem to log your Pain for that day.",empty:"No pain level logged yet.",options:[
     {label:"Very severe",blurb:"Flare day or hard to function",fill:"#5d3a92",glow:"rgba(154,112,232,.4)",accent:"#d6beff",level:"72%"},
     {label:"Severe",blurb:"A rough day",fill:"#8663c7",glow:"rgba(175,148,245,.34)",accent:"#eadfff",level:"62%"},
     {label:"Moderate",blurb:"Manageable but noticeable",fill:"#9cb3ef",glow:"rgba(154,190,245,.3)",accent:"#eef5ff",level:"52%"},
     {label:"Mild",blurb:"Mostly okay with some aches",fill:"#efc2d2",glow:"rgba(255,197,221,.3)",accent:"#fff1dc",level:"46%"},
     {label:"No pain",blurb:"A lighter easier day",fill:"#f0cf86",glow:"rgba(255,222,147,.3)",accent:"#fff6c8",level:"42%"}
   ]},
-  mood:{label:"Mood",icon:"❀",question:"How was your Mood?",prompt:"Tap a bottle to log your Mood for that day.",empty:"No mood logged yet.",options:[
+  mood:{label:"Mood",icon:"❀",question:"How was your Mood?",prompt:"Tap a gem to log your Mood for that day.",empty:"No mood logged yet.",options:[
     {label:"Stressed",blurb:"Everything felt heavy",fill:"#6c478f",glow:"rgba(177,131,240,.38)",accent:"#dbc7ff",level:"68%"},
     {label:"Anxious",blurb:"Uneasy or unsettled",fill:"#9183cc",glow:"rgba(191,182,251,.3)",accent:"#f0eaff",level:"58%"},
     {label:"Okay",blurb:"Steady enough",fill:"#9db7df",glow:"rgba(175,209,255,.28)",accent:"#eef7ff",level:"50%"},
     {label:"Calm",blurb:"Gentle and settled",fill:"#bad5ad",glow:"rgba(191,236,177,.28)",accent:"#f3ffe9",level:"48%"},
     {label:"Happy",blurb:"Bright and light",fill:"#f1c1b7",glow:"rgba(255,204,183,.28)",accent:"#fff1bd",level:"56%"}
   ]},
-  energy:{label:"Energy",icon:"✧",question:"How was your Energy?",prompt:"Tap a bottle to log your Energy for that day.",empty:"No energy level logged yet.",options:[
+  energy:{label:"Energy",icon:"✧",question:"How was your Energy?",prompt:"Tap a gem to log your Energy for that day.",empty:"No energy level logged yet.",options:[
     {label:"Very low",blurb:"Running on fumes",fill:"#5f4190",glow:"rgba(156,120,235,.38)",accent:"#d8c3ff",level:"32%"},
     {label:"Low",blurb:"A bit worn out",fill:"#7f6dc0",glow:"rgba(181,164,245,.32)",accent:"#eae3ff",level:"40%"},
     {label:"Okay",blurb:"Enough to get by",fill:"#8fb6ec",glow:"rgba(156,204,255,.28)",accent:"#eef8ff",level:"48%"},
@@ -247,7 +247,7 @@ function JournalSleepPage(){
   return shell(`${head("Journal","Monthly wellness tracker")}${journalTabs("sleep")}
     <section class="card sleep-calendar-controls tracker-hero-card"><div><span class="section-kicker">✨ Monthly wellness tracker</span><h2>${monthTitle}</h2><p class="tracker-helper">${meta.prompt}</p></div><label><span>Tracker</span><select class="field" id="journalSleepMetric"><option value="sleep" ${metric==="sleep"?"selected":""}>Sleep</option><option value="pain" ${metric==="pain"?"selected":""}>Pain</option><option value="mood" ${metric==="mood"?"selected":""}>Mood</option><option value="energy" ${metric==="energy"?"selected":""}>Energy</option></select></label><div class="sleep-month-arrows"><button type="button" data-sleep-month-step="-1" aria-label="Previous month">‹</button><button type="button" data-sleep-month-step="1" aria-label="Next month" ${nextDisabled?"disabled":""}>›</button></div><div class="tracker-metric-tabs">${trackerMetricButtons(metric)}</div></section>
     ${journalSleepCalendar(rows,metric,monthKey)}
-    <p class="sleep-calendar-help">Tap any bottle to log or edit ${meta.label.toLowerCase()} for that day.</p>
+    <p class="sleep-calendar-help">Tap any gem to log or edit ${meta.label.toLowerCase()} for that day.</p>
     ${journalTrackerLegend(metric)}
     ${journalSleepEditModal(rows,metric)}` ,"journal");
 }

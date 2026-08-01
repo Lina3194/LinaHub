@@ -186,6 +186,17 @@ function trackerButtonStyle(metric,value){
   const tone=trackerTone(metric,value);
   return `--tracker-fill:${tone.fill};--tracker-glow:${tone.glow};--tracker-accent:${tone.accent};--tracker-level:${tone.level};`;
 }
+function trackerJewelMarkup(metric,value,shape=0,extraClass=""){
+  const empty=value===null||value===undefined||value==="";
+  return `<span class="tracker-bottle tracker-jewel shape-${shape%6} ${empty?"is-empty":""} ${extraClass}">
+    <span class="tracker-jewel-gallery" aria-hidden="true"></span>
+    <span class="tracker-jewel-setting">
+      <span class="tracker-liquid tracker-jewel-stone"></span>
+      <i class="tracker-jewel-prong prong-one"></i><i class="tracker-jewel-prong prong-two"></i><i class="tracker-jewel-prong prong-three"></i><i class="tracker-jewel-prong prong-four"></i>
+    </span>
+    <span class="tracker-jewel-scrollwork" aria-hidden="true"><i></i><b></b></span>
+  </span>`;
+}
 function journalSleepEditModal(rows,metric){
   const date=data.journalSleepEditDate||"";
   if(!date)return "";
@@ -201,12 +212,12 @@ function journalSleepEditModal(rows,metric){
         <button type="button" data-close-sleep-edit aria-label="Close">×</button>
       </div>
       <section class="tracker-modal-current" style="${trackerButtonStyle(metric,current)}">
-        <div class="tracker-modal-bottle"><span class="tracker-bottle tracker-bottle-large shape-4 ${current===null||current===undefined?"is-empty":""}"><span class="tracker-liquid"></span><span class="tracker-shine"></span><span class="tracker-bubbles"></span><span class="tracker-bottle-symbol">${meta.icon}</span></span></div>
+        <div class="tracker-modal-bottle">${trackerJewelMarkup(metric,current,4,"tracker-bottle-large")}</div>
         <div><span class="tracker-modal-question">${meta.question}</span><strong>${currentTone.label}</strong><small>${currentTone.blurb}</small></div>
       </section>
       <input type="hidden" id="sleepEditMetric" value="${metric}">
       <input type="hidden" id="sleepEditTrackerValue" value="${selected}">
-      <div class="tracker-choice-grid">${meta.options.map((option,index)=>`<button type="button" class="tracker-choice ${selected===String(index)?"active":""}" data-tracker-choice="${index}" style="${trackerButtonStyle(metric,index)}"><span class="tracker-choice-swatch"><span class="tracker-mini-bottle shape-${index%6}"><span class="tracker-liquid"></span><span class="tracker-bottle-symbol">${meta.icon}</span></span></span><div><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></div></button>`).join("")}</div>
+      <div class="tracker-choice-grid">${meta.options.map((option,index)=>`<button type="button" class="tracker-choice ${selected===String(index)?"active":""}" data-tracker-choice="${index}" style="${trackerButtonStyle(metric,index)}"><span class="tracker-choice-swatch">${trackerJewelMarkup(metric,index,index,"tracker-mini-bottle")}</span><div><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></div></button>`).join("")}</div>
       <div class="sleep-edit-actions tracker-edit-actions"><button type="button" class="secondary" id="clearSleepCalendarEdit">Clear</button><button type="button" class="primary" id="saveSleepCalendarEdit">Save</button></div>
     </section>
   </div>`;
@@ -222,7 +233,7 @@ function journalSleepCalendar(rows,metric,monthKey){
     const value=row?journalSleepMetricValue(row,metric):null;
     const tone=trackerTone(metric,value);
     const todayClass=date===today()?"is-today":"";
-    buttons.push(`<button type="button" class="tracker-day ${value===null?"empty":"logged"} ${todayClass}" data-sleep-date="${date}" style="${trackerButtonStyle(metric,value)}" aria-label="${esc(dateLabel(date))}. ${esc(value===null?trackerMetricMeta(metric).empty:`${trackerMetricMeta(metric).label}: ${tone.label}`)}"><span class="tracker-bottle shape-${day%6} ${value===null?"is-empty":""}"><span class="tracker-liquid"></span><span class="tracker-shine"></span><span class="tracker-bubbles"></span><span class="tracker-bottle-symbol">${trackerMetricMeta(metric).icon}</span></span><span class="tracker-day-number">${day}</span></button>`);
+    buttons.push(`<button type="button" class="tracker-day ${value===null?"empty":"logged"} ${todayClass}" data-sleep-date="${date}" style="${trackerButtonStyle(metric,value)}" aria-label="${esc(dateLabel(date))}. ${esc(value===null?trackerMetricMeta(metric).empty:`${trackerMetricMeta(metric).label}: ${tone.label}`)}">${trackerJewelMarkup(metric,value,(day-1)%6)}<span class="tracker-day-number">${day}</span></button>`);
   }
   const rowsHtml=[];
   for(let index=0;index<buttons.length;index+=8){
@@ -232,7 +243,7 @@ function journalSleepCalendar(rows,metric,monthKey){
 }
 function journalTrackerLegend(metric){
   const meta=trackerMetricMeta(metric);
-  return `<section class="card tracker-key-card"><div class="section-title"><div><span class="section-kicker">${meta.icon} ${meta.label} key</span><h2>${meta.label} colours</h2></div></div><div class="tracker-key-grid">${meta.options.map((option,index)=>`<div class="tracker-key-item" style="${trackerButtonStyle(metric,index)}"><span class="tracker-mini-bottle shape-${index%6}"><span class="tracker-liquid"></span><span class="tracker-bottle-symbol">${meta.icon}</span></span><div><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></div></div>`).join("")}</div></section>`;
+  return `<section class="card tracker-key-card"><div class="section-title"><div><span class="section-kicker">${meta.icon} ${meta.label} key</span><h2>${meta.label} stones</h2></div></div><div class="tracker-key-grid">${meta.options.map((option,index)=>`<div class="tracker-key-item" style="${trackerButtonStyle(metric,index)}">${trackerJewelMarkup(metric,index,index,"tracker-mini-bottle")}<div><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></div></div>`).join("")}</div></section>`;
 }
 function JournalSleepPage(){
   const rows=journalSleepHistory();

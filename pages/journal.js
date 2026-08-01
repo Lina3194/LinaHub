@@ -11,11 +11,12 @@ function dateLabel(value){return new Date(value+"T12:00:00").toLocaleDateString(
 function emptyJournalEntry(){return {sleep:null,energy:null,mood:null,pain:null,spoons:0,water:0,selfCare:[],supports:[],savedAt:""}}
 function renderScale(name,value){return `<div class="scale">${SCALE_OPTIONS[name].map((x,i)=>`<button type="button" data-scale="${name}" data-value="${i}" class="${value!==null&&value!==undefined&&Number(value)===i?"active":""}"><span class="face">${x[0]}</span><small>${x[1]}</small></button>`).join("")}</div>`}
 
-function journalTabs(active){return `<div class="journal-tabs journal-tabs-two"><button type="button" data-journal-tab="today" class="${active==="today"?"active":""}">Today</button><button type="button" data-journal-tab="trends" class="${active==="trends"?"active":""}">Trends</button></div>`}
+function journalTabs(active){return `<div class="journal-tabs journal-tabs-three"><button type="button" data-journal-tab="today" class="${active==="today"?"active":""}">Today</button><button type="button" data-journal-tab="trends" class="${active==="trends"?"active":""}">Trends</button><button type="button" data-journal-tab="sleep" class="${active==="sleep"?"active":""}">Sleep</button></div>`}
 
 function JournalPage(){
   data.journalTab=data.journalTab||"today";
   if(data.journalTab==="trends") return JournalTrendsPage();
+  if(data.journalTab==="sleep") return JournalSleepPage();
   data.dayCheckins=Array.isArray(data.dayCheckins)?data.dayCheckins:[];
   const dateValue=today();
   const entries=typeof dayEntries==="function"?[...dayEntries(dateValue)].reverse():data.dayCheckins.filter(entry=>entry.date===dateValue).sort((a,b)=>String(b.createdAt||`${b.date}T${b.time||"00:00"}`).localeCompare(String(a.createdAt||`${a.date}T${a.time||"00:00"}`)));
@@ -49,6 +50,58 @@ function hourlyTrendChart(key,label,dateValue){
   const timeLabels=points.length?points.filter((_,i)=>i===0||i===points.length-1||(points.length>4&&i===Math.floor((points.length-1)/2))):[];
   return `<article class="trend-card day-trend-card"><div class="trend-head"><div><span>${key==="energy"?"⚡":key==="mood"?"💜":"☀️"}</span><strong>${label}</strong></div><span>${avg===null?"No data":`${SCALE_OPTIONS[key][Math.round(avg)][0]} ${avg.toFixed(1)} average`}</span></div>${points.length?`<svg class="trend-svg day-trend-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="${label} throughout ${dateLabel(dateValue)}"><line x1="12" y1="82" x2="288" y2="82"></line><line x1="12" y1="46" x2="288" y2="46"></line><line x1="12" y1="10" x2="288" y2="10"></line><polyline points="${coords}"></polyline>${points.map((p,i)=>{const x=points.length===1?width/2:padX+i*(width-padX*2)/(points.length-1),y=padTop+(4-p.value)/4*usableHeight;return `<circle cx="${x}" cy="${y}" r="3.5"><title>${p.time}: ${SCALE_OPTIONS[key][p.value]?.[1]||p.value}</title></circle>`}).join("")}${timeLabels.map(p=>{const i=points.indexOf(p),x=points.length===1?width/2:padX+i*(width-padX*2)/(points.length-1);return `<text x="${x}" y="104" text-anchor="${i===0?"start":i===points.length-1?"end":"middle"}">${esc(p.time)}</text>`}).join("")}</svg><small>${points.length} check-in${points.length===1?"":"s"} on this day</small>`:`<div class="trend-empty">No hourly check-ins were saved on this day.</div>`}</article>`;
 }
+
+function journalSleepMinutesLabel(minutes){
+  const total=Number(minutes)||0;
+  if(!total)return "Not recorded";
+  const hours=Math.floor(total/60),mins=total%60;
+  return `${hours}h ${mins}m`;
+}
+function journalSleepQualityLabel(value){
+  if(value===null||value===undefined||value==="")return "Not rated";
+  const index=Number(value);
+  return SCALE_OPTIONS.sleep[index]?.[1]||"Not rated";
+}
+function journalWakeValue(key,value){
+  if(value===null||value===undefined||value==="")return {emoji:"·",label:"Not recorded"};
+  const index=Number(value);
+  return {emoji:SCALE_OPTIONS[key]?.[index]?.[0]||"·",label:SCALE_OPTIONS[key]?.[index]?.[1]||"Not recorded"};
+}
+function journalSleepHistory(){
+  const byDate=new Map();
+  const ensure=date=>{
+    if(!date)return null;
+    if(!byDate.has(date))byDate.set(date,{date,sleep:null,morning:null,checkin:null});
+    return byDate.get(date);
+  };
+  (Array.isArray(data.sleepEntries)?data.sleepEntries:[]).forEach(entry=>{
+    const row=ensure(entry?.date);if(!row)return;
+    const current=row.sleep;
+    if(!current||String(entry.createdAt||"")>=String(current.createdAt||""))row.sleep=entry;
+  });
+  Object.entries(data.morningCheckins||{}).forEach(([date,entry])=>{const row=ensure(date);if(row)row.morning=entry||{};});
+  Object.entries(data.checkins||{}).forEach(([date,entry])=>{const row=ensure(date);if(row)row.checkin=entry||{};});
+  return [...byDate.values()].filter(row=>{
+    const sleep=row.sleep||{},morning=row.morning||{},checkin=row.checkin||{};
+    return Number(sleep.totalMinutes||morning.sleepTotalMinutes||0)>0||Number(sleep.deepMinutes||morning.deepSleepTotalMinutes||0)>0||[sleep.quality,morning.sleepQuality,checkin.sleep,morning.energy,checkin.energy,morning.mood,checkin.mood,morning.pain,checkin.pain].some(value=>value!==null&&value!==undefined&&value!=="");
+  }).sort((a,b)=>b.date.localeCompare(a.date));
+}
+function JournalSleepPage(){
+  const rows=journalSleepHistory();
+  return shell(`${head("Journal","Sleep and how you felt when you woke up")}${journalTabs("sleep")}
+    <section class="card sleep-history-summary"><div><span class="section-kicker">🌙 Sleep history</span><h2>${rows.length?`${rows.length} recorded night${rows.length===1?"":"s"}`:"No sleep history yet"}</h2><p>Sleep duration and your waking check-in are shown together.</p></div></section>
+    <section class="journal-sleep-list">${rows.length?rows.map(row=>{
+      const sleep=row.sleep||{},morning=row.morning||{},checkin=row.checkin||{};
+      const total=Number(sleep.totalMinutes??morning.sleepTotalMinutes??0)||0;
+      const deep=Number(sleep.deepMinutes??morning.deepSleepTotalMinutes??0)||0;
+      const quality=sleep.quality??morning.sleepQuality??checkin.sleep;
+      const energy=journalWakeValue("energy",morning.energy??checkin.energy);
+      const mood=journalWakeValue("mood",morning.mood??checkin.mood);
+      const pain=journalWakeValue("pain",morning.pain??checkin.pain);
+      return `<article class="card journal-sleep-entry"><div class="journal-sleep-date"><span>🌙</span><div><strong>${dateLabel(row.date)}</strong><small>${journalSleepQualityLabel(quality)} sleep</small></div></div><div class="journal-sleep-times"><div><span>Total sleep</span><b>${journalSleepMinutesLabel(total)}</b></div><div><span>Deep sleep</span><b>${journalSleepMinutesLabel(deep)}</b></div></div><div class="journal-wake-grid"><div><span>${mood.emoji}</span><small>Mood</small><b>${mood.label}</b></div><div><span>${energy.emoji}</span><small>Energy</small><b>${energy.label}</b></div><div><span>${pain.emoji}</span><small>Pain</small><b>${pain.label}</b></div></div></article>`;
+    }).join(""):`<section class="card empty-state"><span>🌙</span><h2>No sleep entries yet</h2><p>Complete the Daily check-in after waking and your history will appear here.</p></section>`}</section>` ,"journal");
+}
+
 function JournalTrendsPage(){
   const period=data.journalTrendPeriod||"week";
   const dayDate=data.journalTrendDate||today();

@@ -110,7 +110,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.8.2")}<br><br>31 Jul 2026</p>`,"settings");
+  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.8.4")}<br><br>31 Jul 2026</p>`,"settings");
 }
 
 function bindSimple(){
@@ -273,7 +273,7 @@ function bindSimple(){
         const previous=isBanner?data.moduleBanners?.[key]:data.homeImages?.[key];
         try{
           const storageKey=`${isBanner?"banner":"tab"}:${key}`;
-          const value=await LinaImage.upload({file,key:storageKey,width:isBanner?1400:420,height:isBanner?560:420,fit:"cover",quality:isBanner?0.84:0.82});
+          const value=await LinaImage.upload({file,key:storageKey,width:isBanner?1500:420,height:isBanner?300:420,fit:"cover",quality:isBanner?0.84:0.82});
           const verified=await LinaImage.load(storageKey);
           if(!verified) throw new Error("Saved image could not be restored");
           if(isBanner){data.moduleBanners=data.moduleBanners||{};data.moduleBanners[key]=value;}

@@ -148,3 +148,33 @@ body.reordering{
   .trend-day-picker label{width:min(158px,48vw)}
   .trend-day-picker input{font-size:.78rem;padding:7px 6px}
 }
+
+/* LinaHub 17.8.4 — Journal Sleep tab */
+.journal-tabs-three{grid-template-columns:repeat(3,1fr)}
+.sleep-history-summary{margin-bottom:12px}
+.sleep-history-summary h2{margin:4px 0 5px}
+.sleep-history-summary p{margin:0;color:var(--muted)}
+.journal-sleep-list{display:grid;gap:12px}
+.journal-sleep-entry{display:grid;gap:14px}
+.journal-sleep-date{display:flex;align-items:center;gap:11px}
+.journal-sleep-date>span{width:42px;height:42px;display:grid;place-items:center;border-radius:14px;background:var(--purple-soft);font-size:1.35rem}
+.journal-sleep-date strong,.journal-sleep-date small{display:block}
+.journal-sleep-date small{margin-top:3px;color:var(--muted)}
+.journal-sleep-times{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.journal-sleep-times>div{padding:11px 12px;border:1px solid var(--line);border-radius:15px;background:var(--soft)}
+.journal-sleep-times span,.journal-sleep-times b{display:block}
+.journal-sleep-times span{font-size:.7rem;color:var(--muted)}
+.journal-sleep-times b{margin-top:3px;font-size:1rem}
+.journal-wake-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.journal-wake-grid>div{display:grid;justify-items:center;gap:3px;padding:10px 6px;border:1px solid var(--line);border-radius:15px;background:var(--card);text-align:center}
+.journal-wake-grid>div>span{font-size:1.35rem}
+.journal-wake-grid small{color:var(--muted);font-size:.66rem}
+.journal-wake-grid b{font-size:.72rem;line-height:1.15}
+@media(max-width:520px){
+  .journal-tabs-three button{padding-inline:5px}
+  .journal-sleep-entry{padding:13px}
+  .journal-sleep-times{gap:7px}
+  .journal-wake-grid{gap:6px}
+  .journal-wake-grid>div{padding:9px 3px}
+  .journal-wake-grid b{font-size:.66rem}
+}

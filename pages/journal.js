@@ -194,6 +194,17 @@ function trackerColourSwatch(metric,value,extraClass=""){
   const empty=value===null||value===undefined||value==="";
   return `<span class="tracker-colour-swatch ${empty?"is-empty":""} ${extraClass}" style="${trackerButtonStyle(metric,value)}" aria-hidden="true"></span>`;
 }
+function trackerTokenMarkup(metric,day,value,date){
+  const logged=!(value===null||value===undefined||value==="");
+  const todayClass=date===today()?"is-today":"";
+  const tone=trackerTone(metric,value);
+  return `<button type="button" class="tracker-token ${logged?"logged":"empty"} ${todayClass}" data-sleep-date="${date}" style="${trackerButtonStyle(metric,value)}" aria-label="${esc(dateLabel(date))}. ${esc(logged?`${trackerMetricMeta(metric).label}: ${tone.label}`:"Not logged")}">
+    <span class="tracker-token-heart" aria-hidden="true">
+      <svg viewBox="0 0 100 90" class="tracker-token-svg" focusable="false" aria-hidden="true"><path d="M50 82C22 62 8 48 8 28C8 14 18 4 31 4C40 4 47 8 50 15C53 8 60 4 69 4C82 4 92 14 92 28C92 48 78 62 50 82Z"/></svg>
+    </span>
+    <span class="tracker-token-number">${day}</span>
+  </button>`;
+}
 function trackerJewelMarkup(metric,value,shape=0,extraClass=""){
   const empty=value===null||value===undefined||value==="";
   return `<span class="tracker-bottle tracker-jewel shape-${shape%6} ${empty?"is-empty":""} ${extraClass}">
@@ -232,32 +243,35 @@ function journalSleepEditModal(rows,metric){
 }
 function journalSleepCalendar(rows,metric,monthKey){
   const [year,month]=monthKey.split("-").map(Number);
-  const daysInMonth=new Date(year,month,0,12).getDate();
-  const firstDay=(new Date(year,month-1,1,12).getDay()+6)%7;
-  const rowByDate=new Map(rows.map(row=>[row.date,row]));
-  const cells=[];
-  for(let blank=0;blank<firstDay;blank++)cells.push(`<span class="tracker-calendar-blank" aria-hidden="true"></span>`);
+  const daysInMonth=new Date(year,month,0).getDate();
+  const meta=trackerMetricMeta(metric);
+  const tokens=[];
   for(let day=1;day<=daysInMonth;day++){
-    const date=`${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-    const row=rowByDate.get(date);
+    const date=`${monthKey}-${String(day).padStart(2,"0")}`;
+    const row=rows.find(item=>item.date===date);
     const value=row?journalSleepMetricValue(row,metric):null;
-    const logged=value!==null&&value!==undefined&&value!=="";
-    const tone=trackerTone(metric,value);
-    const todayClass=date===today()?"is-today":"";
-    cells.push(`<button type="button" class="tracker-calendar-day ${logged?"logged":"empty"} ${todayClass}" data-sleep-date="${date}" style="${trackerButtonStyle(metric,value)}" aria-label="${esc(dateLabel(date))}. ${esc(logged?`${trackerMetricMeta(metric).label}: ${tone.label}`:"Not logged")}">
-      <span class="tracker-calendar-date">${day}</span>
-      ${logged?`<span class="tracker-calendar-status"><i></i><b>${esc(tone.label)}</b></span>`:`<span class="tracker-calendar-empty-text">—</span>`}
-    </button>`);
+    tokens.push(trackerTokenMarkup(metric,day,value,date));
   }
-  while(cells.length%7)cells.push(`<span class="tracker-calendar-blank" aria-hidden="true"></span>`);
-  return `<section class="card journal-tracker-card tracker-calendar-card">
-    <div class="tracker-calendar-weekdays"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
-    <div class="tracker-calendar-grid">${cells.join("")}</div>
+  return `<section class="card journal-tracker-card tracker-illustrated-card tracker-metric-${metric}">
+    <div class="tracker-sheet">
+      <div class="tracker-sheet-title">
+        <span class="section-kicker">${meta.icon} Monthly tracker</span>
+        <h2>${meta.label} Tracker</h2>
+      </div>
+      <div class="tracker-jar-wrap">
+        <div class="tracker-jar-lid" aria-hidden="true"></div>
+        <div class="tracker-jar-bow" aria-hidden="true"><i></i><span></span></div>
+        <div class="tracker-jar">
+          <div class="tracker-jar-grid">${tokens.join("")}</div>
+        </div>
+      </div>
+      <p class="tracker-sheet-helper">Tap any day to log or edit ${meta.label.toLowerCase()}.</p>
+    </div>
   </section>`;
 }
 function journalTrackerLegend(metric){
   const meta=trackerMetricMeta(metric);
-  return `<section class="card tracker-key-card tracker-calendar-key"><div class="section-title"><div><span class="section-kicker">${meta.icon} ${meta.label} key</span><h2>${meta.label} levels</h2></div></div><div class="tracker-calendar-key-list">${meta.options.map((option,index)=>`<div class="tracker-calendar-key-item" style="${trackerButtonStyle(metric,index)}">${trackerColourSwatch(metric,index)}<span><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></span></div>`).join("")}</div></section>`;
+  return `<section class="card tracker-key-card tracker-doodle-key"><div class="section-title"><div><span class="section-kicker">${meta.icon} ${meta.label} key</span><h2>${meta.label} levels</h2></div></div><div class="tracker-doodle-key-list">${meta.options.map((option,index)=>`<div class="tracker-doodle-key-item" style="${trackerButtonStyle(metric,index)}"><span class="tracker-doodle-key-heart" aria-hidden="true"><svg viewBox="0 0 100 90" class="tracker-token-svg"><path d="M50 82C22 62 8 48 8 28C8 14 18 4 31 4C40 4 47 8 50 15C53 8 60 4 69 4C82 4 92 14 92 28C92 48 78 62 50 82Z"/></svg></span><span><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></span></div>`).join("")}</div></section>`;
 }
 function JournalSleepPage(){
   const rows=journalSleepHistory();

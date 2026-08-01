@@ -6,28 +6,28 @@ const SCALE_OPTIONS={
 };
 const JOURNAL_ORDER=["energy","mood","pain","spoons","water","selfcare","supports"];
 const TRACKER_META={
-  sleep:{label:"Sleep",icon:"☾",question:"How was your Sleep?",prompt:"Tap a day to log your Sleep for that date.",empty:"No sleep mood logged yet.",options:[
+  sleep:{label:"Sleep",icon:"☾",question:"How was your Sleep?",prompt:"Tap a gem to log your Sleep for that day.",empty:"No sleep mood logged yet.",options:[
     {label:"Very poor",blurb:"Restless or very little sleep",fill:"#6d46a8",glow:"rgba(182,130,255,.42)",accent:"#d6bcff",level:"26%"},
     {label:"Poor",blurb:"Light sleep or frequent wake ups",fill:"#8b73d6",glow:"rgba(179,160,255,.36)",accent:"#e6dbff",level:"38%"},
     {label:"Okay",blurb:"Some rest, but could be better",fill:"#8eb4f4",glow:"rgba(143,190,255,.33)",accent:"#eef6ff",level:"48%"},
     {label:"Good",blurb:"Solid sleep, felt rested",fill:"#f3c77a",glow:"rgba(255,211,140,.34)",accent:"#fff2d2",level:"58%"},
     {label:"Great",blurb:"Amazing sleep, refreshed",fill:"#f1b4cb",glow:"rgba(255,186,214,.34)",accent:"#fff2b8",level:"68%"}
   ]},
-  pain:{label:"Pain",icon:"✦",question:"How was your Pain?",prompt:"Tap a day to log your Pain for that date.",empty:"No pain level logged yet.",options:[
+  pain:{label:"Pain",icon:"✦",question:"How was your Pain?",prompt:"Tap a gem to log your Pain for that day.",empty:"No pain level logged yet.",options:[
     {label:"Very severe",blurb:"Flare day or hard to function",fill:"#5d3a92",glow:"rgba(154,112,232,.4)",accent:"#d6beff",level:"72%"},
     {label:"Severe",blurb:"A rough day",fill:"#8663c7",glow:"rgba(175,148,245,.34)",accent:"#eadfff",level:"62%"},
     {label:"Moderate",blurb:"Manageable but noticeable",fill:"#9cb3ef",glow:"rgba(154,190,245,.3)",accent:"#eef5ff",level:"52%"},
     {label:"Mild",blurb:"Mostly okay with some aches",fill:"#efc2d2",glow:"rgba(255,197,221,.3)",accent:"#fff1dc",level:"46%"},
     {label:"No pain",blurb:"A lighter easier day",fill:"#f0cf86",glow:"rgba(255,222,147,.3)",accent:"#fff6c8",level:"42%"}
   ]},
-  mood:{label:"Mood",icon:"❀",question:"How was your Mood?",prompt:"Tap a day to log your Mood for that date.",empty:"No mood logged yet.",options:[
+  mood:{label:"Mood",icon:"❀",question:"How was your Mood?",prompt:"Tap a gem to log your Mood for that day.",empty:"No mood logged yet.",options:[
     {label:"Stressed",blurb:"Everything felt heavy",fill:"#6c478f",glow:"rgba(177,131,240,.38)",accent:"#dbc7ff",level:"68%"},
     {label:"Anxious",blurb:"Uneasy or unsettled",fill:"#9183cc",glow:"rgba(191,182,251,.3)",accent:"#f0eaff",level:"58%"},
     {label:"Okay",blurb:"Steady enough",fill:"#9db7df",glow:"rgba(175,209,255,.28)",accent:"#eef7ff",level:"50%"},
     {label:"Calm",blurb:"Gentle and settled",fill:"#bad5ad",glow:"rgba(191,236,177,.28)",accent:"#f3ffe9",level:"48%"},
     {label:"Happy",blurb:"Bright and light",fill:"#f1c1b7",glow:"rgba(255,204,183,.28)",accent:"#fff1bd",level:"56%"}
   ]},
-  energy:{label:"Energy",icon:"✧",question:"How was your Energy?",prompt:"Tap a day to log your Energy for that date.",empty:"No energy level logged yet.",options:[
+  energy:{label:"Energy",icon:"✧",question:"How was your Energy?",prompt:"Tap a gem to log your Energy for that day.",empty:"No energy level logged yet.",options:[
     {label:"Very low",blurb:"Running on fumes",fill:"#5f4190",glow:"rgba(156,120,235,.38)",accent:"#d8c3ff",level:"32%"},
     {label:"Low",blurb:"A bit worn out",fill:"#7f6dc0",glow:"rgba(181,164,245,.32)",accent:"#eae3ff",level:"40%"},
     {label:"Okay",blurb:"Enough to get by",fill:"#8fb6ec",glow:"rgba(156,204,255,.28)",accent:"#eef8ff",level:"48%"},
@@ -131,12 +131,8 @@ function journalStoredMinutes(sleep,morning,type){
 }
 function journalSleepMetricValue(row,metric){
   const sleep=row.sleep||{},morning=row.morning||{},checkin=row.checkin||{};
-  if(metric==="sleep"){
-    const quality=sleep.quality??morning.sleepQuality??checkin.sleep;
-    return quality===null||quality===undefined||quality===""?null:Number(quality);
-  }
-  if(metric==="deep"){
-    const minutes=journalStoredMinutes(sleep,morning,"deep");
+  if(metric==="sleep"||metric==="deep"){
+    const minutes=journalStoredMinutes(sleep,morning,metric);
     return minutes>0?minutes:null;
   }
   const value=morning[metric]??checkin[metric];
@@ -190,10 +186,6 @@ function trackerButtonStyle(metric,value){
   const tone=trackerTone(metric,value);
   return `--tracker-fill:${tone.fill};--tracker-glow:${tone.glow};--tracker-accent:${tone.accent};--tracker-level:${tone.level};`;
 }
-function trackerColourSwatch(metric,value,extraClass=""){
-  const empty=value===null||value===undefined||value==="";
-  return `<span class="tracker-colour-swatch ${empty?"is-empty":""} ${extraClass}" style="${trackerButtonStyle(metric,value)}" aria-hidden="true"></span>`;
-}
 function trackerJewelMarkup(metric,value,shape=0,extraClass=""){
   const empty=value===null||value===undefined||value==="";
   return `<span class="tracker-bottle tracker-jewel shape-${shape%6} ${empty?"is-empty":""} ${extraClass}">
@@ -220,12 +212,12 @@ function journalSleepEditModal(rows,metric){
         <button type="button" data-close-sleep-edit aria-label="Close">×</button>
       </div>
       <section class="tracker-modal-current" style="${trackerButtonStyle(metric,current)}">
-        ${trackerColourSwatch(metric,current,"tracker-current-swatch")}
+        <div class="tracker-modal-bottle">${trackerJewelMarkup(metric,current,4,"tracker-bottle-large")}</div>
         <div><span class="tracker-modal-question">${meta.question}</span><strong>${currentTone.label}</strong><small>${currentTone.blurb}</small></div>
       </section>
       <input type="hidden" id="sleepEditMetric" value="${metric}">
       <input type="hidden" id="sleepEditTrackerValue" value="${selected}">
-      <div class="tracker-choice-grid">${meta.options.map((option,index)=>`<button type="button" class="tracker-choice ${selected===String(index)?"active":""}" data-tracker-choice="${index}" style="${trackerButtonStyle(metric,index)}">${trackerColourSwatch(metric,index,"tracker-choice-swatch")}<div><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></div></button>`).join("")}</div>
+      <div class="tracker-choice-grid">${meta.options.map((option,index)=>`<button type="button" class="tracker-choice ${selected===String(index)?"active":""}" data-tracker-choice="${index}" style="${trackerButtonStyle(metric,index)}"><span class="tracker-choice-swatch">${trackerJewelMarkup(metric,index,index,"tracker-mini-bottle")}</span><div><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></div></button>`).join("")}</div>
       <div class="sleep-edit-actions tracker-edit-actions"><button type="button" class="secondary" id="clearSleepCalendarEdit">Clear</button><button type="button" class="primary" id="saveSleepCalendarEdit">Save</button></div>
     </section>
   </div>`;
@@ -233,31 +225,25 @@ function journalSleepEditModal(rows,metric){
 function journalSleepCalendar(rows,metric,monthKey){
   const [year,month]=monthKey.split("-").map(Number);
   const daysInMonth=new Date(year,month,0,12).getDate();
-  const firstDay=(new Date(year,month-1,1,12).getDay()+6)%7;
   const rowByDate=new Map(rows.map(row=>[row.date,row]));
-  const cells=[];
-  for(let blank=0;blank<firstDay;blank++)cells.push(`<span class="tracker-calendar-blank" aria-hidden="true"></span>`);
+  const buttons=[];
   for(let day=1;day<=daysInMonth;day++){
     const date=`${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
     const row=rowByDate.get(date);
     const value=row?journalSleepMetricValue(row,metric):null;
-    const logged=value!==null&&value!==undefined&&value!=="";
     const tone=trackerTone(metric,value);
     const todayClass=date===today()?"is-today":"";
-    cells.push(`<button type="button" class="tracker-calendar-day ${logged?"logged":"empty"} ${todayClass}" data-sleep-date="${date}" style="${trackerButtonStyle(metric,value)}" aria-label="${esc(dateLabel(date))}. ${esc(logged?`${trackerMetricMeta(metric).label}: ${tone.label}`:"Not logged")}">
-      <span class="tracker-calendar-date">${day}</span>
-      ${logged?`<span class="tracker-calendar-status"><i></i><b>${esc(tone.label)}</b></span>`:`<span class="tracker-calendar-empty-text">—</span>`}
-    </button>`);
+    buttons.push(`<button type="button" class="tracker-day ${value===null?"empty":"logged"} ${todayClass}" data-sleep-date="${date}" style="${trackerButtonStyle(metric,value)}" aria-label="${esc(dateLabel(date))}. ${esc(value===null?trackerMetricMeta(metric).empty:`${trackerMetricMeta(metric).label}: ${tone.label}`)}">${trackerJewelMarkup(metric,value,(day-1)%6)}<span class="tracker-day-number">${day}</span></button>`);
   }
-  while(cells.length%7)cells.push(`<span class="tracker-calendar-blank" aria-hidden="true"></span>`);
-  return `<section class="card journal-tracker-card tracker-calendar-card">
-    <div class="tracker-calendar-weekdays"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
-    <div class="tracker-calendar-grid">${cells.join("")}</div>
-  </section>`;
+  const rowsHtml=[];
+  for(let index=0;index<buttons.length;index+=8){
+    rowsHtml.push(`<div class="tracker-shelf-row"><span class="tracker-shelf-sparkle sparkle-a">✦</span><span class="tracker-shelf-sparkle sparkle-b">⋆</span><div class="tracker-shelf-bottles">${buttons.slice(index,index+8).join("")}</div><div class="tracker-shelf-plank"><span></span></div></div>`);
+  }
+  return `<section class="card journal-tracker-card"><div class="tracker-shelves">${rowsHtml.join("")}</div></section>`;
 }
 function journalTrackerLegend(metric){
   const meta=trackerMetricMeta(metric);
-  return `<section class="card tracker-key-card tracker-calendar-key"><div class="section-title"><div><span class="section-kicker">${meta.icon} ${meta.label} key</span><h2>${meta.label} levels</h2></div></div><div class="tracker-calendar-key-list">${meta.options.map((option,index)=>`<div class="tracker-calendar-key-item" style="${trackerButtonStyle(metric,index)}">${trackerColourSwatch(metric,index)}<span><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></span></div>`).join("")}</div></section>`;
+  return `<section class="card tracker-key-card"><div class="section-title"><div><span class="section-kicker">${meta.icon} ${meta.label} key</span><h2>${meta.label} stones</h2></div></div><div class="tracker-key-grid">${meta.options.map((option,index)=>`<div class="tracker-key-item" style="${trackerButtonStyle(metric,index)}">${trackerJewelMarkup(metric,index,index,"tracker-mini-bottle")}<div><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></div></div>`).join("")}</div></section>`;
 }
 function JournalSleepPage(){
   const rows=journalSleepHistory();
@@ -272,7 +258,7 @@ function JournalSleepPage(){
   return shell(`${head("Journal","Monthly wellness tracker")}${journalTabs("sleep")}
     <section class="card sleep-calendar-controls tracker-hero-card"><div><span class="section-kicker">✨ Monthly wellness tracker</span><h2>${monthTitle}</h2><p class="tracker-helper">${meta.prompt}</p></div><label><span>Tracker</span><select class="field" id="journalSleepMetric"><option value="sleep" ${metric==="sleep"?"selected":""}>Sleep</option><option value="pain" ${metric==="pain"?"selected":""}>Pain</option><option value="mood" ${metric==="mood"?"selected":""}>Mood</option><option value="energy" ${metric==="energy"?"selected":""}>Energy</option></select></label><div class="sleep-month-arrows"><button type="button" data-sleep-month-step="-1" aria-label="Previous month">‹</button><button type="button" data-sleep-month-step="1" aria-label="Next month" ${nextDisabled?"disabled":""}>›</button></div><div class="tracker-metric-tabs">${trackerMetricButtons(metric)}</div></section>
     ${journalSleepCalendar(rows,metric,monthKey)}
-    <p class="sleep-calendar-help">Tap any day to log or edit ${meta.label.toLowerCase()}.</p>
+    <p class="sleep-calendar-help">Tap any gem to log or edit ${meta.label.toLowerCase()} for that day.</p>
     ${journalTrackerLegend(metric)}
     ${journalSleepEditModal(rows,metric)}` ,"journal");
 }
@@ -303,7 +289,7 @@ function bindJournal(){
  document.querySelector("#journalSleepMetric")?.addEventListener("change",event=>{data.journalSleepMetric=event.target.value;saveData();render()});
  document.querySelectorAll("[data-tracker-metric]").forEach(button=>button.onclick=()=>{data.journalSleepMetric=button.dataset.trackerMetric||"sleep";saveData();render()});
  document.querySelectorAll("[data-sleep-month-step]").forEach(button=>button.onclick=()=>{const [year,month]=(data.journalSleepMonth||journalSleepMonthKey()).split("-").map(Number);const next=new Date(year,month-1+Number(button.dataset.sleepMonthStep),1,12);data.journalSleepMonth=`${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,"0")}`;saveData();render()});
- document.querySelectorAll("[data-sleep-date]").forEach(button=>button.onclick=()=>{data.journalSleepEditDate=button.dataset.sleepDate;saveData();render()});
+ document.querySelectorAll("[data-sleep-date]").forEach(button=>button.onclick=()=>{if(!button.classList.contains("has-data"))return;data.journalSleepEditDate=button.dataset.sleepDate;saveData();render()});
  document.querySelectorAll("[data-close-sleep-edit]").forEach(button=>button.onclick=closeSleepEditor);
  document.querySelector("#sleepEditBackdrop")?.addEventListener("click",event=>{if(event.target.id!=="sleepEditBackdrop")return;closeSleepEditor()});
  if(sleepEditBackdrop){

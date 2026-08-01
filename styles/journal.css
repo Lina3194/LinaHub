@@ -1858,3 +1858,49 @@ body.dark .tracker-calendar-day:focus-visible{background:rgba(255,255,255,.075)!
   .tracker-page-compact .tracker-enchanted-key{padding:8px!important}
   .tracker-page-compact .tracker-enchanted-key-item{flex-basis:88px;min-width:88px;padding:6px!important}
 }
+
+/* LinaHub 17.9.20 — clearer month selector */
+.tracker-month-row>span{font-weight:700;color:#f0e5ff!important}
+.tracker-month-strip{
+  display:flex!important;
+  flex-wrap:wrap;
+  gap:8px;
+}
+.tracker-month-pill{
+  flex:0 0 auto!important;
+  min-width:110px!important;
+  padding:8px 10px!important;
+  text-align:center;
+  white-space:nowrap;
+  font-size:.78rem!important;
+}
+.tracker-month-pill.active{
+  box-shadow:0 0 0 1px rgba(255,255,255,.12) inset,0 8px 18px rgba(146,102,230,.18);
+}
+.tracker-page-compact .tracker-month-row>span{font-size:.68rem!important}
+.tracker-page-compact .tracker-month-strip{
+  display:flex!important;
+  flex-wrap:nowrap!important;
+  overflow-x:auto;
+  gap:7px!important;
+  padding-bottom:2px;
+  scroll-snap-type:x proximity;
+}
+.tracker-page-compact .tracker-month-pill{
+  flex:0 0 auto!important;
+  min-width:96px!important;
+  padding:7px 9px!important;
+  border-radius:10px!important;
+  font-size:.68rem!important;
+  white-space:nowrap;
+  scroll-snap-align:start;
+}
+@media(max-width:560px){
+  .tracker-month-row>span{font-size:.66rem!important}
+  .tracker-page-compact .tracker-month-pill,
+  .tracker-month-pill{
+    min-width:92px!important;
+    padding:6px 8px!important;
+    font-size:.64rem!important;
+  }
+}

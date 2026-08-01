@@ -1905,98 +1905,44 @@ body.dark .tracker-calendar-day:focus-visible{background:rgba(255,255,255,.075)!
   }
 }
 
-/* LinaHub 17.9.21 — full year tracker */
-.tracker-page-year .tracker-hero-card{
-  grid-template-columns:minmax(0,1fr) 170px auto!important;
-}
-.tracker-page-year .tracker-metric-tabs{
+/* LinaHub 17.9.23 — safe monthly calendar restore */
+.tracker-date-selectors{
   grid-column:1/-1;
-  display:flex!important;
-  gap:6px!important;
-  overflow-x:auto;
-  scrollbar-width:none;
+  display:grid;
+  grid-template-columns:minmax(150px,1fr) minmax(110px,.55fr) auto;
+  gap:8px;
+  align-items:end;
 }
-.tracker-page-year .tracker-metric-tabs::-webkit-scrollbar{display:none}
-.tracker-page-year .tracker-metric-pill{flex:1 0 92px;min-width:92px}
-.tracker-year-card{padding:8px;border-radius:22px;background:linear-gradient(145deg,rgba(31,24,58,.97),rgba(16,14,34,.96));border:1px solid rgba(174,132,255,.3)}
-.tracker-year-panel{padding:14px 12px 12px;border-radius:16px;background:linear-gradient(160deg,rgba(45,31,72,.72),rgba(20,16,42,.84));border:1px solid rgba(226,205,255,.1)}
-.tracker-year-heading{text-align:center;margin-bottom:12px}
-.tracker-year-heading .section-kicker{color:#efc66c!important;font-size:.64rem;letter-spacing:.12em}
-.tracker-year-heading h2{margin:4px 0 3px;font-size:1.32rem;color:#fbf7ff!important}
-.tracker-year-heading p{margin:0;color:#c8bbda!important;font-size:.78rem}
-.tracker-year-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
-.tracker-year-month{padding:10px 9px 9px;border-radius:16px;background:rgba(11,10,25,.32);border:1px solid rgba(183,144,242,.14)}
-.tracker-year-month.is-current-month{border-color:rgba(239,198,108,.45);box-shadow:0 0 0 1px rgba(239,198,108,.14) inset}
-.tracker-year-month header{margin-bottom:7px;text-align:center}
-.tracker-year-month h3{margin:0;font-size:.88rem;color:#f6efff}
-.tracker-year-weekdays,.tracker-year-days{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px}
-.tracker-year-weekdays{margin-bottom:5px}
-.tracker-year-weekdays span{font-size:.55rem;text-align:center;color:#a899be;font-weight:700}
-.tracker-year-blank{display:block;min-height:30px}
-.tracker-year-day{position:relative;min-height:30px;padding:4px 1px 3px;border-radius:10px;border:1px solid rgba(183,144,242,.12);background:rgba(37,29,59,.52);color:#f7f1ff;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1px}
-.tracker-year-day.logged{background:color-mix(in srgb,var(--tracker-fill) 28%,rgba(18,14,33,.74));border-color:color-mix(in srgb,var(--tracker-fill) 72%,rgba(255,255,255,.14));box-shadow:0 0 10px color-mix(in srgb,var(--tracker-fill) 22%,transparent)}
-.tracker-year-day.is-today{outline:1px solid #efc66c;box-shadow:0 0 0 1px rgba(239,198,108,.18) inset}
-.tracker-year-number{font-size:.66rem;font-weight:800;line-height:1;color:#f7f1ff}
-.tracker-year-dot{width:6px;height:6px;border-radius:50%;background:var(--tracker-fill);box-shadow:0 0 8px var(--tracker-fill)}
-.tracker-year-note{font-size:.42rem;line-height:1;color:#fff;opacity:.94;white-space:nowrap}
-.tracker-page-year .tracker-enchanted-key{margin-top:8px}
-@media(max-width:900px){.tracker-year-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-@media(max-width:560px){
-  .tracker-page-year .tracker-hero-card{grid-template-columns:1fr auto!important}
-  .tracker-page-year .tracker-hero-card>div:first-child{grid-column:1/-1}
-  .tracker-page-year .tracker-hero-card label{grid-column:1/2}
-  .tracker-page-year .sleep-month-arrows{grid-column:2/3;align-self:end}
-  .tracker-page-year .tracker-year-heading h2{font-size:1.14rem}
-  .tracker-year-heading p{font-size:.7rem}
-  .tracker-year-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
-  .tracker-year-month{padding:8px 6px 7px;border-radius:13px}
-  .tracker-year-month h3{font-size:.78rem}
-  .tracker-year-weekdays,.tracker-year-days{gap:3px}
-  .tracker-year-weekdays span{font-size:.48rem}
-  .tracker-year-blank{min-height:24px}
-  .tracker-year-day{min-height:24px;padding:3px 1px 2px;border-radius:8px}
-  .tracker-year-number{font-size:.58rem}
-  .tracker-year-dot{width:5px;height:5px}
-  .tracker-year-note{display:none}
+.tracker-date-selectors label>span{
+  display:block;
+  margin-bottom:4px;
+  color:#cbb7df;
+  font-size:.66rem;
 }
-
-/* LinaHub 17.9.22 — reliable year calendar controls */
-.tracker-year-controls{
-  display:flex!important;
-  align-items:center;
-  gap:5px!important;
+.tracker-date-selectors .field{
+  width:100%;
+  min-height:34px;
+  height:34px;
+  padding:5px 30px 5px 9px;
+  border-radius:10px;
+  font-size:.76rem;
+  color:#f8f2ff!important;
+  background:#1b1533!important;
 }
-.tracker-year-controls .tracker-today-button{
-  width:auto!important;
-  min-width:58px!important;
-  padding:0 10px!important;
-  font-size:.68rem!important;
+.tracker-date-selectors option{color:#f8f2ff;background:#1b1533}
+.tracker-date-selectors .tracker-today-button{
+  min-height:34px;
+  height:34px;
+  padding:0 13px;
+  border-radius:10px;
+  font-size:.7rem;
   font-weight:800;
 }
-.tracker-year-grid,
-.tracker-year-month,
-.tracker-year-days{
-  position:relative;
-  z-index:2;
-}
-.tracker-year-day{
-  position:relative;
-  z-index:3;
-  pointer-events:auto!important;
-  touch-action:manipulation;
-  cursor:pointer;
-  -webkit-tap-highlight-color:rgba(176,132,255,.18);
-  user-select:none;
-}
-.tracker-year-day>*{pointer-events:none}
-.tracker-year-day:hover,
-.tracker-year-day:focus-visible{
-  transform:translateY(-1px);
-  border-color:rgba(235,216,255,.4);
-  outline:none;
-}
-.tracker-year-day:active{transform:scale(.96)}
 @media(max-width:560px){
-  .tracker-year-day{min-height:30px!important}
-  .tracker-year-controls .tracker-today-button{min-width:54px!important;padding-inline:7px!important;font-size:.62rem!important}
+  .tracker-date-selectors{
+    grid-template-columns:minmax(0,1.25fr) minmax(82px,.75fr) auto;
+    gap:6px;
+  }
+  .tracker-date-selectors .field{font-size:.7rem;padding-inline:8px 24px}
+  .tracker-date-selectors .tracker-today-button{padding-inline:8px;font-size:.64rem}
 }

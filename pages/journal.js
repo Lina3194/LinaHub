@@ -242,22 +242,20 @@ function trackerTokenMarkup(metric,day,value,date,row){
     <span class="tracker-art-day-note">${esc(note)}</span>
   </button>`;
 }
-function trackerMonthStrip(monthKey,earliestMonth,latestMonth){
-  const start=new Date(`${earliestMonth}-01T12:00:00`);
-  const end=new Date(`${latestMonth}-01T12:00:00`);
-  const currentYear=new Date(`${monthKey}-01T12:00:00`).getFullYear();
-  const months=[];
-  const cursor=new Date(start);
-  while(cursor<=end){
-    const key=`${cursor.getFullYear()}-${String(cursor.getMonth()+1).padStart(2,"0")}`;
-    months.push({
-      key,
-      label:cursor.toLocaleDateString("en-GB",{month:"long",year:"numeric"}),
-      year:cursor.getFullYear()
-    });
-    cursor.setMonth(cursor.getMonth()+1);
-  }
-  return `<div class="tracker-month-strip" role="tablist" aria-label="Months">${months.map(item=>`<button type="button" class="tracker-month-pill ${item.key===monthKey?"active":""}" data-sleep-month="${item.key}" data-month-year="${item.year}" aria-pressed="${item.key===monthKey?"true":"false"}">${esc(item.label)}</button>`).join("")}</div>`;
+function trackerDateSelectors(monthKey,rows){
+  const [selectedYear,selectedMonth]=monthKey.split("-").map(Number);
+  const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
+  const currentYear=new Date().getFullYear();
+  const historyYears=rows.map(row=>Number(row.date.slice(0,4))).filter(Boolean);
+  const minYear=Math.min(currentYear-5,...historyYears);
+  const maxYear=Math.max(currentYear+5,...historyYears);
+  const yearOptions=[];
+  for(let year=minYear;year<=maxYear;year++) yearOptions.push(`<option value="${year}" ${year===selectedYear?"selected":""}>${year}</option>`);
+  return `<div class="tracker-date-selectors">
+    <label><span>Month</span><select class="field" id="journalSleepMonthSelect">${months.map((label,index)=>`<option value="${String(index+1).padStart(2,"0")}" ${index+1===selectedMonth?"selected":""}>${label}</option>`).join("")}</select></label>
+    <label><span>Year</span><select class="field" id="journalSleepYearSelect">${yearOptions.join("")}</select></label>
+    <button type="button" class="secondary tracker-today-button" data-tracker-today>Today</button>
+  </div>`;
 }
 
 function journalSleepEditModal(rows,metric){
@@ -302,39 +300,27 @@ function journalSleepEditModal(rows,metric){
     </section>
   </div>`;
 }
-function journalSleepCalendar(rows,metric,yearKey){
-  const year=Number(yearKey);
+function journalSleepCalendar(rows,metric,monthKey){
+  const [year,month]=monthKey.split("-").map(Number);
+  const daysInMonth=new Date(year,month,0).getDate();
   const meta=trackerMetricMeta(metric);
-  const currentToday=today();
-  const currentMonth=currentToday.slice(0,7);
-  const rowsMap=new Map(rows.map(row=>[row.date,row]));
-  const weekdayLabels=["M","T","W","T","F","S","S"];
-  const months=[...Array(12)].map((_,index)=>{
-    const month=index+1;
-    const monthKey=`${yearKey}-${String(month).padStart(2,"0")}`;
-    const firstDay=new Date(year,month-1,1);
-    const startOffset=(firstDay.getDay()+6)%7;
-    const daysInMonth=new Date(year,month,0).getDate();
-    const cells=[];
-    for(let blank=0;blank<startOffset;blank++) cells.push('<span class="tracker-year-blank" aria-hidden="true"></span>');
-    for(let day=1;day<=daysInMonth;day++){
-      const date=`${monthKey}-${String(day).padStart(2,"0")}`;
-      const row=rowsMap.get(date);
-      const value=row?journalSleepMetricValue(row,metric):null;
-      const logged=!(value===null||value===undefined||value==="");
-      const note=(metric==="sleep"||metric==="deep")?trackerDayNote(row,metric,value):"";
-      cells.push(`<button type="button" class="tracker-year-day ${logged?"logged":"empty"} ${date===currentToday?"is-today":""}" data-sleep-date="${date}" style="${trackerButtonStyle(metric,value)}" aria-label="${esc(dateLabel(date))}. ${esc(logged?`${meta.label}: ${trackerDayNote(row,metric,value)}`:"Not logged")}"><span class="tracker-year-number">${day}</span>${logged?`<span class="tracker-year-dot"></span>`:""}${note&&logged?`<span class="tracker-year-note">${esc(note)}</span>`:""}</button>`);
-    }
-    return `<section class="tracker-year-month ${monthKey===currentMonth?"is-current-month":""}" id="tracker-month-${monthKey}"><header><h3>${esc(firstDay.toLocaleDateString("en-GB",{month:"long"}))}</h3></header><div class="tracker-year-weekdays">${weekdayLabels.map(label=>`<span>${label}</span>`).join("")}</div><div class="tracker-year-days">${cells.join("")}</div></section>`;
-  }).join("");
-  return `<section class="card journal-tracker-card tracker-year-card tracker-metric-${metric}">
-    <div class="tracker-year-panel">
-      <div class="tracker-year-heading">
-        <span class="section-kicker">Yearly ${meta.label}</span>
-        <h2>${year}</h2>
+  const tokens=[];
+  for(let day=1;day<=daysInMonth;day++){
+    const date=`${monthKey}-${String(day).padStart(2,"0")}`;
+    const row=rows.find(item=>item.date===date);
+    const value=row?journalSleepMetricValue(row,metric):null;
+    tokens.push(trackerTokenMarkup(metric,day,value,date,row));
+  }
+  return `<section class="card journal-tracker-card tracker-enchanted-card tracker-metric-${metric}">
+    <div class="tracker-enchanted-panel">
+      ${trackerArtBackdrop(metric)}
+      <div class="tracker-art-heading">
+        <span class="section-kicker">Monthly ${meta.label}</span>
+        <h2>${meta.label} tracker</h2>
         <p>${meta.prompt}</p>
       </div>
-      <div class="tracker-year-grid">${months}</div>
+      <div class="tracker-art-grid">${tokens.join("")}</div>
+      <div class="tracker-art-flourish" aria-hidden="true"><i></i><span>✦</span><b></b></div>
     </div>
   </section>`;
 }
@@ -347,11 +333,12 @@ function JournalSleepPage(){
   const metric=["sleep","deep","pain","mood","energy"].includes(data.journalSleepMetric)?data.journalSleepMetric:"sleep";
   if(data.journalSleepMetric!==metric){data.journalSleepMetric=metric;saveData();}
   const meta=trackerMetricMeta(metric);
-  const yearKey=journalSleepYearKey();
-  const yearNumber=Number(yearKey);
-  return shell(`<div class="tracker-page-compact tracker-page-year">${head("Journal","Yearly wellness tracker")}${journalTabs("sleep")}
-    <section class="card sleep-calendar-controls tracker-hero-card"><div><span class="section-kicker">Yearly wellness tracker</span><h2>${yearKey}</h2><p class="tracker-helper">Today: ${esc(new Date(today()+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}))} · ${meta.label}</p></div><label><span>Tracker</span><select class="field" id="journalSleepMetric"><option value="sleep" ${metric==="sleep"?"selected":""}>Sleep</option><option value="deep" ${metric==="deep"?"selected":""}>Deep sleep</option><option value="pain" ${metric==="pain"?"selected":""}>Pain</option><option value="mood" ${metric==="mood"?"selected":""}>Mood</option><option value="energy" ${metric==="energy"?"selected":""}>Energy</option></select></label><div class="sleep-month-arrows tracker-year-controls"><button type="button" data-sleep-year-step="-1" aria-label="Previous year">‹</button><button type="button" class="tracker-today-button" data-tracker-today>Today</button><button type="button" data-sleep-year-step="1" aria-label="Next year">›</button></div><div class="tracker-metric-tabs">${trackerMetricButtons(metric)}</div></section>
-    ${journalSleepCalendar(rows,metric,yearKey)}
+  const monthKey=journalSleepMonthKey();
+  const monthDate=new Date(`${monthKey}-01T12:00:00`);
+  const monthTitle=monthDate.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
+  return shell(`<div class="tracker-page-compact">${head("Journal","Monthly wellness tracker")}${journalTabs("sleep")}
+    <section class="card sleep-calendar-controls tracker-hero-card"><div><span class="section-kicker">Monthly wellness tracker</span><h2>${monthTitle}</h2><p class="tracker-helper">Today: ${esc(new Date(today()+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}))}</p></div><label><span>Tracker</span><select class="field" id="journalSleepMetric"><option value="sleep" ${metric==="sleep"?"selected":""}>Sleep</option><option value="deep" ${metric==="deep"?"selected":""}>Deep sleep</option><option value="pain" ${metric==="pain"?"selected":""}>Pain</option><option value="mood" ${metric==="mood"?"selected":""}>Mood</option><option value="energy" ${metric==="energy"?"selected":""}>Energy</option></select></label><div class="sleep-month-arrows"><button type="button" data-sleep-month-step="-1" aria-label="Previous month">‹</button><button type="button" data-sleep-month-step="1" aria-label="Next month">›</button></div>${trackerDateSelectors(monthKey,rows)}<div class="tracker-metric-tabs">${trackerMetricButtons(metric)}</div></section>
+    ${journalSleepCalendar(rows,metric,monthKey)}
     ${journalTrackerLegend(metric)}
     ${journalSleepEditModal(rows,metric)}</div>` ,"journal");
 }
@@ -381,14 +368,11 @@ function bindJournal(){
  document.querySelectorAll("[data-journal-tab]").forEach(btn=>btn.onclick=()=>{data.journalTab=btn.dataset.journalTab;if(data.journalTab==="today")data.journalSelectedDate=today();if(data.journalTab==="sleep"&&!data.journalSleepMetric)data.journalSleepMetric="sleep";saveData();render()});
  document.querySelector("#journalSleepMetric")?.addEventListener("change",event=>{data.journalSleepMetric=event.target.value;saveData();render()});
  document.querySelectorAll("[data-tracker-metric]").forEach(button=>button.onclick=()=>{data.journalSleepMetric=button.dataset.trackerMetric||"sleep";saveData();render()});
- document.querySelectorAll("[data-sleep-year-step]").forEach(button=>button.onclick=()=>{const year=Number(journalSleepYearKey())+Number(button.dataset.sleepYearStep||0);data.journalSleepYear=String(year);saveData();render()});
- document.querySelector("[data-tracker-today]")?.addEventListener("click",()=>{data.journalSleepYear=String(new Date().getFullYear());data.journalSleepMonth=today().slice(0,7);saveData();render();requestAnimationFrame(()=>document.querySelector(".tracker-year-month.is-current-month")?.scrollIntoView({block:"center",behavior:"smooth"}))});
- const openTrackerDate=date=>{if(!date)return;data.journalSleepEditDate=date;saveData();render()};
- document.querySelector(".tracker-year-grid")?.addEventListener("click",event=>{const button=event.target.closest("[data-sleep-date]");if(!button)return;event.preventDefault();event.stopPropagation();openTrackerDate(button.dataset.sleepDate)});
- if(document.querySelector(".tracker-page-year")&&journalSleepYearKey()===String(new Date().getFullYear())&&!sessionStorage.getItem("linahub-year-tracker-positioned")){
-   sessionStorage.setItem("linahub-year-tracker-positioned","1");
-   requestAnimationFrame(()=>setTimeout(()=>document.querySelector(".tracker-year-month.is-current-month")?.scrollIntoView({block:"center"}),80));
- }
+ document.querySelectorAll("[data-sleep-month-step]").forEach(button=>button.onclick=()=>{const [year,month]=(data.journalSleepMonth||journalSleepMonthKey()).split("-").map(Number);const next=new Date(year,month-1+Number(button.dataset.sleepMonthStep),1,12);data.journalSleepMonth=`${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,"0")}`;saveData();render()});
+ document.querySelector("#journalSleepMonthSelect")?.addEventListener("change",event=>{const [year]=journalSleepMonthKey().split("-");data.journalSleepMonth=`${year}-${event.target.value}`;saveData();render()});
+ document.querySelector("#journalSleepYearSelect")?.addEventListener("change",event=>{const [,month]=journalSleepMonthKey().split("-");data.journalSleepMonth=`${event.target.value}-${month}`;saveData();render()});
+ document.querySelector("[data-tracker-today]")?.addEventListener("click",()=>{data.journalSleepMonth=today().slice(0,7);saveData();render()});
+ document.querySelectorAll("[data-sleep-date]").forEach(button=>button.onclick=()=>{data.journalSleepEditDate=button.dataset.sleepDate;saveData();render()});
  document.querySelectorAll("[data-close-sleep-edit]").forEach(button=>button.onclick=closeSleepEditor);
  document.querySelector("#sleepEditBackdrop")?.addEventListener("click",event=>{if(event.target.id!=="sleepEditBackdrop")return;closeSleepEditor()});
  if(sleepEditBackdrop){

@@ -225,33 +225,33 @@ function treasureMotif(t){
   return "motif-star";
 }
 
-function treasureEmoji(t){
+function treasureStickerSvg(t){
   const motif=treasureMotif(t);
   const map={
-    "motif-rose":"🌹",
-    "motif-spider":"🕷️",
-    "motif-notebook":"📓",
-    "motif-leaf":"🌿",
-    "motif-house":"🏠",
-    "motif-key":"🔑",
-    "motif-bottle":"🧴",
-    "motif-heart":"💗",
-    "motif-fish":"🐠",
-    "motif-shell":"🐚",
-    "motif-star":"⭐",
-    "motif-lemon":"🍋"
+    "motif-rose":`<svg viewBox="0 0 64 64" class="treasure-sticker-svg" aria-hidden="true"><circle cx="32" cy="23" r="14" fill="#ff8ab0"/><circle cx="25" cy="22" r="8" fill="#ffb2cb"/><circle cx="38" cy="22" r="8" fill="#ffb2cb"/><circle cx="32" cy="28" r="8" fill="#ff6b96"/><path d="M31 36h3v15h-3z" fill="#4ca96a"/><path d="M30 41c-6 0-10 3-12 8 5-1 9-2 12-5z" fill="#79c98c"/><path d="M34 41c6 0 10 3 12 8-5-1-9-2-12-5z" fill="#79c98c"/></svg>`,
+    "motif-spider":`<svg viewBox="0 0 64 64" class="treasure-sticker-svg" aria-hidden="true"><ellipse cx="32" cy="33" rx="12" ry="11" fill="#7f66d8"/><circle cx="32" cy="22" r="8" fill="#9d87ea"/><circle cx="29" cy="21" r="1.5" fill="#fff"/><circle cx="35" cy="21" r="1.5" fill="#fff"/><path d="M17 27c4 0 7 1 11 4M17 35c4 0 7-1 11-3M18 43c4-1 7-3 10-6M47 31c4-3 7-4 11-4M47 32c4 2 7 3 11 3M46 37c4 3 7 5 10 6" stroke="#5b44b2" stroke-width="3" stroke-linecap="round" fill="none"/></svg>`,
+    "motif-notebook":`<svg viewBox="0 0 64 64" class="treasure-sticker-svg" aria-hidden="true"><rect x="12" y="14" width="40" height="36" rx="6" fill="#f6f2ff"/><rect x="12" y="14" width="8" height="36" rx="6" fill="#b89af0"/><path d="M25 24h20M25 30h16M25 36h18" stroke="#8c74d1" stroke-width="3" stroke-linecap="round"/><path d="M17 20h3M17 28h3M17 36h3" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`,
+    "motif-leaf":`<svg viewBox="0 0 64 64" class="treasure-sticker-svg" aria-hidden="true"><path d="M30 14c11 3 17 12 15 24-10 0-18-4-22-12-3-6-2-9 7-12z" fill="#88d28d"/><path d="M32 18c-2 13-4 23-10 31" stroke="#58a968" stroke-width="3" stroke-linecap="round"/><path d="M36 40c5 0 9 2 11 7-4 0-8-1-11-4z" fill="#9be2a0"/></svg>`,
+    "motif-house":`<svg viewBox="0 0 64 64" class="treasure-sticker-svg" aria-hidden="true"><path d="M12 29 32 13l20 16v19a4 4 0 0 1-4 4H16a4 4 0 0 1-4-4z" fill="#ffd38d"/><path d="M9 31 32 12l23 19" stroke="#f0a96b" stroke-width="4" stroke-linecap="round" fill="none"/><rect x="27" y="37" width="10" height="15" rx="3" fill="#f09096"/><rect x="18" y="33" width="8" height="8" rx="2" fill="#fff4d8"/><rect x="38" y="33" width="8" height="8" rx="2" fill="#fff4d8"/></svg>`,
+    "motif-key":`<svg viewBox="0 0 64 64" class="treasure-sticker-svg" aria-hidden="true"><circle cx="23" cy="28" r="10" fill="#ffd46a"/><circle cx="23" cy="28" r="4" fill="#fff2bf"/><path d="M31 28h18v5h-4v5h-5v-5h-9z" fill="#ffca4e"/><path d="M31 28h18" stroke="#e8aa2c" stroke-width="3" stroke-linecap="round"/></svg>`,
+    "motif-bottle":`<svg viewBox="0 0 64 64" class="treasure-sticker-svg" aria-hidden="true"><rect x="28" y="10" width="8" height="8" rx="2" fill="#c79d66"/><path d="M22 19h20v6l4 17c1 6-4 11-10 11H28c-6 0-11-5-10-11l4-17z" fill="#8e68dd"/><path d="M26 29c4-4 9-4 12 0-2 5-9 8-12 12-3-4-2-8 0-12z" fill="#c9b0ff" opacity=".9"/></svg>`,
+    "motif-heart":`<svg viewBox="0 0 64 64" class="treasure-sticker-svg" aria-hidden="true"><path d="M32 50C16 40 10 31 10 21c0-7 5-12 12-12 4 0 8 2 10 6 2-4 6-6 10-6 7 0 12 5 12 12 0 10-6 19-22 29z" fill="#ff7c95"/></svg>`,
+    "motif-fish":`<svg viewBox="0 0 64 64" class="treasure-sticker-svg" aria-hidden="true"><ellipse cx="28" cy="32" rx="14" ry="10" fill="#7ed0f6"/><path d="M40 32l12-9v18z" fill="#5fb6e7"/><circle cx="24" cy="30" r="1.8" fill="#2d5671"/><path d="M18 40c6-2 16-2 22 0" stroke="#fff" stroke-width="2" stroke-linecap="round" opacity=".7"/></svg>`,
+    "motif-shell":`<svg viewBox="0 0 64 64" class="treasure-sticker-svg" aria-hidden="true"><path d="M14 40c0-12 8-20 18-20s18 8 18 20z" fill="#8fd8ff"/><path d="M18 40V23M24 40V21M32 40V20M40 40V21M46 40V23" stroke="#5cbde9" stroke-width="3" stroke-linecap="round"/></svg>`,
+    "motif-star":`<svg viewBox="0 0 64 64" class="treasure-sticker-svg" aria-hidden="true"><path d="M32 10l6 13 14 2-10 10 2 14-12-7-12 7 2-14-10-10 14-2z" fill="#ffd55a"/><circle cx="27" cy="30" r="1.5" fill="#6c5a2a"/><circle cx="37" cy="30" r="1.5" fill="#6c5a2a"/><path d="M26 36c3 3 9 3 12 0" stroke="#6c5a2a" stroke-width="2" stroke-linecap="round" fill="none"/></svg>`,
+    "motif-lemon":`<svg viewBox="0 0 64 64" class="treasure-sticker-svg" aria-hidden="true"><ellipse cx="31" cy="34" rx="15" ry="11" fill="#ffe067" transform="rotate(-18 31 34)"/><path d="M39 21c6 0 9 2 12 6-5 1-8 0-12-3z" fill="#8fd27b"/></svg>`
   };
-  return map[motif]||"✨";
+  return map[motif]||map["motif-star"];
 }
 
 function treasureJewel(t,options={}){
   const rarity=treasureRarity(t).toLowerCase();
   const categoryClass=`cat-${String(t.category||"hidden").toLowerCase().replace(/[^a-z]+/g,"-")}`;
-  const classes=["jewel-piece","treasure-emoji",categoryClass,`rarity-${rarity}`];
-  if(options.small)classes.push("jewel-small","treasure-emoji-small");
-  if(options.modal)classes.push("jewel-modal-size","treasure-emoji-modal");
-  if(options.locked)classes.push("jewel-locked","treasure-emoji-locked");
-  return `<span class="${classes.join(" ")}" aria-hidden="true"><span class="treasure-emoji-mark">${treasureEmoji(t)}</span></span>`;
+  const classes=["jewel-piece","treasure-sticker",categoryClass,`rarity-${rarity}`];
+  if(options.small)classes.push("jewel-small","treasure-sticker-small");
+  if(options.modal)classes.push("jewel-modal-size","treasure-sticker-modal");
+  if(options.locked)classes.push("jewel-locked","treasure-sticker-locked");
+  return `<span class="${classes.join(" ")}" aria-hidden="true">${treasureStickerSvg(t)}</span>`;
 }
 function treasureShelfJewel(t){
   return `<button type="button" class="shelf-jewel" data-treasure="${t.id}" title="${t.name}" aria-label="Open ${t.name}">${treasureJewel(t)}<span class="shelf-jewel-name">${t.name}</span></button>`;

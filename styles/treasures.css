@@ -361,3 +361,36 @@
   .treasure-emoji-modal{width:54px!important;height:60px!important}
   .treasure-emoji-modal .treasure-emoji-mark{font-size:42px}
 }
+
+/* LinaHub 17.9.28 — cute sticker icon style */
+.treasure-sticker{
+  position:relative!important;
+  width:44px!important;
+  height:50px!important;
+  display:grid!important;
+  place-items:center!important;
+  filter:drop-shadow(0 5px 10px rgba(0,0,0,.26));
+}
+.treasure-sticker-svg{
+  width:42px;
+  height:42px;
+  overflow:visible;
+}
+.treasure-sticker svg *{vector-effect:non-scaling-stroke}
+.treasure-sticker-small{width:38px!important;height:42px!important}
+.treasure-sticker-small .treasure-sticker-svg{width:36px;height:36px}
+.treasure-sticker-modal{width:68px!important;height:74px!important}
+.treasure-sticker-modal .treasure-sticker-svg{width:62px;height:62px}
+.treasure-sticker-locked{filter:grayscale(.28) opacity(.72) drop-shadow(0 4px 8px rgba(0,0,0,.28))}
+.shelf-jewel:hover .treasure-sticker,
+.shelf-jewel:focus-visible .treasure-sticker{transform:translateY(-3px) scale(1.05)}
+.treasure-card:hover .treasure-sticker,
+.treasure-card:focus-visible .treasure-sticker{transform:translateY(-1px) scale(1.03)}
+.modal-treasure-icon .treasure-sticker,
+.locked-treasure-mark .treasure-sticker{margin-inline:auto}
+@media(max-width:620px){
+  .treasure-sticker{width:38px!important;height:42px!important}
+  .treasure-sticker-svg{width:36px;height:36px}
+  .treasure-sticker-modal{width:60px!important;height:66px!important}
+  .treasure-sticker-modal .treasure-sticker-svg{width:54px;height:54px}
+}

@@ -336,6 +336,73 @@ function normalizePlant(p,i){
   };
 }
 
+
+function validHistoryDate(value){
+  return typeof value==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(value);
+}
+function plantIdentityKeys(plant){
+  const keys=[];
+  const id=String(plant?.id||"").trim().toLowerCase();
+  const name=String(plant?.name||"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+  if(id)keys.push(`id:${id}`);
+  if(name)keys.push(`name:${name}`);
+  return keys;
+}
+function extractPlantWateringDates(plant){
+  const values=[];
+  const lists=[plant?.history,plant?.wateringHistory,plant?.waterHistory,plant?.careHistory?.watering,plant?.careHistory?.watered];
+  for(const list of lists){
+    if(Array.isArray(list)){
+      for(const item of list){
+        const value=typeof item==="string"?item:item?.date;
+        if(validHistoryDate(value))values.push(value);
+      }
+    }
+  }
+  if(validHistoryDate(plant?.lastWatered))values.push(plant.lastWatered);
+  return [...new Set(values)].sort();
+}
+function recoverPlantHistoryFromBrowser(loaded){
+  try{
+    const recoveryMap=new Map();
+    const addPlant=plant=>{
+      const dates=extractPlantWateringDates(plant);
+      if(!dates.length)return;
+      for(const key of plantIdentityKeys(plant)){
+        const existing=recoveryMap.get(key)||[];
+        recoveryMap.set(key,[...new Set([...existing,...dates])].sort());
+      }
+    };
+    for(let i=0;i<localStorage.length;i++){
+      const key=localStorage.key(i);
+      if(!key||(!key.toLowerCase().includes("linahub")&&!key.toLowerCase().includes("plant")))continue;
+      try{
+        const parsed=JSON.parse(localStorage.getItem(key)||"null");
+        const candidates=[];
+        if(Array.isArray(parsed?.plants))candidates.push(...parsed.plants);
+        if(Array.isArray(parsed?.data?.plants))candidates.push(...parsed.data.plants);
+        if(Array.isArray(parsed?.garden?.plants))candidates.push(...parsed.garden.plants);
+        candidates.forEach(addPlant);
+      }catch{}
+    }
+    let recovered=0;
+    for(const plant of loaded.plants||[]){
+      const found=[];
+      for(const key of plantIdentityKeys(plant))found.push(...(recoveryMap.get(key)||[]));
+      const current=extractPlantWateringDates(plant);
+      const merged=[...new Set([...current,...found])].sort();
+      recovered+=Math.max(0,merged.length-current.length);
+      plant.history=merged;
+      plant.lastWatered=merged.at(-1)||plant.lastWatered||"";
+    }
+    if(recovered>0){
+      loaded.plantHistoryRecovered=(Number(loaded.plantHistoryRecovered)||0)+recovered;
+      loaded.plantHistoryRecoveredAt=new Date().toISOString();
+    }
+    return loaded;
+  }catch{return loaded}
+}
+
 function migrateLegacy(){
   for(const key of LEGACY_KEYS){
     try{
@@ -344,6 +411,7 @@ function migrateLegacy(){
       const old=JSON.parse(raw);
       const migrated={...DEFAULT_DATA,...old,version:5};
       migrated.plants=(old.plants||DEFAULT_DATA.plants).map(normalizePlant);
+      recoverPlantHistoryFromBrowser(migrated);
       migrated.aquariums=(migrated.aquariums||DEFAULT_DATA.aquariums).map(normalizeAquarium);
       prepareHouseData(migrated);
       migrated.personalTasks=(Array.isArray(migrated.personalTasks)?migrated.personalTasks:[]).map(normalizePersonalTask);
@@ -368,6 +436,7 @@ function loadData(){
     if(raw){
       const loaded={...DEFAULT_DATA,...JSON.parse(raw)};
       loaded.plants=(loaded.plants||DEFAULT_DATA.plants).map(normalizePlant);
+      recoverPlantHistoryFromBrowser(loaded);
       loaded.aquariums=(loaded.aquariums||DEFAULT_DATA.aquariums).map(normalizeAquarium);
       prepareHouseData(loaded);
       loaded.personalTasks=(Array.isArray(loaded.personalTasks)?loaded.personalTasks:[]).map(normalizePersonalTask);

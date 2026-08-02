@@ -195,7 +195,7 @@ function treasureHint(t){
 function collectedTreasures(){return TREASURE_DEFINITIONS.filter(t=>treasureState(t.id)?.collected)}
 function waitingTreasures(){return TREASURE_DEFINITIONS.filter(t=>treasureState(t.id)&&!treasureState(t.id).collected)}
 function visibleBookTreasures(){return TREASURE_DEFINITIONS.filter(t=>!t.hidden||treasureState(t.id)?.collected)}
-function treasureTrinket(t){
+function treasureTrinket(t,mode="collected"){
   const labels={
     "golden-lemon":"A tiny golden lemon from your lemon tree",
     "surprise-bloom":"A little pink rose from your first rose plant",
@@ -227,7 +227,15 @@ function treasureTrinket(t){
     "room-visitor":"A tiny candle",
     "all-shelves":"A miniature curator crown"
   };
-  return `<i class="shelf-trinket trinket-${t.id}" data-treasure="${t.id}" title="${labels[t.id]||t.name}" aria-label="${labels[t.id]||t.name}"><span>${t.icon}</span></i>`;
+  const cls=mode==="collected"?"":mode==="waiting"?" is-waiting":" is-hidden";
+  const attr=mode==="hidden"?`data-locked-treasure="${t.id}"`:`data-treasure="${t.id}"`;
+  const prefix=mode==="collected"?"Collected":mode==="waiting"?"Unlocked":'Undiscovered';
+  return `<i class="shelf-trinket trinket-${t.id}${cls}" ${attr} title="${prefix}: ${labels[t.id]||t.name}" aria-label="${prefix}: ${labels[t.id]||t.name}"><span>${t.icon}</span></i>`;
+}
+function treasureShelfMarkup(category){
+  const treasures=TREASURE_DEFINITIONS.filter(t=>t.category===category);
+  const collectedCount=treasures.filter(t=>treasureState(t.id)?.collected).length;
+  return `<button class="archive-shelf" data-shelf="${category}" aria-label="${category} shelf"><span class="shelf-label">${category}<small>${collectedCount}/${treasures.length}</small></span><span class="shelf-display">${treasures.map(t=>{const s=treasureState(t.id);return treasureTrinket(t,s?.collected?"collected":s?"waiting":"hidden")}).join("")}</span></button>`;
 }
 
 function TreasureRoomPage(){
@@ -240,7 +248,7 @@ function TreasureRoomPage(){
       <div class="library-moon"></div>
       <div class="grand-bookcase">
         <div class="bookcase-crown"><span>✦</span><b>THE TREASURE ARCHIVE</b><span>✦</span></div>
-        ${TREASURE_SHELVES.map(category=>{const items=collected.filter(t=>t.category===category).slice(0,10);return `<button class="archive-shelf" data-shelf="${category}" aria-label="${category} shelf"><span class="shelf-display">${items.map(t=>treasureTrinket(t)).join("")}${Array.from({length:Math.max(0,10-items.length)},()=>`<i class="shelf-empty"><span>✧</span></i>`).join("")}</span></button>`}).join("")}
+        ${TREASURE_SHELVES.map(category=>treasureShelfMarkup(category)).join("")}
       </div>
     </section>
     ${waiting.length?`<section class="waiting-table card"><div><span class="section-kicker">New treasure discovered</span><h2>${waiting.length} waiting to be opened</h2><p>Your archive has found something new.</p></div><button class="gift-parcel" id="collectTreasure"><span>✦</span><b>Discover</b></button></section>`:""}

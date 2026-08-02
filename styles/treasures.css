@@ -332,3 +332,65 @@
   .shelf-empty{place-items:center!important}
   .shelf-trinket:after{bottom:1px!important;left:7px!important;right:7px!important;height:2px!important;opacity:.28!important}
 }
+
+/* LinaHub 17.9.33 — label every shelf and show all treasures */
+.shelf-label{
+  display:flex!important;
+  align-items:center;
+  justify-content:space-between;
+  gap:8px;
+  margin:0 0 8px;
+  padding:0 2px;
+  color:#ead8ba;
+  font-size:.72rem;
+  letter-spacing:.12em;
+  text-transform:uppercase;
+  font-weight:800;
+}
+.shelf-label small{
+  color:rgba(235,219,190,.72);
+  font-size:.62rem;
+  letter-spacing:.06em;
+  font-weight:600;
+}
+.archive-shelf{
+  min-height:unset!important;
+  padding-top:8px!important;
+  padding-bottom:10px!important;
+}
+.shelf-display{
+  grid-template-columns:repeat(10,minmax(0,1fr))!important;
+  align-items:center!important;
+  row-gap:8px!important;
+  min-height:unset!important;
+}
+.shelf-trinket,
+.shelf-empty{
+  width:40px!important;
+  height:46px!important;
+}
+.shelf-trinket.is-waiting span{
+  opacity:.58;
+  filter:saturate(.6) brightness(.9)!important;
+}
+.shelf-trinket.is-hidden span{
+  opacity:.22;
+  filter:grayscale(.2) saturate(.3) brightness(.82)!important;
+}
+.shelf-trinket.is-waiting::after,
+.shelf-trinket.is-hidden::after{
+  opacity:.18!important;
+}
+.shelf-trinket.is-hidden:hover span,
+.shelf-trinket.is-waiting:hover span{
+  opacity:.9;
+}
+@media(max-width:620px){
+  .shelf-label{
+    margin-bottom:6px;
+    font-size:.56rem;
+    letter-spacing:.09em;
+  }
+  .shelf-label small{font-size:.5rem}
+  .shelf-display{row-gap:4px!important}
+}

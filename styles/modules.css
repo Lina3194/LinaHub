@@ -863,3 +863,24 @@ body.house-editor-open{
     border-radius:22px!important;
   }
 }
+
+/* LinaHub 17.9.41 — clickable house editor controls */
+#houseEditorPortal,
+#houseEditorPortal .house-editor-backdrop,
+#houseEditorPortal .house-editor-card,
+#houseEditorPortal button,
+#houseEditorPortal input,
+#houseEditorPortal select,
+#houseEditorPortal label{
+  pointer-events:auto!important;
+}
+#houseEditorPortal .house-editor-card{
+  z-index:20001!important;
+}
+#houseEditorPortal .house-editor-close,
+#houseEditorPortal #saveHouseEdit,
+#houseEditorPortal [data-close-house-editor]{
+  position:relative;
+  z-index:20002;
+  cursor:pointer;
+}

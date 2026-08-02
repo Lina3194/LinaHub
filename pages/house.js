@@ -500,8 +500,29 @@ function openHouseEditor(id){
   `;
   document.body.appendChild(portal);
   document.body.classList.add("house-editor-open");
-  requestAnimationFrame(()=>document.querySelector("#editHouseTask")?.focus());
-  document.querySelector("#editHouseFrequency")?.addEventListener("change",e=>{
+
+  const backdrop=portal.querySelector("#houseEditorBackdrop");
+  const card=portal.querySelector(".house-editor-card");
+  const saveButton=portal.querySelector("#saveHouseEdit");
+  const closeButtons=portal.querySelectorAll("[data-close-house-editor]");
+
+  card?.addEventListener("click",event=>event.stopPropagation());
+  backdrop?.addEventListener("click",event=>{
+    if(event.target===backdrop) closeHouseEditor();
+  });
+  closeButtons.forEach(button=>button.addEventListener("click",event=>{
+    event.preventDefault();
+    event.stopPropagation();
+    closeHouseEditor();
+  }));
+  saveButton?.addEventListener("click",event=>{
+    event.preventDefault();
+    event.stopPropagation();
+    saveHouseEditor();
+  });
+
+  requestAnimationFrame(()=>portal.querySelector("#editHouseTask")?.focus());
+  portal.querySelector("#editHouseFrequency")?.addEventListener("change",e=>{
     document.querySelector("#editHouseWeekdayWrap")?.classList.toggle("hidden",!["Specific weekdays","Every week on selected days"].includes(e.target.value));
   });
 }

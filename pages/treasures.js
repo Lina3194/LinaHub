@@ -123,7 +123,7 @@ const TREASURE_DEFINITIONS=[
   {id:"all-shelves",icon:"👑",name:"The Curator",category:"Hidden",story:"For placing a treasure on every shelf.",hidden:true,rule:()=>["Garden","Journal","Home","Wellness","Aquariums"].every(c=>TREASURE_DEFINITIONS.some(t=>t.category===c&&data.treasures?.[t.id]?.collected))}
 ];
 
-const TREASURE_SHELVES=["Garden","Journal","Home","Wellness","Aquariums","Hidden"];
+const TREASURE_SHELVES=["Garden","Journal","Home","Wellness","Aquariums"];
 function ensureTreasureData(){
   if(!data.treasures||typeof data.treasures!=="object")data.treasures={};
   if(!Array.isArray(data.favoriteTreasures))data.favoriteTreasures=[];
@@ -194,7 +194,7 @@ function treasureHint(t){
 }
 function collectedTreasures(){return TREASURE_DEFINITIONS.filter(t=>treasureState(t.id)?.collected)}
 function waitingTreasures(){return TREASURE_DEFINITIONS.filter(t=>treasureState(t.id)&&!treasureState(t.id).collected)}
-function visibleBookTreasures(){return TREASURE_DEFINITIONS.filter(t=>!t.hidden||treasureState(t.id)?.collected)}
+function visibleBookTreasures(){return TREASURE_DEFINITIONS.filter(t=>!t.hidden)}
 function treasureTrinket(t,mode="collected"){
   const labels={
     "golden-lemon":"A tiny golden lemon from your lemon tree",

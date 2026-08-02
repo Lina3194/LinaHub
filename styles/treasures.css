@@ -415,3 +415,23 @@
 @media(max-width:620px){
   .hidden-shelf-empty{font-size:.54rem;padding-top:4px}
 }
+
+/* LinaHub 17.9.36 — only show unlocked treasures on shelves */
+.archive-shelf-unlocked-only .shelf-display{
+  display:flex!important;
+  flex-wrap:wrap;
+  justify-content:flex-start;
+  gap:6px!important;
+  min-height:40px;
+}
+.archive-shelf-unlocked-only .shelf-trinket.is-waiting span{
+  opacity:.78;
+  filter:saturate(.72) brightness(.94)!important;
+}
+.archive-shelf-unlocked-only .shelf-trinket.is-hidden,
+.archive-shelf-unlocked-only .shelf-empty{
+  display:none!important;
+}
+@media(max-width:620px){
+  .archive-shelf-unlocked-only .shelf-display{gap:4px!important;min-height:28px}
+}

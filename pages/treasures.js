@@ -234,13 +234,12 @@ function treasureTrinket(t,mode="collected"){
 }
 function treasureShelfMarkup(category){
   const allTreasures=TREASURE_DEFINITIONS.filter(t=>t.category===category);
-  const treasures=category==="Hidden"?allTreasures.filter(t=>Boolean(treasureState(t.id))):allTreasures;
+  const unlockedTreasures=allTreasures.filter(t=>Boolean(treasureState(t.id)));
   const collectedCount=allTreasures.filter(t=>treasureState(t.id)?.collected).length;
-  const totalCount=category==="Hidden"?treasures.length:allTreasures.length;
-  const shelfContent=treasures.length
-    ? treasures.map(t=>{const s=treasureState(t.id);return treasureTrinket(t,s?.collected?"collected":s?"waiting":"hidden")}).join("")
-    : `<span class="hidden-shelf-empty">No hidden treasures unlocked yet.</span>`;
-  return `<button class="archive-shelf ${category==="Hidden"?"archive-shelf-hidden-only":""}" data-shelf="${category}" aria-label="${category} shelf"><span class="shelf-label">${category}<small>${collectedCount}/${totalCount}</small></span><span class="shelf-display ${category==="Hidden"?"hidden-shelf-display":""}">${shelfContent}</span></button>`;
+  const shelfContent=unlockedTreasures.length
+    ? unlockedTreasures.map(t=>{const s=treasureState(t.id);return treasureTrinket(t,s?.collected?"collected":"waiting")}).join("")
+    : `<span class="hidden-shelf-empty">No treasures unlocked yet.</span>`;
+  return `<button class="archive-shelf archive-shelf-unlocked-only ${category==="Hidden"?"archive-shelf-hidden-only":""}" data-shelf="${category}" aria-label="${category} shelf"><span class="shelf-label">${category}<small>${collectedCount}/${allTreasures.length}</small></span><span class="shelf-display hidden-shelf-display">${shelfContent}</span></button>`;
 }
 
 function TreasureRoomPage(){

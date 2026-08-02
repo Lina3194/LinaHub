@@ -194,3 +194,122 @@
   .treasure-bloom-petals{width:31px;height:31px}
   .treasure-bloom-core{width:18px;height:18px;font-size:11px}
 }
+
+/* LinaHub 17.9.26 — object icons instead of emoji blooms */
+.treasure-object{
+  --icon-main:#d88ab2;
+  --icon-shadow:#6f3356;
+  --icon-soft:#f7c3dd;
+  --icon-leaf:#72b27c;
+  position:relative!important;
+  width:42px!important;
+  height:52px!important;
+  display:grid!important;
+  place-items:end center!important;
+  filter:drop-shadow(0 6px 8px rgba(0,0,0,.34));
+}
+.treasure-object.cat-garden{--icon-main:#7bbc7f;--icon-shadow:#44714c;--icon-soft:#c9efb7;--icon-leaf:#76b980}
+.treasure-object.cat-journal{--icon-main:#8d7cdb;--icon-shadow:#4f418d;--icon-soft:#d3caf7;--icon-leaf:#86b28a}
+.treasure-object.cat-home{--icon-main:#d17992;--icon-shadow:#7e3d55;--icon-soft:#f4c0cd;--icon-leaf:#94bf85}
+.treasure-object.cat-wellness{--icon-main:#d785cc;--icon-shadow:#7f4d89;--icon-soft:#f1c7ef;--icon-leaf:#89bc95}
+.treasure-object.cat-aquariums{--icon-main:#7bbfe0;--icon-shadow:#3f6f8d;--icon-soft:#caeefe;--icon-leaf:#83c9b0}
+.treasure-object.cat-hidden{--icon-main:#d7b277;--icon-shadow:#7f643d;--icon-soft:#f5e0b5;--icon-leaf:#9bbb7e}
+.treasure-object-stem{position:absolute;bottom:0;width:16px;height:7px;border-radius:0 0 11px 11px;background:linear-gradient(180deg,#7ab685,#4a7e5e);box-shadow:0 1px 1px rgba(0,0,0,.25)}
+.treasure-object-mark{position:relative;display:block;width:34px;height:34px}
+.treasure-object-mark i{position:absolute;display:block;box-sizing:border-box}
+
+/* rose */
+.motif-rose{width:34px;height:40px}
+.motif-rose:before{content:"";position:absolute;left:50%;bottom:2px;width:4px;height:18px;transform:translateX(-50%);background:linear-gradient(180deg,#7ec28a,#4d815f);border-radius:4px}
+.motif-rose i:nth-child(1){left:9px;top:7px;width:16px;height:16px;background:radial-gradient(circle at 38% 35%,#ffd6e8,#e68ab2 52%,#8e4569 100%);border-radius:50% 50% 48% 52%;box-shadow:0 0 0 1px rgba(255,255,255,.18) inset}
+.motif-rose i:nth-child(2),.motif-rose i:nth-child(3){top:13px;width:11px;height:8px;background:linear-gradient(180deg,#8ac993,#5d9367);border-radius:10px 10px 10px 0}
+.motif-rose i:nth-child(2){left:4px;transform:rotate(-28deg)}
+.motif-rose i:nth-child(3){right:4px;transform:scaleX(-1) rotate(-28deg)}
+
+/* spider */
+.motif-spider{width:34px;height:34px}
+.motif-spider i:nth-child(1){left:10px;top:10px;width:14px;height:14px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#8d7cdb 40%,#514589 100%)}
+.motif-spider i:nth-child(2){left:13px;top:4px;width:8px;height:8px;border-radius:50%;background:linear-gradient(180deg,#c9c0f6,#7e71c9)}
+.motif-spider i:nth-child(3){inset:0;background:
+ linear-gradient(65deg,transparent 37%,var(--icon-shadow) 38% 41%,transparent 42%) 2px 9px/12px 8px no-repeat,
+ linear-gradient(-65deg,transparent 37%,var(--icon-shadow) 38% 41%,transparent 42%) 20px 9px/12px 8px no-repeat,
+ linear-gradient(35deg,transparent 37%,var(--icon-shadow) 38% 41%,transparent 42%) 0 17px/14px 9px no-repeat,
+ linear-gradient(-35deg,transparent 37%,var(--icon-shadow) 38% 41%,transparent 42%) 20px 17px/14px 9px no-repeat,
+ linear-gradient(15deg,transparent 40%,var(--icon-shadow) 41% 44%,transparent 45%) 2px 24px/12px 8px no-repeat,
+ linear-gradient(-15deg,transparent 40%,var(--icon-shadow) 41% 44%,transparent 45%) 20px 24px/12px 8px no-repeat;opacity:.95}
+
+/* notebook */
+.motif-notebook{width:33px;height:36px}
+.motif-notebook i:nth-child(1){left:6px;top:4px;width:22px;height:28px;border-radius:5px;background:linear-gradient(180deg,var(--icon-soft),var(--icon-main));border:2px solid rgba(255,255,255,.22);box-shadow:0 2px 5px rgba(0,0,0,.18)}
+.motif-notebook i:nth-child(2){left:8px;top:5px;width:4px;height:26px;border-right:2px solid rgba(88,67,116,.45);background:repeating-linear-gradient(180deg,#fff 0 2px,transparent 2px 5px);opacity:.7}
+.motif-notebook i:nth-child(3){left:14px;top:10px;width:10px;height:12px;background:repeating-linear-gradient(180deg,rgba(83,61,114,.55) 0 1px,transparent 1px 4px)}
+
+/* leaf */
+.motif-leaf{width:34px;height:38px}
+.motif-leaf i:nth-child(1){left:9px;top:4px;width:16px;height:24px;background:linear-gradient(180deg,#d8f2bc,#6bb46b);border-radius:2px 16px 2px 16px;transform:rotate(-16deg);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.motif-leaf i:nth-child(2){left:16px;top:7px;width:2px;height:22px;background:rgba(71,117,66,.56);transform:rotate(-16deg)}
+.motif-leaf i:nth-child(3){left:14px;bottom:1px;width:4px;height:13px;background:linear-gradient(180deg,#83be7e,#497b54);border-radius:4px}
+
+/* house */
+.motif-house{width:35px;height:34px}
+.motif-house i:nth-child(1){left:7px;bottom:4px;width:20px;height:16px;background:linear-gradient(180deg,var(--icon-soft),var(--icon-main));border-radius:5px 5px 4px 4px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22)}
+.motif-house i:nth-child(2){left:5px;bottom:16px;width:24px;height:14px;background:linear-gradient(180deg,#ffe3b5,#d9976e);clip-path:polygon(50% 0,100% 100%,0 100%)}
+.motif-house i:nth-child(3){left:15px;bottom:6px;width:5px;height:8px;border-radius:2px;background:#6c4a3b}
+
+/* key */
+.motif-key{width:34px;height:34px}
+.motif-key i:nth-child(1){left:4px;top:9px;width:12px;height:12px;border:3px solid #f4df9f;border-radius:50%;box-shadow:0 0 0 1px #97763a inset}
+.motif-key i:nth-child(2){left:14px;top:13px;width:15px;height:4px;border-radius:4px;background:linear-gradient(180deg,#f8e8ba,#c9a35a)}
+.motif-key i:nth-child(3){left:23px;top:16px;width:7px;height:8px;background:linear-gradient(180deg,#f8e8ba,#c9a35a);clip-path:polygon(0 0,100% 0,100% 40%,68% 40%,68% 100%,38% 100%,38% 40%,0 40%)}
+
+/* bottle */
+.motif-bottle{width:34px;height:38px}
+.motif-bottle i:nth-child(1){left:12px;top:3px;width:10px;height:8px;border-radius:3px;background:linear-gradient(180deg,#d5b784,#8c5d37)}
+.motif-bottle i:nth-child(2){left:8px;top:9px;width:18px;height:24px;background:linear-gradient(180deg,var(--icon-soft),var(--icon-main));border-radius:8px 8px 10px 10px;box-shadow:inset 0 0 0 1px rgba(255,255,255,.22), inset 0 -7px 9px rgba(69,36,83,.18)}
+.motif-bottle i:nth-child(3){left:12px;top:16px;width:10px;height:8px;border-radius:50%;background:rgba(255,255,255,.28)}
+
+/* heart */
+.motif-heart{width:34px;height:34px}
+.motif-heart i:nth-child(1){left:7px;top:7px;width:20px;height:20px;background:linear-gradient(180deg,var(--icon-soft),var(--icon-main));transform:rotate(-45deg);border-radius:4px 4px 2px 2px}
+.motif-heart i:nth-child(2),.motif-heart i:nth-child(3){top:7px;width:12px;height:12px;border-radius:50%;background:linear-gradient(180deg,var(--icon-soft),var(--icon-main))}
+.motif-heart i:nth-child(2){left:7px}
+.motif-heart i:nth-child(3){left:15px}
+
+/* fish */
+.motif-fish{width:35px;height:33px}
+.motif-fish i:nth-child(1){left:6px;top:10px;width:20px;height:12px;background:linear-gradient(180deg,var(--icon-soft),var(--icon-main));border-radius:14px 10px 10px 14px}
+.motif-fish i:nth-child(2){left:22px;top:10px;width:10px;height:12px;background:linear-gradient(180deg,var(--icon-main),var(--icon-shadow));clip-path:polygon(0 50%,100% 0,100% 100%)}
+.motif-fish i:nth-child(3){left:11px;top:14px;width:3px;height:3px;border-radius:50%;background:#3e4f6d;box-shadow:9px -5px 0 1px rgba(255,255,255,.18)}
+
+/* shell */
+.motif-shell{width:34px;height:32px}
+.motif-shell i:nth-child(1){left:7px;top:10px;width:20px;height:14px;background:linear-gradient(180deg,var(--icon-soft),var(--icon-main));border-radius:50% 50% 40% 40%;clip-path:polygon(50% 0,100% 100%,0 100%)}
+.motif-shell i:nth-child(2){left:11px;top:12px;width:2px;height:11px;background:rgba(255,255,255,.35);box-shadow:4px 0 0 rgba(255,255,255,.35),8px 0 0 rgba(255,255,255,.35)}
+.motif-shell i:nth-child(3){display:none}
+
+/* star */
+.motif-star{width:34px;height:34px}
+.motif-star i:nth-child(1){left:7px;top:6px;width:20px;height:20px;background:linear-gradient(180deg,#fff3c8,#d3ae6b);clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%)}
+.motif-star i:nth-child(2),.motif-star i:nth-child(3){display:none}
+
+/* lemon */
+.motif-lemon{width:34px;height:36px}
+.motif-lemon i:nth-child(1){left:8px;top:8px;width:18px;height:14px;background:linear-gradient(180deg,#fff7b8,#e5c84f);border-radius:50% 50% 45% 45%;transform:rotate(-14deg);box-shadow:inset 0 0 0 1px rgba(255,255,255,.2)}
+.motif-lemon i:nth-child(2){left:20px;top:5px;width:8px;height:6px;background:linear-gradient(180deg,#b8e28d,#6ea158);border-radius:8px 8px 8px 0;transform:rotate(25deg)}
+.motif-lemon i:nth-child(3){left:16px;top:21px;width:2px;height:10px;background:#6ea158;border-radius:2px}
+
+.treasure-object-small{width:38px!important;height:46px!important}
+.treasure-object-small .treasure-object-mark{transform:scale(.9);transform-origin:50% 100%}
+.treasure-object-modal{width:58px!important;height:70px!important}
+.treasure-object-modal .treasure-object-mark{transform:scale(1.28);transform-origin:50% 100%}
+.treasure-object-locked{filter:grayscale(.7) opacity(.72) drop-shadow(0 4px 7px rgba(0,0,0,.35))}
+.treasure-object-locked .treasure-object-mark,
+.treasure-object-locked .treasure-object-stem{opacity:.82}
+.shelf-jewel:hover .treasure-object,.shelf-jewel:focus-visible .treasure-object{transform:translateY(-3px) scale(1.04);filter:drop-shadow(0 9px 8px rgba(0,0,0,.44))}
+.treasure-card:hover .treasure-object,.treasure-card:focus-visible .treasure-object{transform:translateY(-1px) scale(1.03)}
+
+@media(max-width:620px){
+  .treasure-object{width:36px!important;height:44px!important}
+  .treasure-object-mark{transform:scale(.88);transform-origin:50% 100%}
+  .treasure-object-small .treasure-object-mark{transform:scale(.8);transform-origin:50% 100%}
+}

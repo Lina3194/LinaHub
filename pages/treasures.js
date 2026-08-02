@@ -210,14 +210,30 @@ function treasureJewelProfile(t){
   const toneSet=palettes[t.category]||palettes.Hidden;
   return {shape:shapes[(index+categoryOffset)%shapes.length],tone:toneSet[index%toneSet.length]};
 }
+function treasureMotif(t){
+  const id=String(t.id||"");
+  const category=String(t.category||"");
+  if(/lemon/.test(id)) return "motif-lemon";
+  if(/spider/.test(id)) return "motif-spider";
+  if(/orchid|rose|bloom|flower/.test(id)) return "motif-rose";
+  if(/basil|oregano|plant|garden|water|herb|prayer/.test(id) || category==="Garden") return "motif-leaf";
+  if(/journal|chapter|pages|archiv|notes|gallery|brain|words|checkin/.test(id) || category==="Journal") return "motif-notebook";
+  if(/task|home|house/.test(id) || category==="Home") return "motif-house";
+  if(/key/.test(id)) return "motif-key";
+  if(/med|care|cycle|heart|wellness/.test(id) || category==="Wellness") return /heart/.test(id)?"motif-heart":"motif-bottle";
+  if(/aquarium|tank|water|fish|shell/.test(id) || category==="Aquariums") return /shell/.test(id)?"motif-shell":"motif-fish";
+  return "motif-star";
+}
+
 function treasureJewel(t,options={}){
   const rarity=treasureRarity(t).toLowerCase();
   const categoryClass=`cat-${String(t.category||"hidden").toLowerCase().replace(/[^a-z]+/g,"-")}`;
-  const classes=["jewel-piece","treasure-bloom",categoryClass,`rarity-${rarity}`];
-  if(options.small)classes.push("jewel-small","treasure-bloom-small");
-  if(options.modal)classes.push("jewel-modal-size","treasure-bloom-modal");
-  if(options.locked)classes.push("jewel-locked","treasure-bloom-locked");
-  return `<span class="${classes.join(" ")}" aria-hidden="true"><span class="treasure-bloom-petals"></span><span class="treasure-bloom-core">${esc(t.icon||"✿")}</span><span class="treasure-bloom-leaf treasure-bloom-leaf-left"></span><span class="treasure-bloom-leaf treasure-bloom-leaf-right"></span></span>`;
+  const motif=treasureMotif(t);
+  const classes=["jewel-piece","treasure-object",categoryClass,`rarity-${rarity}`];
+  if(options.small)classes.push("jewel-small","treasure-object-small");
+  if(options.modal)classes.push("jewel-modal-size","treasure-object-modal");
+  if(options.locked)classes.push("jewel-locked","treasure-object-locked");
+  return `<span class="${classes.join(" ")}" aria-hidden="true"><span class="treasure-object-stem"></span><span class="treasure-object-mark ${motif}"><i></i><i></i><i></i></span></span>`;
 }
 function treasureShelfJewel(t){
   return `<button type="button" class="shelf-jewel" data-treasure="${t.id}" title="${t.name}" aria-label="Open ${t.name}">${treasureJewel(t)}<span class="shelf-jewel-name">${t.name}</span></button>`;
@@ -234,7 +250,7 @@ function TreasureRoomPage(){
       <div class="grand-jewel-case">
         <div class="jewel-case-crown jewel-case-crown-floral"><span>❀</span><div><small>THE BLOOMING COLLECTION</small><b>TREASURE ROOM</b></div><span>❀</span></div>
         <div class="jewel-case-inner">
-          ${TREASURE_SHELVES.map(category=>{const items=collected.filter(t=>t.category===category).slice(0,10);return `<section class="archive-jewel-row" data-shelf="${category}" aria-label="${category} jewels"><header><span>${category}</span><small>${items.length} ${items.length===1?"jewel":"jewels"}</small></header><div class="jewel-shelf"><div class="jewel-shelf-display">${items.map(t=>treasureShelfJewel(t)).join("")}${Array.from({length:Math.max(0,10-items.length)},()=>`<span class="jewel-empty" aria-hidden="true"><i></i></span>`).join("")}</div></div></section>`}).join("")}
+          ${TREASURE_SHELVES.map(category=>{const items=collected.filter(t=>t.category===category).slice(0,10);return `<section class="archive-jewel-row" data-shelf="${category}" aria-label="${category} treasures"><header><span>${category}</span><small>${items.length} ${items.length===1?"treasure":"treasures"}</small></header><div class="jewel-shelf"><div class="jewel-shelf-display">${items.map(t=>treasureShelfJewel(t)).join("")}${Array.from({length:Math.max(0,10-items.length)},()=>`<span class="jewel-empty" aria-hidden="true"><i></i></span>`).join("")}</div></div></section>`}).join("")}
         </div>
       </div>
     </section>

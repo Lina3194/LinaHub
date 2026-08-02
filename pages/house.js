@@ -555,6 +555,7 @@ function saveHouseEditor(){
   task.priority=Number(document.querySelector("#editHousePriority")?.value)||1;
 
   saveData();
+  closeHouseEditor();
   toast("Job updated 🏡");
   render();
 }

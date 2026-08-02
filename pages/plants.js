@@ -218,8 +218,19 @@ function plantEnsureExtendedData(p){
   p.feedingHistory=Array.isArray(p.feedingHistory)?p.feedingHistory:[];
   p.repotHistory=Array.isArray(p.repotHistory)?p.repotHistory:[];
   p.photoHistory=Array.isArray(p.photoHistory)?p.photoHistory:[];
+  if(p.lastWatered && !p.history.includes(p.lastWatered)) p.history.push(p.lastWatered);
+  if(p.lastFed && !p.feedingHistory.includes(p.lastFed)) p.feedingHistory.push(p.lastFed);
+  p.history.sort();
+  p.feedingHistory.sort();
+  p.repotHistory.sort();
+  p.lastWatered=p.history.at(-1)||p.lastWatered||"";
+  p.lastFed=p.feedingHistory.at(-1)||p.lastFed||"";
   if(typeof p.reminderEnabled!=="boolean")p.reminderEnabled=true;
   data.plantCalendarMonthById=data.plantCalendarMonthById||{};
+  if(!data.plantCalendarMonthById[p.id]){
+    const latest=[p.history.at(-1),p.feedingHistory.at(-1),p.repotHistory.at(-1),today()].filter(Boolean).sort().at(-1)||today();
+    data.plantCalendarMonthById[p.id]=latest.slice(0,7);
+  }
 }
 function plantMonthShift(value,offset){const [y,m]=String(value||today().slice(0,7)).split("-").map(Number);const d=new Date(y,m-1+Number(offset||0),1);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`}
 function plantTimelineCalendar(p){
@@ -227,13 +238,16 @@ function plantTimelineCalendar(p){
   const month=data.plantCalendarMonthById[p.id]||today().slice(0,7);
   const [year,monthNumber]=month.split("-").map(Number),first=new Date(year,monthNumber-1,1),days=new Date(year,monthNumber,0).getDate(),leading=(first.getDay()+6)%7;
   const watered=new Set(p.history.filter(x=>x.startsWith(month))),fed=new Set(p.feedingHistory.filter(x=>x.startsWith(month))),repotted=new Set(p.repotHistory.filter(x=>x.startsWith(month)));
+  const todayDate=today();
+  const todayInMonth=todayDate.startsWith(month);
   const cells=[];for(let i=0;i<leading;i++)cells.push('<span class="plant-cal-day empty"></span>');
   for(let day=1;day<=days;day++){
-    const date=`${month}-${String(day).padStart(2,"0")}`,classes=[watered.has(date)?"watered":"",fed.has(date)?"fed":"",repotted.has(date)?"repotted":""].filter(Boolean).join(" ");
-    const marks=`${watered.has(date)?'<i class="water-mark"></i>':""}${fed.has(date)?'<i class="feed-mark"></i>':""}${repotted.has(date)?'<i class="repot-mark"></i>':""}`;
-    cells.push(`<button type="button" class="plant-cal-day ${classes}" data-plant-calendar-date="${date}"><span>${day}</span>${marks}</button>`);
+    const date=`${month}-${String(day).padStart(2,"0")}`;
+    const classes=[watered.has(date)?"watered":"",fed.has(date)?"fed":"",repotted.has(date)?"repotted":"",date===todayDate?"today":""].filter(Boolean).join(" ");
+    const marks=`${watered.has(date)?'<i class="water-mark"></i>':""}${fed.has(date)?'<i class="feed-mark"></i>':""}${repotted.has(date)?'<i class="repot-mark"></i>':""}${date===todayDate?'<i class="today-mark"></i>':""}`;
+    cells.push(`<button type="button" class="plant-cal-day ${classes}" data-plant-calendar-date="${date}" aria-label="${formatDate(date)}${date===todayDate?', today':''}"><span>${day}</span>${marks}</button>`);
   }
-  return `<div class="plant-calendar-head"><button type="button" class="mini" data-plant-month="-1">‹</button><strong>${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</strong><button type="button" class="mini" data-plant-month="1">›</button></div><div class="plant-cal-weekdays">${["M","T","W","T","F","S","S"].map(x=>`<span>${x}</span>`).join("")}</div><div class="plant-cal-grid">${cells.join("")}</div><div class="plant-calendar-legend"><span><i class="water"></i>Watered</span><span><i class="feed"></i>Fed</span><span><i class="repot"></i>Repotted</span></div>`;
+  return `<div class="plant-calendar-head"><button type="button" class="mini" data-plant-month="-1">‹</button><div class="plant-calendar-title"><strong>${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</strong><small>${todayInMonth?`Today: ${formatDate(todayDate)}`:`Today: ${formatDate(todayDate)}`}</small></div><button type="button" class="mini" data-plant-month="1">›</button></div><div class="plant-cal-weekdays">${["M","T","W","T","F","S","S"].map(x=>`<span>${x}</span>`).join("")}</div><div class="plant-cal-grid">${cells.join("")}</div><div class="plant-calendar-legend"><span><i class="today-legend"></i>Today</span><span><i class="water"></i>Watered</span><span><i class="feed"></i>Fed</span><span><i class="repot"></i>Repotted</span></div>`;
 }
 function plantReminderText(p,guide){
   plantEnsureExtendedData(p);const every=Number(p.wateringDays)||guide?.wateringDays||7;

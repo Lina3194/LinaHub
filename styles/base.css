@@ -2027,3 +2027,76 @@ body[data-route="house"] .shopping-household-card{display:none!important}
     border-radius:16px;
   }
 }
+
+
+/* LinaHub 17.9.37 — compact phone date fields */
+@media (max-width: 650px){
+  input[type="date"],
+  input[type="month"],
+  input[type="time"]{
+    width:100%!important;
+    max-width:220px!important;
+    min-width:0!important;
+    min-height:46px!important;
+    box-sizing:border-box!important;
+    padding-left:14px!important;
+    padding-right:12px!important;
+  }
+
+  label:has(> input[type="date"]),
+  label:has(> input[type="month"]),
+  label:has(> input[type="time"]){
+    width:100%!important;
+    max-width:220px!important;
+    justify-self:start!important;
+  }
+
+  .plant-action-grid{
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    align-items:end!important;
+  }
+
+  .plant-action-grid label{
+    grid-column:1/-1!important;
+    width:100%!important;
+    max-width:220px!important;
+  }
+
+  .plant-action-grid input[type="date"]{
+    width:100%!important;
+    max-width:220px!important;
+  }
+
+  .dated-action,
+  .date-picker-shell{
+    width:100%!important;
+    max-width:220px!important;
+  }
+
+  .dated-action{
+    display:grid!important;
+    grid-template-columns:1fr!important;
+    justify-items:start!important;
+  }
+
+  .date-picker-shell input[type="date"]{
+    width:100%!important;
+    max-width:220px!important;
+  }
+}
+
+@media (max-width: 390px){
+  input[type="date"],
+  input[type="month"],
+  input[type="time"],
+  label:has(> input[type="date"]),
+  label:has(> input[type="month"]),
+  label:has(> input[type="time"]),
+  .plant-action-grid label,
+  .plant-action-grid input[type="date"],
+  .dated-action,
+  .date-picker-shell,
+  .date-picker-shell input[type="date"]{
+    max-width:190px!important;
+  }
+}

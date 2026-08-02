@@ -825,3 +825,41 @@ body[data-route="medication"] .med-bottom-tabs{
   .med-stock-actions label{min-height:42px}
   .med-stock-audit div{display:grid;grid-template-columns:1fr auto;align-items:start}
 }
+
+/* LinaHub 17.9.40 — house editor always centred in current viewport */
+body.house-editor-open{
+  overflow:hidden!important;
+  touch-action:none;
+}
+#houseEditorPortal{
+  position:fixed;
+  inset:0;
+  z-index:20000;
+}
+#houseEditorPortal .house-editor-backdrop{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw;
+  height:100dvh;
+  z-index:20000!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:max(16px,env(safe-area-inset-top)) max(16px,env(safe-area-inset-right)) max(16px,env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))!important;
+  overflow:auto;
+  overscroll-behavior:contain;
+}
+#houseEditorPortal .house-editor-card{
+  margin:auto!important;
+  width:min(520px,calc(100vw - 32px))!important;
+  max-height:calc(100dvh - 32px)!important;
+  overflow:auto!important;
+}
+@media(max-width:560px){
+  #houseEditorPortal .house-editor-card{
+    width:calc(100vw - 24px)!important;
+    max-height:calc(100dvh - 24px)!important;
+    padding:18px!important;
+    border-radius:22px!important;
+  }
+}

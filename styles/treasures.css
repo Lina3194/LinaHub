@@ -121,3 +121,179 @@
   .treasure-card{min-height:94px!important}
   .treasure-card>span{font-size:1.4rem!important}
 }
+
+/* LinaHub 17.9.31 — more elegant, more magical, less cartoon */
+.treasure-library{
+  background:
+    radial-gradient(circle at 50% 8%, rgba(224,201,255,.13), transparent 26%),
+    radial-gradient(circle at 18% 18%, rgba(255,235,190,.06), transparent 16%),
+    radial-gradient(circle at 82% 24%, rgba(188,151,255,.06), transparent 18%),
+    linear-gradient(180deg,#120d1c 0%, #1a1227 54%, #0d0915 100%) !important;
+  border-color:rgba(239,223,195,.12)!important;
+  box-shadow:0 26px 70px rgba(5,2,12,.46)!important;
+}
+.treasure-library::before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(255,255,255,.55) 0 1px, transparent 1.5px) 0 0/120px 120px,
+    radial-gradient(circle at 75% 18%, rgba(255,245,214,.35) 0 1px, transparent 1.5px) 0 0/150px 150px,
+    radial-gradient(circle at 48% 30%, rgba(214,191,255,.28) 0 1px, transparent 1.5px) 0 0/180px 180px;
+  opacity:.35;
+}
+.library-moon{
+  width:118px!important;
+  height:118px!important;
+  background:radial-gradient(circle at 38% 34%, #fffaf1 0%, #eedfbc 66%, #c9b082 100%)!important;
+  box-shadow:0 0 38px rgba(255,236,196,.18)!important;
+  opacity:.78!important;
+  filter:blur(.15px);
+}
+.grand-bookcase{
+  border-color:#241712!important;
+  background:linear-gradient(90deg,#241714 0%, #58372b 10%, #3a241e 50%, #5b392c 90%, #241613 100%)!important;
+  box-shadow:inset 0 0 0 2px #7a5743, inset 0 0 28px rgba(0,0,0,.52), 0 28px 48px rgba(0,0,0,.42)!important;
+}
+.bookcase-crown{
+  background:linear-gradient(180deg,#5f4030,#39231b)!important;
+  border-color:#241712!important;
+  box-shadow:inset 0 0 0 1px #86624d!important;
+  color:#e8d8bc!important;
+  letter-spacing:.18em!important;
+}
+.archive-shelf{
+  background:linear-gradient(180deg,#21161d 0%, #301f1b 68%, #140d10 100%)!important;
+  border-top-color:#1c1110!important;
+  border-bottom-color:#150c0c!important;
+  box-shadow:inset 0 10px 16px rgba(0,0,0,.28)!important;
+}
+.archive-shelf:hover{
+  background:linear-gradient(180deg,#241820 0%, #34211d 68%, #140d10 100%)!important;
+}
+.shelf-display{gap:6px!important}
+.shelf-trinket,
+.shelf-empty{
+  width:40px!important;
+  height:48px!important;
+  filter:drop-shadow(0 6px 5px rgba(0,0,0,.42))!important;
+}
+.shelf-trinket::before{
+  content:"";
+  position:absolute;
+  left:5px;
+  right:5px;
+  top:8px;
+  bottom:8px;
+  border-radius:16px;
+  background:radial-gradient(circle at 50% 35%, rgba(255,251,242,.18), rgba(236,219,188,.06) 48%, rgba(255,255,255,0) 72%);
+  box-shadow:inset 0 0 0 1px rgba(255,240,214,.08);
+  z-index:-1;
+}
+.shelf-trinket span{
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+  font-size:1.48rem!important;
+  line-height:1!important;
+  text-shadow:none!important;
+  filter:saturate(.72) brightness(.95) contrast(.96)!important;
+  transform:none!important;
+}
+.shelf-trinket:hover{
+  transform:translateY(-1px) scale(1.02)!important;
+  filter:drop-shadow(0 8px 7px rgba(0,0,0,.48))!important;
+}
+.shelf-trinket:hover::before{
+  background:radial-gradient(circle at 50% 35%, rgba(255,251,242,.24), rgba(236,219,188,.08) 50%, rgba(255,255,255,0) 74%);
+}
+.trinket-golden-lemon span,
+.trinket-surprise-bloom span,
+.trinket-sanctuary-key span,
+.trinket-room-visitor span{
+  font-size:1.56rem!important;
+}
+.trinket-room-visitor span,
+.trinket-collector-five span,
+.trinket-collector-twelve span,
+.trinket-surprise-bloom span{
+  filter:saturate(.76) brightness(.98) contrast(.97)!important;
+}
+.trinket-sanctuary-key span{transform:rotate(-5deg)!important}
+.shelf-trinket:after{
+  left:10px!important;
+  right:10px!important;
+  bottom:-1px!important;
+  height:4px!important;
+  opacity:.55!important;
+}
+.shelf-empty{
+  opacity:.14!important;
+}
+.shelf-empty span{
+  width:22px!important;
+  height:28px!important;
+  border-style:solid!important;
+  border-color:rgba(232,215,184,.12)!important;
+  color:rgba(232,215,184,.18)!important;
+}
+.treasure-book{
+  background:linear-gradient(180deg, rgba(23,17,32,.88), rgba(18,13,27,.88))!important;
+  border-color:rgba(232,222,244,.1)!important;
+  box-shadow:0 18px 32px rgba(0,0,0,.22)!important;
+}
+.treasure-card{
+  min-height:100px!important;
+  border-radius:16px!important;
+  border-color:rgba(232,222,244,.1)!important;
+  background:linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.02))!important;
+}
+.treasure-card:hover,
+.treasure-card:focus-visible{
+  background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.03))!important;
+  transform:translateY(-1px)!important;
+}
+.treasure-card > span{
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+  font-size:1.38rem!important;
+  filter:saturate(.72) brightness(.95) contrast(.96)!important;
+}
+.treasure-card strong{
+  font-size:.74rem!important;
+  letter-spacing:.01em!important;
+}
+.treasure-card small{
+  font-size:.58rem!important;
+  color:rgba(243,236,248,.72)!important;
+}
+.gift-parcel{
+  background:linear-gradient(145deg, rgba(118,83,155,.14), rgba(203,171,108,.08))!important;
+  border-color:rgba(238,214,164,.18)!important;
+  box-shadow:none!important;
+}
+.gift-parcel span{
+  animation:none!important;
+  font-size:1.5rem!important;
+}
+.treasure-modal{
+  background:radial-gradient(circle at 50% 14%, rgba(229,200,139,.11), transparent 32%), linear-gradient(150deg,#241c34,#120f1a)!important;
+  border-color:rgba(232,209,169,.2)!important;
+  box-shadow:0 30px 76px rgba(0,0,0,.52)!important;
+}
+.modal-treasure-icon{
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+  font-size:3.4rem!important;
+  filter:saturate(.72) brightness(.95) contrast(.96)!important;
+}
+@media(max-width:620px){
+  .library-moon{width:96px!important;height:96px!important}
+  .shelf-display{gap:2px!important}
+  .shelf-trinket,.shelf-empty{width:25px!important;height:32px!important}
+  .shelf-trinket::before{left:1px;right:1px;top:4px;bottom:6px;border-radius:10px}
+  .shelf-trinket span{font-size:.88rem!important}
+  .trinket-golden-lemon span,
+  .trinket-surprise-bloom span,
+  .trinket-sanctuary-key span,
+  .trinket-room-visitor span{font-size:.94rem!important}
+  .treasure-card{min-height:92px!important}
+  .treasure-card > span{font-size:1.26rem!important}
+}

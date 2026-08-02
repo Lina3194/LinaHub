@@ -313,3 +313,51 @@
   .treasure-object-mark{transform:scale(.88);transform-origin:50% 100%}
   .treasure-object-small .treasure-object-mark{transform:scale(.8);transform-origin:50% 100%}
 }
+
+/* LinaHub 17.9.27 — iPhone emoji style treasure icons */
+.treasure-emoji{
+  position:relative!important;
+  width:42px!important;
+  height:48px!important;
+  display:grid!important;
+  place-items:center!important;
+  filter:drop-shadow(0 5px 8px rgba(0,0,0,.30));
+}
+.treasure-emoji-mark{
+  display:block;
+  font-size:30px;
+  line-height:1;
+  transform:translateY(1px);
+  text-shadow:0 2px 5px rgba(0,0,0,.16);
+}
+.treasure-emoji-small{
+  width:36px!important;
+  height:40px!important;
+}
+.treasure-emoji-small .treasure-emoji-mark{
+  font-size:26px;
+}
+.treasure-emoji-modal{
+  width:60px!important;
+  height:68px!important;
+}
+.treasure-emoji-modal .treasure-emoji-mark{
+  font-size:48px;
+}
+.treasure-emoji-locked{
+  filter:grayscale(.35) opacity(.72) drop-shadow(0 4px 7px rgba(0,0,0,.32));
+}
+.shelf-jewel:hover .treasure-emoji,
+.shelf-jewel:focus-visible .treasure-emoji{
+  transform:translateY(-3px) scale(1.05);
+}
+.treasure-card:hover .treasure-emoji,
+.treasure-card:focus-visible .treasure-emoji{
+  transform:translateY(-1px) scale(1.03);
+}
+@media(max-width:620px){
+  .treasure-emoji{width:36px!important;height:40px!important}
+  .treasure-emoji-mark{font-size:26px}
+  .treasure-emoji-modal{width:54px!important;height:60px!important}
+  .treasure-emoji-modal .treasure-emoji-mark{font-size:42px}
+}

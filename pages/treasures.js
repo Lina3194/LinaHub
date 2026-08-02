@@ -225,15 +225,33 @@ function treasureMotif(t){
   return "motif-star";
 }
 
+function treasureEmoji(t){
+  const motif=treasureMotif(t);
+  const map={
+    "motif-rose":"🌹",
+    "motif-spider":"🕷️",
+    "motif-notebook":"📓",
+    "motif-leaf":"🌿",
+    "motif-house":"🏠",
+    "motif-key":"🔑",
+    "motif-bottle":"🧴",
+    "motif-heart":"💗",
+    "motif-fish":"🐠",
+    "motif-shell":"🐚",
+    "motif-star":"⭐",
+    "motif-lemon":"🍋"
+  };
+  return map[motif]||"✨";
+}
+
 function treasureJewel(t,options={}){
   const rarity=treasureRarity(t).toLowerCase();
   const categoryClass=`cat-${String(t.category||"hidden").toLowerCase().replace(/[^a-z]+/g,"-")}`;
-  const motif=treasureMotif(t);
-  const classes=["jewel-piece","treasure-object",categoryClass,`rarity-${rarity}`];
-  if(options.small)classes.push("jewel-small","treasure-object-small");
-  if(options.modal)classes.push("jewel-modal-size","treasure-object-modal");
-  if(options.locked)classes.push("jewel-locked","treasure-object-locked");
-  return `<span class="${classes.join(" ")}" aria-hidden="true"><span class="treasure-object-stem"></span><span class="treasure-object-mark ${motif}"><i></i><i></i><i></i></span></span>`;
+  const classes=["jewel-piece","treasure-emoji",categoryClass,`rarity-${rarity}`];
+  if(options.small)classes.push("jewel-small","treasure-emoji-small");
+  if(options.modal)classes.push("jewel-modal-size","treasure-emoji-modal");
+  if(options.locked)classes.push("jewel-locked","treasure-emoji-locked");
+  return `<span class="${classes.join(" ")}" aria-hidden="true"><span class="treasure-emoji-mark">${treasureEmoji(t)}</span></span>`;
 }
 function treasureShelfJewel(t){
   return `<button type="button" class="shelf-jewel" data-treasure="${t.id}" title="${t.name}" aria-label="Open ${t.name}">${treasureJewel(t)}<span class="shelf-jewel-name">${t.name}</span></button>`;

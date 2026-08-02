@@ -14,3 +14,110 @@
   .treasure-book{width:100%!important;max-width:390px!important;margin-left:auto!important;margin-right:auto!important;padding-left:14px!important;padding-right:14px!important;}
   .treasure-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;max-width:330px!important;gap:12px!important;margin-left:auto!important;margin-right:auto!important;}
 }
+
+/* LinaHub 17.9.30 — refined, less cartoon-like Treasure Room */
+.treasure-library{
+  background:
+    radial-gradient(circle at 50% 10%,rgba(190,167,230,.16),transparent 30%),
+    linear-gradient(180deg,#161126,#20152f 60%,#100b19)!important;
+  border-color:rgba(235,216,180,.14)!important;
+  box-shadow:0 24px 60px rgba(7,3,17,.38)!important;
+}
+.library-moon{
+  background:radial-gradient(circle at 38% 34%,#fff7df,#ead7aa 72%,#c7ae7c)!important;
+  box-shadow:0 0 42px rgba(255,235,185,.28)!important;
+  opacity:.92;
+}
+.grand-bookcase{
+  border-color:#302019!important;
+  background:linear-gradient(90deg,#291916,#5b3b2d 8%,#3c251f 50%,#5c3b2d 92%,#281815)!important;
+  box-shadow:inset 0 0 0 2px #805b43,inset 0 0 26px rgba(0,0,0,.5),0 24px 38px rgba(0,0,0,.38)!important;
+}
+.bookcase-crown{
+  background:linear-gradient(#684936,#412920)!important;
+  border-color:#302019!important;
+  box-shadow:inset 0 0 0 1px #8d674e!important;
+  color:#e7cfab!important;
+}
+.archive-shelf{
+  background:linear-gradient(180deg,#271b20,#382620 70%,#160f11)!important;
+  border-top-color:#231713!important;
+  border-bottom-color:#1d120f!important;
+  box-shadow:inset 0 9px 15px rgba(0,0,0,.3)!important;
+}
+.archive-shelf:hover{
+  background:linear-gradient(180deg,#2e2028,#3d2a22 70%,#160f11)!important;
+}
+.shelf-trinket,.shelf-empty{
+  filter:drop-shadow(0 5px 4px rgba(0,0,0,.42))!important;
+}
+.shelf-trinket span{
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+  font-size:1.72rem!important;
+  text-shadow:none!important;
+  filter:saturate(.9) contrast(.96)!important;
+}
+.shelf-trinket:hover{
+  transform:translateY(-2px) scale(1.025)!important;
+  filter:drop-shadow(0 7px 5px rgba(0,0,0,.5))!important;
+}
+.trinket-golden-lemon span,.trinket-surprise-bloom span,.trinket-sanctuary-key span,.trinket-room-visitor span{
+  font-size:1.82rem!important;
+}
+.trinket-sanctuary-key span{transform:rotate(-8deg)!important}
+.shelf-trinket:after{
+  left:9px!important;
+  right:9px!important;
+  height:4px!important;
+  opacity:.72;
+}
+.shelf-empty{opacity:.18!important}
+.shelf-empty span{
+  border-style:solid!important;
+  border-color:rgba(231,207,166,.14)!important;
+  color:rgba(231,207,166,.24)!important;
+}
+.treasure-book{
+  background:rgba(26,19,37,.82)!important;
+  border-color:rgba(224,207,235,.11)!important;
+}
+.treasure-grid{gap:9px!important}
+.treasure-card{
+  min-height:102px!important;
+  border-radius:15px!important;
+  border-color:rgba(224,207,235,.11)!important;
+  background:rgba(255,255,255,.035)!important;
+  box-shadow:none!important;
+}
+.treasure-card:hover,.treasure-card:focus-visible{
+  background:rgba(255,255,255,.055)!important;
+  transform:translateY(-1px)!important;
+}
+.treasure-card>span{
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+  font-size:1.55rem!important;
+  filter:saturate(.9) contrast(.96)!important;
+}
+.treasure-card strong{font-size:.75rem!important;font-weight:700!important}
+.treasure-card small{font-size:.59rem!important;opacity:.82}
+.gift-parcel{
+  border-radius:15px!important;
+  background:linear-gradient(145deg,rgba(123,84,162,.16),rgba(204,161,103,.09))!important;
+}
+.gift-parcel span{animation:none!important;font-size:1.65rem!important}
+.treasure-modal{
+  border-radius:24px!important;
+  background:radial-gradient(circle at 50% 14%,rgba(228,197,138,.13),transparent 35%),linear-gradient(150deg,#282039,#15121f)!important;
+  box-shadow:0 26px 65px rgba(0,0,0,.48)!important;
+}
+.modal-treasure-icon{
+  font-family:"Apple Color Emoji","Segoe UI Emoji","Noto Color Emoji",sans-serif!important;
+  font-size:3.9rem!important;
+  filter:saturate(.9) contrast(.96)!important;
+}
+@media(max-width:620px){
+  .shelf-trinket span{font-size:.92rem!important}
+  .trinket-golden-lemon span,.trinket-surprise-bloom span,.trinket-sanctuary-key span,.trinket-room-visitor span{font-size:1rem!important}
+  .treasure-card{min-height:94px!important}
+  .treasure-card>span{font-size:1.4rem!important}
+}

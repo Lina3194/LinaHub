@@ -241,44 +241,36 @@ body.dark .encyclopedia-card,body.dark .plant-main-tabs button{background:#10121
 .plant-calendar-head,.aquarium-calendar-head{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;gap:10px;margin:12px 0;text-align:center}.plant-calendar-head strong,.aquarium-calendar-head strong{font-size:1rem}.plant-cal-day{position:relative;min-height:40px}.plant-cal-day button{color:inherit}.plant-cal-day.watered{background:#35aee2!important;color:#07131c!important}.plant-cal-day.fed{box-shadow:inset 0 -4px 0 #e6bf55}.plant-cal-day.repotted{box-shadow:inset 0 4px 0 #b57ad9}.plant-cal-day.watered.fed{background:linear-gradient(135deg,#35aee2 0 68%,#e6bf55 68%)!important}.plant-cal-day i{position:absolute;width:6px;height:6px;border-radius:50%}.plant-cal-day .feed-mark{right:4px;bottom:4px;background:#e6bf55}.plant-cal-day .repot-mark{left:4px;top:4px;background:#b57ad9}.plant-calendar-legend{display:flex;flex-wrap:wrap;gap:12px;margin-top:12px;color:var(--muted);font-size:.75rem}.plant-calendar-legend span{display:flex;align-items:center;gap:5px}.plant-calendar-legend i{width:10px;height:10px;border-radius:3px}.plant-calendar-legend .water{background:#35aee2}.plant-calendar-legend .feed{background:#e6bf55}.plant-calendar-legend .repot{background:#b57ad9}.plant-action-grid{display:grid;grid-template-columns:minmax(180px,1fr) repeat(3,minmax(110px,.7fr));gap:10px;align-items:end}.plant-action-grid label span{display:block;margin:0 0 5px;color:var(--muted);font-size:.75rem}.plant-reminder-toggle{display:flex;align-items:center;gap:9px;margin-top:14px;color:var(--muted)}.plant-overdue{color:#ff7d91!important}.plant-photo-timeline{display:grid;gap:10px}.plant-photo-timeline article{display:grid;grid-template-columns:74px 1fr 34px;gap:10px;align-items:center;padding:9px;border:1px solid var(--line);border-radius:16px}.plant-photo-timeline img,.plant-photo-timeline article>span{width:74px;height:74px;display:grid;place-items:center;object-fit:cover;border-radius:12px;background:var(--soft)}.plant-photo-timeline strong,.plant-photo-timeline small{display:block}.plant-photo-timeline small{margin-top:3px;color:var(--muted)}
 @media(max-width:650px){.plant-action-grid{grid-template-columns:1fr 1fr}.plant-action-grid label{grid-column:1/3}.plant-cal-day{min-height:36px;padding:4px}.plant-photo-timeline article{grid-template-columns:62px 1fr 30px}.plant-photo-timeline img,.plant-photo-timeline article>span{width:62px;height:62px}}
 
-/* LinaHub 17.9.37 — plant page mobile layout cleanup */
+/* LinaHub 17.9.38 — phone date field overflow fix only */
 @media (max-width: 560px) {
-  .plant-title-panel {
-    padding: 18px 14px 8px !important;
+  .plant-care-actions,
+  .plant-action-grid,
+  .plant-action-grid label {
+    min-width: 0;
+    max-width: 100%;
+    box-sizing: border-box;
   }
-  .plant-title-panel h1 {
-    font-size: 1.7rem !important;
-    line-height: 1.08;
+
+  .plant-action-grid label {
+    overflow: hidden;
   }
-  .plant-action-grid {
-    grid-template-columns: 1fr !important;
-    gap: 8px !important;
-  }
-  .plant-action-grid label,
-  .plant-action-grid button {
-    grid-column: auto !important;
-    width: 100%;
-  }
-  .plant-action-grid .field,
-  .plant-action-grid input,
-  .plant-action-grid select {
-    width: 100%;
-  }
-  .plant-reminder-toggle {
-    align-items: flex-start !important;
-    gap: 10px !important;
-  }
-  .plant-reminder-toggle span {
+
+  .plant-action-grid input[type="date"],
+  #plantCareDate,
+  #plantWaterDate {
     display: block;
-    line-height: 1.24;
+    width: 100% !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+    overflow: hidden;
+    font-size: 1rem;
   }
-  .plant-photo-timeline article {
-    grid-template-columns: 54px 1fr 28px !important;
-    gap: 8px !important;
-  }
-  .plant-photo-timeline img,
-  .plant-photo-timeline article > span {
-    width: 54px !important;
-    height: 54px !important;
+
+  .plant-action-grid input[type="date"]::-webkit-date-and-time-value,
+  #plantCareDate::-webkit-date-and-time-value,
+  #plantWaterDate::-webkit-date-and-time-value {
+    text-align: left;
+    min-width: 0;
   }
 }

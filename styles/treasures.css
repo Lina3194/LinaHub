@@ -297,3 +297,38 @@
   .treasure-card{min-height:92px!important}
   .treasure-card > span{font-size:1.26rem!important}
 }
+
+/* LinaHub 17.9.32 — remove emoji back bubbles and centre icons */
+.shelf-display{
+  align-items:center!important;
+}
+.shelf-trinket,
+.shelf-empty{
+  place-items:center!important;
+}
+.shelf-trinket::before{
+  display:none!important;
+  content:none!important;
+}
+.shelf-trinket:after{
+  left:12px!important;
+  right:12px!important;
+  bottom:2px!important;
+  height:3px!important;
+  opacity:.34!important;
+}
+.shelf-trinket span{
+  display:block!important;
+  margin:0 auto!important;
+  text-align:center!important;
+}
+.treasure-card > span,
+.modal-treasure-icon{
+  text-align:center!important;
+}
+@media(max-width:620px){
+  .shelf-display{align-items:center!important}
+  .shelf-trinket,
+  .shelf-empty{place-items:center!important}
+  .shelf-trinket:after{bottom:1px!important;left:7px!important;right:7px!important;height:2px!important;opacity:.28!important}
+}

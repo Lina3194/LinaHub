@@ -123,7 +123,7 @@ const TREASURE_DEFINITIONS=[
   {id:"all-shelves",icon:"👑",name:"The Curator",category:"Hidden",story:"For placing a treasure on every shelf.",hidden:true,rule:()=>["Garden","Journal","Home","Wellness","Aquariums"].every(c=>TREASURE_DEFINITIONS.some(t=>t.category===c&&data.treasures?.[t.id]?.collected))}
 ];
 
-const TREASURE_SHELVES=["Garden","Journal","Home","Wellness","Aquariums"];
+const TREASURE_SHELVES=["Garden","Journal","Home","Wellness","Aquariums","Hidden"];
 function ensureTreasureData(){
   if(!data.treasures||typeof data.treasures!=="object")data.treasures={};
   if(!Array.isArray(data.favoriteTreasures))data.favoriteTreasures=[];
@@ -233,9 +233,14 @@ function treasureTrinket(t,mode="collected"){
   return `<i class="shelf-trinket trinket-${t.id}${cls}" ${attr} title="${prefix}: ${labels[t.id]||t.name}" aria-label="${prefix}: ${labels[t.id]||t.name}"><span>${t.icon}</span></i>`;
 }
 function treasureShelfMarkup(category){
-  const treasures=TREASURE_DEFINITIONS.filter(t=>t.category===category);
-  const collectedCount=treasures.filter(t=>treasureState(t.id)?.collected).length;
-  return `<button class="archive-shelf" data-shelf="${category}" aria-label="${category} shelf"><span class="shelf-label">${category}<small>${collectedCount}/${treasures.length}</small></span><span class="shelf-display">${treasures.map(t=>{const s=treasureState(t.id);return treasureTrinket(t,s?.collected?"collected":s?"waiting":"hidden")}).join("")}</span></button>`;
+  const allTreasures=TREASURE_DEFINITIONS.filter(t=>t.category===category);
+  const treasures=category==="Hidden"?allTreasures.filter(t=>Boolean(treasureState(t.id))):allTreasures;
+  const collectedCount=allTreasures.filter(t=>treasureState(t.id)?.collected).length;
+  const totalCount=category==="Hidden"?treasures.length:allTreasures.length;
+  const shelfContent=treasures.length
+    ? treasures.map(t=>{const s=treasureState(t.id);return treasureTrinket(t,s?.collected?"collected":s?"waiting":"hidden")}).join("")
+    : `<span class="hidden-shelf-empty">No hidden treasures unlocked yet.</span>`;
+  return `<button class="archive-shelf ${category==="Hidden"?"archive-shelf-hidden-only":""}" data-shelf="${category}" aria-label="${category} shelf"><span class="shelf-label">${category}<small>${collectedCount}/${totalCount}</small></span><span class="shelf-display ${category==="Hidden"?"hidden-shelf-display":""}">${shelfContent}</span></button>`;
 }
 
 function TreasureRoomPage(){

@@ -394,3 +394,24 @@
   .shelf-label small{font-size:.5rem}
   .shelf-display{row-gap:4px!important}
 }
+
+/* LinaHub 17.9.35 — hidden shelf shows unlocked only */
+.hidden-shelf-display{
+  display:flex!important;
+  flex-wrap:wrap;
+  justify-content:flex-start;
+  gap:6px!important;
+}
+.hidden-shelf-empty{
+  display:block;
+  width:100%;
+  padding:6px 2px 2px;
+  color:rgba(235,219,190,.62);
+  font-size:.66rem;
+  letter-spacing:.04em;
+  text-transform:none;
+}
+.archive-shelf-hidden-only .shelf-label small{min-width:32px;text-align:right}
+@media(max-width:620px){
+  .hidden-shelf-empty{font-size:.54rem;padding-top:4px}
+}

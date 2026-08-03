@@ -148,12 +148,15 @@ function homeTile(item,editing){
   const title=data.homeTileNames?.[item.id]||defaultTitle;
   // Keep the user's chosen main tile artwork. Only the tiny decorative corner
   // marks are removed separately; the actual tile image itself must stay intact.
-  const useCustomArtwork=!!data.homeImages?.[item.id];
-  const art=useCustomArtwork
-    ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
-    : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1781" alt="Poké Ball"></span>`
-      : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
+  const treasureBanner=(data.moduleBanners?.treasures||window.LinaImage?.peek?.(`banner:treasures`)||"assets/default-treasure-banner.svg");
+  const useCustomArtwork=!!data.homeImages?.[item.id] && item.id!=="treasures";
+  const art=item.id==="treasures"
+    ? `<span class="module-image module-banner-thumb"><img src="${treasureBanner}" alt=""></span>`
+    : useCustomArtwork
+      ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
+      : item.id==="pokemon" && !(data.homeIcons?.[item.id])
+        ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1781" alt="Poké Ball"></span>`
+        : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const route=item.id==="measurements"?"health":item.id;
   const extra=item.id==="measurements"?' data-route-id="log"':"";
   const content=`${art}<strong>${esc(title)}</strong><small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span>`;

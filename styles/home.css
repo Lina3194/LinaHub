@@ -778,3 +778,35 @@ body[data-route="home"] .home-tile-wrap .module::before {
     border-radius:18px!important;
   }
 }
+
+/* LinaHub 17.9.51 — use the Treasure banner asset in the wide tile */
+.home-tile-wrap:not(.is-editing) .module-treasures{
+  background:#21122f!important;
+}
+.home-tile-wrap:not(.is-editing) .module-treasures .module-image.module-banner-thumb{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  display:block!important;
+  border-radius:inherit!important;
+  overflow:hidden!important;
+}
+.home-tile-wrap:not(.is-editing) .module-treasures .module-image.module-banner-thumb img{
+  position:absolute!important;
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  border-radius:inherit!important;
+  display:block!important;
+}
+.home-tile-wrap:not(.is-editing) .module-treasures::before{
+  background:linear-gradient(180deg,rgba(14,8,26,.12) 0%, rgba(14,8,26,.08) 46%, rgba(11,6,20,.62) 100%)!important;
+}
+@media(max-width:560px){
+  .home-tile-wrap:not(.is-editing) .module-treasures{min-height:100px!important}
+}

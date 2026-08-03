@@ -19,7 +19,7 @@ const CLOUD_MODULES={
   budget:["bills","budgetEntries","savingsEntries"],
   health:["weightEntries","measurements","healthPromptLog","sleepEntries","healthSleepEntries"],
   todo:["personalTasks"],
-  settings:["theme","colorTheme","homeIcons","homeImages","homeLayout","treasures","favoriteTreasures","moduleBanners","v9CollapseDefaultsApplied"],
+  settings:["theme","colorTheme","homeIcons","homeImages","homeLayout","treasures","favoriteTreasures","moduleBanners","removedMedia","v9CollapseDefaultsApplied"],
   misc:["version"]
 };
 
@@ -70,6 +70,7 @@ function cloudSafeModulePayload(name){
 }
 
 function putCloudImageIntoData(storageKey,value){
+  if(data.removedMedia?.[storageKey]) return;
   if(storageKey.startsWith("tab:")){
     data.homeImages=data.homeImages||{};
     data.homeImages[storageKey.slice(4)]=value;

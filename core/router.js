@@ -17,7 +17,7 @@ function nav(active){
 
 function moduleBanner(active){
   const key=typeof linaBannerKey==="function"?linaBannerKey(active):({plant:"plants",tank:"pets"})[active]||active;
-  const image=data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||"";
+  const image=data.removedMedia?.[`banner:${key}`]?"":(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||"");
   if(!image||active==="home"||active==="settings") return "";
   const names={
     journal:"Daily Check-in",today:"Today",todo:"To-do",shopping:"Shopping",health:"Measurements",hobbies:"Hobbies",books:"Books",gaming:"Gaming",

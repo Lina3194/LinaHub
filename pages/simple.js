@@ -76,7 +76,7 @@ function SettingsPage(){
           ["Shopping",[["shoppingFridge","Fridge","❄️"],["shoppingFreezer","Freezer","🧊"],["shoppingPantry","Pantry","🥫"],["shoppingCleaning","Cleaning Supplies","🧽"],["shoppingToiletries","Toiletries","🧴"]]],
           ["House & Aquariums",[["rooms","Rooms","🏠"],["inventory","Inventory","📦"],["girlsTank","Girls Tank","🩷"],["boysTank","Boys Tank","💙"],["aquariumMaintenance","Maintenance","🫧"]]],
           ["Budget",[["bills","Bills","🧾"],["savings","Savings","💰"],["income","Income","💷"],["expenses","Expenses","💸"]]]
-        ].map(([group,items])=>`<section class="icon-setting-group"><h3>${group}</h3><div class="tab-art-grid">${items.map(([key,label,fallback])=>`<article class="tab-art-setting"><div class="tab-art-preview">${data.homeImages?.[key]?`<img src="${data.homeImages[key]}" alt="">`:`<span>${esc(moduleIcon(key,fallback))}</span>`}</div><div class="tab-art-copy"><strong>${label}</strong></div><div class="tab-art-actions"><button type="button" class="secondary compact-upload" data-pick-tab-image="${key}">${data.homeImages?.[key]?"Change":"Add image"}</button><input type="file" accept="image/*" data-tab-image="${key}" hidden>${data.homeImages?.[key]?`<button type="button" class="mini danger" data-remove-tab-image="${key}">Remove</button>`:""}</div></article>`).join("")}</div></section>`).join("")}
+        ].map(([group,items])=>`<section class="icon-setting-group"><h3>${group}</h3><div class="tab-art-grid">${items.map(([key,label,fallback])=>`<article class="tab-art-setting"><div class="tab-art-preview">${(!data.removedMedia?.[`tab:${key}`]&&data.homeImages?.[key])?`<img src="${data.homeImages[key]}" alt="">`:`<span>${esc(moduleIcon(key,fallback))}</span>`}</div><div class="tab-art-copy"><strong>${label}</strong></div><div class="tab-art-actions"><button type="button" class="secondary compact-upload" data-pick-tab-image="${key}">${(!data.removedMedia?.[`tab:${key}`]&&data.homeImages?.[key])?"Change":"Add image"}</button><input type="file" accept="image/*" data-tab-image="${key}" hidden>${(!data.removedMedia?.[`tab:${key}`]&&data.homeImages?.[key])?`<button type="button" class="mini danger" data-remove-tab-image="${key}">Remove</button>`:""}</div></article>`).join("")}</div></section>`).join("")}
       </div>
       </div>
     </section>
@@ -91,12 +91,12 @@ function SettingsPage(){
           ["pokemon","Pokémon GO"],["treasures","Treasure Room"]
         ].map(([key,label])=>`
           <article class="banner-art-setting">
-            <div class="banner-art-preview">${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||((key==="treasures")?"assets/default-treasure-banner.svg":""))?`<img src="${data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||((key==="treasures")?"assets/default-treasure-banner.svg":"")}" alt="">`:`<span>${esc(data.homeIcons?.[key]||data.moduleIcons?.[key]||"✨")}</span>`}</div>
+            <div class="banner-art-preview">${(!data.removedMedia?.[`banner:${key}`]&&(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||((key==="treasures")?"assets/default-treasure-banner.svg":"")))?`<img src="${data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||((key==="treasures")?"assets/default-treasure-banner.svg":"")}" alt="">`:`<span>${esc(data.homeIcons?.[key]||data.moduleIcons?.[key]||"✨")}</span>`}</div>
             <strong>${label}</strong>
             <div class="banner-art-actions">
-              <button type="button" class="secondary compact-upload" data-pick-banner-image="${key}">${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`))?"Change":"Add"}</button>
+              <button type="button" class="secondary compact-upload" data-pick-banner-image="${key}">${(!data.removedMedia?.[`banner:${key}`]&&(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)))?"Change":"Add"}</button>
               <input type="file" accept="image/*" data-banner-image="${key}" hidden>
-              ${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`))?`<button class="mini danger" data-remove-banner-image="${key}" aria-label="Remove ${label} banner">×</button>`:""}
+              ${(!data.removedMedia?.[`banner:${key}`]&&(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)))?`<button class="mini danger" data-remove-banner-image="${key}" aria-label="Remove ${label} banner">×</button>`:""}
             </div>
           </article>`).join("")}
       </div>
@@ -109,7 +109,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.58")}<br><br>1 Aug 2026</p>`,"settings");
+  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.61")}<br><br>1 Aug 2026</p>`,"settings");
 }
 
 function bindSimple(){
@@ -222,8 +222,18 @@ function bindSimple(){
       const isBanner=type==="banner";
       const key=isBanner?button.dataset.removeBannerImage:button.dataset.removeTabImage;
       try{
-        await LinaImage.remove(`${isBanner?"banner":"tab"}:${key}`);
+        const storageKey=`${isBanner?"banner":"tab"}:${key}`;
+        data.removedMedia=data.removedMedia||{};
+        data.removedMedia[storageKey]=Date.now();
+        await LinaImage.remove(storageKey).catch(()=>{});
         if(isBanner) delete data.moduleBanners?.[key]; else delete data.homeImages?.[key];
+        if(key==="treasures"){
+          const twinKey=isBanner?"tab:treasures":"banner:treasures";
+          data.removedMedia[twinKey]=Date.now();
+          await LinaImage.remove(twinKey).catch(()=>{});
+          delete data.moduleBanners?.treasures;
+          delete data.homeImages?.treasures;
+        }
         if(!isBanner&&(key==="girlsTank"||key==="boysTank")){
           const tank=(data.aquariums||[]).find(item=>item.id===(key==="girlsTank"?"girls-tank":"boys-tank"));
           if(tank) tank.photo="";
@@ -275,6 +285,9 @@ function bindSimple(){
           const value=await LinaImage.upload({file,key:storageKey,width:isBanner?1200:420,height:isBanner?240:420,fit:"cover",quality:isBanner?0.76:0.82});
           const verified=await LinaImage.load(storageKey);
           if(!verified) throw new Error("Saved image could not be restored");
+          data.removedMedia=data.removedMedia||{};
+          delete data.removedMedia[storageKey];
+          if(key==="treasures") delete data.removedMedia[isBanner?"tab:treasures":"banner:treasures"];
           if(isBanner){data.moduleBanners=data.moduleBanners||{};data.moduleBanners[key]=value;}
           else{
             data.homeImages=data.homeImages||{};data.homeImages[key]=value;

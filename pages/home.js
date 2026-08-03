@@ -160,7 +160,7 @@ function homeTile(item,editing){
   const title=data.homeTileNames?.[item.id]||defaultTitle;
   // Keep the user's chosen main tile artwork. Only the tiny decorative corner
   // marks are removed separately; the actual tile image itself must stay intact.
-  const treasureBanner=data.moduleBanners?.treasures||window.LinaImage?.peek?.(`banner:treasures`)||data.homeImages?.treasures||"";
+  const treasureBanner=data.removedMedia?.["banner:treasures"]?"":(data.moduleBanners?.treasures||window.LinaImage?.peek?.(`banner:treasures`)||data.homeImages?.treasures||"");
   const useCustomArtwork=item.id==="treasures"?!!treasureBanner:!!data.homeImages?.[item.id];
   const art=item.id==="treasures"&&treasureBanner
     ? `<span class="module-image treasure-home-banner"><img src="${treasureBanner}" alt=""></span>`
@@ -296,9 +296,14 @@ function bindTileEditor(id){
     const file=e.target.files?.[0]; if(!file) return;
     try{
       if(id==="treasures"){
+        data.removedMedia=data.removedMedia||{};
+        delete data.removedMedia["banner:treasures"];
+        delete data.removedMedia["tab:treasures"];
         data.moduleBanners=data.moduleBanners||{};
         data.moduleBanners.treasures=await LinaImage.upload({file,key:"banner:treasures",width:1200,height:240,fit:"cover",quality:0.82,allowUpscale:false});
       }else{
+        data.removedMedia=data.removedMedia||{};
+        delete data.removedMedia[`tab:${id}`];
         data.homeImages=data.homeImages||{};
         data.homeImages[id]=await LinaImage.upload({file,key:`tab:${id}`,width:1200,height:1200,fit:"contain",quality:0.82,allowUpscale:false});
       }
@@ -306,10 +311,15 @@ function bindTileEditor(id){
     }catch(error){toast(LinaImage.friendlyError(error))}
   });
   host.querySelector("#tileRemoveImage")?.addEventListener("click",async()=>{
+    data.removedMedia=data.removedMedia||{};
     if(id==="treasures"){
-      await LinaImage.remove("banner:treasures").catch(()=>{});
+      data.removedMedia["banner:treasures"]=Date.now();
+      data.removedMedia["tab:treasures"]=Date.now();
+      await Promise.all([LinaImage.remove("banner:treasures").catch(()=>{}),LinaImage.remove("tab:treasures").catch(()=>{})]);
       delete data.moduleBanners?.treasures;
+      delete data.homeImages?.treasures;
     }else{
+      data.removedMedia[`tab:${id}`]=Date.now();
       await LinaImage.remove(`tab:${id}`).catch(()=>{});
       delete data.homeImages[id];
     }

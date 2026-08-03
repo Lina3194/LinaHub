@@ -63,11 +63,12 @@ function linaBannerKey(routeName){
 }
 
 async function linaDefaultBanner(key){
+  if(data.removedMedia?.[`banner:${key}`]) return "";
   return ({treasures:"assets/default-treasure-banner.svg"})[key]||"";
 }
 
 async function linaResolveBanner(key){
-  if(!key)return "";
+  if(!key||data.removedMedia?.[`banner:${key}`])return "";
   const inMemory=data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||"";
   if(inMemory)return inMemory;
   if(window.LinaImage){

@@ -91,7 +91,7 @@ function SettingsPage(){
           ["pokemon","Pokémon GO"],["treasures","Treasure Room"]
         ].map(([key,label])=>`
           <article class="banner-art-setting">
-            <div class="banner-art-preview">${(!data.removedMedia?.[`banner:${key}`]&&(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||((key==="treasures")?"assets/default-treasure-banner.svg":"")))?`<img src="${data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||((key==="treasures")?"assets/default-treasure-banner.svg":"")}" alt="">`:`<span>${esc(data.homeIcons?.[key]||data.moduleIcons?.[key]||"✨")}</span>`}</div>
+            <div class="banner-art-preview">${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||((key==="treasures")?"assets/default-treasure-banner.svg":""))?`<img src="${data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||((key==="treasures")?"assets/default-treasure-banner.svg":"")}" alt="">`:`<span>${esc(data.homeIcons?.[key]||data.moduleIcons?.[key]||"✨")}</span>`}</div>
             <strong>${label}</strong>
             <div class="banner-art-actions">
               <button type="button" class="secondary compact-upload" data-pick-banner-image="${key}">${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`))?"Change":"Add"}</button>
@@ -109,7 +109,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.60")}<br><br>1 Aug 2026</p>`,"settings");
+  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.57")}<br><br>1 Aug 2026</p>`,"settings");
 }
 
 function bindSimple(){
@@ -223,25 +223,7 @@ function bindSimple(){
       const key=isBanner?button.dataset.removeBannerImage:button.dataset.removeTabImage;
       try{
         await LinaImage.remove(`${isBanner?"banner":"tab"}:${key}`);
-        if(isBanner){
-          delete data.moduleBanners?.[key];
-          data.removedMedia=data.removedMedia||{};
-          data.removedMedia[`banner:${key}`]=Date.now();
-          if(key==="treasures"){
-            await LinaImage.remove("tab:treasures").catch(()=>{});
-            delete data.homeImages?.treasures;
-            data.removedMedia["tab:treasures"]=Date.now();
-          }
-        }else{
-          delete data.homeImages?.[key];
-          data.removedMedia=data.removedMedia||{};
-          data.removedMedia[`tab:${key}`]=Date.now();
-          if(key==="treasures"){
-            await LinaImage.remove("banner:treasures").catch(()=>{});
-            delete data.moduleBanners?.treasures;
-            data.removedMedia["banner:treasures"]=Date.now();
-          }
-        }
+        if(isBanner) delete data.moduleBanners?.[key]; else delete data.homeImages?.[key];
         if(!isBanner&&(key==="girlsTank"||key==="boysTank")){
           const tank=(data.aquariums||[]).find(item=>item.id===(key==="girlsTank"?"girls-tank":"boys-tank"));
           if(tank) tank.photo="";
@@ -293,16 +275,8 @@ function bindSimple(){
           const value=await LinaImage.upload({file,key:storageKey,width:isBanner?1200:420,height:isBanner?240:420,fit:"cover",quality:isBanner?0.76:0.82});
           const verified=await LinaImage.load(storageKey);
           if(!verified) throw new Error("Saved image could not be restored");
-          if(isBanner){
-            data.removedMedia=data.removedMedia||{};
-            delete data.removedMedia[`banner:${key}`];
-            if(key==="treasures") delete data.removedMedia["tab:treasures"];
-            data.moduleBanners=data.moduleBanners||{};data.moduleBanners[key]=value;
-          }
+          if(isBanner){data.moduleBanners=data.moduleBanners||{};data.moduleBanners[key]=value;}
           else{
-            data.removedMedia=data.removedMedia||{};
-            delete data.removedMedia[`tab:${key}`];
-            if(key==="treasures") delete data.removedMedia["banner:treasures"];
             data.homeImages=data.homeImages||{};data.homeImages[key]=value;
             if(key==="girlsTank"||key==="boysTank"){
               const tank=(data.aquariums||[]).find(item=>item.id===(key==="girlsTank"?"girls-tank":"boys-tank"));

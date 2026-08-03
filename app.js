@@ -68,7 +68,6 @@ async function linaDefaultBanner(key){
 
 async function linaResolveBanner(key){
   if(!key)return "";
-  if(data.removedMedia?.[`banner:${key}`]) return "";
   const inMemory=data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||"";
   if(inMemory)return inMemory;
   if(window.LinaImage){
@@ -81,7 +80,7 @@ async function linaResolveBanner(key){
       }
     }catch(error){console.error("Could not restore banner",key,error)}
   }
-  return data.removedMedia?.[`banner:${key}`]?"":linaDefaultBanner(key);
+  return linaDefaultBanner(key);
 }
 
 function lina17StandardBanner(routeName){
@@ -538,7 +537,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1837",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1835",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

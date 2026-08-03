@@ -284,9 +284,9 @@ function linaDailyCheckinMarkup(dateValue){
       <div class="daily-fields-grid">
         <label class="daily-time-field">Sleep<div class="daily-time-pair"><span><input class="field" id="dailySleepHours" type="number" inputmode="numeric" min="0" max="24" step="1" value="${sleepParts.hours||''}" placeholder="0"><small>h</small></span><span><input class="field" id="dailySleepMinutes" type="number" inputmode="numeric" min="0" max="59" step="1" value="${sleepParts.minutes||''}" placeholder="0"><small>m</small></span></div></label>
         <label class="daily-time-field">Deep sleep<div class="daily-time-pair"><span><input class="field" id="dailyDeepSleepHours" type="number" inputmode="numeric" min="0" max="24" step="1" value="${deepParts.hours||''}" placeholder="0"><small>h</small></span><span><input class="field" id="dailyDeepSleepMinutes" type="number" inputmode="numeric" min="0" max="59" step="1" value="${deepParts.minutes||''}" placeholder="0"><small>m</small></span></div></label>
-        <label>Weight <span>kg</span><input class="field" id="dailyWeight" type="number" step="0.1" value="${esc(saved.weight||'')}" placeholder="Optional"></label>
-        <label>Waist <span>cm</span><input class="field" id="dailyWaist" type="number" step="0.1" value="${esc(saved.waist||'')}" placeholder="Optional"></label>
-        <label>Tummy <span>cm</span><input class="field" id="dailyTummy" type="number" step="0.1" value="${esc(saved.tummy||'')}" placeholder="Optional"></label>
+        <label>Weight <span>kg</span><input class="field" id="dailyWeight" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.1" value="${esc(saved.weight||'')}" placeholder="Optional"></label>
+        <label>Waist <span>cm</span><input class="field" id="dailyWaist" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.1" value="${esc(saved.waist||'')}" placeholder="Optional"></label>
+        <label>Tummy <span>cm</span><input class="field" id="dailyTummy" type="number" inputmode="decimal" pattern="[0-9]*[.,]?[0-9]*" step="0.1" value="${esc(saved.tummy||'')}" placeholder="Optional"></label>
       </div>
       ${feelings("sleep","How was your sleep?",HEALTH_FEELINGS.sleep,saved.sleepQuality)}
       ${feelings("energy","Energy",HEALTH_FEELINGS.energy,saved.energy)}

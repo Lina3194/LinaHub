@@ -68,6 +68,7 @@ async function linaDefaultBanner(key){
 
 async function linaResolveBanner(key){
   if(!key)return "";
+  if(data.removedMedia?.[`banner:${key}`]) return "";
   const inMemory=data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||"";
   if(inMemory)return inMemory;
   if(window.LinaImage){
@@ -80,7 +81,7 @@ async function linaResolveBanner(key){
       }
     }catch(error){console.error("Could not restore banner",key,error)}
   }
-  return linaDefaultBanner(key);
+  return data.removedMedia?.[`banner:${key}`]?"":linaDefaultBanner(key);
 }
 
 function lina17StandardBanner(routeName){

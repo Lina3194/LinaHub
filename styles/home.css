@@ -1328,3 +1328,88 @@ body[data-route="home"] .home-tile-wrap .module::before {
 @media(max-width:700px){
   .home-tile-wrap:not(.is-editing) .module.module-treasures{aspect-ratio:5 / 1!important;border-radius:18px!important}
 }
+
+
+/* LinaHub 17.9.62 — preserve and show the complete Treasure banner */
+body[data-route="home"] .home-tile-wrap[data-home-id="treasures"]{
+  grid-column:1 / -1!important;
+}
+body[data-route="home"] .home-tile-wrap[data-home-id="treasures"] .module.module-treasures{
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  aspect-ratio:5 / 1!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border-radius:22px!important;
+  background:#0d0918!important;
+}
+body[data-route="home"] .home-tile-wrap[data-home-id="treasures"] .module.module-treasures::before,
+body[data-route="home"] .home-tile-wrap[data-home-id="treasures"] .module.module-treasures::after{
+  content:none!important;
+  display:none!important;
+}
+body[data-route="home"] .home-tile-wrap[data-home-id="treasures"] .module.module-treasures .module-image,
+body[data-route="home"] .home-tile-wrap[data-home-id="treasures"] .module.module-treasures .module-image.treasure-home-banner{
+  position:absolute!important;
+  inset:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  min-height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  padding:0!important;
+  border:0!important;
+  border-radius:inherit!important;
+  overflow:hidden!important;
+  background:#0d0918!important;
+  box-shadow:none!important;
+  z-index:1!important;
+}
+body[data-route="home"] .home-tile-wrap[data-home-id="treasures"] .module.module-treasures .module-image img,
+body[data-route="home"] .home-tile-wrap[data-home-id="treasures"] .module.module-treasures .module-image.treasure-home-banner img{
+  position:static!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:0!important;
+  min-height:0!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  margin:0 auto!important;
+  padding:0!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  transform:none!important;
+  border-radius:0!important;
+  background:#0d0918!important;
+  image-rendering:auto!important;
+}
+body[data-route="home"] .home-tile-wrap[data-home-id="treasures"] .module.module-treasures > strong,
+body[data-route="home"] .home-tile-wrap[data-home-id="treasures"] .module.module-treasures > .tile-subtitle,
+body[data-route="home"] .home-tile-wrap[data-home-id="treasures"] .module.module-treasures > .emoji,
+body[data-route="home"] .home-tile-wrap[data-home-id="treasures"] .module.module-treasures > .home-tile-chevron{
+  display:none!important;
+}
+body[data-route="home"] .home-tile-wrap[data-home-id="treasures"] .module.module-treasures > .tile-status{
+  position:absolute!important;
+  left:50%!important;
+  bottom:5px!important;
+  z-index:3!important;
+  transform:translateX(-50%)!important;
+  margin:0!important;
+}
+@media(max-width:700px){
+  body[data-route="home"] .home-tile-wrap[data-home-id="treasures"] .module.module-treasures{
+    aspect-ratio:5 / 1!important;
+    border-radius:18px!important;
+  }
+}

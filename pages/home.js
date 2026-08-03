@@ -300,7 +300,7 @@ function bindTileEditor(id){
         delete data.removedMedia["banner:treasures"];
         delete data.removedMedia["tab:treasures"];
         data.moduleBanners=data.moduleBanners||{};
-        data.moduleBanners.treasures=await LinaImage.upload({file,key:"banner:treasures",width:1200,height:240,fit:"cover",quality:0.82,allowUpscale:false});
+        data.moduleBanners.treasures=await LinaImage.upload({file,key:"banner:treasures",width:2048,height:1024,fit:"contain",quality:0.92,allowUpscale:false});
       }else{
         data.removedMedia=data.removedMedia||{};
         delete data.removedMedia[`tab:${id}`];

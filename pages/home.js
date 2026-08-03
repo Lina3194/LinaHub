@@ -160,12 +160,15 @@ function homeTile(item,editing){
   const title=data.homeTileNames?.[item.id]||defaultTitle;
   // Keep the user's chosen main tile artwork. Only the tiny decorative corner
   // marks are removed separately; the actual tile image itself must stay intact.
-  const useCustomArtwork=!!data.homeImages?.[item.id];
-  const art=useCustomArtwork
-    ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
-    : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1781" alt="Poké Ball"></span>`
-      : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
+  const treasureBanner=data.moduleBanners?.treasures||window.LinaImage?.peek?.(`banner:treasures`)||data.homeImages?.treasures||"";
+  const useCustomArtwork=item.id==="treasures"?!!treasureBanner:!!data.homeImages?.[item.id];
+  const art=item.id==="treasures"&&treasureBanner
+    ? `<span class="module-image treasure-home-banner"><img src="${treasureBanner}" alt=""></span>`
+    : useCustomArtwork
+      ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
+      : item.id==="pokemon" && !(data.homeIcons?.[item.id])
+        ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1781" alt="Poké Ball"></span>`
+        : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const route=item.id==="measurements"?"health":item.id;
   const extra=item.id==="measurements"?' data-route-id="log"':"";
   const content=`${art}<strong>${esc(title)}</strong><small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span>`;
@@ -199,7 +202,7 @@ function tileEditor(id){
       <label>Tile name<input class="field" id="tileEditorName" value="${esc(title)}" maxlength="40"></label>
       <label>Icon or emoji<input class="field" id="tileEditorIcon" value="${esc(icon)}" maxlength="12"></label>
       <label>Tile size<select class="field" id="tileEditorSize"><option value="medium" ${item.size!=="wide"?"selected":""}>Standard tile</option><option value="wide" ${item.size==="wide"?"selected":""}>Wide tile</option></select></label>
-      <div class="tile-cover-row"><div class="tile-cover-preview">${data.homeImages?.[id]?`<img src="${data.homeImages[id]}" alt="">`:`<span>${esc(icon)}</span>`}</div><div><strong>Custom cover image</strong><p>Shows the whole picture without cropping.</p><button type="button" class="secondary" id="tilePickImage">Choose image</button><input type="file" id="tileImageInput" accept="image/*" hidden>${data.homeImages?.[id]?`<button type="button" class="mini danger" id="tileRemoveImage">Remove image</button>`:""}</div></div>
+      <div class="tile-cover-row"><div class="tile-cover-preview">${(id==="treasures"?(data.moduleBanners?.treasures||window.LinaImage?.peek?.(`banner:treasures`)):data.homeImages?.[id])?`<img src="${id==="treasures"?(data.moduleBanners?.treasures||window.LinaImage?.peek?.(`banner:treasures`)):data.homeImages[id]}" alt="">`:`<span>${esc(icon)}</span>`}</div><div><strong>${id==="treasures"?"Treasure banner":"Custom cover image"}</strong><p>${id==="treasures"?"Uses the same wide banner as the Treasure Room page.":"Shows the whole picture without cropping."}</p><button type="button" class="secondary" id="tilePickImage">Choose image</button><input type="file" id="tileImageInput" accept="image/*" hidden>${(id==="treasures"?(data.moduleBanners?.treasures||window.LinaImage?.peek?.(`banner:treasures`)):data.homeImages?.[id])?`<button type="button" class="mini danger" id="tileRemoveImage">Remove image</button>`:""}</div></div>
       <div class="tile-position-controls" aria-label="Move tile"><button type="button" class="secondary" id="tileMoveEarlier">← Move earlier</button><button type="button" class="secondary" id="tileMoveLater">Move later →</button></div>
       <div class="tile-editor-actions"><button type="button" class="danger secondary" id="tileHide">Hide tile</button><button type="button" class="primary" id="tileSave">Save changes</button></div>
     </section>
@@ -292,12 +295,26 @@ function bindTileEditor(id){
   host.querySelector("#tileImageInput")?.addEventListener("change",async e=>{
     const file=e.target.files?.[0]; if(!file) return;
     try{
-      data.homeImages=data.homeImages||{};
-      data.homeImages[id]=await LinaImage.upload({file,key:`tab:${id}`,width:1200,height:1200,fit:"contain",quality:0.82,allowUpscale:false});
-      saveData();close();bindTileEditor(id);toast("Cover image added ✨");
+      if(id==="treasures"){
+        data.moduleBanners=data.moduleBanners||{};
+        data.moduleBanners.treasures=await LinaImage.upload({file,key:"banner:treasures",width:1200,height:240,fit:"cover",quality:0.82,allowUpscale:false});
+      }else{
+        data.homeImages=data.homeImages||{};
+        data.homeImages[id]=await LinaImage.upload({file,key:`tab:${id}`,width:1200,height:1200,fit:"contain",quality:0.82,allowUpscale:false});
+      }
+      saveData();close();bindTileEditor(id);toast(id==="treasures"?"Treasure banner updated ✨":"Cover image added ✨");
     }catch(error){toast(LinaImage.friendlyError(error))}
   });
-  host.querySelector("#tileRemoveImage")?.addEventListener("click",async()=>{await LinaImage.remove(`tab:${id}`).catch(()=>{});delete data.homeImages[id];saveData();close();bindTileEditor(id);toast("Cover image removed")});
+  host.querySelector("#tileRemoveImage")?.addEventListener("click",async()=>{
+    if(id==="treasures"){
+      await LinaImage.remove("banner:treasures").catch(()=>{});
+      delete data.moduleBanners?.treasures;
+    }else{
+      await LinaImage.remove(`tab:${id}`).catch(()=>{});
+      delete data.homeImages[id];
+    }
+    saveData();close();bindTileEditor(id);toast(id==="treasures"?"Treasure banner removed":"Cover image removed");
+  });
   const moveTile=step=>{
     const i=data.homeLayout.findIndex(x=>x.id===id);const j=i+step;
     if(i<0||j<0||j>=data.homeLayout.length){toast(step<0?"This tile is already first":"This tile is already last");return;}

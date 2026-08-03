@@ -599,3 +599,34 @@ body[data-route="home"] .home-tile-wrap .module::before {
     flex-basis:58px!important;
   }
 }
+
+/* LinaHub 17.9.45 — force centre home tile icons on desktop and phone */
+.home-tile-wrap:not(.is-editing){
+  display:block!important;
+}
+.home-tile-wrap:not(.is-editing) .module{
+  display:flex!important;
+  flex-direction:column!important;
+  justify-content:center!important;
+  align-items:center!important;
+  align-content:center!important;
+  text-align:center!important;
+}
+.home-tile-wrap:not(.is-editing) .module .emoji,
+.home-tile-wrap:not(.is-editing) .module .module-image,
+.home-tile-wrap:not(.is-editing) .module .app-icon-image{
+  display:grid!important;
+  place-items:center!important;
+  align-self:center!important;
+  justify-self:center!important;
+  margin:auto!important;
+}
+.home-tile-wrap:not(.is-editing) .module .module-image img,
+.home-tile-wrap:not(.is-editing) .module .app-icon-image img{
+  display:block!important;
+  margin:auto!important;
+}
+.home-tile-wrap:not(.is-editing) .module > *{
+  margin-left:auto!important;
+  margin-right:auto!important;
+}

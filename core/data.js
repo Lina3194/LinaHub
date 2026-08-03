@@ -7,7 +7,6 @@ async function deleteLinaImage(key){try{return await LinaImage.remove(key)}catch
 async function hydrateLinaMedia(){
   data.homeImages=data.homeImages||{};
   data.moduleBanners=data.moduleBanners||{};
-  data.removedMedia=data.removedMedia||{};
   data.plants=Array.isArray(data.plants)?data.plants:[];
   data.aquariums=Array.isArray(data.aquariums)?data.aquariums:[];
   data.medications=Array.isArray(data.medications)?data.medications:[];
@@ -17,14 +16,8 @@ async function hydrateLinaMedia(){
     if(!/^data:image\//.test(value||"")) return;
     try{await saveLinaImage(key,value)}catch(error){console.error("Could not migrate image",key,error)}
   };
-  for(const [key,value] of Object.entries(data.homeImages)){
-    if(data.removedMedia[`tab:${key}`]){delete data.homeImages[key];changed=true;continue;}
-    await migrateInline(`tab:${key}`,value);
-  }
-  for(const [key,value] of Object.entries(data.moduleBanners)){
-    if(data.removedMedia[`banner:${key}`]){delete data.moduleBanners[key];changed=true;continue;}
-    await migrateInline(`banner:${key}`,value);
-  }
+  for(const [key,value] of Object.entries(data.homeImages)) await migrateInline(`tab:${key}`,value);
+  for(const [key,value] of Object.entries(data.moduleBanners)) await migrateInline(`banner:${key}`,value);
   for(const plant of data.plants){plant.photoKey=plant.photoKey||`plant:${plant.id}`;await migrateInline(plant.photoKey,plant.photo)}
   for(const tank of data.aquariums){tank.photoKey=tank.photoKey||`aquarium:${tank.id}`;await migrateInline(tank.photoKey,tank.photo)}
   for(const med of data.medications){med.photoKey=med.photoKey||`medication:${med.id}`;await migrateInline(med.photoKey,med.photo)}
@@ -35,11 +28,9 @@ async function hydrateLinaMedia(){
     if(!value) continue;
     if(storageKey.startsWith("tab:")){
       const key=storageKey.slice(4);
-      if(data.removedMedia[storageKey]){await LinaImage.remove(storageKey).catch(()=>{});continue;}
       if(data.homeImages[key]!==value){data.homeImages[key]=value;changed=true}
     }else if(storageKey.startsWith("banner:")){
       const key=storageKey.slice(7);
-      if(data.removedMedia[storageKey]){await LinaImage.remove(storageKey).catch(()=>{});continue;}
       if(data.moduleBanners[key]!==value){data.moduleBanners[key]=value;changed=true}
     }else if(storageKey.startsWith("plant:")){
       const plant=data.plants.find(item=>(item.photoKey||`plant:${item.id}`)===storageKey);
@@ -108,7 +99,6 @@ const DEFAULT_DATA={
   favoriteTreasures:[],
   periodEntries:{},periodCycles:[],periodOptions:[],periodSelectedDate:"",periodCalendarMonth:"",periodEditOptions:false,
   moduleBanners:{},
-  removedMedia:{},
   checkinHidden:[],
   selfCareOptions:["Rest","Reading","Exercises","Warmth","Good food","Fresh air","Music","Gaming","Hobbies"],
   supportOptions:["Left knee","Right knee","Left ankle","Right ankle","Walking stick","Other"],

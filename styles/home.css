@@ -491,3 +491,111 @@ body[data-route="home"] .home-tile-wrap .module::before {
   content:none !important;
   display:none !important;
 }
+
+/* LinaHub 17.9.44 — icon-first home tiles */
+.home-tile-wrap:not(.is-editing) .module{
+  justify-content:center!important;
+  align-items:center!important;
+  text-align:center!important;
+  padding:10px 8px!important;
+}
+.home-tile-wrap:not(.is-editing) .module strong,
+.home-tile-wrap:not(.is-editing) .tile-status,
+.home-tile-wrap:not(.is-editing) .tile-subtitle,
+.home-tile-wrap:not(.is-editing) .home-tile-chevron{
+  display:none!important;
+}
+.home-tile-wrap:not(.is-editing) .module .emoji,
+.home-tile-wrap:not(.is-editing) .module .module-image{
+  width:60px!important;
+  height:60px!important;
+  flex-basis:60px!important;
+  margin:0!important;
+  border-radius:18px!important;
+  display:grid!important;
+  place-items:center!important;
+}
+.home-tile-wrap:not(.is-editing) .module .emoji{
+  font-size:2rem!important;
+}
+.home-tile-wrap:not(.is-editing) .module .module-image img,
+.home-tile-wrap:not(.is-editing) .module .app-icon-image img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  border-radius:inherit!important;
+}
+.home-tile-wrap:not(.is-editing) .module-shopping .module-image,
+.home-tile-wrap:not(.is-editing) .module-shopping .emoji{
+  width:64px!important;
+  height:64px!important;
+  flex-basis:64px!important;
+  border-radius:20px!important;
+  background:linear-gradient(145deg,rgba(255,216,165,.14),rgba(182,112,255,.16))!important;
+  box-shadow:0 10px 24px rgba(0,0,0,.2), inset 0 0 0 1px rgba(255,231,184,.12)!important;
+}
+.home-tile-wrap:not(.is-editing) .module-shopping .module-image img,
+.home-tile-wrap:not(.is-editing) .module-shopping .emoji{
+  filter:brightness(1.08) contrast(1.05)!important;
+}
+.home-tile-wrap:not(.is-editing) .module-medication .module-image,
+.home-tile-wrap:not(.is-editing) .module-medication .emoji,
+.home-tile-wrap:not(.is-editing) .module-plants .module-image,
+.home-tile-wrap:not(.is-editing) .module-plants .emoji,
+.home-tile-wrap:not(.is-editing) .module-garden .module-image,
+.home-tile-wrap:not(.is-editing) .module-garden .emoji{
+  width:64px!important;
+  height:64px!important;
+  flex-basis:64px!important;
+  border-radius:20px!important;
+}
+@media (max-width: 700px){
+  .home-tile-wrap:not(.is-editing) .module{
+    min-height:104px!important;
+    padding:8px 6px!important;
+  }
+  .home-tile-wrap:not(.is-editing) .module .emoji,
+  .home-tile-wrap:not(.is-editing) .module .module-image{
+    width:58px!important;
+    height:58px!important;
+    flex-basis:58px!important;
+    border-radius:17px!important;
+  }
+  .home-tile-wrap:not(.is-editing) .module-shopping .module-image,
+  .home-tile-wrap:not(.is-editing) .module-shopping .emoji,
+  .home-tile-wrap:not(.is-editing) .module-medication .module-image,
+  .home-tile-wrap:not(.is-editing) .module-medication .emoji,
+  .home-tile-wrap:not(.is-editing) .module-plants .module-image,
+  .home-tile-wrap:not(.is-editing) .module-plants .emoji,
+  .home-tile-wrap:not(.is-editing) .module-garden .module-image,
+  .home-tile-wrap:not(.is-editing) .module-garden .emoji{
+    width:62px!important;
+    height:62px!important;
+    flex-basis:62px!important;
+    border-radius:18px!important;
+  }
+}
+@media (max-width: 430px){
+  .home-tile-wrap:not(.is-editing) .module{
+    min-height:100px!important;
+  }
+  .home-tile-wrap:not(.is-editing) .module .emoji,
+  .home-tile-wrap:not(.is-editing) .module .module-image{
+    width:54px!important;
+    height:54px!important;
+    flex-basis:54px!important;
+    border-radius:16px!important;
+  }
+  .home-tile-wrap:not(.is-editing) .module-shopping .module-image,
+  .home-tile-wrap:not(.is-editing) .module-shopping .emoji,
+  .home-tile-wrap:not(.is-editing) .module-medication .module-image,
+  .home-tile-wrap:not(.is-editing) .module-medication .emoji,
+  .home-tile-wrap:not(.is-editing) .module-plants .module-image,
+  .home-tile-wrap:not(.is-editing) .module-plants .emoji,
+  .home-tile-wrap:not(.is-editing) .module-garden .module-image,
+  .home-tile-wrap:not(.is-editing) .module-garden .emoji{
+    width:58px!important;
+    height:58px!important;
+    flex-basis:58px!important;
+  }
+}

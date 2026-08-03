@@ -91,7 +91,7 @@ function SettingsPage(){
           ["pokemon","Pokémon GO"],["treasures","Treasure Room"]
         ].map(([key,label])=>`
           <article class="banner-art-setting">
-            <div class="banner-art-preview">${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`))?`<img src="${data.moduleBanners?.[key]||window.LinaImage.peek(`banner:${key}`)}" alt="">`:`<span>${esc(data.homeIcons?.[key]||data.moduleIcons?.[key]||"✨")}</span>`}</div>
+            <div class="banner-art-preview">${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||((key==="treasures")?"assets/default-treasure-banner.svg":""))?`<img src="${data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||((key==="treasures")?"assets/default-treasure-banner.svg":"")}" alt="">`:`<span>${esc(data.homeIcons?.[key]||data.moduleIcons?.[key]||"✨")}</span>`}</div>
             <strong>${label}</strong>
             <div class="banner-art-actions">
               <button type="button" class="secondary compact-upload" data-pick-banner-image="${key}">${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`))?"Change":"Add"}</button>
@@ -109,7 +109,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.46")}<br><br>1 Aug 2026</p>`,"settings");
+  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.47")}<br><br>1 Aug 2026</p>`,"settings");
 }
 
 function bindSimple(){

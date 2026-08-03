@@ -62,20 +62,25 @@ function linaBannerKey(routeName){
   })[routeName]||"";
 }
 
+async function linaDefaultBanner(key){
+  return ({treasures:"assets/default-treasure-banner.svg"})[key]||"";
+}
+
 async function linaResolveBanner(key){
   if(!key)return "";
   const inMemory=data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||"";
   if(inMemory)return inMemory;
-  if(!window.LinaImage)return "";
-  try{
-    const saved=await LinaImage.load(`banner:${key}`);
-    if(saved){
-      data.moduleBanners=data.moduleBanners||{};
-      data.moduleBanners[key]=saved;
-      return saved;
-    }
-  }catch(error){console.error("Could not restore banner",key,error)}
-  return "";
+  if(window.LinaImage){
+    try{
+      const saved=await LinaImage.load(`banner:${key}`);
+      if(saved){
+        data.moduleBanners=data.moduleBanners||{};
+        data.moduleBanners[key]=saved;
+        return saved;
+      }
+    }catch(error){console.error("Could not restore banner",key,error)}
+  }
+  return linaDefaultBanner(key);
 }
 
 function lina17StandardBanner(routeName){

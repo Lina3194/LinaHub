@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="320" viewBox="0 0 1600 320" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="320" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#261542"/>
+      <stop offset="0.5" stop-color="#4B2373"/>
+      <stop offset="1" stop-color="#241236"/>
+    </linearGradient>
+    <radialGradient id="glowL" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(320 110) rotate(30) scale(240 140)">
+      <stop stop-color="#F6D08C" stop-opacity="0.45"/>
+      <stop offset="1" stop-color="#F6D08C" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowR" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1270 100) rotate(-12) scale(210 120)">
+      <stop stop-color="#C884FF" stop-opacity="0.35"/>
+      <stop offset="1" stop-color="#C884FF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#F6D08C"/>
+      <stop offset="0.5" stop-color="#FFF1C3"/>
+      <stop offset="1" stop-color="#C99839"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="12" result="b"/>
+      <feBlend in="SourceGraphic" in2="b" mode="screen"/>
+    </filter>
+  </defs>
+  <rect width="1600" height="320" rx="36" fill="url(#bg)"/>
+  <rect x="10" y="10" width="1580" height="300" rx="30" stroke="rgba(245,208,140,.35)" stroke-width="2"/>
+  <rect x="0" y="0" width="1600" height="320" rx="36" fill="url(#glowL)"/>
+  <rect x="0" y="0" width="1600" height="320" rx="36" fill="url(#glowR)"/>
+
+  <g opacity="0.85">
+    <circle cx="180" cy="126" r="3" fill="#F7DEA2"/>
+    <circle cx="226" cy="88" r="2" fill="#DAB0FF"/>
+    <circle cx="1405" cy="91" r="2.6" fill="#F7DEA2"/>
+    <circle cx="1322" cy="128" r="2" fill="#DAB0FF"/>
+    <circle cx="1160" cy="214" r="2.4" fill="#F7DEA2"/>
+    <circle cx="398" cy="234" r="1.8" fill="#DAB0FF"/>
+  </g>
+
+  <g transform="translate(160 84)">
+    <rect x="0" y="44" width="136" height="90" rx="18" fill="#201227" stroke="#7A5A33" stroke-width="3"/>
+    <rect x="12" y="58" width="112" height="12" rx="6" fill="#613F1D" opacity="0.7"/>
+    <rect x="18" y="22" width="100" height="44" rx="14" fill="#2D1732" stroke="#A47A3A" stroke-width="3"/>
+    <path d="M28 20c8-10 19-15 40-15 22 0 33 5 41 15" stroke="#C99839" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="50" cy="14" r="5" fill="#F1C867"/>
+    <circle cx="97" cy="14" r="5" fill="#F1C867"/>
+    <circle cx="69" cy="39" r="10" fill="#B679FF" opacity="0.95"/>
+    <circle cx="49" cy="83" r="11" fill="#7ED2FF" opacity="0.95"/>
+    <circle cx="87" cy="85" r="11" fill="#FF8EB5" opacity="0.95"/>
+    <path d="M102 107c0 10-8 18-18 18s-18-8-18-18c0-9 7-16 18-25 11 9 18 16 18 25Z" fill="#95D58A"/>
+  </g>
+
+  <g transform="translate(1266 84)">
+    <rect x="0" y="48" width="128" height="82" rx="18" fill="#23172B" stroke="#7A5A33" stroke-width="3"/>
+    <rect x="18" y="18" width="92" height="42" rx="14" fill="#2F1A35" stroke="#A47A3A" stroke-width="3"/>
+    <path d="M29 16c8-10 19-14 35-14 20 0 31 5 38 14" stroke="#C99839" stroke-width="4" stroke-linecap="round"/>
+    <circle cx="42" cy="12" r="5" fill="#F1C867"/>
+    <circle cx="91" cy="12" r="5" fill="#F1C867"/>
+    <rect x="19" y="68" width="90" height="6" rx="3" fill="#704726" opacity="0.7"/>
+    <circle cx="38" cy="99" r="11" fill="#F5D177"/>
+    <circle cx="68" cy="98" r="11" fill="#B579FF"/>
+    <circle cx="92" cy="98" r="11" fill="#85C7FF"/>
+  </g>
+
+  <g filter="url(#soft)">
+    <text x="800" y="116" text-anchor="middle" fill="url(#gold)" font-family="Georgia, 'Times New Roman', serif" font-size="26" letter-spacing="6">THE PRIVATE COLLECTION</text>
+    <text x="800" y="188" text-anchor="middle" fill="url(#gold)" font-family="Georgia, 'Times New Roman', serif" font-size="62" font-weight="700" letter-spacing="2">TREASURE ROOM</text>
+    <text x="800" y="232" text-anchor="middle" fill="#EEDDB5" font-family="Georgia, 'Times New Roman', serif" font-size="22" opacity="0.9">A hidden archive of tiny victories and magical finds</text>
+  </g>
+
+  <g transform="translate(635 72)" fill="url(#gold)">
+    <path d="M14 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3 3-9Z"/>
+  </g>
+  <g transform="translate(946 88) scale(.75)" fill="url(#gold)">
+    <path d="M14 0l3 9 9 3-9 3-3 9-3-9-9-3 9-3 3-9Z"/>
+  </g>
+</svg>

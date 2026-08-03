@@ -1175,3 +1175,88 @@ body[data-route="home"] .home-tile-wrap .module::before {
     font-size:.56rem!important;
   }
 }
+
+/* LinaHub 17.9.57 — main page treasure tile matches banner proportions */
+.home-tile-wrap:not(.is-editing).size-wide .module.module-treasures,
+.home-tile-wrap:not(.is-editing) .module.module-treasures{
+  position:relative!important;
+  display:block!important;
+  width:100%!important;
+  height:auto!important;
+  min-height:0!important;
+  max-height:none!important;
+  aspect-ratio:2048 / 360!important;
+  padding:0!important;
+  overflow:hidden!important;
+  border-radius:24px!important;
+  background:#241335!important;
+}
+.home-tile-wrap:not(.is-editing).size-wide .module.module-treasures .module-image,
+.home-tile-wrap:not(.is-editing) .module.module-treasures .module-image{
+  position:absolute!important;
+  inset:0!important;
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  margin:0!important;
+  padding:0!important;
+  border:none!important;
+  border-radius:inherit!important;
+  background:transparent!important;
+  overflow:hidden!important;
+  z-index:1!important;
+}
+.home-tile-wrap:not(.is-editing).size-wide .module.module-treasures .module-image img,
+.home-tile-wrap:not(.is-editing) .module.module-treasures .module-image img{
+  display:block!important;
+  width:100%!important;
+  height:100%!important;
+  min-width:100%!important;
+  min-height:100%!important;
+  max-width:none!important;
+  max-height:none!important;
+  margin:0!important;
+  object-fit:cover!important;
+  object-position:center center!important;
+  transform:none!important;
+  border-radius:inherit!important;
+}
+.home-tile-wrap:not(.is-editing) .module.module-treasures::before{
+  content:""!important;
+  position:absolute!important;
+  inset:0!important;
+  z-index:2!important;
+  pointer-events:none!important;
+  background:linear-gradient(180deg,rgba(14,8,26,0) 56%, rgba(11,6,20,.22) 100%)!important;
+}
+.home-tile-wrap:not(.is-editing) .module.module-treasures .tile-status{
+  position:absolute!important;
+  left:50%!important;
+  bottom:6px!important;
+  transform:translateX(-50%)!important;
+  z-index:3!important;
+}
+.home-tile-wrap:not(.is-editing) .module.module-treasures .emoji,
+.home-tile-wrap:not(.is-editing) .module.module-treasures strong,
+.home-tile-wrap:not(.is-editing) .module.module-treasures .home-micro,
+.home-tile-wrap:not(.is-editing) .module.module-treasures .tile-subtitle,
+.home-tile-wrap:not(.is-editing) .module.module-treasures .home-tile-chevron{display:none!important}
+@media (max-width:700px){
+  .home-tile-wrap:not(.is-editing).size-wide .module.module-treasures,
+  .home-tile-wrap:not(.is-editing) .module.module-treasures{
+    aspect-ratio:1600 / 320!important;
+    border-radius:20px!important;
+  }
+}
+@media (max-width:430px){
+  .home-tile-wrap:not(.is-editing).size-wide .module.module-treasures,
+  .home-tile-wrap:not(.is-editing) .module.module-treasures{
+    aspect-ratio:1500 / 340!important;
+    border-radius:18px!important;
+  }
+  .home-tile-wrap:not(.is-editing) .module.module-treasures .tile-status{
+    bottom:4px!important;
+    padding:4px 8px!important;
+    font-size:.56rem!important;
+  }
+}

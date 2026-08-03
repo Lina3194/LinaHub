@@ -947,3 +947,48 @@ body[data-route="home"] .home-tile-wrap .module::before {
     bottom:5px!important;
   }
 }
+
+/* LinaHub 17.9.54 — stop stretching Treasure Room banner */
+.home-tile-wrap:not(.is-editing) .module-treasures{
+  min-height:88px!important;
+  max-height:88px!important;
+  height:88px!important;
+  overflow:hidden!important;
+}
+.home-tile-wrap:not(.is-editing) .module-treasures .module-image{
+  inset:0!important;
+  width:100%!important;
+  height:100%!important;
+  padding:0!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  background:linear-gradient(90deg,#2a1736 0%, #452565 55%, #251534 100%)!important;
+}
+.home-tile-wrap:not(.is-editing) .module-treasures .module-image img{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center center!important;
+  image-rendering:auto!important;
+  transform:none!important;
+  border-radius:0!important;
+  background:transparent!important;
+}
+.home-tile-wrap:not(.is-editing) .module-treasures::before{
+  display:none!important;
+}
+.home-tile-wrap:not(.is-editing) .module-treasures .tile-status{
+  bottom:6px!important;
+  z-index:3!important;
+}
+@media (max-width: 700px){
+  .home-tile-wrap:not(.is-editing) .module-treasures{
+    min-height:76px!important;
+    max-height:76px!important;
+    height:76px!important;
+  }
+}

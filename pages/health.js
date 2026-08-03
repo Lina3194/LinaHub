@@ -10,6 +10,39 @@ function linaMeasureRangeStart(range){
   else if(range==="year")start.setFullYear(start.getFullYear()-1);
   return start;
 }
+function linaSyncDailyWeightsToHistory(){
+  data.weightEntries=Array.isArray(data.weightEntries)?data.weightEntries:[];
+  const daily=Object.entries(data.morningCheckins||{});
+  let changed=false;
+  daily.forEach(([date,entry])=>{
+    const raw=entry?.weight;
+    const value=Number(String(raw??"").replace(",","."));
+    if(!date||!Number.isFinite(value)||value<=0)return;
+    const existing=data.weightEntries.find(item=>item.date===date&&item.source==="daily-checkin");
+    if(existing){
+      if(Number(existing.value??existing.weight)!==value){
+        existing.value=value;
+        existing.weight=value;
+        existing.unit="kg";
+        existing.createdAt=entry.updatedAt||existing.createdAt||`${date}T12:00:00`;
+        changed=true;
+      }
+      return;
+    }
+    data.weightEntries.push({
+      id:`weight-recovered-${date}`,
+      date,
+      value,
+      weight:value,
+      unit:"kg",
+      source:"daily-checkin",
+      createdAt:entry.updatedAt||`${date}T12:00:00`
+    });
+    changed=true;
+  });
+  if(changed) saveData();
+}
+
 function linaMeasureChart(category){
   const all=(category.entries||[]).map(item=>({date:String(item.date||""),value:Number(item.value)})).filter(item=>item.date&&Number.isFinite(item.value)).sort((a,b)=>a.date.localeCompare(b.date));
   const range=["week","month","3months","6months","year"].includes(window.linaMeasureRange)?window.linaMeasureRange:"week";
@@ -47,7 +80,8 @@ function linaMeasureChart(category){
   return chart+history;
 }
 function HealthPage(){
-  const weights=(data.weightEntries||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
+  linaSyncDailyWeightsToHistory();
+  const weights=(data.weightEntries||[]).slice().sort((a,b)=>String(b.createdAt||b.date||"").localeCompare(String(a.createdAt||a.date||"")));
   const measures=(data.measurements||[]).slice().sort((a,b)=>String(b.date).localeCompare(String(a.date)));
   const latestWeight=weights[0],latestMeasure=measures[0];
   const selected=["overview","weight","waist","tummy"].includes(window.linaHealthMeasureTab)?window.linaHealthMeasureTab:"overview";
@@ -299,12 +333,13 @@ function linaDailyCheckinMarkup(dateValue){
 }
 function linaSaveDailyCheckin(backdrop,dateValue,complete){
   const val=id=>backdrop.querySelector(id)?.value||"";
+  const decimal=id=>String(val(id)).trim().replace(",",".");
   const selected=name=>{const b=backdrop.querySelector(`[data-daily-feeling="${name}"].active`);return b?Number(b.dataset.value):null};
   const bounded=(id,max)=>Math.max(0,Math.min(max,Number(val(id))||0));
   const sleepHours=bounded("#dailySleepHours",24),sleepMinutes=bounded("#dailySleepMinutes",59);
   const deepSleepHours=bounded("#dailyDeepSleepHours",24),deepSleepMinutes=bounded("#dailyDeepSleepMinutes",59);
   const sleepTotalMinutes=sleepHours*60+sleepMinutes,deepSleepTotalMinutes=deepSleepHours*60+deepSleepMinutes;
-  const entry={date:dateValue,updatedAt:new Date().toISOString(),sleepHours,sleepMinutes,sleepTotalMinutes,sleep:sleepTotalMinutes/60,deepSleepHours,deepSleepMinutes,deepSleepTotalMinutes,deepSleep:deepSleepTotalMinutes/60,sleepQuality:selected("sleep"),weight:val("#dailyWeight"),waist:val("#dailyWaist"),tummy:val("#dailyTummy"),energy:selected("energy"),mood:selected("mood"),pain:selected("pain"),tablets:[...backdrop.querySelectorAll("[data-daily-med]:checked")].map(x=>String(x.dataset.dailyMed))};
+  const entry={date:dateValue,updatedAt:new Date().toISOString(),sleepHours,sleepMinutes,sleepTotalMinutes,sleep:sleepTotalMinutes/60,deepSleepHours,deepSleepMinutes,deepSleepTotalMinutes,deepSleep:deepSleepTotalMinutes/60,sleepQuality:selected("sleep"),weight:decimal("#dailyWeight"),waist:decimal("#dailyWaist"),tummy:decimal("#dailyTummy"),energy:selected("energy"),mood:selected("mood"),pain:selected("pain"),tablets:[...backdrop.querySelectorAll("[data-daily-med]:checked")].map(x=>String(x.dataset.dailyMed))};
   data.morningCheckins=data.morningCheckins||{};
   if(entry.weight){data.weightEntries=Array.isArray(data.weightEntries)?data.weightEntries:[];data.weightEntries=data.weightEntries.filter(x=>!(x.date===dateValue&&x.source==="daily-checkin"));data.weightEntries.push({id:`weight-${Date.now()}`,date:dateValue,weight:Number(entry.weight),value:Number(entry.weight),unit:"kg",source:"daily-checkin",createdAt:entry.updatedAt});}
   if(entry.sleepTotalMinutes||entry.deepSleepTotalMinutes){data.sleepEntries=Array.isArray(data.sleepEntries)?data.sleepEntries:[];data.sleepEntries=data.sleepEntries.filter(x=>!(x.date===dateValue&&x.source==="daily-checkin"));data.sleepEntries.push({id:`sleep-${Date.now()}`,date:dateValue,totalMinutes:entry.sleepTotalMinutes,deepMinutes:entry.deepSleepTotalMinutes,quality:entry.sleepQuality,source:"daily-checkin",createdAt:entry.updatedAt});}

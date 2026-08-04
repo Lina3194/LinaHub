@@ -245,50 +245,6 @@ function homeMedicationReminder(){
 }
 
 
-let homeCheckinHistoryMode=window.homeCheckinHistoryMode||"week";
-let homeCheckinHistoryAnchor=window.homeCheckinHistoryAnchor?new Date(window.homeCheckinHistoryAnchor):new Date();
-function homeCheckinDateKey(date){
-  const d=new Date(date);d.setHours(12,0,0,0);
-  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`;
-}
-function homeCheckinPrettyDate(date,options={day:"numeric",month:"short"}){return new Date(date).toLocaleDateString("en-GB",options)}
-function homeCheckinRange(){
-  const anchor=new Date(homeCheckinHistoryAnchor);anchor.setHours(12,0,0,0);
-  let start,end;
-  if(homeCheckinHistoryMode==="month"){
-    start=new Date(anchor.getFullYear(),anchor.getMonth(),1,12);
-    end=new Date(anchor.getFullYear(),anchor.getMonth()+1,0,12);
-  }else{
-    const mondayOffset=(anchor.getDay()+6)%7;
-    start=new Date(anchor);start.setDate(anchor.getDate()-mondayOffset);
-    end=new Date(start);end.setDate(start.getDate()+6);
-  }
-  return {start,end};
-}
-function homeCheckinHistory(){
-  const {start,end}=homeCheckinRange();
-  const days=[];for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1))days.push(new Date(d));
-  const todayKey=homeCheckinDateKey(new Date());
-  const rangeLabel=homeCheckinHistoryMode==="month"
-    ? homeCheckinPrettyDate(start,{month:"long",year:"numeric"})
-    : `${homeCheckinPrettyDate(start)} – ${homeCheckinPrettyDate(end,{day:"numeric",month:"short",year:"numeric"})}`;
-  const completed=days.reduce((total,day)=>{
-    const key=homeCheckinDateKey(day);
-    return total+(data.dailyCheckinCompleted?.[key]?1:0)+(data.nightlyCheckinCompleted?.[key]?1:0);
-  },0);
-  return `<section class="home-checkin-history">
-    <div class="home-checkin-history-top"><div><h2>Check-in history</h2><p>${esc(rangeLabel)}</p></div><div class="home-checkin-history-total">${completed}/${days.length*2} done</div></div>
-    <div class="home-checkin-history-controls">
-      <div class="home-checkin-history-tabs"><button type="button" data-checkin-history-mode="week" class="${homeCheckinHistoryMode==="week"?"active":""}">Week</button><button type="button" data-checkin-history-mode="month" class="${homeCheckinHistoryMode==="month"?"active":""}">Month</button></div>
-      <div class="home-checkin-history-arrows"><button type="button" data-checkin-history-move="-1" aria-label="Previous ${homeCheckinHistoryMode}">‹</button><button type="button" data-checkin-history-today>Today</button><button type="button" data-checkin-history-move="1" aria-label="Next ${homeCheckinHistoryMode}">›</button></div>
-    </div>
-    <div class="home-checkin-history-grid ${homeCheckinHistoryMode}">${days.map(day=>{
-      const key=homeCheckinDateKey(day),morning=!!data.dailyCheckinCompleted?.[key],evening=!!data.nightlyCheckinCompleted?.[key];
-      return `<article class="${key===todayKey?"today":""}" title="${homeCheckinPrettyDate(day,{weekday:"long",day:"numeric",month:"long",year:"numeric"})}"><span>${homeCheckinHistoryMode==="week"?homeCheckinPrettyDate(day,{weekday:"short"}):""}</span><strong>${day.getDate()}</strong><div><i class="${morning?"done":""}" title="Morning ${morning?"done":"not done"}">☀</i><i class="${evening?"done":""}" title="Evening ${evening?"done":"not done"}">☾</i></div></article>`;
-    }).join("")}</div>
-    <div class="home-checkin-history-key"><span><i>☀</i> Morning</span><span><i>☾</i> Evening</span><small>Coloured icons are done</small></div>
-  </section>`;
-}
 
 function HomePage(){
   ensureHomeLayout();
@@ -323,7 +279,6 @@ function HomePage(){
         <span class="home-checkin-icon">${nightComplete?"✓":"🌙"}</span><span><strong>Evening check-in</strong><small>${nightComplete?"Done":showNight?"Ready now":"10 PM–2 AM"}</small></span><b>${nightComplete?"Done":"Open"}</b>
       </button>
     </section>
-    ${homeCheckinHistory()}
     <section class="home-journey"><h2>Your journey</h2><div class="grid home-layout ${editing?"editing":""}">${data.homeLayout.map(item=>homeTile(item,editing)).join("")}</div></section>
     ${editing?hiddenHomeTiles():""}
     ${homeQuickOverview()}
@@ -500,9 +455,6 @@ function bindHome(){
   document.addEventListener("click",event=>{if(!event.target.closest(".home-menu-wrap")) closeMenu()},{once:true});
   document.querySelector("#homeThemes")?.addEventListener("click",()=>{data.settingsSection="appearance";saveData();go("settings")});
   document.querySelector("#homeEditToggle")?.addEventListener("click",()=>{data.homeEditing=!data.homeEditing;saveData();render()});
-  document.querySelectorAll("[data-checkin-history-mode]").forEach(button=>button.addEventListener("click",()=>{homeCheckinHistoryMode=button.dataset.checkinHistoryMode||"week";window.homeCheckinHistoryMode=homeCheckinHistoryMode;render()}));
-  document.querySelectorAll("[data-checkin-history-move]").forEach(button=>button.addEventListener("click",()=>{const step=Number(button.dataset.checkinHistoryMove)||0;const next=new Date(homeCheckinHistoryAnchor);if(homeCheckinHistoryMode==="month")next.setMonth(next.getMonth()+step);else next.setDate(next.getDate()+step*7);homeCheckinHistoryAnchor=next;window.homeCheckinHistoryAnchor=next.toISOString();render()}));
-  document.querySelector("[data-checkin-history-today]")?.addEventListener("click",()=>{homeCheckinHistoryAnchor=new Date();window.homeCheckinHistoryAnchor=homeCheckinHistoryAnchor.toISOString();render()});
   if(!data.homeEditing) return;
   bindHomeTileDragging();
   const saveRender=()=>{saveData();render()};

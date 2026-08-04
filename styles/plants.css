@@ -303,3 +303,8 @@ body.dark .encyclopedia-card,body.dark .plant-main-tabs button{background:#10121
   .plant-calendar-title small{font-size:.67rem}
   .plant-cal-day{font-size:.8rem}
 }
+
+/* LinaHub 17.9.67 — plant removal */
+.plant-delete-card{margin-top:18px;border-color:rgba(215,105,135,.34)}
+.plant-delete-card h2{margin-bottom:6px}
+.plant-delete-button{width:100%;min-height:46px;margin-top:8px;font-weight:800}

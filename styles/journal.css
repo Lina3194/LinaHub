@@ -417,7 +417,7 @@ body > .sleep-edit-backdrop .sleep-edit-modal{
 @media(max-width:860px){.tracker-shelf-bottles{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}.tracker-day{min-height:92px}}
 @media(max-width:560px){.journal-tracker-card{padding:16px 6px 8px}.tracker-shelf-row{padding:6px 0 0;margin-bottom:18px}.tracker-shelf-bottles{gap:4px}.tracker-day{min-height:88px}.tracker-bottle{width:44px!important;height:44px!important}.tracker-mini-bottle{width:30px!important;height:30px!important}.tracker-modal-bottle .tracker-bottle{width:66px!important;height:66px!important}.tracker-key-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 
-/* LinaHub 17.9.11 — antique jewellery-case monthly tracker */
+/* LinaHub 17.9.67 — antique jewellery-case monthly tracker */
 .journal-tracker-card{
   position:relative;
   overflow:hidden;

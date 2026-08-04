@@ -271,7 +271,8 @@ function PlantProfilePage(){
       <section class="card clean-card plant-care-actions"><span class="section-kicker">Care log</span><h2>Water, feed or repot</h2><div class="plant-action-grid"><label><span>Date</span><input class="field" id="plantCareDate" type="date" value="${today()}" max="${today()}"></label><button class="primary" id="waterPlant">💧 Watered</button><button class="secondary" id="feedPlant">🌱 Fed</button><button class="secondary" id="repotPlant">🪴 Repotted</button></div><label class="plant-reminder-toggle"><input type="checkbox" id="plantReminderEnabled" ${p.reminderEnabled?"checked":""}><span>Use this plant's last watering date for reminders</span></label></section>${careGuideHtml(guide)}</div>
     <div class="plant-tab-panel ${active==="history"?"active":""}"><section class="card clean-card plant-calendar-card"><span class="section-kicker">History</span><h2>Plant care calendar</h2><p class="helper-text">Tap a coloured date to edit or remove its care records.</p>${plantTimelineCalendar(p)}</section></div>
     <div class="plant-tab-panel ${active==="photos"?"active":""}"><section class="card clean-card"><span class="section-kicker">Photo timeline</span><h2>${esc(p.name)} over time</h2>${plantPhotoTimelineHtml(p)}</section></div>
-    <div class="plant-tab-panel ${active==="notes"?"active":""}"><section class="card clean-card"><span class="section-kicker">Notes</span><h2>Care notes</h2><textarea class="field plant-notes" rows="6">${esc(p.notes)}</textarea><button type="button" class="primary" id="savePlantNotes">Save notes</button></section></div>`,'plants');
+    <div class="plant-tab-panel ${active==="notes"?"active":""}"><section class="card clean-card"><span class="section-kicker">Notes</span><h2>Care notes</h2><textarea class="field plant-notes" rows="6">${esc(p.notes)}</textarea><button type="button" class="primary" id="savePlantNotes">Save notes</button></section></div>
+    <section class="card clean-card plant-delete-card"><span class="section-kicker">Garden collection</span><h2>Remove this plant</h2><p class="helper-text">Use this when a plant has died or you no longer want it in your garden. Its care history and saved photos will also be removed.</p><button type="button" class="mini danger plant-delete-button" id="deletePlant">Remove ${esc(p.name)} from garden</button></section>`,'plants');
 }
 function bindPlants(){
   bindPlantTileControls();
@@ -297,4 +298,14 @@ function bindPlants(){
   document.querySelector("#savePlantNotes")?.addEventListener("click",()=>{p.notes=document.querySelector(".plant-notes").value;saveData();toast("Plant notes saved 🌿")});
   document.querySelector("#plantPhoto")?.addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;try{const stamp=Date.now(),key=`plant-timeline:${p.id}:${stamp}`,value=await LinaImage.upload({file,key,width:1000,height:1000,fit:"contain",quality:.82,allowUpscale:false});p.photoKey=plantPhotoKey(p);await LinaImage.save(p.photoKey,value);p.photo=value;p.photoHistory.push({key,date:today(),createdAt:new Date().toISOString(),note:"Plant photo"});saveData();toast("Photo added to timeline 📷");render()}catch(error){toast(LinaImage.friendlyError(error))}});
   document.querySelectorAll("[data-plant-photo-delete]").forEach(b=>b.onclick=async()=>{if(!confirm("Remove this photo from the timeline?"))return;await LinaImage.remove(b.dataset.plantPhotoDelete).catch(()=>{});p.photoHistory=p.photoHistory.filter(x=>x.key!==b.dataset.plantPhotoDelete);saveData();render()});
+  document.querySelector("#deletePlant")?.addEventListener("click",async()=>{
+    if(!confirm(`Remove ${p.name} from your garden? This will permanently delete its care history, notes and saved photos.`))return;
+    const imageKeys=new Set([p.photoKey,plantPhotoKey(p),...(p.photoHistory||[]).map(item=>item?.key)].filter(Boolean));
+    for(const key of imageKeys){try{await LinaImage.remove(key)}catch{}}
+    data.plants=data.plants.filter(item=>item.id!==p.id);
+    if(data.plantCalendarMonthById)delete data.plantCalendarMonthById[p.id];
+    saveData();
+    toast(`${p.name} removed from your garden`);
+    go("plants","","back",{replace:true});
+  });
 }

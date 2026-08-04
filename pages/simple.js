@@ -74,8 +74,7 @@ function SettingsPage(){
           ["Main tiles",[["journal","Daily Check-in","📖"],["plants","Garden","🌿"],["pokemon","Pokémon GO","🔴"],["pets","Aquariums","🐠"],["house","House","🏡"],["treasures","Treasure Room","✨"],["journey","Today's Journey","✨"]]],
           ["Trackers",[["sleep","Sleep","😴"],["medication","Medication","💊"],["period","Period","🌸"],["weight","Weight","⚖️"],["measurements","Measurements","📏"]]],
           ["Shopping",[["shoppingFridge","Fridge","❄️"],["shoppingFreezer","Freezer","🧊"],["shoppingPantry","Pantry","🥫"],["shoppingCleaning","Cleaning Supplies","🧽"],["shoppingToiletries","Toiletries","🧴"]]],
-          ["House & Aquariums",[["rooms","Rooms","🏠"],["inventory","Inventory","📦"],["girlsTank","Girls Tank","🩷"],["boysTank","Boys Tank","💙"],["aquariumMaintenance","Maintenance","🫧"]]],
-          ["Budget",[["bills","Bills","🧾"],["savings","Savings","💰"],["income","Income","💷"],["expenses","Expenses","💸"]]]
+          ["House & Aquariums",[["rooms","Rooms","🏠"],["inventory","Inventory","📦"],["girlsTank","Girls Tank","🩷"],["boysTank","Boys Tank","💙"],["aquariumMaintenance","Maintenance","🫧"]]]
         ].map(([group,items])=>`<section class="icon-setting-group"><h3>${group}</h3><div class="tab-art-grid">${items.map(([key,label,fallback])=>`<article class="tab-art-setting"><div class="tab-art-preview">${data.homeImages?.[key]?`<img src="${data.homeImages[key]}" alt="">`:`<span>${esc(moduleIcon(key,fallback))}</span>`}</div><div class="tab-art-copy"><strong>${label}</strong></div><div class="tab-art-actions"><button type="button" class="secondary compact-upload" data-pick-tab-image="${key}">${data.homeImages?.[key]?"Change":"Add image"}</button><input type="file" accept="image/*" data-tab-image="${key}" hidden>${data.homeImages?.[key]?`<button type="button" class="mini danger" data-remove-tab-image="${key}">Remove</button>`:""}</div></article>`).join("")}</div></section>`).join("")}
       </div>
       </div>

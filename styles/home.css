@@ -1328,3 +1328,32 @@ body[data-route="home"] .home-tile-wrap .module::before {
 @media(max-width:700px){
   .home-tile-wrap:not(.is-editing) .module.module-treasures{aspect-ratio:5 / 1!important;border-radius:18px!important}
 }
+
+/* LinaHub 17.9.68 — compact morning/evening check-ins and dated history */
+.home-checkin-pair{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:8px 0 12px}
+.home-checkin-pair .home-daily-checkin{margin:0;min-height:68px;grid-template-columns:36px minmax(0,1fr) auto;gap:9px;padding:9px 11px;border-radius:17px;box-shadow:none}
+.home-checkin-pair .home-checkin-icon{width:34px;height:34px;border-radius:11px;font-size:1rem}
+.home-checkin-pair .home-daily-checkin strong{font-size:.82rem;line-height:1.1}
+.home-checkin-pair .home-daily-checkin small{font-size:.68rem;margin-top:2px}
+.home-checkin-pair .home-daily-checkin>b{padding:6px 8px;border-radius:9px;font-size:.68rem}
+.home-checkin-pair .home-daily-checkin.complete{border-color:color-mix(in srgb,#57d68d 58%,var(--line));background:color-mix(in srgb,#57d68d 10%,var(--card))}
+.home-checkin-pair .home-daily-checkin.complete .home-checkin-icon{background:color-mix(in srgb,#57d68d 20%,var(--soft));color:#57d68d}
+.home-checkin-pair .home-daily-checkin.complete>b{background:transparent;color:#57d68d}
+.home-checkin-history{margin:0 0 24px;padding:13px;border:1px solid var(--line);border-radius:19px;background:var(--card)}
+.home-checkin-history-top,.home-checkin-history-controls{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.home-checkin-history-top h2{margin:0;font-size:.9rem}.home-checkin-history-top p{margin:2px 0 0;color:var(--muted);font-size:.7rem}
+.home-checkin-history-total{padding:5px 8px;border-radius:999px;background:var(--purple-soft);color:var(--purple);font-size:.66rem;font-weight:800;white-space:nowrap}
+.home-checkin-history-controls{margin-top:10px}
+.home-checkin-history-tabs,.home-checkin-history-arrows{display:flex;gap:5px}
+.home-checkin-history-tabs button,.home-checkin-history-arrows button{min-height:30px;padding:5px 9px;border:1px solid var(--line);border-radius:9px;background:var(--soft);color:var(--ink);font-size:.68rem;font-weight:750}
+.home-checkin-history-tabs button.active{background:var(--purple);border-color:var(--purple);color:#fff}
+.home-checkin-history-grid{display:grid;gap:5px;margin-top:10px}.home-checkin-history-grid.week{grid-template-columns:repeat(7,minmax(0,1fr))}.home-checkin-history-grid.month{grid-template-columns:repeat(7,minmax(0,1fr))}
+.home-checkin-history-grid article{min-width:0;padding:6px 2px;border:1px solid var(--line);border-radius:10px;background:var(--soft);text-align:center}
+.home-checkin-history-grid article.today{border-color:var(--purple);box-shadow:inset 0 0 0 1px var(--purple)}
+.home-checkin-history-grid article>span{display:block;color:var(--muted);font-size:.52rem}.home-checkin-history-grid article>strong{display:block;margin:1px 0 4px;font-size:.68rem}
+.home-checkin-history-grid article>div{display:flex;justify-content:center;gap:3px}.home-checkin-history-grid i{width:15px;height:15px;display:grid;place-items:center;border-radius:50%;background:var(--card);color:var(--muted);font-size:.55rem;font-style:normal;opacity:.36}.home-checkin-history-grid i.done{background:var(--purple-soft);color:var(--purple);opacity:1}
+.home-checkin-history-key{display:flex;align-items:center;gap:10px;margin-top:9px;color:var(--muted);font-size:.62rem}.home-checkin-history-key span{display:flex;align-items:center;gap:3px}.home-checkin-history-key i{font-style:normal;color:var(--purple)}.home-checkin-history-key small{margin-left:auto;font-size:.6rem}
+@media(max-width:520px){
+ .home-checkin-pair{gap:7px}.home-checkin-pair .home-daily-checkin{grid-template-columns:29px minmax(0,1fr);min-height:59px;padding:7px 8px;gap:7px}.home-checkin-pair .home-checkin-icon{width:28px;height:28px;font-size:.85rem}.home-checkin-pair .home-daily-checkin strong{font-size:.69rem}.home-checkin-pair .home-daily-checkin small{font-size:.6rem}.home-checkin-pair .home-daily-checkin>b{grid-column:auto;position:absolute;right:7px;bottom:5px;padding:0;background:transparent;color:var(--purple);font-size:.58rem}.home-checkin-pair .home-daily-checkin{position:relative;padding-right:35px}
+ .home-checkin-history{padding:10px;border-radius:16px}.home-checkin-history-controls{align-items:stretch}.home-checkin-history-tabs button,.home-checkin-history-arrows button{padding:4px 7px;font-size:.62rem}.home-checkin-history-grid{gap:3px}.home-checkin-history-grid article{padding:5px 1px;border-radius:8px}.home-checkin-history-grid i{width:12px;height:12px;font-size:.47rem}.home-checkin-history-key small{display:none}
+}

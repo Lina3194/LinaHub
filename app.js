@@ -226,6 +226,7 @@ function render(){
   if(route==="pets"||route==="tank") bindAquariums();
   bindBottomNavigation();
   linaMaybeOpenDailyCheckin();
+  linaMaybeOpenNightlyCheckin();
 }
 
 
@@ -255,6 +256,9 @@ function setupNavigation(){
 
     const dailyButton=event.target.closest("[data-open-daily-checkin]");
     if(dailyButton){event.preventDefault();event.stopPropagation();openDailyCheckin(true);return;}
+
+    const nightlyButton=event.target.closest("[data-open-nightly-checkin]");
+    if(nightlyButton){event.preventDefault();event.stopPropagation();openNightlyCheckin(true);return;}
 
     const healthTabButton=event.target.closest("[data-health-tab]");
     if(healthTabButton){
@@ -525,8 +529,8 @@ function linaStartNotificationChecks(){
   linaCheckNotifications();
   linaNotificationTimer=setInterval(linaCheckNotifications,60000);
 }
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){linaCheckNotifications();linaMaybeOpenDailyCheckin();}});
-window.addEventListener("focus",()=>{linaCheckNotifications();linaMaybeOpenDailyCheckin();});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){linaCheckNotifications();linaMaybeOpenDailyCheckin();linaMaybeOpenNightlyCheckin();}});
+window.addEventListener("focus",()=>{linaCheckNotifications();linaMaybeOpenDailyCheckin();linaMaybeOpenNightlyCheckin();});
 
 setupNavigation();
 setupSwipeBack();

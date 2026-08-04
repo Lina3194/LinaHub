@@ -252,6 +252,9 @@ function HomePage(){
   const editing=!!data.homeEditing;
   const dayKey=typeof linaDailyDayKey==="function"?linaDailyDayKey():today();
   const complete=!!data.dailyCheckinCompleted?.[dayKey];
+  const nightKey=typeof linaNightlyDayKey==="function"?linaNightlyDayKey():dayKey;
+  const nightComplete=!!data.nightlyCheckinCompleted?.[nightKey];
+  const showNight=typeof linaNightlyWindowOpen==="function"?linaNightlyWindowOpen():false;
   return shell(`
     <section class="hero home-dashboard-hero">
       <div class="hero-row">
@@ -269,6 +272,9 @@ function HomePage(){
     <button type="button" class="home-daily-checkin ${complete?"complete":""}" data-open-daily-checkin>
       <span class="home-checkin-icon">${complete?"✓":"☀️"}</span><span><strong>${complete?"Daily check-in complete":"Daily check-in"}</strong><small>${complete?"Saved for today":"Track sleep, mood, energy and more"}</small></span><b>${complete?"✓":"Complete now"}</b>
     </button>
+    ${showNight||nightComplete?`<button type="button" class="home-daily-checkin home-nightly-checkin ${nightComplete?"complete":""}" data-open-nightly-checkin>
+      <span class="home-checkin-icon">${nightComplete?"✓":"🌙"}</span><span><strong>${nightComplete?"Nightly check-in complete":"Nightly check-in"}</strong><small>${nightComplete?"Saved for tonight":"Available from 10 PM to 2 AM"}</small></span><b>${nightComplete?"✓":"Complete now"}</b>
+    </button>`:""}
     <section class="home-journey"><h2>Your journey</h2><div class="grid home-layout ${editing?"editing":""}">${data.homeLayout.map(item=>homeTile(item,editing)).join("")}</div></section>
     ${editing?hiddenHomeTiles():""}
     ${homeQuickOverview()}

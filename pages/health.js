@@ -384,3 +384,76 @@ function linaMaybeOpenDailyCheckin(){
   if(remindAt>Date.now()){window.clearTimeout(window.__linaDailyReminderTimer);window.__linaDailyReminderTimer=window.setTimeout(()=>openDailyCheckin(),Math.min(remindAt-Date.now(),2147483647));return;}
   window.setTimeout(()=>openDailyCheckin(),350);
 }
+
+
+function linaNightlyDayKey(now=new Date()){
+  const shifted=new Date(now.getTime()-2*60*60*1000);
+  const y=shifted.getFullYear(),m=String(shifted.getMonth()+1).padStart(2,"0"),d=String(shifted.getDate()).padStart(2,"0");
+  return `${y}-${m}-${d}`;
+}
+function linaNightlyWindowOpen(now=new Date()){
+  const hour=now.getHours();
+  return hour>=22||hour<2;
+}
+function linaNightlyCheckinMarkup(dateValue){
+  const saved=(data.nightCheckins||{})[dateValue]||{};
+  const feelings=(name,title,items,value)=>`<div class="daily-popup-group"><h3>${title}</h3><div class="health-circle-scale">${items.map((item,index)=>`<button type="button" data-nightly-feeling="${name}" data-value="${index}" class="${Number(value)===index?'active':''}"><span>${item[0]}</span><small>${item[1]}</small></button>`).join("")}</div></div>`;
+  const meds=linaDailyDueMedications(dateValue);
+  const selected=new Set((saved.tablets||[]).map(String));
+  return `<div class="hourly-checkin-backdrop nightly-checkin-backdrop" role="dialog" aria-modal="true" aria-label="Nightly check-in">
+    <section class="hourly-checkin-modal daily-checkin-modal nightly-checkin-modal">
+      <div class="hourly-popup-head"><div><span class="section-kicker">🌙 NIGHTLY CHECK-IN</span><h2>How are you ending your day?</h2><p>This check-in is available from 10:00 PM to 1:59 AM.</p></div></div>
+      ${feelings("energy","Energy",HEALTH_FEELINGS.energy,saved.energy)}
+      ${feelings("mood","Mood",HEALTH_FEELINGS.mood,saved.mood)}
+      ${feelings("pain","Pain",HEALTH_FEELINGS.pain,saved.pain)}
+      <div class="daily-popup-group"><h3>Evening notes</h3><textarea class="field" id="nightlyNotes" rows="4" placeholder="Anything you want to remember about today…">${esc(saved.notes||"")}</textarea></div>
+      <div class="daily-popup-group"><h3>Tablets</h3>${meds.length?`<div class="daily-tablet-list">${meds.map(m=>`<label><input type="checkbox" data-nightly-med="${esc(m.id)}" ${selected.has(String(m.id))?'checked':''}><span><strong>${esc(m.name)}</strong><small>${esc(m.dose||m.time||'Due today')}</small></span></label>`).join("")}</div>`:`<p class="muted">No scheduled tablets are due today.</p>`}</div>
+      <div class="daily-popup-actions"><button type="button" class="primary" id="completeNightlyCheckin">Complete</button><button type="button" class="secondary" id="laterNightlyCheckin">Save &amp; Remind me later</button></div>
+    </section>
+  </div>`;
+}
+function linaSaveNightlyCheckin(backdrop,dateValue,complete){
+  const selected=name=>{const b=backdrop.querySelector(`[data-nightly-feeling="${name}"].active`);return b?Number(b.dataset.value):null};
+  const entry={date:dateValue,time:new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}),updatedAt:new Date().toISOString(),energy:selected("energy"),mood:selected("mood"),pain:selected("pain"),notes:backdrop.querySelector("#nightlyNotes")?.value.trim()||"",tablets:[...backdrop.querySelectorAll("[data-nightly-med]:checked")].map(x=>String(x.dataset.nightlyMed))};
+  data.nightCheckins=data.nightCheckins||{};
+  const previous=Array.isArray(data.nightCheckins?.[dateValue]?.tablets)?data.nightCheckins[dateValue].tablets.map(String):[];
+  data.medicationHistory=Array.isArray(data.medicationHistory)?data.medicationHistory:[];
+  entry.tablets.filter(id=>!previous.includes(id)).forEach(medId=>{
+    if(data.medicationHistory.some(x=>String(x.medId)===medId&&x.date===dateValue&&x.source==="nightly-checkin"))return;
+    const stockAdjusted=typeof medAdjustStockForDose==="function"?medAdjustStockForDose(medId,-1):false;
+    data.medicationHistory.push({id:`night-dose-${Date.now()}-${Math.random().toString(36).slice(2,6)}`,medId,date:dateValue,time:entry.time,notes:"Nightly check-in",source:"nightly-checkin",createdAt:entry.updatedAt,stockAdjusted});
+  });
+  previous.filter(id=>!entry.tablets.includes(id)).forEach(medId=>{
+    const matching=data.medicationHistory.filter(x=>String(x.medId)===medId&&x.date===dateValue&&x.source==="nightly-checkin");
+    matching.forEach(log=>{if(log.stockAdjusted&&typeof medAdjustStockForDose==="function")medAdjustStockForDose(medId,1)});
+    data.medicationHistory=data.medicationHistory.filter(x=>!(String(x.medId)===medId&&x.date===dateValue&&x.source==="nightly-checkin"));
+  });
+  data.nightCheckins[dateValue]=entry;
+  data.dayCheckins=Array.isArray(data.dayCheckins)?data.dayCheckins:[];
+  data.dayCheckins=data.dayCheckins.filter(x=>!(x.date===dateValue&&x.source==="nightly-checkin"));
+  data.dayCheckins.push({id:`night-${Date.now()}`,date:dateValue,time:entry.time,createdAt:entry.updatedAt,energy:entry.energy,mood:entry.mood,pain:entry.pain,note:entry.notes,source:"nightly-checkin"});
+  data.checkins=data.checkins&&typeof data.checkins==="object"?data.checkins:{};
+  data.checkins[dateValue]={...(data.checkins[dateValue]||{}),energy:entry.energy,mood:entry.mood,pain:entry.pain,savedAt:entry.updatedAt};
+  if(complete){data.nightlyCheckinCompleted=data.nightlyCheckinCompleted||{};data.nightlyCheckinCompleted[dateValue]=entry.updatedAt;delete data.nightlyCheckinRemindAt?.[dateValue];}
+  else{data.nightlyCheckinRemindAt=data.nightlyCheckinRemindAt||{};data.nightlyCheckinRemindAt[dateValue]=Date.now()+30*60*1000;}
+  saveData();
+}
+function openNightlyCheckin(force=false){
+  if(!force&&!linaNightlyWindowOpen())return;
+  const dateValue=linaNightlyDayKey();
+  if(!force&&data.nightlyCheckinCompleted?.[dateValue])return;
+  if(document.querySelector(".nightly-checkin-backdrop"))return;
+  document.body.insertAdjacentHTML("beforeend",linaNightlyCheckinMarkup(dateValue));
+  const backdrop=document.querySelector(".nightly-checkin-backdrop");
+  backdrop?.addEventListener("click",event=>{const feeling=event.target.closest("[data-nightly-feeling]");if(feeling){backdrop.querySelectorAll(`[data-nightly-feeling="${feeling.dataset.nightlyFeeling}"]`).forEach(x=>x.classList.remove("active"));feeling.classList.add("active");}});
+  backdrop?.querySelector("#completeNightlyCheckin")?.addEventListener("click",()=>{linaSaveNightlyCheckin(backdrop,dateValue,true);backdrop.remove();toast("Nightly check-in complete 🌙");if(route==="today"||route==="home"||route==="journal")render();});
+  backdrop?.querySelector("#laterNightlyCheckin")?.addEventListener("click",()=>{linaSaveNightlyCheckin(backdrop,dateValue,false);backdrop.remove();toast("Saved — I’ll remind you again tonight 💜");window.clearTimeout(window.__linaNightlyReminderTimer);window.__linaNightlyReminderTimer=window.setTimeout(()=>openNightlyCheckin(),30*60*1000);if(route==="today"||route==="home"||route==="journal")render();});
+}
+function linaMaybeOpenNightlyCheckin(){
+  if(!linaNightlyWindowOpen())return;
+  const key=linaNightlyDayKey();
+  if(data.nightlyCheckinCompleted?.[key])return;
+  const remindAt=Number(data.nightlyCheckinRemindAt?.[key]||0);
+  if(remindAt>Date.now()){window.clearTimeout(window.__linaNightlyReminderTimer);window.__linaNightlyReminderTimer=window.setTimeout(()=>openNightlyCheckin(),Math.min(remindAt-Date.now(),2147483647));return;}
+  window.setTimeout(()=>openNightlyCheckin(),700);
+}

@@ -105,7 +105,8 @@ const DEFAULT_DATA={
   pokemonFriends:structuredClone(POKEMON_FRIEND_SEED),
   pokemonSeededVersion:2,
   medications:[
-    {id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""}
+    {id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",timeLabel:"Morning",scheduleType:"daily",weekdays:[],active:true,dosesPerDay:1,stock:0,notes:""},
+    {id:"med-magnesium",name:"Magnesium",dose:"",time:"Evening",timeLabel:"Evening",scheduleType:"daily",weekdays:[],active:true,dosesPerDay:1,stock:0,notes:""}
   ],
   medicationLog:{},
   weightEntries:[],
@@ -419,6 +420,9 @@ function migrateLegacy(){
       if(!migrated.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
         migrated.medications.unshift({id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""});
       }
+      if(!migrated.medications.some(m=>(m.name||"").trim().toLowerCase()==="magnesium")){
+        migrated.medications.push({id:"med-magnesium",name:"Magnesium",dose:"",time:"Evening",timeLabel:"Evening",scheduleType:"daily",weekdays:[],active:true,dosesPerDay:1,stock:0,notes:""});
+      }
       if(!Array.isArray(migrated.pokemonFriends)||migrated.pokemonFriends.length===0){
         migrated.pokemonFriends=structuredClone(POKEMON_FRIEND_SEED);migrated.pokemonSeededVersion=1;
       }
@@ -443,6 +447,9 @@ function loadData(){
       loaded.medications=Array.isArray(loaded.medications)?loaded.medications:[];
       if(!loaded.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
         loaded.medications.unshift({id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""});
+      }
+      if(!loaded.medications.some(m=>(m.name||"").trim().toLowerCase()==="magnesium")){
+        loaded.medications.push({id:"med-magnesium",name:"Magnesium",dose:"",time:"Evening",timeLabel:"Evening",scheduleType:"daily",weekdays:[],active:true,dosesPerDay:1,stock:0,notes:""});
       }
       if(!loaded.pokemonSeededVersion && (!Array.isArray(loaded.pokemonFriends)||loaded.pokemonFriends.length===0)){
         loaded.pokemonFriends=structuredClone(POKEMON_FRIEND_SEED);loaded.pokemonSeededVersion=1;

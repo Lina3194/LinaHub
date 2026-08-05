@@ -301,6 +301,17 @@ function linaDailyDueMedications(dateValue){
     return m.scheduleType==="daily"||(m.scheduleType==="weekdays"&&(m.weekdays||[]).includes(shortDay));
   });
 }
+function linaNightlyDueMedications(dateValue){
+  const due=linaDailyDueMedications(dateValue);
+  const eveningWords=/(evening|night|nightly|pm|bedtime)/i;
+  const evening=due.filter(m=>{
+    const name=String(m.name||"");
+    const timing=[m.time,m.timeLabel,m.instructions,m.notes].filter(Boolean).join(" ");
+    if(/folic\s*acid/i.test(name))return false;
+    return /magnesium/i.test(name)||eveningWords.test(timing);
+  });
+  return evening.length?evening:due.filter(m=>/magnesium/i.test(String(m.name||"")));
+}
 function linaSplitHours(value,totalMinutes){
   const minutes=Number.isFinite(Number(totalMinutes))?Math.max(0,Math.round(Number(totalMinutes))):Math.max(0,Math.round((Number(value)||0)*60));
   return {hours:Math.floor(minutes/60),minutes:minutes%60};
@@ -398,7 +409,7 @@ function linaNightlyWindowOpen(now=new Date()){
 function linaNightlyCheckinMarkup(dateValue){
   const saved=(data.nightCheckins||{})[dateValue]||{};
   const feelings=(name,title,items,value)=>`<div class="daily-popup-group"><h3>${title}</h3><div class="health-circle-scale">${items.map((item,index)=>`<button type="button" data-nightly-feeling="${name}" data-value="${index}" class="${Number(value)===index?'active':''}"><span>${item[0]}</span><small>${item[1]}</small></button>`).join("")}</div></div>`;
-  const meds=linaDailyDueMedications(dateValue);
+  const meds=linaNightlyDueMedications(dateValue);
   const selected=new Set((saved.tablets||[]).map(String));
   return `<div class="hourly-checkin-backdrop nightly-checkin-backdrop" role="dialog" aria-modal="true" aria-label="Nightly check-in">
     <section class="hourly-checkin-modal daily-checkin-modal nightly-checkin-modal">

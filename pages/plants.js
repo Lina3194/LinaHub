@@ -251,6 +251,53 @@ function plantTimelineCalendar(p){
   }
   return `<div class="plant-calendar-head"><button type="button" class="mini" data-plant-month="-1">‹</button><div class="plant-calendar-title"><strong>${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</strong><small>${todayInMonth?`Today: ${formatDate(todayDate)}`:`Today: ${formatDate(todayDate)}`}</small></div><button type="button" class="mini" data-plant-month="1">›</button></div><div class="plant-cal-weekdays">${["M","T","W","T","F","S","S"].map(x=>`<span>${x}</span>`).join("")}</div><div class="plant-cal-grid">${cells.join("")}</div><div class="plant-calendar-legend"><span><i class="today-legend"></i>Today</span><span><i class="water"></i>Watered</span><span><i class="feed"></i>Fed</span><span><i class="repot"></i>Repotted</span></div>`;
 }
+
+function closePlantCareCalendarModal(){
+  document.querySelector('.plant-care-modal-backdrop')?.remove();
+  document.body.classList.remove('plant-care-modal-open');
+}
+function openPlantCareCalendarModal({date,hasW,hasF,hasR,onAction}){
+  closePlantCareCalendarModal();
+  const prettyDate=formatDate(date);
+  const active=[hasW?'<span class="plant-care-status watered">💧 Watered</span>':'',hasF?'<span class="plant-care-status fed">🌱 Fed</span>':'',hasR?'<span class="plant-care-status repotted">🪴 Repotted</span>':''].filter(Boolean).join('');
+  const overlay=document.createElement('div');
+  overlay.className='plant-care-modal-backdrop';
+  overlay.innerHTML=`<section class="plant-care-modal" role="dialog" aria-modal="true" aria-labelledby="plantCareModalTitle">
+    <button type="button" class="mini plant-care-modal-close" aria-label="Close">×</button>
+    <span class="section-kicker">Plant care calendar</span>
+    <h2 id="plantCareModalTitle">${prettyDate}</h2>
+    <p class="helper-text">Choose what you want to log or remove for this date.</p>
+    <div class="plant-care-modal-current">
+      <small>Current records</small>
+      <div class="plant-care-status-row">${active || '<span class="plant-care-status none">No care logged yet</span>'}</div>
+    </div>
+    <div class="plant-care-modal-grid">
+      <button type="button" class="plant-care-choice watered" data-care-action="water"><span>💧</span><strong>${hasW?'Watered again':'Mark watered'}</strong><small>${hasW?'Keep this day in the watering log':'Add this date to the watering log'}</small></button>
+      <button type="button" class="plant-care-choice fed" data-care-action="feed"><span>🌱</span><strong>${hasF?'Fed again':'Mark fed'}</strong><small>${hasF?'Keep this day in the feeding log':'Add this date to the feeding log'}</small></button>
+      <button type="button" class="plant-care-choice repotted" data-care-action="repot"><span>🪴</span><strong>${hasR?'Repotted again':'Mark repotted'}</strong><small>${hasR?'Keep this day in the repot log':'Add this date to the repot log'}</small></button>
+      <button type="button" class="plant-care-choice danger" data-care-action="remove" ${(!hasW&&!hasF&&!hasR)?'disabled':''}><span>✕</span><strong>Remove records</strong><small>${(hasW||hasF||hasR)?'Clear all care records for this date':'Nothing to remove yet'}</small></button>
+    </div>
+    <div class="plant-care-modal-actions"><button type="button" class="secondary" data-close-plant-care-modal>Cancel</button></div>
+  </section>`;
+  const close=()=>{
+    window.removeEventListener('keydown',onKey);
+    closePlantCareCalendarModal();
+  };
+  const onKey=(e)=>{ if(e.key==='Escape') close(); };
+  overlay.addEventListener('click',e=>{
+    if(e.target===overlay || e.target.closest('[data-close-plant-care-modal]') || e.target.closest('.plant-care-modal-close')) close();
+    const btn=e.target.closest('[data-care-action]');
+    if(!btn || btn.disabled) return;
+    const action=btn.dataset.careAction;
+    close();
+    onAction?.(action);
+  });
+  document.body.appendChild(overlay);
+  document.body.classList.add('plant-care-modal-open');
+  window.addEventListener('keydown',onKey);
+  overlay.querySelector('[data-care-action="water"]')?.focus();
+}
+
 function plantReminderText(p,guide){
   plantEnsureExtendedData(p);const every=Number(p.wateringDays)||guide?.wateringDays||7;
   if(!p.reminderEnabled)return "Reminder off";
@@ -284,13 +331,31 @@ function bindPlants(){
   document.querySelectorAll("[data-plant-month]").forEach(b=>b.onclick=()=>{data.plantCalendarMonthById[p.id]=plantMonthShift(data.plantCalendarMonthById[p.id]||today().slice(0,7),b.dataset.plantMonth);saveData();render()});
   document.querySelectorAll("[data-plant-calendar-date]").forEach(b=>b.onclick=()=>{
     const date=b.dataset.plantCalendarDate,hasW=p.history.includes(date),hasF=p.feedingHistory.includes(date),hasR=p.repotHistory.includes(date);
-    const action=prompt(`${formatDate(date)}\nType: water, feed, repot, or remove`,hasW?"water":hasF?"feed":hasR?"repot":"water");if(!action)return;
-    const value=action.trim().toLowerCase();
-    if(value==="remove"){p.history=p.history.filter(x=>x!==date);p.feedingHistory=p.feedingHistory.filter(x=>x!==date);p.repotHistory=p.repotHistory.filter(x=>x!==date)}
-    else if(value.startsWith("water")){p.history=p.history.filter(x=>x!==date);p.history.push(date)}
-    else if(value.startsWith("feed")){p.feedingHistory=p.feedingHistory.filter(x=>x!==date);p.feedingHistory.push(date)}
-    else if(value.startsWith("repot")){p.repotHistory=p.repotHistory.filter(x=>x!==date);p.repotHistory.push(date)}
-    [p.history,p.feedingHistory,p.repotHistory].forEach(a=>a.sort());p.lastWatered=p.history.at(-1)||"";p.lastFed=p.feedingHistory.at(-1)||"";saveData();render();
+    openPlantCareCalendarModal({date,hasW,hasF,hasR,onAction:(value)=>{
+      if(value==="remove"){
+        p.history=p.history.filter(x=>x!==date);
+        p.feedingHistory=p.feedingHistory.filter(x=>x!==date);
+        p.repotHistory=p.repotHistory.filter(x=>x!==date);
+        toast("Care records removed");
+      }else if(value==="water"){
+        p.history=p.history.filter(x=>x!==date);
+        p.history.push(date);
+        toast("Watering logged 💧");
+      }else if(value==="feed"){
+        p.feedingHistory=p.feedingHistory.filter(x=>x!==date);
+        p.feedingHistory.push(date);
+        toast("Feeding logged 🌱");
+      }else if(value==="repot"){
+        p.repotHistory=p.repotHistory.filter(x=>x!==date);
+        p.repotHistory.push(date);
+        toast("Repotting logged 🪴");
+      }
+      [p.history,p.feedingHistory,p.repotHistory].forEach(a=>a.sort());
+      p.lastWatered=p.history.at(-1)||"";
+      p.lastFed=p.feedingHistory.at(-1)||"";
+      saveData();
+      render();
+    }});
   });
   const careDate=()=>document.querySelector("#plantCareDate")?.value||today();
   document.querySelector("#logPlantCare")?.addEventListener("click",()=>{

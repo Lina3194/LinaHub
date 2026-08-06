@@ -322,3 +322,39 @@ body.dark .encyclopedia-card,body.dark .plant-main-tabs button{background:#10121
   .plant-care-entry button{grid-column:1/-1;width:100%}
 }
 @media(max-width:430px){.plant-care-entry{grid-template-columns:1fr}.plant-care-entry button{grid-column:auto}}
+
+
+/* v17.9.82 prettier plant care calendar popup */
+.plant-care-modal-open{overflow:hidden}
+.plant-care-modal-backdrop{position:fixed;inset:0;z-index:7000;display:grid;place-items:center;padding:18px;background:rgba(11,7,24,.72);backdrop-filter:blur(10px)}
+.plant-care-modal{position:relative;width:min(560px,calc(100% - 20px));padding:22px;border-radius:28px;border:1px solid rgba(214,170,255,.18);background:radial-gradient(circle at top,rgba(92,63,128,.22),transparent 38%),linear-gradient(180deg,rgba(39,28,64,.98),rgba(26,18,43,.98));box-shadow:0 28px 80px rgba(0,0,0,.45);color:var(--ink)}
+.plant-care-modal h2{margin:4px 0 4px}
+.plant-care-modal .helper-text{margin:0 0 14px}
+.plant-care-modal-close{position:absolute;right:14px;top:14px;width:38px;height:38px;border-radius:50%;display:grid;place-items:center}
+.plant-care-modal-current{padding:14px 15px;border-radius:18px;background:rgba(255,255,255,.04);border:1px solid rgba(233,220,255,.1);margin-bottom:14px}
+.plant-care-modal-current small{display:block;margin-bottom:8px;color:var(--muted);font-weight:700;letter-spacing:.02em}
+.plant-care-status-row{display:flex;flex-wrap:wrap;gap:8px}
+.plant-care-status{display:inline-flex;align-items:center;gap:6px;padding:8px 11px;border-radius:999px;font-size:.85rem;font-weight:800;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05)}
+.plant-care-status.watered{background:rgba(109,211,255,.12);border-color:rgba(109,211,255,.24);color:#d4f5ff}
+.plant-care-status.fed{background:rgba(143,226,159,.12);border-color:rgba(143,226,159,.24);color:#ddffe4}
+.plant-care-status.repotted{background:rgba(255,196,121,.12);border-color:rgba(255,196,121,.24);color:#ffe9cd}
+.plant-care-status.none{opacity:.85}
+.plant-care-modal-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.plant-care-choice{display:grid;grid-template-columns:auto 1fr;grid-template-areas:'icon title' 'icon desc';gap:4px 10px;align-items:center;text-align:left;padding:14px;border-radius:20px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.045);color:var(--ink);transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease,background .16s ease}
+.plant-care-choice:hover,.plant-care-choice:focus-visible{transform:translateY(-1px);border-color:rgba(214,170,255,.34);box-shadow:0 12px 28px rgba(0,0,0,.18)}
+.plant-care-choice>span{grid-area:icon;width:42px;height:42px;border-radius:16px;display:grid;place-items:center;font-size:1.25rem;background:rgba(255,255,255,.08)}
+.plant-care-choice strong{grid-area:title;font-size:.96rem}
+.plant-care-choice small{grid-area:desc;color:var(--muted);line-height:1.35}
+.plant-care-choice.watered>span{background:rgba(109,211,255,.14)}
+.plant-care-choice.fed>span{background:rgba(143,226,159,.14)}
+.plant-care-choice.repotted>span{background:rgba(255,196,121,.14)}
+.plant-care-choice.danger>span{background:rgba(255,129,157,.14)}
+.plant-care-choice.danger{border-color:rgba(255,129,157,.14)}
+.plant-care-choice:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
+.plant-care-modal-actions{display:flex;justify-content:flex-end;gap:10px;margin-top:14px}
+@media(max-width:560px){
+  .plant-care-modal-backdrop{padding:12px}
+  .plant-care-modal{width:100%;padding:18px 16px 16px;border-radius:24px}
+  .plant-care-modal-grid{grid-template-columns:1fr}
+  .plant-care-choice{padding:13px;border-radius:18px}
+}

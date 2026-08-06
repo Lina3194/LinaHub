@@ -190,6 +190,19 @@ function applyModule(payload){
   if(!payload||typeof payload!=="object") return;
   Object.keys(payload).forEach(key=>{
     if(key==="updatedAt"||key==="deviceId"||key==="schemaVersion") return;
+    if(key==="plants"&&Array.isArray(payload.plants)){
+      const remotePlants=payload.plants.map((plant,index)=>typeof normalizePlant==="function"?normalizePlant(plant,index):plant);
+      const requiredIds=new Set(["strawberry","pink-kiss"]);
+      const merged=[...remotePlants];
+      for(const localPlant of (data.plants||[])){
+        const id=String(localPlant?.id||"").toLowerCase();
+        if(!requiredIds.has(id))continue;
+        const exists=merged.some(item=>String(item?.id||"").toLowerCase()===id||String(item?.name||"").trim().toLowerCase()===String(localPlant?.name||"").trim().toLowerCase());
+        if(!exists)merged.push(typeof normalizePlant==="function"?normalizePlant(localPlant,merged.length):localPlant);
+      }
+      data.plants=merged;
+      return;
+    }
     if(key==="houseTasks"&&Array.isArray(payload.houseTasks)){
       const localById=new Map((data.houseTasks||[]).map(task=>[String(task.id),task]));
       data.houseTasks=payload.houseTasks.map(remoteTask=>{

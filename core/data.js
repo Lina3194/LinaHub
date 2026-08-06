@@ -334,7 +334,7 @@ function normalizePlant(p,i){
     lastWatered:p.lastWatered||"",history:Array.isArray(p.history)?p.history:[],photo:p.photo||"",
     photoKey:p.photoKey||`plant:${p.id||`plant-${i}`}`,guideId:p.guideId||"",wateringDays:Number(p.wateringDays)||0,
     light:p.light||"",lastFed:p.lastFed||"",feedingHistory:Array.isArray(p.feedingHistory)?p.feedingHistory:[],
-    repotHistory:Array.isArray(p.repotHistory)?p.repotHistory:[],photoHistory:Array.isArray(p.photoHistory)?p.photoHistory:[],
+    repotHistory:Array.isArray(p.repotHistory)?p.repotHistory:[],pruneHistory:Array.isArray(p.pruneHistory)?p.pruneHistory:[],photoHistory:Array.isArray(p.photoHistory)?p.photoHistory:[],
     reminderEnabled:p.reminderEnabled!==false
   };
 }
@@ -500,6 +500,19 @@ function moduleVisual(key,fallback="✨",className="module-tile-image"){
 }
 
 let data=loadData();
+if(!data.plantsAdded17986){
+  data.plants=Array.isArray(data.plants)?data.plants:[];
+  const requestedPlants17986=[
+    {id:"strawberry",name:"Strawberry",emoji:"🍓",notes:"",lastWatered:"",history:[],feedingHistory:[],repotHistory:[],pruneHistory:[],photo:"",guideId:"strawberry",wateringDays:3,reminderEnabled:true},
+    {id:"pink-kiss",name:"Pink Kiss",emoji:"🌸",notes:"",lastWatered:"",history:[],feedingHistory:[],repotHistory:[],pruneHistory:[],photo:"",guideId:"pink-kiss",wateringDays:4,reminderEnabled:true}
+  ];
+  for(const plant of requestedPlants17986){
+    const exists=data.plants.some(item=>String(item.id||"").toLowerCase()===plant.id||String(item.name||"").trim().toLowerCase()===plant.name.toLowerCase());
+    if(!exists)data.plants.push(normalizePlant(plant,data.plants.length));
+  }
+  data.plantsAdded17986=true;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+}
 if(!data.plantsAdded17984){
   data.plants=Array.isArray(data.plants)?data.plants:[];
   const requestedPlants=[

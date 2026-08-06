@@ -238,6 +238,9 @@ function medCalendarFor(med,monthValue){
 function medicationHistoryTab(){
   const monthValue=medHistoryMonthStart();
   return `${medicationTopTabs("history")}
+  <section class="card med-past-dose-card">
+    <div class="section-title"><div><span class="section-kicker">🗓️ Missed entry</span><h2>Log a past dose</h2><p>Add a tablet you took on an earlier date but forgot to record.</p></div><button type="button" class="primary" id="openPastDose">+ Log past dose</button></div>
+  </section>
   <section class="med-history-by-tablet">
     ${data.medications.length?data.medications.map(m=>{
       const total=data.medicationHistory.filter(x=>String(x.medId)===String(m.id)).length;
@@ -248,6 +251,42 @@ function medicationHistoryTab(){
       </article>`;
     }).join(""):`<section class="card empty"><h2>No medication added</h2><p>Add a medication first and its calendar will appear here.</p></section>`}
   </section>`;
+}
+
+
+function openPastDoseModal(){
+  if(!data.medications?.length){toast("Add a medication first");return}
+  document.querySelector("#pastDoseModal")?.remove();
+  const overlay=document.createElement("div");
+  overlay.id="pastDoseModal";
+  overlay.className="med-past-dose-backdrop";
+  const yesterday=new Date();yesterday.setDate(yesterday.getDate()-1);
+  const defaultDate=`${yesterday.getFullYear()}-${String(yesterday.getMonth()+1).padStart(2,"0")}-${String(yesterday.getDate()).padStart(2,"0")}`;
+  overlay.innerHTML=`<section class="card med-past-dose-modal" role="dialog" aria-modal="true" aria-labelledby="pastDoseTitle">
+    <div class="section-title med-past-dose-head"><div><span class="section-kicker">🗓️ Medication history</span><h2 id="pastDoseTitle">Log a past dose</h2></div><button type="button" class="mini" data-close-past-dose aria-label="Close">×</button></div>
+    <div class="form-grid">
+      <label class="field-label">Medication<select class="field" id="pastDoseMedication">${data.medications.map(m=>`<option value="${esc(m.id)}">${esc(m.name)}${m.dose?` · ${esc(m.dose)}`:""}</option>`).join("")}</select></label>
+      <div class="two-col"><label class="field-label">Date<input class="field" id="pastDoseDate" type="date" max="${medLocalDate()}" value="${defaultDate}"></label><label class="field-label">Time<input class="field" id="pastDoseTime" type="time" value="09:00"></label></div>
+      <label class="field-label">Notes (optional)<textarea class="field" id="pastDoseNotes" rows="3" placeholder="Anything you want to remember"></textarea></label>
+      <p class="muted-copy">This adds the dose to history but does not reduce today’s tablet stock.</p>
+      <div class="two-col"><button type="button" class="primary" id="savePastDose">Save past dose</button><button type="button" class="secondary" data-close-past-dose>Cancel</button></div>
+    </div>
+  </section>`;
+  document.body.appendChild(overlay);document.body.classList.add("med-past-dose-open");
+  const close=()=>{overlay.remove();document.body.classList.remove("med-past-dose-open")};
+  overlay.querySelectorAll("[data-close-past-dose]").forEach(button=>button.addEventListener("click",close));
+  overlay.addEventListener("click",event=>{if(event.target===overlay)close()});
+  overlay.querySelector("#savePastDose")?.addEventListener("click",()=>{
+    const medId=overlay.querySelector("#pastDoseMedication")?.value;
+    const date=overlay.querySelector("#pastDoseDate")?.value;
+    const time=overlay.querySelector("#pastDoseTime")?.value||"";
+    const notes=overlay.querySelector("#pastDoseNotes")?.value.trim()||"";
+    if(!medId||!date){toast("Choose a medication and date");return}
+    if(date>medLocalDate()){toast("Choose today or an earlier date");return}
+    data.medicationHistory.push({id:medUid("dose"),medId,date,time,notes,createdAt:new Date().toISOString(),stockAdjusted:false,manualPastEntry:true});
+    syncMedicationCompletionMap(medId,date);data.medicationView.historyMonth=date.slice(0,7);medicationHistoryOpenId=medId;saveData();close();render();toast("Past dose added");
+  });
+  requestAnimationFrame(()=>overlay.querySelector("#pastDoseMedication")?.focus());
 }
 
 function medicationStockTab(){
@@ -366,6 +405,7 @@ function bindMedication(){
     if(nextTab==="today"){data.medicationView.date=medLocalDate();medicationDateTouched=false}
     saveData();render();
   });
+  document.querySelector("#openPastDose")?.addEventListener("click",openPastDoseModal);
   document.querySelectorAll("[data-med-history-toggle]").forEach(b=>b.onclick=()=>{
     const id=b.dataset.medHistoryToggle;
     medicationHistoryOpenId=String(medicationHistoryOpenId)===String(id)?"":id;

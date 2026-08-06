@@ -3,6 +3,7 @@ let medicationDateTouched=false;
 let medicationStockEditingId="";
 let medicationHistoryOpenId="";
 let medicationAddFormOpen=false;
+let medicationEditingId="";
 
 function medLocalDate(date=new Date()){
   const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,"0"),d=String(date.getDate()).padStart(2,"0");
@@ -263,39 +264,38 @@ function MedicationPage(){
 async function medCompressPhoto(file){
   return LinaImage.process(file,{width:420,height:420,fit:"contain",quality:.78,allowUpscale:false});
 }
-function medFillForm(m){
-  if(!document.querySelector("#medicationAddForm")){
-    medicationAddFormOpen=true;
-    render();
-    requestAnimationFrame(()=>medFillForm(m));
-    return;
-  }
+function medPopulateForm(m){
+  const form=document.querySelector("#medicationAddForm");
+  if(!form||!m)return false;
   document.querySelector("#medEditId").value=m.id;
-  document.querySelector("#medName").value=m.name;
-  document.querySelector("#medDose").value=m.dose;
-  document.querySelector("#medTime").value=m.time;
-  document.querySelector("#medInstructions").value=m.instructions;
+  document.querySelector("#medName").value=m.name||"";
+  document.querySelector("#medDose").value=m.dose||"";
+  document.querySelector("#medTime").value=m.time||"";
+  document.querySelector("#medInstructions").value=m.instructions||"";
   document.querySelector("#medTiming").value=medNormaliseTiming(m.timing||m.timeLabel||m.time);
   document.querySelector("#medTakeWith").value=m.takeWith||"";
   document.querySelector("#medAvoid").value=m.avoid||"";
   document.querySelector("#medGoodCombos").value=m.goodCombos||"";
   document.querySelector("#medBadCombos").value=m.badCombos||"";
   document.querySelector("#medDosesPerDay").value=m.dosesPerDay||1;
-  document.querySelector("#medScheduleType").value=m.scheduleType;
-  document.querySelector("#medStartDate").value=m.startDate;
-  document.querySelector("#medEndDate").value=m.endDate;
-  document.querySelector("#medNotes").value=m.notes;
-  document.querySelector("#medPhotoData").value=m.photo;
+  document.querySelector("#medScheduleType").value=m.scheduleType||"daily";
+  document.querySelector("#medStartDate").value=m.startDate||"";
+  document.querySelector("#medEndDate").value=m.endDate||"";
+  document.querySelector("#medNotes").value=m.notes||"";
+  document.querySelector("#medPhotoData").value=m.photo||"";
   document.querySelector("#medPhotoPreview").innerHTML=m.photo?`<img src="${m.photo}" alt="">`:"💊";
   document.querySelector("#removeMedPhoto").classList.toggle("hidden",!m.photo);
-  document.querySelectorAll("#medWeekdays input").forEach(x=>x.checked=m.weekdays.includes(x.value));
+  document.querySelectorAll("#medWeekdays input").forEach(x=>x.checked=(m.weekdays||[]).includes(x.value));
   document.querySelector("#medWeekdays").classList.toggle("hidden",m.scheduleType!=="weekdays");
-  medicationAddFormOpen=true;
-  document.querySelector("#medicationAddForm")?.classList.remove("hidden");
   document.querySelector("#medFormTitle").textContent="Edit medication";
   document.querySelector("#saveMedication").textContent="Save changes";
-  document.querySelector("#cancelMedEdit").classList.remove("hidden");
-  requestAnimationFrame(()=>document.querySelector("#medName")?.focus());
+  return true;
+}
+function medFillForm(m){
+  if(!m)return;
+  medicationEditingId=String(m.id);
+  medicationAddFormOpen=true;
+  render();
 }
 
 function syncMedicationCompletionMap(medId,date){
@@ -324,6 +324,9 @@ function medEditLog(log){
 function bindMedication(){
   ensureMedicationData();
   document.body.classList.toggle("med-form-open",!!medicationAddFormOpen);
+  if(medicationAddFormOpen&&medicationEditingId){
+    requestAnimationFrame(()=>{const m=data.medications.find(x=>String(x.id)===String(medicationEditingId));if(m)medPopulateForm(m)});
+  }
   const saveStockCount=id=>{
     const input=document.querySelector(`[data-med-stock-input="${CSS.escape(String(id))}"]`);
     const value=input?.value?.trim()??"";
@@ -397,10 +400,10 @@ function bindMedication(){
     }catch(error){toast(LinaImage.friendlyError(error));return}
     const existing=data.medications.findIndex(x=>x.id===med.id);
     med.stock=existing>=0?Math.max(0,Math.floor(Number(data.medications[existing].stock)||0)):0;
-    if(existing>=0)data.medications[existing]=med;else data.medications.push(med);data.medicationView.tab="meds";medicationAddFormOpen=false;document.body.classList.remove("med-form-open");data.medicationView.date=medLocalDate();medicationDateTouched=false;saveData();render();toast(existing>=0?"Medication updated":"Medication added");
+    if(existing>=0)data.medications[existing]=med;else data.medications.push(med);data.medicationView.tab="meds";medicationAddFormOpen=false;medicationEditingId="";document.body.classList.remove("med-form-open");data.medicationView.date=medLocalDate();medicationDateTouched=false;saveData();render();toast(existing>=0?"Medication updated":"Medication added");
   });
-  const closeMedForm=()=>{medicationAddFormOpen=false;document.body.classList.remove("med-form-open");render()};
-  document.querySelector("#openMedicationForm")?.addEventListener("click",()=>{medicationAddFormOpen=true;render();requestAnimationFrame(()=>document.querySelector("#medName")?.focus())});
+  const closeMedForm=()=>{medicationAddFormOpen=false;medicationEditingId="";document.body.classList.remove("med-form-open");render()};
+  document.querySelector("#openMedicationForm")?.addEventListener("click",()=>{medicationEditingId="";medicationAddFormOpen=true;render();requestAnimationFrame(()=>document.querySelector("#medName")?.focus())});
   document.querySelector("#closeMedicationForm")?.addEventListener("click",closeMedForm);
   document.querySelector("#cancelMedEdit")?.addEventListener("click",closeMedForm);
   document.querySelector("#medicationFormBackdrop")?.addEventListener("click",event=>{if(event.target?.matches?.("[data-close-med-form]"))closeMedForm()});

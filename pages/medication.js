@@ -135,6 +135,15 @@ function medicationTopTabs(active){
   </section>`;
 }
 function medInfoLine(label,value){return value?`<div class="med-info-line"><strong>${label}</strong><span>${esc(value)}</span></div>`:"";}
+function medNormaliseTiming(value){
+  const timing=String(value||"").trim().toLowerCase();
+  if(!timing)return "";
+  if(timing.includes("morning")||timing==="am")return "Morning";
+  if(timing.includes("afternoon")||timing.includes("midday")||timing.includes("noon"))return "Afternoon";
+  if(timing.includes("evening")||timing==="pm")return "Evening";
+  if(timing.includes("night")||timing.includes("bed"))return "Night";
+  return "";
+}
 function medicationFormModal(){
   return `<div class="med-form-modal-backdrop" id="medicationFormBackdrop" data-close-med-form>
     <section class="card med-add-card med-form-modal" id="medicationAddForm" role="dialog" aria-modal="true" aria-labelledby="medFormTitle">
@@ -144,7 +153,7 @@ function medicationFormModal(){
       <div class="form-grid">
         <input class="field" id="medName" placeholder="Medication name">
         <div class="two-col"><input class="field" id="medDose" placeholder="Dose, e.g. 25 mg"><input class="field" id="medTime" type="time" aria-label="Usual time"></div>
-        <input class="field" id="medTiming" placeholder="When, e.g. Morning, Evening or Bedtime">
+        <select class="field" id="medTiming" aria-label="Time of day"><option value="">Select time of day</option><option value="Morning">Morning</option><option value="Afternoon">Afternoon</option><option value="Evening">Evening</option><option value="Night">Night</option></select>
         <label class="field-label">Times taken per day<input class="field" id="medDosesPerDay" type="number" min="1" max="12" step="1" value="1"></label>
         <input class="field" id="medInstructions" placeholder="Short instructions">
         <textarea class="field" id="medTakeWith" rows="2" placeholder="What to take it with"></textarea>
@@ -266,7 +275,7 @@ function medFillForm(m){
   document.querySelector("#medDose").value=m.dose;
   document.querySelector("#medTime").value=m.time;
   document.querySelector("#medInstructions").value=m.instructions;
-  document.querySelector("#medTiming").value=m.timing||m.timeLabel||"";
+  document.querySelector("#medTiming").value=medNormaliseTiming(m.timing||m.timeLabel||m.time);
   document.querySelector("#medTakeWith").value=m.takeWith||"";
   document.querySelector("#medAvoid").value=m.avoid||"";
   document.querySelector("#medGoodCombos").value=m.goodCombos||"";
@@ -380,7 +389,7 @@ function bindMedication(){
     const name=document.querySelector("#medName").value.trim(),scheduleType=document.querySelector("#medScheduleType").value,weekdays=[...document.querySelectorAll("#medWeekdays input:checked")].map(x=>x.value);
     if(!name){toast("Add the medication name");return}if(scheduleType==="weekdays"&&!weekdays.length){toast("Select at least one day");return}
     const dosesPerDay=Math.max(1,Math.min(12,Number(document.querySelector("#medDosesPerDay").value)||1));
-    const med={id:document.querySelector("#medEditId").value||medUid(),name,dose:document.querySelector("#medDose").value.trim(),instructions:document.querySelector("#medInstructions").value.trim(),timing:document.querySelector("#medTiming").value.trim(),takeWith:document.querySelector("#medTakeWith").value.trim(),avoid:document.querySelector("#medAvoid").value.trim(),goodCombos:document.querySelector("#medGoodCombos").value.trim(),badCombos:document.querySelector("#medBadCombos").value.trim(),scheduleType,weekdays,time:document.querySelector("#medTime").value,startDate:document.querySelector("#medStartDate").value,endDate:document.querySelector("#medEndDate").value,photo:document.querySelector("#medPhotoData").value,notes:document.querySelector("#medNotes").value.trim(),active:true,dosesPerDay};
+    const med={id:document.querySelector("#medEditId").value||medUid(),name,dose:document.querySelector("#medDose").value.trim(),instructions:document.querySelector("#medInstructions").value.trim(),timing:medNormaliseTiming(document.querySelector("#medTiming").value),takeWith:document.querySelector("#medTakeWith").value.trim(),avoid:document.querySelector("#medAvoid").value.trim(),goodCombos:document.querySelector("#medGoodCombos").value.trim(),badCombos:document.querySelector("#medBadCombos").value.trim(),scheduleType,weekdays,time:document.querySelector("#medTime").value,startDate:document.querySelector("#medStartDate").value,endDate:document.querySelector("#medEndDate").value,photo:document.querySelector("#medPhotoData").value,notes:document.querySelector("#medNotes").value.trim(),active:true,dosesPerDay};
     med.photoKey=`medication:${med.id}`;
     try{
       if(/^data:image\//.test(med.photo||"")) await LinaImage.save(med.photoKey,med.photo);

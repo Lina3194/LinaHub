@@ -500,6 +500,19 @@ function moduleVisual(key,fallback="✨",className="module-tile-image"){
 }
 
 let data=loadData();
+if(!data.plantsAdded17984){
+  data.plants=Array.isArray(data.plants)?data.plants:[];
+  const requestedPlants=[
+    {id:"strawberry",name:"Strawberry",emoji:"🍓",notes:"",lastWatered:"",history:[],feedingHistory:[],repotHistory:[],pruneHistory:[],photo:"",guideId:"strawberry",wateringDays:3,reminderEnabled:true},
+    {id:"pink-kiss",name:"Pink Kiss",emoji:"🌸",notes:"",lastWatered:"",history:[],feedingHistory:[],repotHistory:[],pruneHistory:[],photo:"",guideId:"pink-kiss",wateringDays:4,reminderEnabled:true}
+  ];
+  for(const plant of requestedPlants){
+    const exists=data.plants.some(item=>String(item.id)===plant.id||String(item.name||"").trim().toLowerCase()===plant.name.toLowerCase());
+    if(!exists)data.plants.push(normalizePlant(plant,data.plants.length));
+  }
+  data.plantsAdded17984=true;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+}
 if(!data.plantsAdded17980){
   data.plants=Array.isArray(data.plants)?data.plants:[];
   const additions=[

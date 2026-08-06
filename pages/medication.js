@@ -47,11 +47,11 @@ function ensureMedicationData(){
     data.medications.push(magnesium);
   }else{
     magnesium.active=true;
-    magnesium.scheduleType="daily";
-    magnesium.weekdays=[];
+    magnesium.scheduleType=magnesium.scheduleType||"daily";
+    magnesium.weekdays=Array.isArray(magnesium.weekdays)?magnesium.weekdays:[];
     magnesium.time=magnesium.time||"21:00";
-    magnesium.timeLabel="Evening";
-    magnesium.timing="Evening";
+    magnesium.timing=medNormaliseTiming(magnesium.timing||magnesium.timeLabel)||"Evening";
+    magnesium.timeLabel=magnesium.timing;
     magnesium.dosesPerDay=Math.max(1,Number(magnesium.dosesPerDay)||1);
   }
   if(typeof saveData==="function")saveData();
@@ -146,26 +146,32 @@ function medNormaliseTiming(value){
   return "";
 }
 function medicationFormModal(){
+  const editing=(data.medications||[]).find(m=>String(m.id)===String(medicationEditingId))||null;
+  const title=editing?"Edit medication":"Add medication";
+  const timing=medNormaliseTiming(editing?.timing||editing?.timeLabel||editing?.time);
+  const scheduleType=editing?.scheduleType||"daily";
+  const weekdays=Array.isArray(editing?.weekdays)?editing.weekdays:[];
+  const photo=editing?.photo||"";
   return `<div class="med-form-modal-backdrop" id="medicationFormBackdrop" data-close-med-form>
     <section class="card med-add-card med-form-modal" id="medicationAddForm" role="dialog" aria-modal="true" aria-labelledby="medFormTitle">
-      <div class="section-title med-form-modal-head"><div><span class="section-kicker">➕ Medication</span><h2 id="medFormTitle">Add medication</h2></div><button type="button" class="mini" id="closeMedicationForm" aria-label="Close">×</button></div>
-      <input id="medEditId" type="hidden">
-      <div class="med-photo-editor"><label class="med-photo-upload" for="medPhotoInput"><span id="medPhotoPreview">💊</span><b>Add a small photo</b><small>Useful when filling your pill box</small></label><input id="medPhotoInput" type="file" accept="image/*" capture="environment" hidden><input id="medPhotoData" type="hidden"><button class="mini hidden" id="removeMedPhoto" type="button">Remove photo</button></div>
+      <div class="section-title med-form-modal-head"><div><span class="section-kicker">➕ Medication</span><h2 id="medFormTitle">${title}</h2></div><button type="button" class="mini" id="closeMedicationForm" aria-label="Close">×</button></div>
+      <input id="medEditId" type="hidden" value="${esc(editing?.id||"")}">
+      <div class="med-photo-editor"><label class="med-photo-upload" for="medPhotoInput"><span id="medPhotoPreview">${photo?`<img src="${photo}" alt="">`:"💊"}</span><b>Add a small photo</b><small>Useful when filling your pill box</small></label><input id="medPhotoInput" type="file" accept="image/*" capture="environment" hidden><input id="medPhotoData" type="hidden" value="${esc(photo)}"><button class="mini ${photo?"":"hidden"}" id="removeMedPhoto" type="button">Remove photo</button></div>
       <div class="form-grid">
-        <input class="field" id="medName" placeholder="Medication name">
-        <div class="two-col"><input class="field" id="medDose" placeholder="Dose, e.g. 25 mg"><input class="field" id="medTime" type="time" aria-label="Usual time"></div>
-        <select class="field" id="medTiming" aria-label="Time of day"><option value="">Select time of day</option><option value="Morning">Morning</option><option value="Afternoon">Afternoon</option><option value="Evening">Evening</option><option value="Night">Night</option></select>
-        <label class="field-label">Times taken per day<input class="field" id="medDosesPerDay" type="number" min="1" max="12" step="1" value="1"></label>
-        <input class="field" id="medInstructions" placeholder="Short instructions">
-        <textarea class="field" id="medTakeWith" rows="2" placeholder="What to take it with"></textarea>
-        <textarea class="field" id="medAvoid" rows="2" placeholder="What to avoid"></textarea>
-        <textarea class="field" id="medGoodCombos" rows="2" placeholder="Good combinations"></textarea>
-        <textarea class="field" id="medBadCombos" rows="2" placeholder="Combinations to keep apart or check with a pharmacist"></textarea>
-        <select class="field" id="medScheduleType"><option value="daily">Every day</option><option value="weekdays">Every week on selected days</option><option value="prn">As needed (PRN)</option></select>
-        <div class="med-weekdays hidden" id="medWeekdays">${MED_WEEKDAYS.map(day=>`<label><input type="checkbox" value="${day}"><span>${day}</span></label>`).join("")}</div>
-        <div class="two-col"><label class="field-label">Start date<input class="field" id="medStartDate" type="date"></label><label class="field-label">End date (optional)<input class="field" id="medEndDate" type="date"></label></div>
-        <textarea class="field" id="medNotes" rows="3" placeholder="Extra notes"></textarea>
-        <div class="two-col"><button class="primary" id="saveMedication" type="button">Add medication</button><button class="secondary" id="cancelMedEdit" type="button">Cancel</button></div>
+        <input class="field" id="medName" placeholder="Medication name" value="${esc(editing?.name||"")}">
+        <div class="two-col"><input class="field" id="medDose" placeholder="Dose, e.g. 25 mg" value="${esc(editing?.dose||"")}"><input class="field" id="medTime" type="time" aria-label="Usual time" value="${esc(editing?.time||"")}"></div>
+        <select class="field" id="medTiming" aria-label="Time of day"><option value="">Select time of day</option>${["Morning","Afternoon","Evening","Night"].map(v=>`<option value="${v}" ${timing===v?"selected":""}>${v}</option>`).join("")}</select>
+        <label class="field-label">Times taken per day<input class="field" id="medDosesPerDay" type="number" min="1" max="12" step="1" value="${Math.max(1,Number(editing?.dosesPerDay)||1)}"></label>
+        <input class="field" id="medInstructions" placeholder="Short instructions" value="${esc(editing?.instructions||"")}">
+        <textarea class="field" id="medTakeWith" rows="2" placeholder="What to take it with">${esc(editing?.takeWith||"")}</textarea>
+        <textarea class="field" id="medAvoid" rows="2" placeholder="What to avoid">${esc(editing?.avoid||"")}</textarea>
+        <textarea class="field" id="medGoodCombos" rows="2" placeholder="Good combinations">${esc(editing?.goodCombos||"")}</textarea>
+        <textarea class="field" id="medBadCombos" rows="2" placeholder="Combinations to keep apart or check with a pharmacist">${esc(editing?.badCombos||"")}</textarea>
+        <select class="field" id="medScheduleType"><option value="daily" ${scheduleType==="daily"?"selected":""}>Every day</option><option value="weekdays" ${scheduleType==="weekdays"?"selected":""}>Every week on selected days</option><option value="prn" ${scheduleType==="prn"?"selected":""}>As needed (PRN)</option></select>
+        <div class="med-weekdays ${scheduleType==="weekdays"?"":"hidden"}" id="medWeekdays">${MED_WEEKDAYS.map(day=>`<label><input type="checkbox" value="${day}" ${weekdays.includes(day)?"checked":""}><span>${day}</span></label>`).join("")}</div>
+        <div class="two-col"><label class="field-label">Start date<input class="field" id="medStartDate" type="date" value="${esc(editing?.startDate||"")}"></label><label class="field-label">End date (optional)<input class="field" id="medEndDate" type="date" value="${esc(editing?.endDate||"")}"></label></div>
+        <textarea class="field" id="medNotes" rows="3" placeholder="Extra notes">${esc(editing?.notes||"")}</textarea>
+        <div class="two-col"><button class="primary" id="saveMedication" type="button">${editing?"Save changes":"Add medication"}</button><button class="secondary" id="cancelMedEdit" type="button">Cancel</button></div>
       </div>
     </section>
   </div>`;
@@ -294,6 +300,7 @@ function medPopulateForm(m){
 function medFillForm(m){
   if(!m)return;
   medicationEditingId=String(m.id);
+  data.medicationView.editingId=medicationEditingId;
   medicationAddFormOpen=true;
   render();
 }
@@ -324,9 +331,6 @@ function medEditLog(log){
 function bindMedication(){
   ensureMedicationData();
   document.body.classList.toggle("med-form-open",!!medicationAddFormOpen);
-  if(medicationAddFormOpen&&medicationEditingId){
-    requestAnimationFrame(()=>{const m=data.medications.find(x=>String(x.id)===String(medicationEditingId));if(m)medPopulateForm(m)});
-  }
   const saveStockCount=id=>{
     const input=document.querySelector(`[data-med-stock-input="${CSS.escape(String(id))}"]`);
     const value=input?.value?.trim()??"";
@@ -392,7 +396,8 @@ function bindMedication(){
     const name=document.querySelector("#medName").value.trim(),scheduleType=document.querySelector("#medScheduleType").value,weekdays=[...document.querySelectorAll("#medWeekdays input:checked")].map(x=>x.value);
     if(!name){toast("Add the medication name");return}if(scheduleType==="weekdays"&&!weekdays.length){toast("Select at least one day");return}
     const dosesPerDay=Math.max(1,Math.min(12,Number(document.querySelector("#medDosesPerDay").value)||1));
-    const med={id:document.querySelector("#medEditId").value||medUid(),name,dose:document.querySelector("#medDose").value.trim(),instructions:document.querySelector("#medInstructions").value.trim(),timing:medNormaliseTiming(document.querySelector("#medTiming").value),takeWith:document.querySelector("#medTakeWith").value.trim(),avoid:document.querySelector("#medAvoid").value.trim(),goodCombos:document.querySelector("#medGoodCombos").value.trim(),badCombos:document.querySelector("#medBadCombos").value.trim(),scheduleType,weekdays,time:document.querySelector("#medTime").value,startDate:document.querySelector("#medStartDate").value,endDate:document.querySelector("#medEndDate").value,photo:document.querySelector("#medPhotoData").value,notes:document.querySelector("#medNotes").value.trim(),active:true,dosesPerDay};
+    const selectedTiming=medNormaliseTiming(document.querySelector("#medTiming").value);
+    const med={id:document.querySelector("#medEditId").value||medUid(),name,dose:document.querySelector("#medDose").value.trim(),instructions:document.querySelector("#medInstructions").value.trim(),timing:selectedTiming,timeLabel:selectedTiming,takeWith:document.querySelector("#medTakeWith").value.trim(),avoid:document.querySelector("#medAvoid").value.trim(),goodCombos:document.querySelector("#medGoodCombos").value.trim(),badCombos:document.querySelector("#medBadCombos").value.trim(),scheduleType,weekdays,time:document.querySelector("#medTime").value,startDate:document.querySelector("#medStartDate").value,endDate:document.querySelector("#medEndDate").value,photo:document.querySelector("#medPhotoData").value,notes:document.querySelector("#medNotes").value.trim(),active:true,dosesPerDay};
     med.photoKey=`medication:${med.id}`;
     try{
       if(/^data:image\//.test(med.photo||"")) await LinaImage.save(med.photoKey,med.photo);
@@ -400,10 +405,10 @@ function bindMedication(){
     }catch(error){toast(LinaImage.friendlyError(error));return}
     const existing=data.medications.findIndex(x=>x.id===med.id);
     med.stock=existing>=0?Math.max(0,Math.floor(Number(data.medications[existing].stock)||0)):0;
-    if(existing>=0)data.medications[existing]=med;else data.medications.push(med);data.medicationView.tab="meds";medicationAddFormOpen=false;medicationEditingId="";document.body.classList.remove("med-form-open");data.medicationView.date=medLocalDate();medicationDateTouched=false;saveData();render();toast(existing>=0?"Medication updated":"Medication added");
+    if(existing>=0)data.medications[existing]=med;else data.medications.push(med);data.medicationView.tab="meds";medicationAddFormOpen=false;medicationEditingId="";data.medicationView.editingId="";document.body.classList.remove("med-form-open");data.medicationView.date=medLocalDate();medicationDateTouched=false;saveData();render();toast(existing>=0?"Medication updated":"Medication added");
   });
-  const closeMedForm=()=>{medicationAddFormOpen=false;medicationEditingId="";document.body.classList.remove("med-form-open");render()};
-  document.querySelector("#openMedicationForm")?.addEventListener("click",()=>{medicationEditingId="";medicationAddFormOpen=true;render();requestAnimationFrame(()=>document.querySelector("#medName")?.focus())});
+  const closeMedForm=()=>{medicationAddFormOpen=false;medicationEditingId="";data.medicationView.editingId="";document.body.classList.remove("med-form-open");render()};
+  document.querySelector("#openMedicationForm")?.addEventListener("click",()=>{medicationEditingId="";data.medicationView.editingId="";medicationAddFormOpen=true;render();requestAnimationFrame(()=>document.querySelector("#medName")?.focus())});
   document.querySelector("#closeMedicationForm")?.addEventListener("click",closeMedForm);
   document.querySelector("#cancelMedEdit")?.addEventListener("click",closeMedForm);
   document.querySelector("#medicationFormBackdrop")?.addEventListener("click",event=>{if(event.target?.matches?.("[data-close-med-form]"))closeMedForm()});

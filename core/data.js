@@ -178,7 +178,9 @@ const DEFAULT_DATA={
     {id:"nemesia-vanilla",name:"Nemesia 'Vanilla'",emoji:"🌼",notes:"",lastWatered:"",history:[],photo:""},
     {id:"spider-plant",name:"Spider Plant",emoji:"🪴",notes:"",lastWatered:"",history:[],photo:""},
     {id:"prayer-plant",name:"Prayer Plant",emoji:"🍃",notes:"",lastWatered:"",history:[],photo:""},
-    {id:"apple-seeds",name:"Apple Seeds",emoji:"🍎",notes:"",lastWatered:"",history:[],photo:""}
+    {id:"apple-seeds",name:"Apple Seeds",emoji:"🍎",notes:"",lastWatered:"",history:[],photo:""},
+    {id:"strawberry",name:"Strawberry",emoji:"🍓",notes:"",lastWatered:"",history:[],photo:"",guideId:"strawberry",wateringDays:3},
+    {id:"pink-kiss",name:"Pink Kiss",emoji:"🌸",notes:"",lastWatered:"",history:[],photo:"",guideId:"pink-kiss",wateringDays:4}
   ]
 };
 
@@ -498,6 +500,18 @@ function moduleVisual(key,fallback="✨",className="module-tile-image"){
 }
 
 let data=loadData();
+if(!data.plantsAdded17980){
+  data.plants=Array.isArray(data.plants)?data.plants:[];
+  const additions=[
+    {id:"strawberry",name:"Strawberry",emoji:"🍓",notes:"",lastWatered:"",history:[],photo:"",guideId:"strawberry",wateringDays:3},
+    {id:"pink-kiss",name:"Pink Kiss",emoji:"🌸",notes:"",lastWatered:"",history:[],photo:"",guideId:"pink-kiss",wateringDays:4}
+  ];
+  for(const plant of additions){
+    if(!data.plants.some(item=>String(item.id)===plant.id||String(item.name||"").trim().toLowerCase()===plant.name.toLowerCase())) data.plants.push(normalizePlant(plant,data.plants.length));
+  }
+  data.plantsAdded17980=true;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+}
 if(undoForcedTileArtwork1772()){ saveData(); }
 if(!data.v9CollapseDefaultsApplied){
   data.journalControlsCollapsed=true;

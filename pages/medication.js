@@ -2,6 +2,7 @@ const MED_WEEKDAYS=["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
 let medicationDateTouched=false;
 let medicationStockEditingId="";
 let medicationHistoryOpenId="";
+let medicationAddFormOpen=false;
 
 function medLocalDate(date=new Date()){
   const y=date.getFullYear(),m=String(date.getMonth()+1).padStart(2,"0"),d=String(date.getDate()).padStart(2,"0");
@@ -13,7 +14,8 @@ function ensureMedicationData(){
   data.medications=Array.isArray(data.medications)?data.medications:[];
   data.medicationHistory=Array.isArray(data.medicationHistory)?data.medicationHistory:[];
   data.medicationView=data.medicationView||{tab:"today",date:medLocalDate(),historyMed:"all"};
-  data.medicationView.tab=["today","schedule","history","stock"].includes(data.medicationView.tab)?data.medicationView.tab:"today";
+  data.medicationView.tab=data.medicationView.tab==="schedule"?"meds":data.medicationView.tab;
+  data.medicationView.tab=["today","meds","history","stock"].includes(data.medicationView.tab)?data.medicationView.tab:"today";
   if(!medicationDateTouched) data.medicationView.date=medLocalDate();
   else data.medicationView.date=data.medicationView.date||medLocalDate();
   data.medications=data.medications.map((m,i)=>({
@@ -22,6 +24,7 @@ function ensureMedicationData(){
     weekdays:Array.isArray(m.weekdays)?m.weekdays:[],time:/^\d{2}:\d{2}$/.test(m.time||"")?m.time:"",
     timeLabel:!/^\d{2}:\d{2}$/.test(m.time||"")&&m.time!=="As needed"?(m.time||""):"",
     startDate:m.startDate||"",endDate:m.endDate||"",photo:m.photo||"",photoKey:m.photoKey||`medication:${m.id||`med-${i}`}`,notes:m.notes||"",active:m.active!==false,
+    timing:m.timing||m.timeLabel||"",takeWith:m.takeWith||"",avoid:m.avoid||"",goodCombos:m.goodCombos||"",badCombos:m.badCombos||"",
     dosesPerDay:Math.max(1,Number(m.dosesPerDay)||1),
     stock:Math.max(0,Math.floor(Number(m.stock)||0))
   }));
@@ -36,6 +39,20 @@ function ensureMedicationData(){
     });
     data.medicationHistoryMigrated=true;
   }
+  // Ensure the evening magnesium entry exists once, without duplicating a user-created one.
+  if(!data.medications.some(m=>/magnesium/i.test(String(m.name||"")))){
+    data.medications.push({id:medUid("magnesium"),name:"Magnesium",dose:"",instructions:"Take with an evening meal or water if that suits the product label.",scheduleType:"daily",weekdays:[],time:"21:00",timeLabel:"Evening",timing:"Evening",startDate:"",endDate:"",photo:"",photoKey:"",notes:"",active:true,dosesPerDay:1,stock:0,takeWith:"An evening meal and a glass of water may help reduce stomach upset.",avoid:"Do not exceed the label dose. Ask a pharmacist before use if you have kidney problems.",goodCombos:"Usually fine with food. Keep your own pharmacist-approved combinations here.",badCombos:"Separate from levothyroxine, some antibiotics and bisphosphonates; ask a pharmacist how many hours for your exact medicine."});
+    if(typeof saveData==="function")saveData();
+  }
+  const folic=data.medications.find(m=>/folic\s*acid/i.test(String(m.name||"")));
+  if(folic){
+    folic.timing=folic.timing||"Morning";
+    folic.takeWith=folic.takeWith||"With or without food, with water.";
+    folic.avoid=folic.avoid||"Do not double a missed dose. Check other supplements so you do not accidentally take extra folic acid.";
+    folic.goodCombos=folic.goodCombos||"Can be taken with normal meals.";
+    folic.badCombos=folic.badCombos||"Keep antacids at least 2 hours apart. Ask a pharmacist about methotrexate, epilepsy medicines or sulfasalazine.";
+  }
+
   // v17.5.4: repair only the old Daily Check-in doses that were logged
   // without changing stock. Other historical dose records are deliberately left
   // alone because those routes already reduced stock in earlier versions.
@@ -100,6 +117,15 @@ function medDosePeriod(m,index){
   if(m.dosesPerDay===2)return index===0?"AM":"PM";
   return `Dose ${index+1}`;
 }
+function medicationTopTabs(active){
+  return `<section class="med-top-tabs med-top-tabs-three" aria-label="Medication sections">
+    <button class="${active==="today"?"active":""}" data-med-tab="today">Today</button>
+    <button class="${active==="meds"?"active":""}" data-med-tab="meds">Meds</button>
+    <button class="${active==="history"?"active":""}" data-med-tab="history">History</button>
+  </section>`;
+}
+function medInfoLine(label,value){return value?`<div class="med-info-line"><strong>${label}</strong><span>${esc(value)}</span></div>`:"";}
+
 function medicationTodayTab(){
   const selected=medLocalDate();
   data.medicationView.date=selected;
@@ -110,10 +136,7 @@ function medicationTodayTab(){
     const required=m.scheduleType==="prn"?Math.max(1,logs.length+1):m.dosesPerDay;
     for(let index=logs.length;index<required;index++)dueRows.push({m,index});
   });
-  return `<section class="med-top-tabs" aria-label="Medication day and history">
-    <button class="active" data-med-tab="today">Today</button>
-    <button data-med-tab="history">History</button>
-  </section>
+  return `${medicationTopTabs("today")}
   <section class="card med-today-due">
     <div class="med-today-title"><div><span class="section-kicker">💊 Today</span><h2>${dueRows.length?`${dueRows.length} ${dueRows.length===1?"tablet":"tablets"} left to take`:"All done for today"}</h2></div></div>
     ${dueRows.length?`<div class="med-quick-list-only">${dueRows.map(({m,index})=>`<article class="med-quick-row">
@@ -125,29 +148,31 @@ function medicationTodayTab(){
 }
 function medicationScheduleTab(){
   const meds=data.medications;
-  return `<section class="card med-add-card">
-    <div class="section-title"><div><span class="section-kicker">➕ Medication</span><h2 id="medFormTitle">Add medication</h2></div></div>
+  return `${medicationTopTabs("meds")}
+  <section class="card med-list-card">
+    <div class="section-title med-list-title"><div><span class="section-kicker">💊 MEDS</span><h2>What I take</h2><p>Timing and medicine notes are personal reminders, not a substitute for the packet label or pharmacist.</p></div><button type="button" class="primary med-add-button" id="openMedicationForm">+ Add</button></div>
+    <div class="med-information-list">${meds.length?meds.map(m=>`<article class="med-information-card">${medPhoto(m,true)}<div class="med-information-main"><div class="med-information-head"><div><h3>${esc(m.name)}</h3><p>${esc([m.dose,m.timing||m.timeLabel||m.time,m.scheduleType==="daily"?"Every day":m.scheduleType==="prn"?"As needed":m.weekdays.join(", ")].filter(Boolean).join(" · "))}</p></div><div><button class="mini" data-med-edit="${esc(m.id)}">Edit</button><button class="mini danger" data-med-delete="${esc(m.id)}">×</button></div></div>${medInfoLine("Take it with",m.takeWith||m.instructions)}${medInfoLine("Avoid",m.avoid)}${medInfoLine("Good combinations",m.goodCombos)}${medInfoLine("Keep apart / check first",m.badCombos)}${m.notes?medInfoLine("Notes",m.notes):""}</div></article>`).join(""):`<p>No medications added yet.</p>`}</div>
+  </section>
+  <section class="card med-add-card ${medicationAddFormOpen?"":"hidden"}" id="medicationAddForm">
+    <div class="section-title"><div><span class="section-kicker">➕ Medication</span><h2 id="medFormTitle">Add medication</h2></div><button type="button" class="mini" id="closeMedicationForm">×</button></div>
     <input id="medEditId" type="hidden">
-    <div class="med-photo-editor">
-      <label class="med-photo-upload" for="medPhotoInput"><span id="medPhotoPreview">💊</span><b>Add a small photo</b><small>Useful when filling your pill box</small></label>
-      <input id="medPhotoInput" type="file" accept="image/*" capture="environment" hidden>
-      <input id="medPhotoData" type="hidden">
-      <button class="mini hidden" id="removeMedPhoto" type="button">Remove photo</button>
-    </div>
+    <div class="med-photo-editor"><label class="med-photo-upload" for="medPhotoInput"><span id="medPhotoPreview">💊</span><b>Add a small photo</b><small>Useful when filling your pill box</small></label><input id="medPhotoInput" type="file" accept="image/*" capture="environment" hidden><input id="medPhotoData" type="hidden"><button class="mini hidden" id="removeMedPhoto" type="button">Remove photo</button></div>
     <div class="form-grid">
       <input class="field" id="medName" placeholder="Medication name">
       <div class="two-col"><input class="field" id="medDose" placeholder="Dose, e.g. 25 mg"><input class="field" id="medTime" type="time" aria-label="Usual time"></div>
+      <input class="field" id="medTiming" placeholder="When, e.g. Morning, Evening or Bedtime">
       <label class="field-label">Times taken per day<input class="field" id="medDosesPerDay" type="number" min="1" max="12" step="1" value="1"></label>
-      <input class="field" id="medInstructions" placeholder="Instructions, e.g. take with food">
+      <input class="field" id="medInstructions" placeholder="Short instructions">
+      <textarea class="field" id="medTakeWith" rows="2" placeholder="What to take it with"></textarea>
+      <textarea class="field" id="medAvoid" rows="2" placeholder="What to avoid"></textarea>
+      <textarea class="field" id="medGoodCombos" rows="2" placeholder="Good combinations"></textarea>
+      <textarea class="field" id="medBadCombos" rows="2" placeholder="Combinations to keep apart or check with a pharmacist"></textarea>
       <select class="field" id="medScheduleType"><option value="daily">Every day</option><option value="weekdays">Every week on selected days</option><option value="prn">As needed (PRN)</option></select>
       <div class="med-weekdays hidden" id="medWeekdays">${MED_WEEKDAYS.map(day=>`<label><input type="checkbox" value="${day}"><span>${day}</span></label>`).join("")}</div>
       <div class="two-col"><label class="field-label">Start date<input class="field" id="medStartDate" type="date"></label><label class="field-label">End date (optional)<input class="field" id="medEndDate" type="date"></label></div>
       <textarea class="field" id="medNotes" rows="3" placeholder="Extra notes"></textarea>
-      <div class="two-col"><button class="primary" id="saveMedication" type="button">Add medication</button><button class="secondary hidden" id="cancelMedEdit" type="button">Cancel edit</button></div>
+      <div class="two-col"><button class="primary" id="saveMedication" type="button">Add medication</button><button class="secondary" id="cancelMedEdit" type="button">Cancel</button></div>
     </div>
-  </section>
-  <section class="card"><div class="section-title"><div><span class="section-kicker">💊 Your list</span><h2>Current and future medication</h2></div></div>
-    <div class="med-schedule-list">${meds.length?meds.map(m=>`<div class="med-schedule-row">${medPhoto(m)}<div><strong>${esc(m.name)}</strong><small>${esc([m.dose,m.scheduleType==="daily"?"Daily":m.scheduleType==="prn"?"As needed":m.weekdays.join(", "),m.scheduleType!=="prn"?`${m.dosesPerDay} ${m.dosesPerDay===1?"dose":"doses"} per day`:"",m.time,m.startDate?`from ${medDateLabel(m.startDate)}`:"",m.endDate?`until ${medDateLabel(m.endDate)}`:""].filter(Boolean).join(" · "))}</small></div><button class="mini" data-med-edit="${esc(m.id)}">Edit</button><button class="mini danger" data-med-delete="${esc(m.id)}">×</button></div>`).join(""):`<p>No medications added yet.</p>`}</div>
   </section>`;
 }
 function medHistoryMonthStart(){
@@ -181,10 +206,7 @@ function medCalendarFor(med,monthValue){
 }
 function medicationHistoryTab(){
   const monthValue=medHistoryMonthStart();
-  return `<section class="med-top-tabs" aria-label="Medication day and history">
-    <button data-med-tab="today">Today</button>
-    <button class="active" data-med-tab="history">History</button>
-  </section>
+  return `${medicationTopTabs("history")}
   <section class="med-history-by-tablet">
     ${data.medications.length?data.medications.map(m=>{
       const total=data.medicationHistory.filter(x=>String(x.medId)===String(m.id)).length;
@@ -206,11 +228,11 @@ function medicationStockTab(){
 function MedicationPage(){
   ensureMedicationData();
   const tab=data.medicationView.tab;
-  const content=tab==="schedule"?medicationScheduleTab():tab==="history"?medicationHistoryTab():tab==="stock"?medicationStockTab():medicationTodayTab();
+  const content=tab==="meds"?medicationScheduleTab():tab==="history"?medicationHistoryTab():tab==="stock"?medicationStockTab():medicationTodayTab();
   return shell(`${head("Medication","Medication centre · v17.3.6")}
     <div class="med-page">${content}</div>
     <nav class="med-bottom-tabs med-bottom-tabs-two" aria-label="Medication sections">
-      <button class="${tab==="schedule"?"active":""}" data-med-tab="schedule">＋<small>Medication</small></button>
+      <button class="${tab==="meds"?"active":""}" data-med-tab="meds">＋<small>Meds</small></button>
       <button class="${tab==="stock"?"active":""}" data-med-tab="stock">▣<small>Stock</small></button>
     </nav>`,"medication");
 }
@@ -223,6 +245,11 @@ function medFillForm(m){
   document.querySelector("#medDose").value=m.dose;
   document.querySelector("#medTime").value=m.time;
   document.querySelector("#medInstructions").value=m.instructions;
+  document.querySelector("#medTiming").value=m.timing||m.timeLabel||"";
+  document.querySelector("#medTakeWith").value=m.takeWith||"";
+  document.querySelector("#medAvoid").value=m.avoid||"";
+  document.querySelector("#medGoodCombos").value=m.goodCombos||"";
+  document.querySelector("#medBadCombos").value=m.badCombos||"";
   document.querySelector("#medDosesPerDay").value=m.dosesPerDay||1;
   document.querySelector("#medScheduleType").value=m.scheduleType;
   document.querySelector("#medStartDate").value=m.startDate;
@@ -233,6 +260,8 @@ function medFillForm(m){
   document.querySelector("#removeMedPhoto").classList.toggle("hidden",!m.photo);
   document.querySelectorAll("#medWeekdays input").forEach(x=>x.checked=m.weekdays.includes(x.value));
   document.querySelector("#medWeekdays").classList.toggle("hidden",m.scheduleType!=="weekdays");
+  medicationAddFormOpen=true;
+  document.querySelector("#medicationAddForm")?.classList.remove("hidden");
   document.querySelector("#medFormTitle").textContent="Edit medication";
   document.querySelector("#saveMedication").textContent="Save changes";
   document.querySelector("#cancelMedEdit").classList.remove("hidden");
@@ -329,7 +358,7 @@ function bindMedication(){
     const name=document.querySelector("#medName").value.trim(),scheduleType=document.querySelector("#medScheduleType").value,weekdays=[...document.querySelectorAll("#medWeekdays input:checked")].map(x=>x.value);
     if(!name){toast("Add the medication name");return}if(scheduleType==="weekdays"&&!weekdays.length){toast("Select at least one day");return}
     const dosesPerDay=Math.max(1,Math.min(12,Number(document.querySelector("#medDosesPerDay").value)||1));
-    const med={id:document.querySelector("#medEditId").value||medUid(),name,dose:document.querySelector("#medDose").value.trim(),instructions:document.querySelector("#medInstructions").value.trim(),scheduleType,weekdays,time:document.querySelector("#medTime").value,startDate:document.querySelector("#medStartDate").value,endDate:document.querySelector("#medEndDate").value,photo:document.querySelector("#medPhotoData").value,notes:document.querySelector("#medNotes").value.trim(),active:true,dosesPerDay};
+    const med={id:document.querySelector("#medEditId").value||medUid(),name,dose:document.querySelector("#medDose").value.trim(),instructions:document.querySelector("#medInstructions").value.trim(),timing:document.querySelector("#medTiming").value.trim(),takeWith:document.querySelector("#medTakeWith").value.trim(),avoid:document.querySelector("#medAvoid").value.trim(),goodCombos:document.querySelector("#medGoodCombos").value.trim(),badCombos:document.querySelector("#medBadCombos").value.trim(),scheduleType,weekdays,time:document.querySelector("#medTime").value,startDate:document.querySelector("#medStartDate").value,endDate:document.querySelector("#medEndDate").value,photo:document.querySelector("#medPhotoData").value,notes:document.querySelector("#medNotes").value.trim(),active:true,dosesPerDay};
     med.photoKey=`medication:${med.id}`;
     try{
       if(/^data:image\//.test(med.photo||"")) await LinaImage.save(med.photoKey,med.photo);
@@ -337,11 +366,13 @@ function bindMedication(){
     }catch(error){toast(LinaImage.friendlyError(error));return}
     const existing=data.medications.findIndex(x=>x.id===med.id);
     med.stock=existing>=0?Math.max(0,Math.floor(Number(data.medications[existing].stock)||0)):0;
-    if(existing>=0)data.medications[existing]=med;else data.medications.push(med);data.medicationView.tab="today";data.medicationView.date=medLocalDate();medicationDateTouched=false;saveData();render();toast(existing>=0?"Medication updated":"Medication added");
+    if(existing>=0)data.medications[existing]=med;else data.medications.push(med);data.medicationView.tab="meds";medicationAddFormOpen=false;data.medicationView.date=medLocalDate();medicationDateTouched=false;saveData();render();toast(existing>=0?"Medication updated":"Medication added");
   });
-  document.querySelector("#cancelMedEdit")?.addEventListener("click",()=>render());
+  document.querySelector("#openMedicationForm")?.addEventListener("click",()=>{medicationAddFormOpen=true;render();requestAnimationFrame(()=>document.querySelector("#medName")?.focus())});
+  document.querySelector("#closeMedicationForm")?.addEventListener("click",()=>{medicationAddFormOpen=false;render()});
+  document.querySelector("#cancelMedEdit")?.addEventListener("click",()=>{medicationAddFormOpen=false;render()});
   document.querySelectorAll("[data-med-edit]").forEach(b=>b.onclick=()=>{const m=data.medications.find(x=>x.id===b.dataset.medEdit);if(m)medFillForm(m)});
-  document.querySelectorAll("[data-med-edit-today]").forEach(b=>b.onclick=()=>{const id=b.dataset.medEditToday;data.medicationView.tab="schedule";saveData();render();requestAnimationFrame(()=>{const m=data.medications.find(x=>x.id===id);if(m)medFillForm(m)})});
+  document.querySelectorAll("[data-med-edit-today]").forEach(b=>b.onclick=()=>{const id=b.dataset.medEditToday;data.medicationView.tab="meds";saveData();render();requestAnimationFrame(()=>{const m=data.medications.find(x=>x.id===id);if(m)medFillForm(m)})});
   document.querySelectorAll("[data-med-delete]").forEach(b=>b.onclick=()=>{const m=data.medications.find(x=>x.id===b.dataset.medDelete);if(!m||!confirm(`Remove ${m.name}? Its dose history will be kept.`))return;data.medications=data.medications.filter(x=>x.id!==m.id);saveData();render()});
   document.querySelector("#medHistoryFilter")?.addEventListener("change",e=>{data.medicationView.historyMed=e.target.value;saveData();render()});
   document.querySelectorAll("[data-med-log-edit]").forEach(b=>b.onclick=()=>{const log=data.medicationHistory.find(x=>x.id===b.dataset.medLogEdit);if(log)medEditLog(log)});

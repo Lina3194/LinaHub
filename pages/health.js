@@ -301,16 +301,24 @@ function linaDailyDueMedications(dateValue){
     return m.scheduleType==="daily"||(m.scheduleType==="weekdays"&&(m.weekdays||[]).includes(shortDay));
   });
 }
-function linaNightlyDueMedications(dateValue){
-  const due=linaDailyDueMedications(dateValue);
-  const eveningWords=/(evening|night|nightly|pm|bedtime)/i;
-  const evening=due.filter(m=>{
+function linaMedicationTimingText(m){
+  return [m.timeLabel,m.timing,m.time,m.instructions,m.notes].filter(Boolean).join(" ");
+}
+function linaMorningDueMedications(dateValue){
+  const eveningWords=/(evening|night|nightly|pm|bedtime)/i;
+  return linaDailyDueMedications(dateValue).filter(m=>{
     const name=String(m.name||"");
-    const timing=[m.time,m.timeLabel,m.instructions,m.notes].filter(Boolean).join(" ");
-    if(/folic\s*acid/i.test(name))return false;
-    return /magnesium/i.test(name)||eveningWords.test(timing);
+    if(/magnesium/i.test(name))return false;
+    return !eveningWords.test(linaMedicationTimingText(m));
   });
-  return evening.length?evening:due.filter(m=>/magnesium/i.test(String(m.name||"")));
+}
+function linaNightlyDueMedications(dateValue){
+  const eveningWords=/(evening|night|nightly|pm|bedtime)/i;
+  return linaDailyDueMedications(dateValue).filter(m=>{
+    const name=String(m.name||"");
+    if(/folic\s*acid/i.test(name))return false;
+    return /magnesium/i.test(name)||eveningWords.test(linaMedicationTimingText(m));
+  });
 }
 function linaSplitHours(value,totalMinutes){
   const minutes=Number.isFinite(Number(totalMinutes))?Math.max(0,Math.round(Number(totalMinutes))):Math.max(0,Math.round((Number(value)||0)*60));
@@ -319,7 +327,7 @@ function linaSplitHours(value,totalMinutes){
 function linaDailyCheckinMarkup(dateValue){
   const saved=(data.morningCheckins||{})[dateValue]||{};
   const feelings=(name,title,items,value)=>`<div class="daily-popup-group"><h3>${title}</h3><div class="health-circle-scale">${items.map((item,index)=>`<button type="button" data-daily-feeling="${name}" data-value="${index}" class="${Number(value)===index?'active':''}"><span>${item[0]}</span><small>${item[1]}</small></button>`).join("")}</div></div>`;
-  const meds=linaDailyDueMedications(dateValue);
+  const meds=linaMorningDueMedications(dateValue);
   const selected=new Set(saved.tablets||[]);
   const sleepParts=linaSplitHours(saved.sleep,saved.sleepTotalMinutes);
   const deepParts=linaSplitHours(saved.deepSleep,saved.deepSleepTotalMinutes);

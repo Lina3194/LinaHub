@@ -430,6 +430,9 @@ function linaNightlyCheckinMarkup(dateValue){
       ${feelings("energy","Energy",HEALTH_FEELINGS.energy,saved.energy)}
       ${feelings("mood","Mood",HEALTH_FEELINGS.mood,saved.mood)}
       ${feelings("pain","Pain",HEALTH_FEELINGS.pain,saved.pain)}
+      <div class="daily-popup-group nightly-aids-group"><h3>What helped tonight?</h3><p class="muted nightly-aids-help">Select everything you used today.</p><div class="nightly-aids-grid">${[
+        ["left-knee-brace","🦵","Left knee brace"],["right-knee-brace","🦵","Right knee brace"],["left-ankle-brace","🦶","Left ankle brace"],["right-ankle-brace","🦶","Right ankle brace"],["walking-stick","🦯","Walking stick"],["hot-water-bottle","♨️","Hot-water bottle"],["painkiller","💊","Painkiller"],["bath","🛁","Bath"],["heat-pad","🔥","Heat pad"],["rest","🛏️","Rest"]
+      ].map(([id,icon,label])=>`<label class="nightly-aid-option"><input type="checkbox" data-nightly-aid="${id}" ${(saved.aids||[]).includes(id)?'checked':''}><span><b>${icon}</b><strong>${label}</strong></span></label>`).join("")}</div><label class="nightly-aid-other"><span>Other aid or comfort</span><input class="field" id="nightlyAidOther" value="${esc(saved.aidOther||"")}" placeholder="Type anything else you used"></label></div>
       <div class="daily-popup-group"><h3>Evening notes</h3><textarea class="field" id="nightlyNotes" rows="4" placeholder="Anything you want to remember about today…">${esc(saved.notes||"")}</textarea></div>
       <div class="daily-popup-group"><h3>Tablets</h3>${meds.length?`<div class="daily-tablet-list">${meds.map(m=>`<label><input type="checkbox" data-nightly-med="${esc(m.id)}" ${selected.has(String(m.id))?'checked':''}><span><strong>${esc(m.name)}</strong><small>${esc(m.dose||m.time||'Due today')}</small></span></label>`).join("")}</div>`:`<p class="muted">No scheduled tablets are due today.</p>`}</div>
       <div class="daily-popup-actions"><button type="button" class="primary" id="completeNightlyCheckin">Complete</button><button type="button" class="secondary" id="laterNightlyCheckin">Save &amp; Remind me later</button></div>
@@ -438,7 +441,7 @@ function linaNightlyCheckinMarkup(dateValue){
 }
 function linaSaveNightlyCheckin(backdrop,dateValue,complete){
   const selected=name=>{const b=backdrop.querySelector(`[data-nightly-feeling="${name}"].active`);return b?Number(b.dataset.value):null};
-  const entry={date:dateValue,time:new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}),updatedAt:new Date().toISOString(),energy:selected("energy"),mood:selected("mood"),pain:selected("pain"),notes:backdrop.querySelector("#nightlyNotes")?.value.trim()||"",tablets:[...backdrop.querySelectorAll("[data-nightly-med]:checked")].map(x=>String(x.dataset.nightlyMed))};
+  const entry={date:dateValue,time:new Date().toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"}),updatedAt:new Date().toISOString(),energy:selected("energy"),mood:selected("mood"),pain:selected("pain"),aids:[...backdrop.querySelectorAll("[data-nightly-aid]:checked")].map(x=>String(x.dataset.nightlyAid)),aidOther:backdrop.querySelector("#nightlyAidOther")?.value.trim()||"",notes:backdrop.querySelector("#nightlyNotes")?.value.trim()||"",tablets:[...backdrop.querySelectorAll("[data-nightly-med]:checked")].map(x=>String(x.dataset.nightlyMed))};
   data.nightCheckins=data.nightCheckins||{};
   const previous=Array.isArray(data.nightCheckins?.[dateValue]?.tablets)?data.nightCheckins[dateValue].tablets.map(String):[];
   data.medicationHistory=Array.isArray(data.medicationHistory)?data.medicationHistory:[];
@@ -455,7 +458,7 @@ function linaSaveNightlyCheckin(backdrop,dateValue,complete){
   data.nightCheckins[dateValue]=entry;
   data.dayCheckins=Array.isArray(data.dayCheckins)?data.dayCheckins:[];
   data.dayCheckins=data.dayCheckins.filter(x=>!(x.date===dateValue&&x.source==="nightly-checkin"));
-  data.dayCheckins.push({id:`night-${Date.now()}`,date:dateValue,time:entry.time,createdAt:entry.updatedAt,energy:entry.energy,mood:entry.mood,pain:entry.pain,note:entry.notes,source:"nightly-checkin"});
+  data.dayCheckins.push({id:`night-${Date.now()}`,date:dateValue,time:entry.time,createdAt:entry.updatedAt,energy:entry.energy,mood:entry.mood,pain:entry.pain,aids:entry.aids,aidOther:entry.aidOther,note:entry.notes,source:"nightly-checkin"});
   data.checkins=data.checkins&&typeof data.checkins==="object"?data.checkins:{};
   data.checkins[dateValue]={...(data.checkins[dateValue]||{}),energy:entry.energy,mood:entry.mood,pain:entry.pain,savedAt:entry.updatedAt};
   if(complete){data.nightlyCheckinCompleted=data.nightlyCheckinCompleted||{};data.nightlyCheckinCompleted[dateValue]=entry.updatedAt;delete data.nightlyCheckinRemindAt?.[dateValue];}

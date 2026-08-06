@@ -884,3 +884,18 @@ body.house-editor-open{
   z-index:20002;
   cursor:pointer;
 }
+
+/* LinaHub 17.9.85 — evening aids used */
+.nightly-aids-help{margin:-3px 0 10px}
+.nightly-aids-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.nightly-aid-option{position:relative;display:block;cursor:pointer}
+.nightly-aid-option input{position:absolute;opacity:0;pointer-events:none}
+.nightly-aid-option span{min-height:50px;display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--line);border-radius:16px;background:var(--surface);transition:border-color .16s ease,background .16s ease,box-shadow .16s ease,transform .16s ease}
+.nightly-aid-option b{width:30px;height:30px;display:grid;place-items:center;border-radius:10px;background:var(--purple-soft);font-size:1.05rem}
+.nightly-aid-option strong{font-size:.86rem;line-height:1.2}
+.nightly-aid-option input:checked+span{border-color:var(--purple);background:var(--purple-soft);box-shadow:0 0 0 2px color-mix(in srgb,var(--purple) 16%,transparent)}
+.nightly-aid-option input:checked+span::after{content:"✓";margin-left:auto;color:var(--purple);font-weight:900}
+.nightly-aid-option:active span{transform:scale(.98)}
+.nightly-aid-other{display:grid;gap:6px;margin-top:10px;color:var(--muted);font-size:.78rem;font-weight:700}
+@media(max-width:560px){.nightly-aids-grid{grid-template-columns:1fr 1fr;gap:7px}.nightly-aid-option span{padding:9px;gap:8px}.nightly-aid-option strong{font-size:.75rem}.nightly-aid-option b{width:27px;height:27px;font-size:.95rem}}
+@media(max-width:370px){.nightly-aids-grid{grid-template-columns:1fr}}

@@ -61,3 +61,8 @@ body[data-route="medication"] .med-bottom-tabs-two{
 .med-information-main{min-width:0}.med-information-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.med-information-head h3,.med-information-head p{margin:0}.med-information-head p{margin-top:4px;color:var(--muted)}.med-information-head>div:last-child{display:flex;gap:6px}
 .med-info-line{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;padding:9px 0;border-top:1px solid var(--line)}.med-info-line:first-of-type{margin-top:10px}.med-info-line strong{color:var(--gold)}.med-info-line span{line-height:1.45}
 @media(max-width:620px){.med-list-title{display:grid}.med-add-button{width:100%}.med-information-card{grid-template-columns:1fr}.med-information-card>.med-photo{justify-self:center}.med-information-head{display:grid}.med-information-head>div:last-child{justify-content:flex-start}.med-info-line{grid-template-columns:1fr;gap:3px}.med-top-tabs-three button{padding-inline:6px}}
+
+/* LinaHub 17.9.72 — keep Today, Meds and History on one row */
+body[data-route="medication"] .med-top-tabs.med-top-tabs-three{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;width:100%!important;gap:6px!important;padding:4px!important;box-sizing:border-box!important}
+body[data-route="medication"] .med-top-tabs.med-top-tabs-three button{width:100%!important;min-width:0!important;white-space:nowrap!important}
+@media(max-width:620px){body[data-route="medication"] .med-top-tabs.med-top-tabs-three{grid-template-columns:repeat(3,minmax(0,1fr))!important}body[data-route="medication"] .med-top-tabs.med-top-tabs-three button{font-size:.86rem!important;padding:8px 3px!important}}

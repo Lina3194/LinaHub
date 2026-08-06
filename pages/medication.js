@@ -39,11 +39,21 @@ function ensureMedicationData(){
     });
     data.medicationHistoryMigrated=true;
   }
-  // Ensure the evening magnesium entry exists once, without duplicating a user-created one.
-  if(!data.medications.some(m=>/magnesium/i.test(String(m.name||"")))){
-    data.medications.push({id:medUid("magnesium"),name:"Magnesium",dose:"",instructions:"Take with an evening meal or water if that suits the product label.",scheduleType:"daily",weekdays:[],time:"21:00",timeLabel:"Evening",timing:"Evening",startDate:"",endDate:"",photo:"",photoKey:"",notes:"",active:true,dosesPerDay:1,stock:0,takeWith:"An evening meal and a glass of water may help reduce stomach upset.",avoid:"Do not exceed the label dose. Ask a pharmacist before use if you have kidney problems.",goodCombos:"Usually fine with food. Keep your own pharmacist-approved combinations here.",badCombos:"Separate from levothyroxine, some antibiotics and bisphosphonates; ask a pharmacist how many hours for your exact medicine."});
-    if(typeof saveData==="function")saveData();
+  // Ensure one active evening Magnesium entry exists and is usable by the PM check-in.
+  let magnesium=data.medications.find(m=>/magnesium/i.test(String(m.name||"")));
+  if(!magnesium){
+    magnesium={id:medUid("magnesium"),name:"Magnesium",dose:"",instructions:"Take with an evening meal or water if that suits the product label.",scheduleType:"daily",weekdays:[],time:"21:00",timeLabel:"Evening",timing:"Evening",startDate:"",endDate:"",photo:"",photoKey:"",notes:"",active:true,dosesPerDay:1,stock:0,takeWith:"An evening meal and a glass of water may help reduce stomach upset.",avoid:"Do not exceed the label dose. Ask a pharmacist before use if you have kidney problems.",goodCombos:"Usually fine with food. Keep your own pharmacist-approved combinations here.",badCombos:"Separate from levothyroxine, some antibiotics and bisphosphonates; ask a pharmacist how many hours for your exact medicine."};
+    data.medications.push(magnesium);
+  }else{
+    magnesium.active=true;
+    magnesium.scheduleType="daily";
+    magnesium.weekdays=[];
+    magnesium.time=magnesium.time||"21:00";
+    magnesium.timeLabel="Evening";
+    magnesium.timing="Evening";
+    magnesium.dosesPerDay=Math.max(1,Number(magnesium.dosesPerDay)||1);
   }
+  if(typeof saveData==="function")saveData();
   const folic=data.medications.find(m=>/folic\s*acid/i.test(String(m.name||"")));
   if(folic){
     folic.timing=folic.timing||"Morning";

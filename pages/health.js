@@ -226,7 +226,12 @@ function journeyEntry(entry,index){
   const glow=JOURNEY_LEVELS[Math.max(0,Math.min(4,Number(entry.energy)||0))];
   return `<article class="journey-entry" data-day-checkin-id="${esc(entry.id)}" style="--journey-glow:${glow}"><div class="journey-time">${esc(entry.time||"")}</div><button type="button" class="journey-orb" aria-label="Open or remove ${esc(entry.time||"check-in")}"><span></span></button><div class="journey-values"><span title="Energy"><b>${energy[0]}</b><small>${energy[1]}</small></span><span title="Mood"><b>${mood[0]}</b><small>${mood[1]}</small></span><span title="Pain"><b>${pain[0]}</b><small>${pain[1]}</small></span></div>${entry.note?`<p class="journey-note">${esc(entry.note)}</p>`:""}</article>`;
 }
-function dayEntries(dateValue){return (data.dayCheckins||[]).filter(e=>e.date===dateValue).sort((a,b)=>(a.createdAt||"").localeCompare(b.createdAt||""))}
+function dayEntries(dateValue){
+  return (data.dayCheckins||[])
+    .filter(e=>e.date===dateValue)
+    .filter(e=>[e.energy,e.mood,e.pain].some(v=>Number.isInteger(Number(v)))||String(e.note||"").trim())
+    .sort((a,b)=>(a.createdAt||"").localeCompare(b.createdAt||""));
+}
 function selectedHealthFeeling(name){const el=document.querySelector(`[data-health-feeling="${name}"].active`);return el?Number(el.dataset.value):null}
 function markHealthTodayPrompt(date){
   if(date!==today()) return;

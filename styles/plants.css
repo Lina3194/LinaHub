@@ -365,3 +365,28 @@ body.dark .encyclopedia-card,body.dark .plant-main-tabs button{background:#10121
   .plant-care-modal-grid{grid-template-columns:1fr}
   .plant-care-choice{padding:13px;border-radius:18px}
 }
+
+
+/* LinaHub 17.9.87 — show every care colour on dates with multiple records */
+.plant-cal-day.multi-care{
+  background:var(--plant-care-bg)!important;
+  color:#fff!important;
+  border-color:rgba(255,255,255,.34)!important;
+  box-shadow:0 0 0 2px rgba(255,255,255,.08)!important;
+}
+.plant-cal-day.multi-care span{
+  position:relative;
+  z-index:2;
+  display:inline-grid;
+  place-items:center;
+  min-width:24px;
+  min-height:24px;
+  padding:2px 5px;
+  border-radius:999px;
+  background:rgba(14,10,26,.62);
+  color:#fff!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.7);
+}
+.plant-cal-day.multi-care.today{
+  box-shadow:0 0 0 2px rgba(240,199,107,.85),0 0 0 4px rgba(240,199,107,.16)!important;
+}

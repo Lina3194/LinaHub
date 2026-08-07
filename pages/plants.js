@@ -248,8 +248,14 @@ function plantTimelineCalendar(p){
   for(let day=1;day<=days;day++){
     const date=`${month}-${String(day).padStart(2,"0")}`;
     const classes=[watered.has(date)?"watered":"",fed.has(date)?"fed":"",repotted.has(date)?"repotted":"",pruned.has(date)?"pruned":"",date===todayDate?"today":""].filter(Boolean).join(" ");
+    const careColours=[];
+    if(watered.has(date))careColours.push("#35aee2");
+    if(fed.has(date))careColours.push("#e6bf55");
+    if(repotted.has(date))careColours.push("#b57ad9");
+    if(pruned.has(date))careColours.push("#78d98e");
+    const multiStyle=careColours.length>1?` style="--plant-care-bg:conic-gradient(${careColours.map((colour,index)=>`${colour} ${index*100/careColours.length}% ${(index+1)*100/careColours.length}%`).join(",")})"`:"";
     const marks=`${watered.has(date)?'<i class="water-mark"></i>':""}${fed.has(date)?'<i class="feed-mark"></i>':""}${repotted.has(date)?'<i class="repot-mark"></i>':""}${pruned.has(date)?'<i class="prune-mark"></i>':""}${date===todayDate?'<i class="today-mark"></i>':""}`;
-    cells.push(`<button type="button" class="plant-cal-day ${classes}" data-plant-calendar-date="${date}" aria-label="${formatDate(date)}${date===todayDate?', today':''}"><span>${day}</span>${marks}</button>`);
+    cells.push(`<button type="button" class="plant-cal-day ${classes} ${careColours.length>1?"multi-care":""}"${multiStyle} data-plant-calendar-date="${date}" aria-label="${formatDate(date)}${date===todayDate?', today':''}"><span>${day}</span>${marks}</button>`);
   }
   return `<div class="plant-calendar-head"><button type="button" class="mini" data-plant-month="-1">‹</button><div class="plant-calendar-title"><strong>${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</strong><small>${todayInMonth?`Today: ${formatDate(todayDate)}`:`Today: ${formatDate(todayDate)}`}</small></div><button type="button" class="mini" data-plant-month="1">›</button></div><div class="plant-cal-weekdays">${["M","T","W","T","F","S","S"].map(x=>`<span>${x}</span>`).join("")}</div><div class="plant-cal-grid">${cells.join("")}</div><div class="plant-calendar-legend"><span><i class="today-legend"></i>Today</span><span><i class="water"></i>Watered</span><span><i class="feed"></i>Fed</span><span><i class="repot"></i>Repotted</span><span><i class="prune"></i>Pruned</span></div>`;
 }

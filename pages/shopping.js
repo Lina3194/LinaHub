@@ -6,6 +6,8 @@ const SHOPPING_CATEGORIES=[
   {id:"toiletries",name:"Toiletries",iconKey:"shoppingToiletries",fallback:"🧴",hint:"Bathroom and personal care"}
 ];
 
+let shoppingSessionCategory="";
+
 const DEFAULT_SHOPPING_ITEMS={
   fridge:[
     "Gnocchi","Galaxy bar","Minced beef","Sausages","Edam slices","Cucumber","Houmous","Carrots","Peach iced tea","Pink sauce","Chocolate milk","Cream cheese","Pineapple juice","Block cheese","Ham","Jam","Tesco Apples","Mayonnaise","Tomatoes","Unsalted butter","Yoghurt","Avocado","Butter","Salsa","Chicken","Chocolate digestives","Tomato purée","Jalapeños","Milk","Ketchup"
@@ -39,7 +41,6 @@ function ensureShoppingData(){
     return {...item,category:normaliseShoppingCategory(item.category),isRegular,needed,done:!needed};
   });
   data.shoppingView=data.shoppingView||{};
-  data.shoppingView.category=SHOPPING_CATEGORIES.some(c=>c.id===data.shoppingView.category)?data.shoppingView.category:"all";
   data.shoppingView.mode=data.shoppingView.mode==="regular"?"regular":"needed";
   data.shoppingView.editId=data.shoppingView.editId||"";
 
@@ -85,14 +86,15 @@ function shoppingItemRow(item,{master=false}={}){
 
 function ShoppingPage(){
   ensureShoppingData();
-  const active=data.shoppingView.category||"all";
+  const active=SHOPPING_CATEGORIES.some(c=>c.id===shoppingSessionCategory)?shoppingSessionCategory:"";
+  const listCategory=active||"all";
   const mode=data.shoppingView.mode||"needed";
   const items=data.shoppingItems||[];
   const needed=items.filter(item=>item.needed);
   const regular=items.filter(item=>item.isRegular);
   const visible=mode==="regular"
-    ?(active==="all"?regular:regular.filter(item=>item.category===active))
-    :(active==="all"?needed:needed.filter(item=>item.category===active));
+    ?(listCategory==="all"?regular:regular.filter(item=>item.category===listCategory))
+    :(listCategory==="all"?needed:needed.filter(item=>item.category===listCategory));
   const categoryTiles=SHOPPING_CATEGORIES.map(category=>{
     const count=needed.filter(item=>item.category===category.id).length;
     const regularCount=regular.filter(item=>item.category===category.id).length;
@@ -122,17 +124,17 @@ function ShoppingPage(){
       </div>
       <div class="shopping-options">
         <input class="field" id="shoppingQuantity" type="text" maxlength="30" placeholder="Quantity (optional)">
-        <select class="field" id="shoppingCategory">${SHOPPING_CATEGORIES.map(c=>`<option value="${c.id}" ${active===c.id?"selected":""}>${c.name}</option>`).join("")}</select>
+        <select class="field" id="shoppingCategory">${SHOPPING_CATEGORIES.map(c=>`<option value="${c.id}" ${((active||"pantry")===c.id)?"selected":""}>${c.name}</option>`).join("")}</select>
       </div>
       <label class="shopping-regular-choice"><input type="checkbox" id="shoppingSaveRegular"> <span>Save as a regular item</span><small>New items are one-off unless you tick this.</small></label>
     </section>
 
     <section class="shopping-list-section">
       <div class="section-title-row">
-        <h2>${mode==="regular"?(active==="all"?"All regular items":`${shoppingCategory(active).name} regular items`):(active==="all"?"Everything to buy":shoppingCategory(active).name)}</h2>
-        ${active!=="all"?`<button type="button" class="small-btn" data-shopping-category="all">View all</button>`:""}
+        <h2>${mode==="regular"?(listCategory==="all"?"All regular items":`${shoppingCategory(listCategory).name} regular items`):(listCategory==="all"?"Everything to buy":shoppingCategory(listCategory).name)}</h2>
+        ${listCategory!=="all"?`<button type="button" class="small-btn" data-shopping-category="all">View all</button>`:""}
       </div>
-      <div class="shopping-list">${visible.length?visible.map(item=>shoppingItemRow(item,{master:mode==="regular"})).join(""):`<div class="card empty shopping-empty"><span>✓</span><p>${mode==="regular"?"No regular items in this category yet.":active==="all"?"Nothing left to buy.":`Nothing needed for ${shoppingCategory(active).name.toLowerCase()}.`}</p></div>`}</div>
+      <div class="shopping-list">${visible.length?visible.map(item=>shoppingItemRow(item,{master:mode==="regular"})).join(""):`<div class="card empty shopping-empty"><span>✓</span><p>${mode==="regular"?"No regular items in this category yet.":listCategory==="all"?"Nothing left to buy.":`Nothing needed for ${shoppingCategory(listCategory).name.toLowerCase()}.`}</p></div>`}</div>
     </section>
   `,"shopping");
 }
@@ -158,7 +160,7 @@ function bindShopping(){
     if(modeButton){data.shoppingView.mode=modeButton.dataset.shoppingMode;data.shoppingView.editId="";saveData();render();return;}
     const category=event.target.closest("[data-shopping-category]");
     if(category){
-      data.shoppingView.category=category.dataset.shoppingCategory;
+      shoppingSessionCategory=category.dataset.shoppingCategory==="all"?"":category.dataset.shoppingCategory;
       if(category.classList.contains("shopping-category-tile") && category.dataset.shoppingCategory!=="all"){
         data.shoppingView.mode="regular";
       }

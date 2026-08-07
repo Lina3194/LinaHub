@@ -282,7 +282,6 @@ function HomePage(){
     <section class="home-journey"><h2>Your journey</h2><div class="grid home-layout ${editing?"editing":""}">${data.homeLayout.map(item=>homeTile(item,editing)).join("")}</div></section>
     ${editing?hiddenHomeTiles():""}
     ${homeQuickOverview()}
-    ${homeMedicationReminder()}
     <div id="tileEditorMount"></div>
   `,"home");
 }

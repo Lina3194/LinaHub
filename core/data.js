@@ -339,6 +339,14 @@ function aquariumFeedLocalTime(value){
   const pad=n=>String(n).padStart(2,"0");
   return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+function aquariumFeedTimestampFromId(value){
+  const match=String(value||"").match(/(?:^|-)feed-(\d{12,14})(?:-|$)/i)||String(value||"").match(/^feed-(\d{12,14})(?:-|$)/i);
+  if(!match)return "";
+  const ms=Number(match[1]);
+  if(!Number.isFinite(ms))return "";
+  const d=new Date(ms);
+  return Number.isNaN(d.getTime())?"":d.toISOString();
+}
 function normalizeLegacyAquariumFeeds(tank){
   tank.feeds=Array.isArray(tank.feeds)?tank.feeds:[];
   const recovered=[];
@@ -347,7 +355,8 @@ function normalizeLegacyAquariumFeeds(tank){
     if(!feed)return;
     const raw=typeof feed==="string"?{date:feed}:feed;
     let date=String(raw.date||raw.day||raw.feedDate||"").slice(0,10);
-    const stamp=raw.createdAt||raw.timestamp||raw.fedAt||raw.timeStamp||"";
+    let stamp=raw.createdAt||raw.timestamp||raw.fedAt||raw.timeStamp||"";
+    if(!stamp)stamp=aquariumFeedTimestampFromId(raw.id);
     if(!/^\d{4}-\d{2}-\d{2}$/.test(date))date=aquariumFeedLocalDate(stamp);
     if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return;
     let time=String(raw.time||raw.feedTime||"").slice(0,5);

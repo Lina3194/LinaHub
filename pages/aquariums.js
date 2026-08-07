@@ -50,13 +50,16 @@ function lina17MaintenanceDue(lastDate,cycleDays){
   return lina17RelativeCareDate(due.toISOString().slice(0,10));
 }
 function lina17FeedDate(feed){
-  if(feed?.date)return String(feed.date).slice(0,10);
-  if(feed?.createdAt)return aquariumLocalDate(feed.createdAt);
+  if(feed?.date&&/^\d{4}-\d{2}-\d{2}/.test(String(feed.date)))return String(feed.date).slice(0,10);
+  if(feed?.createdAt){const recovered=aquariumLocalDate(feed.createdAt);if(recovered)return recovered}
+  if(typeof aquariumFeedTimestampFromId==="function"){const stamp=aquariumFeedTimestampFromId(feed?.id);if(stamp)return aquariumLocalDate(stamp)}
   return "";
 }
 function lina17FeedTime(feed){
-  if(feed?.time)return String(feed.time).slice(0,5);
-  if(feed?.createdAt){const d=new Date(feed.createdAt);if(!Number.isNaN(d.getTime()))return d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
+  if(feed?.time&&/^\d{2}:\d{2}/.test(String(feed.time)))return String(feed.time).slice(0,5);
+  let stamp=feed?.createdAt||"";
+  if(!stamp&&typeof aquariumFeedTimestampFromId==="function")stamp=aquariumFeedTimestampFromId(feed?.id);
+  if(stamp){const d=new Date(stamp);if(!Number.isNaN(d.getTime()))return d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
   return "";
 }
 function lina17FeedTimestamp(date,time){

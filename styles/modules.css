@@ -920,3 +920,61 @@ body.house-editor-open{
 .shopping-item[data-shopping-row-toggle] .shopping-check,
 .shopping-item[data-shopping-row-toggle] .shopping-edit,
 .shopping-item[data-shopping-row-toggle] .shopping-delete{pointer-events:auto}
+
+
+/* LinaHub 17.9.99 — medication stock row/name + warning range fix */
+body[data-route="medication"] .med-stock-list .med-stock-expanded{
+  grid-template-columns:minmax(0,1fr)!important;
+  width:100%!important;
+  min-width:0!important;
+}
+body[data-route="medication"] .med-stock-list .med-stock-expanded>.med-stock-main,
+body[data-route="medication"] .med-stock-list .med-stock-expanded>.med-stock-actions,
+body[data-route="medication"] .med-stock-list .med-stock-expanded>details{
+  grid-column:1/-1!important;
+  width:100%!important;
+  min-width:0!important;
+}
+body[data-route="medication"] .med-stock-main{
+  grid-template-columns:minmax(0,1fr) auto!important;
+  align-items:center!important;
+}
+body[data-route="medication"] .med-stock-main>div{
+  min-width:0!important;
+}
+body[data-route="medication"] .med-stock-main strong{
+  display:block!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  word-break:normal!important;
+  line-height:1.2!important;
+  margin:0!important;
+}
+body[data-route="medication"] .med-stock-main small{
+  white-space:normal!important;
+}
+body[data-route="medication"] .med-stock-count{
+  justify-self:end!important;
+  align-self:center!important;
+  margin:0!important;
+}
+body[data-route="medication"] .med-warning-setting{
+  min-width:220px!important;
+}
+body[data-route="medication"] .med-warning-input{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+body[data-route="medication"] .med-warning-input input{
+  width:88px!important;
+  min-width:88px!important;
+}
+@media(max-width:560px){
+  body[data-route="medication"] .med-stock-main{
+    grid-template-columns:minmax(0,1fr) auto!important;
+  }
+  body[data-route="medication"] .med-warning-setting{
+    min-width:0!important;
+  }
+}

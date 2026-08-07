@@ -162,7 +162,7 @@ function ShoppingPage(){
         <input class="field" id="shoppingQuantity" type="text" maxlength="30" placeholder="Quantity (optional)">
         <select class="field" id="shoppingCategory">${SHOPPING_CATEGORIES.map(c=>`<option value="${c.id}" ${((active||"pantry")===c.id)?"selected":""}>${c.name}</option>`).join("")}</select>
       </div>
-      <label class="shopping-regular-choice"><input type="checkbox" id="shoppingSaveRegular"> <span>Save as a regular item</span><small>New items are one-off unless you tick this.</small></label>
+      <label class="shopping-regular-choice"><input type="checkbox" id="shoppingSaveRegular" checked> <span>Save as a regular item</span><small>Regular is the default. Untick this if you only need the item once.</small></label>
     </section>
 
     <section class="shopping-list-section">

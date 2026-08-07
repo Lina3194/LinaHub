@@ -390,3 +390,43 @@ body.dark .encyclopedia-card,body.dark .plant-main-tabs button{background:#10121
 .plant-cal-day.multi-care.today{
   box-shadow:0 0 0 2px rgba(240,199,107,.85),0 0 0 4px rgba(240,199,107,.16)!important;
 }
+
+
+/* LinaHub 17.9.88 — horizontal solid colour bands for multi-care dates */
+.plant-cal-day.has-care{
+  background:var(--plant-care-bg)!important;
+}
+.plant-cal-day.has-care.watered,
+.plant-cal-day.has-care.fed,
+.plant-cal-day.has-care.repotted,
+.plant-cal-day.has-care.pruned{
+  color:#fff!important;
+  border-color:rgba(255,255,255,.26)!important;
+}
+.plant-cal-day.has-care span{
+  position:relative;
+  z-index:2;
+  display:inline-grid;
+  place-items:center;
+  min-width:24px;
+  min-height:24px;
+  padding:2px 5px;
+  border-radius:999px;
+  background:rgba(14,10,26,.66);
+  color:#fff!important;
+  text-shadow:0 1px 2px rgba(0,0,0,.7);
+}
+.plant-cal-day.multi-care{
+  background:var(--plant-care-bg)!important;
+  box-shadow:0 0 0 2px rgba(255,255,255,.08)!important;
+}
+.plant-cal-day.multi-care i:not(.today-mark){display:none!important}
+.plant-cal-day.fed:not(.multi-care):not(.watered),
+.plant-cal-day.repotted:not(.multi-care):not(.watered),
+.plant-cal-day.pruned:not(.multi-care):not(.watered){
+  box-shadow:none!important;
+}
+.plant-cal-day.today.has-care,
+.plant-cal-day.today.multi-care{
+  box-shadow:0 0 0 2px rgba(240,199,107,.85),0 0 0 4px rgba(240,199,107,.16)!important;
+}

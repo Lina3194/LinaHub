@@ -253,9 +253,10 @@ function plantTimelineCalendar(p){
     if(fed.has(date))careColours.push("#e6bf55");
     if(repotted.has(date))careColours.push("#b57ad9");
     if(pruned.has(date))careColours.push("#78d98e");
-    const multiStyle=careColours.length>1?` style="--plant-care-bg:conic-gradient(${careColours.map((colour,index)=>`${colour} ${index*100/careColours.length}% ${(index+1)*100/careColours.length}%`).join(",")})"`:"";
-    const marks=`${watered.has(date)?'<i class="water-mark"></i>':""}${fed.has(date)?'<i class="feed-mark"></i>':""}${repotted.has(date)?'<i class="repot-mark"></i>':""}${pruned.has(date)?'<i class="prune-mark"></i>':""}${date===todayDate?'<i class="today-mark"></i>':""}`;
-    cells.push(`<button type="button" class="plant-cal-day ${classes} ${careColours.length>1?"multi-care":""}"${multiStyle} data-plant-calendar-date="${date}" aria-label="${formatDate(date)}${date===todayDate?', today':''}"><span>${day}</span>${marks}</button>`);
+    const stripeStops=careColours.map((colour,index)=>`${colour} ${(index*100)/careColours.length}% ${((index+1)*100)/careColours.length}%`).join(",");
+    const careStyle=careColours.length?` style="--plant-care-bg:${careColours.length===1?careColours[0]:`linear-gradient(to bottom,${stripeStops})`}"`:"";
+    const marks=`${date===todayDate?'<i class="today-mark"></i>':""}`;
+    cells.push(`<button type="button" class="plant-cal-day ${classes} ${careColours.length?"has-care":""} ${careColours.length>1?"multi-care":""}"${careStyle} data-plant-calendar-date="${date}" aria-label="${formatDate(date)}${date===todayDate?', today':''}"><span>${day}</span>${marks}</button>`);
   }
   return `<div class="plant-calendar-head"><button type="button" class="mini" data-plant-month="-1">‹</button><div class="plant-calendar-title"><strong>${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</strong><small>${todayInMonth?`Today: ${formatDate(todayDate)}`:`Today: ${formatDate(todayDate)}`}</small></div><button type="button" class="mini" data-plant-month="1">›</button></div><div class="plant-cal-weekdays">${["M","T","W","T","F","S","S"].map(x=>`<span>${x}</span>`).join("")}</div><div class="plant-cal-grid">${cells.join("")}</div><div class="plant-calendar-legend"><span><i class="today-legend"></i>Today</span><span><i class="water"></i>Watered</span><span><i class="feed"></i>Fed</span><span><i class="repot"></i>Repotted</span><span><i class="prune"></i>Pruned</span></div>`;
 }

@@ -21,7 +21,7 @@ function aquariumTimestampForDate(dateValue){
 }
 function tankFeedToday(tank){
   return [...(tank.feeds||[])]
-    .filter(feed=>aquariumLocalDate(feed.createdAt)===today())
+    .filter(feed=>(feed?.date?String(feed.date).slice(0,10):aquariumLocalDate(feed.createdAt))===today())
     .sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""))[0]||null;
 }
 
@@ -51,7 +51,7 @@ function lina17MaintenanceDue(lastDate,cycleDays){
 }
 function lina17FeedDate(feed){
   if(feed?.date)return String(feed.date).slice(0,10);
-  if(feed?.createdAt){const d=new Date(feed.createdAt);if(!Number.isNaN(d.getTime()))return d.toISOString().slice(0,10)}
+  if(feed?.createdAt)return aquariumLocalDate(feed.createdAt);
   return "";
 }
 function lina17FeedTime(feed){

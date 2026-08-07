@@ -912,3 +912,11 @@ body.house-editor-open{
 .shopping-check{position:relative;z-index:2;cursor:pointer;touch-action:manipulation}
 .shopping-check:active{transform:scale(.94)}
 @media(max-width:600px){.shopping-regular-groups{gap:15px}.shopping-regular-group-head .module-tile-image{width:30px;height:30px}}
+
+/* LinaHub 17.9.96 — make regular shopping rows reliably tappable */
+.shopping-item[data-shopping-row-toggle]{cursor:pointer;touch-action:manipulation}
+.shopping-item[data-shopping-row-toggle] .shopping-item-copy{pointer-events:none}
+.shopping-item[data-shopping-row-toggle]:active{transform:scale(.995)}
+.shopping-item[data-shopping-row-toggle] .shopping-check,
+.shopping-item[data-shopping-row-toggle] .shopping-edit,
+.shopping-item[data-shopping-row-toggle] .shopping-delete{pointer-events:auto}

@@ -100,8 +100,8 @@ function shoppingItemRow(item,{master=false}={}){
     </article>`;
   }
   const label=item.isRegular?(item.needed?"Needed":"In stock"):(item.needed?"One-off":"Bought");
-  return `<article class="shopping-item ${item.needed?"":"shopping-item-done"} ${item.isRegular?"shopping-regular-item":"shopping-oneoff-item"}">
-    <button type="button" class="shopping-check ${item.needed?"needed":"done"}" data-shopping-toggle="${esc(item.id)}" aria-label="${item.needed?"Mark as bought":"Mark as needed"}">${item.needed?"":"✓"}</button>
+  return `<article class="shopping-item ${item.needed?"":"shopping-item-done"} ${item.isRegular?"shopping-regular-item":"shopping-oneoff-item"}" data-shopping-row-toggle="${esc(item.id)}" role="button" tabindex="0" aria-label="${item.needed?"Mark "+esc(item.name)+" as in stock":"Mark "+esc(item.name)+" as needed"}">
+    <button type="button" class="shopping-check ${item.needed?"needed":"done"}" data-shopping-toggle="${esc(item.id)}" aria-label="${item.needed?"Mark as in stock":"Mark as needed"}">${item.needed?"":"✓"}</button>
     <div class="shopping-item-copy"><strong>${esc(item.name)}</strong><small>${item.quantity?`${esc(item.quantity)} · `:""}${esc(category.name)} · ${label}</small></div>
     ${item.isRegular||master?`<button type="button" class="shopping-edit" data-shopping-edit="${esc(item.id)}" aria-label="Edit ${esc(item.name)}">✎</button>`:`<button type="button" class="shopping-delete" data-shopping-delete="${esc(item.id)}" aria-label="Delete ${esc(item.name)}">×</button>`}
   </article>`;
@@ -177,6 +177,23 @@ function ShoppingPage(){
   `,"shopping");
 }
 
+function toggleShoppingItemById(rawId){
+  ensureShoppingItemIds();
+  const id=String(rawId||"");
+  const item=data.shoppingItems.find(x=>String(x.id)===id);
+  if(!item){toast("I couldn't find that shopping item. Please try again.");return false;}
+  if(item.isRegular){
+    item.needed=!item.needed;
+    item.done=!item.needed;
+    item.completedAt=item.needed?"":new Date().toISOString();
+  }else if(item.needed){
+    data.shoppingItems=data.shoppingItems.filter(x=>String(x.id)!==id);
+  }
+  saveData();
+  render();
+  return true;
+}
+
 function bindShopping(){
   ensureShoppingData();
   const page=document.querySelector("#app");
@@ -210,26 +227,12 @@ function bindShopping(){
       }
       return;
     }
-    const toggle=event.target.closest("[data-shopping-toggle]");
-    if(toggle){
-      event.preventDefault();
-      ensureShoppingItemIds();
-      const id=String(toggle.dataset.shoppingToggle||"");
-      const item=data.shoppingItems.find(x=>String(x.id)===id);
-      if(!item){toast("I couldn't find that shopping item. Please try again.");return;}
-      if(item.isRegular){
-        item.needed=!item.needed;
-        item.done=!item.needed;
-        item.completedAt=item.needed?"":new Date().toISOString();
-      }else if(item.needed){
-        data.shoppingItems=data.shoppingItems.filter(x=>String(x.id)!==id);
-      }
-      saveData();
-      render();
-      return;
-    }
     const edit=event.target.closest("[data-shopping-edit]");
-    if(edit){data.shoppingView.editId=edit.dataset.shoppingEdit;saveData();render();return;}
+    if(edit){event.stopPropagation();data.shoppingView.editId=edit.dataset.shoppingEdit;saveData();render();return;}
+    const toggle=event.target.closest("[data-shopping-toggle]");
+    if(toggle){event.preventDefault();event.stopPropagation();toggleShoppingItemById(toggle.dataset.shoppingToggle);return;}
+    const row=event.target.closest("[data-shopping-row-toggle]");
+    if(row){event.preventDefault();toggleShoppingItemById(row.dataset.shoppingRowToggle);return;}
     if(event.target.closest("[data-shopping-cancel-edit]")){data.shoppingView.editId="";saveData();render();return;}
     const saveEdit=event.target.closest("[data-shopping-save-edit]");
     if(saveEdit){
@@ -240,6 +243,12 @@ function bindShopping(){
       data.shoppingView.editId="";saveData();render();return;
     }
     const remove=event.target.closest("[data-shopping-delete]");
-    if(remove){data.shoppingItems=data.shoppingItems.filter(x=>String(x.id)!==String(remove.dataset.shoppingDelete));data.shoppingView.editId="";saveData();render();return;}
+    if(remove){event.stopPropagation();data.shoppingItems=data.shoppingItems.filter(x=>String(x.id)!==String(remove.dataset.shoppingDelete));data.shoppingView.editId="";saveData();render();return;}
+  });
+  page?.addEventListener("keydown",event=>{
+    if(event.key!=="Enter"&&event.key!==" ")return;
+    if(event.target.closest("button,input,select,textarea"))return;
+    const row=event.target.closest("[data-shopping-row-toggle]");
+    if(row){event.preventDefault();toggleShoppingItemById(row.dataset.shoppingRowToggle);}
   });
 }

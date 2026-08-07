@@ -325,6 +325,49 @@ function normalizeAquarium(tank,i){
   };
 }
 
+function aquariumFeedLocalDate(value){
+  if(!value)return "";
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime()))return "";
+  const pad=n=>String(n).padStart(2,"0");
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+}
+function aquariumFeedLocalTime(value){
+  if(!value)return "";
+  const d=new Date(value);
+  if(Number.isNaN(d.getTime()))return "";
+  const pad=n=>String(n).padStart(2,"0");
+  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+function normalizeLegacyAquariumFeeds(tank){
+  tank.feeds=Array.isArray(tank.feeds)?tank.feeds:[];
+  const recovered=[];
+  const seen=new Set();
+  const add=(feed,source="existing")=>{
+    if(!feed)return;
+    const raw=typeof feed==="string"?{date:feed}:feed;
+    let date=String(raw.date||raw.day||raw.feedDate||"").slice(0,10);
+    const stamp=raw.createdAt||raw.timestamp||raw.fedAt||raw.timeStamp||"";
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date))date=aquariumFeedLocalDate(stamp);
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return;
+    let time=String(raw.time||raw.feedTime||"").slice(0,5);
+    if(!/^\d{2}:\d{2}$/.test(time))time=aquariumFeedLocalTime(stamp);
+    const food=raw.food||raw.name||raw.note||"Fed";
+    const key=`${date}|${time}|${String(food).trim().toLowerCase()}`;
+    if(seen.has(key))return;
+    seen.add(key);
+    recovered.push({...raw,id:raw.id||`recovered-feed-${date}-${time||"unknown"}-${recovered.length}`,food,date,time,createdAt:stamp||`${date}T${time||"12:00"}:00`,recoveredFrom:raw.recoveredFrom||source});
+  };
+  tank.feeds.forEach(feed=>add(feed,"feeds"));
+  [tank.feedingHistory,tank.feedHistory,tank.feedingLog,tank.feedLog].forEach(list=>{
+    if(Array.isArray(list))list.forEach(feed=>add(feed,"legacy-history"));
+  });
+  const legacyLast=tank.lastFed||tank.lastFeed||tank.lastFeeding||tank.fedAt;
+  if(legacyLast)add(typeof legacyLast==="string"?{createdAt:legacyLast,food:"Recovered feeding"}:legacyLast,"legacy-last-feed");
+  tank.feeds=recovered.sort((a,b)=>`${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
+  return tank;
+}
+
 function normalizePlant(p,i){
   if(typeof p==="string"){
     return {id:p.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||`plant-${i}`,name:p,emoji:"🌿",notes:"",lastWatered:"",history:[],photo:""};
@@ -500,6 +543,22 @@ function moduleVisual(key,fallback="✨",className="module-tile-image"){
 }
 
 let data=loadData();
+// LinaHub 17.9.90 — recover aquarium feeds saved by older versions.
+if(!data.aquariumFeedRecovery17990){
+  data.aquariums=Array.isArray(data.aquariums)?data.aquariums:[];
+  data.aquariums.forEach(normalizeLegacyAquariumFeeds);
+  data.aquariumFeedRecovery17990=true;
+  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+}else{
+  // Keep normalising so cloud-restored legacy entries are repaired too.
+  let changed=false;
+  for(const tank of (data.aquariums||[])){
+    const before=JSON.stringify(tank.feeds||[]);
+    normalizeLegacyAquariumFeeds(tank);
+    if(JSON.stringify(tank.feeds||[])!==before)changed=true;
+  }
+  if(changed)localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
+}
 if(!data.plantsAdded17986){
   data.plants=Array.isArray(data.plants)?data.plants:[];
   const requestedPlants17986=[

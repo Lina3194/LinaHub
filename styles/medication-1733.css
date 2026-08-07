@@ -91,3 +91,10 @@ body.med-past-dose-open{overflow:hidden}
 .med-past-dose-modal{width:min(620px,calc(100% - 24px));max-height:90dvh;overflow:auto;border-radius:26px;box-shadow:0 24px 70px rgba(0,0,0,.52)}
 .med-past-dose-head{position:sticky;top:0;z-index:2;padding-bottom:10px;background:var(--card)}
 @media(max-width:620px){.med-past-dose-card .section-title{display:grid}.med-past-dose-card .primary{width:100%}.med-past-dose-backdrop{padding:10px}.med-past-dose-modal{width:100%;padding:16px;border-radius:24px}.med-past-dose-head{top:-16px;margin:-16px -16px 10px;padding:16px 16px 10px;border-radius:24px 24px 0 0}}
+
+/* LinaHub 17.9.90 — editable low-stock warning */
+.med-warning-setting{display:flex!important;align-items:center;gap:8px;flex-wrap:wrap}
+.med-warning-setting>span:first-child{font-size:.78rem;color:var(--muted);font-weight:700}
+.med-warning-input{display:flex;align-items:center;gap:6px}
+.med-warning-input input{width:74px!important;min-width:74px!important;padding:8px 9px!important;border:1px solid var(--line);border-radius:11px;background:var(--bg);color:var(--ink)}
+.med-warning-input .mini{min-height:36px}

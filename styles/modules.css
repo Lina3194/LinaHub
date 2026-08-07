@@ -899,3 +899,16 @@ body.house-editor-open{
 .nightly-aid-other{display:grid;gap:6px;margin-top:10px;color:var(--muted);font-size:.78rem;font-weight:700}
 @media(max-width:560px){.nightly-aids-grid{grid-template-columns:1fr 1fr;gap:7px}.nightly-aid-option span{padding:9px;gap:8px}.nightly-aid-option strong{font-size:.75rem}.nightly-aid-option b{width:27px;height:27px;font-size:.95rem}}
 @media(max-width:370px){.nightly-aids-grid{grid-template-columns:1fr}}
+
+/* LinaHub 17.9.95 — grouped regular shopping lists + reliable toggles */
+.shopping-regular-groups{display:grid;gap:18px}
+.shopping-regular-group{display:grid;gap:9px}
+.shopping-regular-group-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:4px 2px}
+.shopping-regular-group-head>div{display:flex;align-items:center;gap:10px}
+.shopping-regular-group-head .module-tile-image{width:34px;height:34px;border-radius:11px}
+.shopping-regular-group-head span{display:grid;gap:1px}
+.shopping-regular-group-head strong{font-size:1rem}
+.shopping-regular-group-head small{color:var(--muted);font-size:.72rem}
+.shopping-check{position:relative;z-index:2;cursor:pointer;touch-action:manipulation}
+.shopping-check:active{transform:scale(.94)}
+@media(max-width:600px){.shopping-regular-groups{gap:15px}.shopping-regular-group-head .module-tile-image{width:30px;height:30px}}

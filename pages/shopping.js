@@ -33,6 +33,26 @@ function shoppingDefaultId(category,name){
   return `regular-${category}-${String(name).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}`;
 }
 
+function ensureShoppingItemIds(){
+  const seen=new Set();
+  let changed=false;
+  data.shoppingItems.forEach((item,index)=>{
+    let id=String(item?.id||"").trim();
+    if(!id || seen.has(id)){
+      const slug=String(item?.name||"item").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"item";
+      const base=`shop-${normaliseShoppingCategory(item?.category)}-${slug}`;
+      let candidate=`${base}-${index+1}`;
+      let n=2;
+      while(seen.has(candidate))candidate=`${base}-${index+1}-${n++}`;
+      item.id=candidate;
+      id=candidate;
+      changed=true;
+    }
+    seen.add(id);
+  });
+  return changed;
+}
+
 function ensureShoppingData(){
   data.shoppingItems=Array.isArray(data.shoppingItems)?data.shoppingItems:[];
   data.shoppingItems=data.shoppingItems.map(item=>{
@@ -43,6 +63,7 @@ function ensureShoppingData(){
   data.shoppingView=data.shoppingView||{};
   data.shoppingView.mode=data.shoppingView.mode==="regular"?"regular":"needed";
   data.shoppingView.editId=data.shoppingView.editId||"";
+  const repairedIds=ensureShoppingItemIds();
 
   if(!data.shoppingDefaultsInitialised){
     Object.entries(DEFAULT_SHOPPING_ITEMS).forEach(([category,names])=>{
@@ -53,6 +74,8 @@ function ensureShoppingData(){
       });
     });
     data.shoppingDefaultsInitialised=true;
+    saveData();
+  }else if(repairedIds){
     saveData();
   }
 }
@@ -82,6 +105,19 @@ function shoppingItemRow(item,{master=false}={}){
     <div class="shopping-item-copy"><strong>${esc(item.name)}</strong><small>${item.quantity?`${esc(item.quantity)} · `:""}${esc(category.name)} · ${label}</small></div>
     ${item.isRegular||master?`<button type="button" class="shopping-edit" data-shopping-edit="${esc(item.id)}" aria-label="Edit ${esc(item.name)}">✎</button>`:`<button type="button" class="shopping-delete" data-shopping-delete="${esc(item.id)}" aria-label="Delete ${esc(item.name)}">×</button>`}
   </article>`;
+}
+
+function shoppingRegularGroups(items){
+  return SHOPPING_CATEGORIES.map(category=>{
+    const rows=items.filter(item=>item.category===category.id);
+    if(!rows.length)return "";
+    return `<section class="shopping-regular-group">
+      <div class="shopping-regular-group-head">
+        <div>${moduleVisual(category.iconKey,category.fallback,"module-tile-image")}<span><strong>${esc(category.name)}</strong><small>${rows.length} regular item${rows.length===1?"":"s"}</small></span></div>
+      </div>
+      <div class="shopping-list">${rows.map(item=>shoppingItemRow(item,{master:true})).join("")}</div>
+    </section>`;
+  }).join("");
 }
 
 function ShoppingPage(){
@@ -131,10 +167,12 @@ function ShoppingPage(){
 
     <section class="shopping-list-section">
       <div class="section-title-row">
-        <h2>${mode==="regular"?(listCategory==="all"?"All regular items":`${shoppingCategory(listCategory).name} regular items`):(listCategory==="all"?"Everything to buy":shoppingCategory(listCategory).name)}</h2>
+        <h2>${mode==="regular"?(listCategory==="all"?"Regular items by category":`${shoppingCategory(listCategory).name} regular items`):(listCategory==="all"?"Everything to buy":shoppingCategory(listCategory).name)}</h2>
         ${listCategory!=="all"?`<button type="button" class="small-btn" data-shopping-category="all">View all</button>`:""}
       </div>
-      <div class="shopping-list">${visible.length?visible.map(item=>shoppingItemRow(item,{master:mode==="regular"})).join(""):`<div class="card empty shopping-empty"><span>✓</span><p>${mode==="regular"?"No regular items in this category yet.":listCategory==="all"?"Nothing left to buy.":`Nothing needed for ${shoppingCategory(listCategory).name.toLowerCase()}.`}</p></div>`}</div>
+      ${mode==="regular"&&listCategory==="all"
+        ? `<div class="shopping-regular-groups">${shoppingRegularGroups(regular) || '<div class="card empty shopping-empty"><span>✓</span><p>No regular items yet.</p></div>'}</div>`
+        : `<div class="shopping-list">${visible.length?visible.map(item=>shoppingItemRow(item,{master:mode==="regular"})).join(""):`<div class="card empty shopping-empty"><span>✓</span><p>${mode==="regular"?"No regular items in this category yet.":listCategory==="all"?"Nothing left to buy.":`Nothing needed for ${shoppingCategory(listCategory).name.toLowerCase()}.`}</p></div>`}</div>`}
     </section>
   `,"shopping");
 }
@@ -174,15 +212,20 @@ function bindShopping(){
     }
     const toggle=event.target.closest("[data-shopping-toggle]");
     if(toggle){
-      const item=data.shoppingItems.find(x=>String(x.id)===String(toggle.dataset.shoppingToggle));
-      if(item){
-        if(item.isRegular){
-          item.needed=!item.needed;item.done=!item.needed;item.completedAt=item.needed?"":new Date().toISOString();
-        }else if(item.needed){
-          data.shoppingItems=data.shoppingItems.filter(x=>String(x.id)!==String(item.id));
-        }
-        saveData();render();
+      event.preventDefault();
+      ensureShoppingItemIds();
+      const id=String(toggle.dataset.shoppingToggle||"");
+      const item=data.shoppingItems.find(x=>String(x.id)===id);
+      if(!item){toast("I couldn't find that shopping item. Please try again.");return;}
+      if(item.isRegular){
+        item.needed=!item.needed;
+        item.done=!item.needed;
+        item.completedAt=item.needed?"":new Date().toISOString();
+      }else if(item.needed){
+        data.shoppingItems=data.shoppingItems.filter(x=>String(x.id)!==id);
       }
+      saveData();
+      render();
       return;
     }
     const edit=event.target.closest("[data-shopping-edit]");

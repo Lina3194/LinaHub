@@ -100,8 +100,8 @@ function shoppingItemRow(item,{master=false}={}){
     </article>`;
   }
   const label=item.isRegular?(item.needed?"Needed":"In stock"):(item.needed?"One-off":"Bought");
-  return `<article class="shopping-item ${item.needed?"":"shopping-item-done"} ${item.isRegular?"shopping-regular-item":"shopping-oneoff-item"}" data-shopping-row-toggle="${esc(item.id)}" role="button" tabindex="0" aria-label="${item.needed?"Mark "+esc(item.name)+" as in stock":"Mark "+esc(item.name)+" as needed"}">
-    <button type="button" class="shopping-check ${item.needed?"needed":"done"}" data-shopping-toggle="${esc(item.id)}" aria-label="${item.needed?"Mark as in stock":"Mark as needed"}">${item.needed?"":"✓"}</button>
+  return `<article class="shopping-item ${item.needed?"":"shopping-item-done"} ${item.isRegular?"shopping-regular-item":"shopping-oneoff-item"}" data-shopping-row-toggle="${esc(item.id)}" role="button" tabindex="0" aria-label="${item.needed?"Mark "+esc(item.name)+" as in stock":"Mark "+esc(item.name)+" as needed"}" onclick="event.stopPropagation();if(!event.target.closest('[data-shopping-edit],[data-shopping-delete]'))window.toggleRegularShoppingItem(this.dataset.shoppingRowToggle)">
+    <button type="button" class="shopping-check ${item.needed?"needed":"done"}" data-shopping-toggle="${esc(item.id)}" aria-label="${item.needed?"Mark as in stock":"Mark as needed"}" onclick="event.preventDefault();event.stopPropagation();window.toggleRegularShoppingItem(this.dataset.shoppingToggle)">${item.needed?"":"✓"}</button>
     <div class="shopping-item-copy"><strong>${esc(item.name)}</strong><small>${item.quantity?`${esc(item.quantity)} · `:""}${esc(category.name)} · ${label}</small></div>
     ${item.isRegular||master?`<button type="button" class="shopping-edit" data-shopping-edit="${esc(item.id)}" aria-label="Edit ${esc(item.name)}">✎</button>`:`<button type="button" class="shopping-delete" data-shopping-delete="${esc(item.id)}" aria-label="Delete ${esc(item.name)}">×</button>`}
   </article>`;
@@ -178,9 +178,12 @@ function ShoppingPage(){
 }
 
 function toggleShoppingItemById(rawId){
-  ensureShoppingItemIds();
   const id=String(rawId||"");
-  const item=data.shoppingItems.find(x=>String(x.id)===id);
+  let item=(data.shoppingItems||[]).find(x=>String(x.id)===id);
+  if(!item){
+    ensureShoppingItemIds();
+    item=(data.shoppingItems||[]).find(x=>String(x.id)===id);
+  }
   if(!item){toast("I couldn't find that shopping item. Please try again.");return false;}
   if(item.isRegular){
     item.needed=!item.needed;
@@ -193,6 +196,7 @@ function toggleShoppingItemById(rawId){
   render();
   return true;
 }
+window.toggleRegularShoppingItem=toggleShoppingItemById;
 
 function bindShopping(){
   ensureShoppingData();
@@ -210,6 +214,11 @@ function bindShopping(){
   };
   page?.querySelector("#addShoppingItem")?.addEventListener("click",addItem);
   nameInput?.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();addItem();}});
+  page?.querySelectorAll("[data-shopping-row-toggle]").forEach(row=>row.addEventListener("keydown",event=>{
+    if((event.key==="Enter"||event.key===" ")&&!event.target.closest("[data-shopping-edit],[data-shopping-delete]")){
+      event.preventDefault();event.stopPropagation();toggleShoppingItemById(row.dataset.shoppingRowToggle);
+    }
+  }));
   page?.addEventListener("click",event=>{
     const modeButton=event.target.closest("[data-shopping-mode]");
     if(modeButton){data.shoppingView.mode=modeButton.dataset.shoppingMode;data.shoppingView.editId="";saveData();render();return;}
@@ -229,10 +238,6 @@ function bindShopping(){
     }
     const edit=event.target.closest("[data-shopping-edit]");
     if(edit){event.stopPropagation();data.shoppingView.editId=edit.dataset.shoppingEdit;saveData();render();return;}
-    const toggle=event.target.closest("[data-shopping-toggle]");
-    if(toggle){event.preventDefault();event.stopPropagation();toggleShoppingItemById(toggle.dataset.shoppingToggle);return;}
-    const row=event.target.closest("[data-shopping-row-toggle]");
-    if(row){event.preventDefault();toggleShoppingItemById(row.dataset.shoppingRowToggle);return;}
     if(event.target.closest("[data-shopping-cancel-edit]")){data.shoppingView.editId="";saveData();render();return;}
     const saveEdit=event.target.closest("[data-shopping-save-edit]");
     if(saveEdit){

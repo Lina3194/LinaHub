@@ -190,6 +190,18 @@ function applyModule(payload){
   if(!payload||typeof payload!=="object") return;
   Object.keys(payload).forEach(key=>{
     if(key==="updatedAt"||key==="deviceId"||key==="schemaVersion") return;
+    if(key==="aquariums"&&Array.isArray(payload.aquariums)){
+      // v17.9.91: older Today-list feedings only stored createdAt. Repair them
+      // every time aquarium data arrives from cloud before it replaces local data.
+      data.aquariums=payload.aquariums.map((remoteTank,index)=>{
+        const raw=(remoteTank&&typeof remoteTank==="object")?{...remoteTank}:remoteTank;
+        if(raw&&typeof raw==="object"&&typeof normalizeLegacyAquariumFeeds==="function") normalizeLegacyAquariumFeeds(raw);
+        const normalised=typeof normalizeAquarium==="function"?normalizeAquarium(raw,index):raw;
+        if(normalised&&typeof normalizeLegacyAquariumFeeds==="function") normalizeLegacyAquariumFeeds(normalised);
+        return normalised;
+      });
+      return;
+    }
     if(key==="plants"&&Array.isArray(payload.plants)){
       const remotePlants=payload.plants.map((plant,index)=>typeof normalizePlant==="function"?normalizePlant(plant,index):plant);
       const requiredIds=new Set(["strawberry","pink-kiss"]);

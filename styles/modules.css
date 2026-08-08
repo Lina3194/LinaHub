@@ -992,3 +992,7 @@ body[data-route="medication"] .med-warning-input input{
   .todo-search-row,.todo-filter-row{grid-template-columns:1fr}
   .todo-organiser-card{gap:11px}
 }
+
+/* LinaHub 17.9.102 — todo difficulty filter */
+.todo-filter-row-three{grid-template-columns:minmax(180px,.7fr) minmax(190px,.8fr) minmax(170px,.6fr)}
+@media(max-width:760px){.todo-filter-row-three{grid-template-columns:1fr}}

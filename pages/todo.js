@@ -23,6 +23,7 @@ function ensureTodoView(){
   data.todoView.search=String(data.todoView.search||"");
   data.todoView.sort=["difficulty","name","added-new","added-old","deadline-soon","deadline-late"].includes(data.todoView.sort)?data.todoView.sort:"added-new";
   data.todoView.deadline=["all","overdue","today","next7","has","none","exact"].includes(data.todoView.deadline)?data.todoView.deadline:"all";
+  data.todoView.difficulty=["all","Low","Medium","High"].includes(data.todoView.difficulty)?data.todoView.difficulty:"all";
   data.todoView.deadlineDate=String(data.todoView.deadlineDate||"");
 }
 
@@ -74,7 +75,8 @@ function TodoPage(){
   const query=data.todoView.search.trim().toLowerCase();
   const filteredOpen=allOpenTasks.filter(task=>{
     const searchable=`${task.title} ${task.energy} ${task.deadline?formatDate(task.deadline):"no deadline"}`.toLowerCase();
-    return (!query||searchable.includes(query))&&todoDeadlineMatches(task,data.todoView.deadline,data.todoView.deadlineDate);
+    const difficultyMatch=data.todoView.difficulty==="all"||task.energy===data.todoView.difficulty;
+    return difficultyMatch&&(!query||searchable.includes(query))&&todoDeadlineMatches(task,data.todoView.deadline,data.todoView.deadlineDate);
   });
   const openTasks=sortTodoTasks(filteredOpen,data.todoView.sort);
 
@@ -119,7 +121,13 @@ function TodoPage(){
           <option value="deadline-late" ${data.todoView.sort==="deadline-late"?"selected":""}>Deadline · latest</option>
         </select></label>
       </div>
-      <div class="todo-filter-row">
+      <div class="todo-filter-row todo-filter-row-three">
+        <label><span>Difficulty</span><select class="field" id="todoDifficultyFilter">
+          <option value="all" ${data.todoView.difficulty==="all"?"selected":""}>All difficulties</option>
+          <option value="Low" ${data.todoView.difficulty==="Low"?"selected":""}>🟢 Green · Low</option>
+          <option value="Medium" ${data.todoView.difficulty==="Medium"?"selected":""}>🟡 Yellow · Medium</option>
+          <option value="High" ${data.todoView.difficulty==="High"?"selected":""}>🔴 Red · High</option>
+        </select></label>
         <label><span>Deadlines</span><select class="field" id="todoDeadlineFilter">
           <option value="all" ${data.todoView.deadline==="all"?"selected":""}>All tasks</option>
           <option value="overdue" ${data.todoView.deadline==="overdue"?"selected":""}>Overdue</option>
@@ -192,9 +200,10 @@ function bindTodo(){
   };
   searchInput?.addEventListener("input",()=>{data.todoView.search=searchInput.value;rerenderTodoControls("todoSearch")});
   page.querySelector("#todoSort")?.addEventListener("change",event=>{data.todoView.sort=event.target.value;rerenderTodoControls()});
+  page.querySelector("#todoDifficultyFilter")?.addEventListener("change",event=>{data.todoView.difficulty=event.target.value;rerenderTodoControls()});
   page.querySelector("#todoDeadlineFilter")?.addEventListener("change",event=>{data.todoView.deadline=event.target.value;rerenderTodoControls(event.target.value==="exact"?"todoDeadlineSearch":"")});
   page.querySelector("#todoDeadlineSearch")?.addEventListener("change",event=>{data.todoView.deadlineDate=event.target.value;data.todoView.deadline="exact";rerenderTodoControls()});
-  page.querySelector("#resetTodoFilters")?.addEventListener("click",()=>{data.todoView={search:"",sort:"added-new",deadline:"all",deadlineDate:""};rerenderTodoControls()});
+  page.querySelector("#resetTodoFilters")?.addEventListener("click",()=>{data.todoView={search:"",sort:"added-new",difficulty:"all",deadline:"all",deadlineDate:""};rerenderTodoControls()});
 
   page.addEventListener("click",event=>{
     const energyButton=event.target.closest("[data-energy-choice]");

@@ -978,3 +978,17 @@ body[data-route="medication"] .med-warning-input input{
     min-width:0!important;
   }
 }
+
+/* LinaHub 17.9.101 — To-do search, deadline filters and sorting */
+.todo-organiser-card{display:grid;gap:14px}
+.todo-organiser-card .section-title{margin-bottom:0}
+.todo-search-row,.todo-filter-row{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(190px,.65fr);gap:10px;align-items:end}
+.todo-search-row label,.todo-filter-row label{display:grid;gap:6px;color:var(--muted);font-size:.78rem;font-weight:700;min-width:0}
+.todo-search-row .field,.todo-filter-row .field{width:100%;min-width:0}
+.todo-results-copy{margin:0;color:var(--muted);font-size:.82rem}
+.todo-results-copy strong{color:var(--ink)}
+.todo-item p{line-height:1.45}
+@media(max-width:650px){
+  .todo-search-row,.todo-filter-row{grid-template-columns:1fr}
+  .todo-organiser-card{gap:11px}
+}

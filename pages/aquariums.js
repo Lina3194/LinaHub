@@ -112,7 +112,20 @@ function bindAquariums(){
   const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return;const m=aquariumEnsureExtended(tank);
   document.querySelector("#quickFeedTank")?.addEventListener("click",()=>{const now=new Date();tank.feeds=tank.feeds||[];tank.feeds.push({id:`feed-${Date.now()}`,food:"Fed",date:today(),time:now.toTimeString().slice(0,5),createdAt:now.toISOString()});saveData();toast("Feeding logged 🍽️");render()});
   document.querySelectorAll("[data-aquarium-month]").forEach(b=>b.onclick=()=>{data.aquariumCalendarMonth[tank.id]=plantMonthShift(data.aquariumCalendarMonth[tank.id]||today().slice(0,7),b.dataset.aquariumMonth);saveData();render()});
-  document.querySelectorAll("[data-aquarium-feed-date]").forEach(b=>b.onclick=()=>{const d=b.dataset.aquariumFeedDate;if(confirm(`Log feeding on ${formatDate(d)}?`)){tank.feeds.push({id:`feed-${Date.now()}`,food:"Fed",date:d,time:"",createdAt:`${d}T12:00:00`});saveData();render()}});
+  document.querySelectorAll("[data-aquarium-feed-date]").forEach(b=>b.onclick=()=>{
+    const d=b.dataset.aquariumFeedDate;
+    const matches=(tank.feeds||[]).map((feed,index)=>({feed,index,date:lina17FeedDate(feed),stamp:new Date(feed.createdAt||`${lina17FeedDate(feed)}T${lina17FeedTime(feed)||"12:00"}:00`).getTime()||0})).filter(x=>x.date===d).sort((a,b)=>b.stamp-a.stamp);
+    if(matches.length){
+      if(!confirm(`Undo the most recent feeding logged on ${formatDate(d)}?${matches.length>1?`\nThere are ${matches.length} feedings on this date; the others will stay.`:""}`))return;
+      tank.feeds.splice(matches[0].index,1);
+      saveData();toast("Feeding undone");render();return;
+    }
+    if(confirm(`Log feeding on ${formatDate(d)}?`)){
+      tank.feeds=tank.feeds||[];
+      tank.feeds.push({id:`feed-${Date.now()}`,food:"Fed",date:d,time:"",createdAt:`${d}T12:00:00`});
+      saveData();toast("Feeding logged 🍽️");render();
+    }
+  });
   document.querySelectorAll("[data-quick-maintenance]").forEach(b=>b.onclick=()=>{const key=b.dataset.quickMaintenance,d=today();m[key]=d;if(!m.history[key].includes(d))m.history[key].push(d);m.history[key].sort();saveData();toast("Marked done ✓");render()});
   document.querySelectorAll("[data-save-maintenance]").forEach(b=>b.onclick=()=>{const key=b.dataset.saveMaintenance,d=document.querySelector(`[data-maintenance-date="${key}"]`)?.value||today();m[key]=d;if(!m.history[key].includes(d))m.history[key].push(d);m.history[key].sort();saveData();render()});
   document.querySelectorAll("[data-maintenance-interval]").forEach(input=>input.onchange=()=>{m.intervals[input.dataset.maintenanceInterval]=Math.max(1,Number(input.value)||1);saveData();render()});

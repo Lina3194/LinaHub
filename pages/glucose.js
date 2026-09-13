@@ -50,7 +50,7 @@ function glucoseHistory(){
 function glucoseLogForm(){
   glucoseEnsureData();
   const entry=glucoseUi.editingId?data.glucoseEntries.find(x=>x.id===glucoseUi.editingId):null;
-  const timing=entry?.timing||"before";
+  const timing=entry?.timing||"";
   const selectedBefore=entry?.feelingBefore||[];
   const selectedAfter=entry?.feelingAfter||[];
   const selectedFoods=entry?.mealTypes||[];
@@ -58,13 +58,14 @@ function glucoseLogForm(){
     <div class="section-title"><div><span class="section-kicker">🩸 Glucose</span><h2>${entry?"Edit reading":"Log a reading"}</h2></div>${entry?`<button type="button" class="mini" id="cancelGlucoseEdit">Cancel edit</button>`:""}</div>
     <div class="glucose-value-row"><label><span>Glucose reading</span><div class="glucose-value-input"><input class="field" id="glucoseValue" inputmode="decimal" type="number" min="0" step="0.1" placeholder="e.g. 5.4" value="${entry?.value??""}"><span>mmol/L</span></div></label><label><span>Time</span><input class="field" id="glucoseTime" type="time" value="${esc(entry?.time||glucoseNowTime())}"></label><label><span>Date</span><input class="field" id="glucoseDate" type="date" max="${today()}" value="${esc(entry?.date||today())}"></label></div>
     <div class="glucose-timing-picker" role="group" aria-label="Before or after food"><button type="button" class="${timing==="before"?"active":""}" data-glucose-timing="before">Before food</button><button type="button" class="${timing==="after"?"active":""}" data-glucose-timing="after">After food</button></div>
+    <div class="glucose-selection-tools"><button type="button" class="mini" id="clearGlucoseSelections">Clear all selections</button></div>
     <input type="hidden" id="glucoseTiming" value="${timing}">
     <section class="glucose-conditional before-panel ${timing==="before"?"":"hidden"}" data-glucose-panel="before">
       <h3>How are you feeling right now?</h3><p class="helper-text">Choose as many as apply.</p>${glucoseChipGroup("feelingBefore",GLUCOSE_FEELINGS,selectedBefore)}
     </section>
     <section class="glucose-conditional after-panel ${timing==="after"?"":"hidden"}" data-glucose-panel="after">
       <h3>What did you have?</h3><p class="helper-text">Pick everything that was part of the meal or snack.</p>${glucoseChipGroup("mealTypes",GLUCOSE_FOODS,selectedFoods)}
-      <input class="field glucose-other-food ${selectedFoods.includes("Other")?"":"hidden"}" id="glucoseOtherFood" placeholder="Other food or drink…" value="${esc(entry?.otherFood||"")}">
+      <label class="glucose-other-food-wrap ${selectedFoods.includes("Other")?"":"hidden"}" id="glucoseOtherFoodWrap"><span>What was the other food or drink?</span><input class="field glucose-other-food" id="glucoseOtherFood" placeholder="Type it here…" value="${esc(entry?.otherFood||"")}"></label>
       <h3>How are you feeling now?</h3><p class="helper-text">Choose as many as apply.</p>${glucoseChipGroup("feelingAfter",GLUCOSE_FEELINGS,selectedAfter)}
     </section>
     <label class="glucose-notes"><span>Notes <small>(optional)</small></span><textarea class="field" id="glucoseNotes" rows="3" placeholder="Anything else you want to remember…">${esc(entry?.notes||"")}</textarea></label>
@@ -85,22 +86,48 @@ function bindGlucose(){
   glucoseEnsureData();
   document.querySelectorAll("[data-glucose-tab]").forEach(button=>button.onclick=()=>{glucoseUi.tab=button.dataset.glucoseTab;glucoseUi.editingId="";render()});
   document.querySelectorAll("[data-glucose-timing]").forEach(button=>button.onclick=()=>{
-    const timing=button.dataset.glucoseTiming;
-    document.querySelector("#glucoseTiming").value=timing;
+    const field=document.querySelector("#glucoseTiming");
+    const clicked=button.dataset.glucoseTiming;
+    const timing=field?.value===clicked?"":clicked;
+    if(field)field.value=timing;
     document.querySelectorAll("[data-glucose-timing]").forEach(x=>x.classList.toggle("active",x.dataset.glucoseTiming===timing));
     document.querySelector('[data-glucose-panel="before"]')?.classList.toggle("hidden",timing!=="before");
     document.querySelector('[data-glucose-panel="after"]')?.classList.toggle("hidden",timing!=="after");
   });
   document.querySelectorAll("[data-glucose-chip]").forEach(button=>button.onclick=()=>{
     button.classList.toggle("active");
-    if(button.dataset.glucoseChip==="mealTypes"&&button.dataset.value==="Other")document.querySelector("#glucoseOtherFood")?.classList.toggle("hidden",!button.classList.contains("active"));
+    if(button.dataset.glucoseChip==="mealTypes"&&button.dataset.value==="Other"){
+      const isActive=button.classList.contains("active");
+      const wrap=document.querySelector("#glucoseOtherFoodWrap");
+      wrap?.classList.toggle("hidden",!isActive);
+      if(isActive){
+        requestAnimationFrame(()=>{
+          const input=document.querySelector("#glucoseOtherFood");
+          input?.focus();
+          wrap?.scrollIntoView({behavior:"smooth",block:"center"});
+        });
+      }else{
+        const input=document.querySelector("#glucoseOtherFood");
+        if(input)input.value="";
+      }
+    }
+  });
+  document.querySelector("#clearGlucoseSelections")?.addEventListener("click",()=>{
+    const timingField=document.querySelector("#glucoseTiming");
+    if(timingField)timingField.value="";
+    document.querySelectorAll("[data-glucose-timing], [data-glucose-chip]").forEach(x=>x.classList.remove("active"));
+    document.querySelectorAll("[data-glucose-panel]").forEach(x=>x.classList.add("hidden"));
+    const other=document.querySelector("#glucoseOtherFood");
+    if(other)other.value="";
+    document.querySelector("#glucoseOtherFoodWrap")?.classList.add("hidden");
   });
   document.querySelector("#cancelGlucoseEdit")?.addEventListener("click",()=>{glucoseUi.editingId="";render()});
   document.querySelector("#saveGlucoseReading")?.addEventListener("click",()=>{
     const raw=String(document.querySelector("#glucoseValue")?.value||"").replace(",",".");
     const value=Number(raw);
     if(!Number.isFinite(value)||value<=0){toast("Add your glucose number first");document.querySelector("#glucoseValue")?.focus();return}
-    const timing=document.querySelector("#glucoseTiming")?.value==="after"?"after":"before";
+    const timing=document.querySelector("#glucoseTiming")?.value||"";
+    if(timing!=="before"&&timing!=="after"){toast("Choose Before food or After food");return}
     const entry={
       id:glucoseUi.editingId||`glucose-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
       date:document.querySelector("#glucoseDate")?.value||today(),time:document.querySelector("#glucoseTime")?.value||glucoseNowTime(),value,unit:"mmol/L",timing,

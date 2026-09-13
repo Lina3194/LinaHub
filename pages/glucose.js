@@ -63,7 +63,6 @@ function glucoseLogForm(){
       <h3>How are you feeling right now?</h3><p class="helper-text">Choose as many as apply.</p>${glucoseChipGroup("feelingBefore",GLUCOSE_FEELINGS,selectedBefore)}
     </section>
     <section class="glucose-conditional after-panel ${timing==="after"?"":"hidden"}" data-glucose-panel="after">
-      <h3>How did you feel before eating?</h3><p class="helper-text">Choose as many as apply.</p>${glucoseChipGroup("feelingBefore",GLUCOSE_FEELINGS,selectedBefore)}
       <h3>What did you have?</h3><p class="helper-text">Pick everything that was part of the meal or snack.</p>${glucoseChipGroup("mealTypes",GLUCOSE_FOODS,selectedFoods)}
       <input class="field glucose-other-food ${selectedFoods.includes("Other")?"":"hidden"}" id="glucoseOtherFood" placeholder="Other food or drink…" value="${esc(entry?.otherFood||"")}">
       <h3>How are you feeling now?</h3><p class="helper-text">Choose as many as apply.</p>${glucoseChipGroup("feelingAfter",GLUCOSE_FEELINGS,selectedAfter)}
@@ -105,7 +104,7 @@ function bindGlucose(){
     const entry={
       id:glucoseUi.editingId||`glucose-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
       date:document.querySelector("#glucoseDate")?.value||today(),time:document.querySelector("#glucoseTime")?.value||glucoseNowTime(),value,unit:"mmol/L",timing,
-      feelingBefore:glucoseSelectedValues("feelingBefore"),
+      feelingBefore:timing==="before"?glucoseSelectedValues("feelingBefore"):[],
       mealTypes:timing==="after"?glucoseSelectedValues("mealTypes"):[],
       otherFood:timing==="after"?(document.querySelector("#glucoseOtherFood")?.value||"").trim():"",
       feelingAfter:timing==="after"?glucoseSelectedValues("feelingAfter"):[],

@@ -41,13 +41,18 @@ function SettingsPage(){
           <button type="button" class="secondary add-notification-time" data-add-notification-time="today">+ Add another time</button>
         </div>
         <div class="notification-kind-block">
+          <label class="settings-toggle"><input type="checkbox" id="glucoseNotifications" ${data.notifications?.glucose?"checked":""}><span><strong>Glucose reminders</strong><small>Remind me to do a finger-prick reading.</small></span></label>
+          <div class="notification-time-list" id="glucoseNotificationTimes">${(data.notifications?.glucoseTimes||["08:00","13:00","19:00"]).map((time,index)=>`<div class="notification-time-row"><input class="field compact-time" type="time" value="${esc(time)}"><button type="button" class="mini danger" data-remove-notification-time="glucose" ${index===0?"disabled":""}>×</button></div>`).join("")}</div>
+          <button type="button" class="secondary add-notification-time" data-add-notification-time="glucose">+ Add another time</button>
+        </div>
+        <div class="notification-kind-block">
           <label class="settings-toggle"><input type="checkbox" id="flowerNotifications" ${data.notifications?.dayCheckins?"checked":""}><span><strong>Journey check-ins</strong><small>Remind yourself to log energy, mood and pain.</small></span></label>
           <div class="flower-reminder-grid"><label>From<input class="field" id="flowerReminderStart" type="time" value="${esc(data.notifications?.dayCheckinStart||"08:00")}"></label><label>Until<input class="field" id="flowerReminderEnd" type="time" value="${esc(data.notifications?.dayCheckinEnd||"22:00")}"></label><label>Every<select class="field" id="flowerReminderFrequency"><option value="1" ${(data.notifications?.dayCheckinEvery||1)==1?"selected":""}>1 hour</option><option value="2" ${(data.notifications?.dayCheckinEvery||1)==2?"selected":""}>2 hours</option><option value="3" ${(data.notifications?.dayCheckinEvery||1)==3?"selected":""}>3 hours</option></select></label></div>
         </div>
         <div class="notification-module-grid">${[["plants","🌿 Plants"],["house","🏠 Chores"],["aquariums","🐠 Aquariums"],["sleep","😴 Sleep"],["period","🌸 Period"],["journal","📖 Journal"]].map(([key,label])=>`<label class="settings-toggle compact"><input type="checkbox" data-module-reminder="${key}" ${data.notifications?.modules?.[key]?"checked":""}><span><strong>${label}</strong><small>Include in reminders</small></span></label>`).join("")}</div>
       </div>
       <div class="cloud-actions"><button class="primary" id="saveNotifications">Save notifications</button><button class="secondary" id="testNotification">Send test</button></div>
-      <p class="settings-note">On iPhone, add LinaHub to your Home Screen before enabling notifications. LinaHub can notify while it is open/running; reliable alerts while it is fully closed need a push-notification backend, which can be connected later without changing your tracker data.</p>
+      <p class="settings-note">On iPhone, add LinaHub to your Home Screen before enabling notifications. Scheduled reminders in this build run while LinaHub is open or still active. The app is also prepared to receive Web Push, but notifications while it is fully closed still need a push-notification backend.</p>
       </div>
     </section>
 
@@ -108,7 +113,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.104")}<br><br>1 Aug 2026</p>`,"settings");
+  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.105")}<br><br>1 Aug 2026</p>`,"settings");
 }
 
 function bindSimple(){
@@ -149,13 +154,17 @@ function bindSimple(){
     document.querySelector("#notificationOptions")?.classList.toggle("muted",!notificationEnabled.checked);
   });
   const addNotificationTime=(kind,value)=>{
-    const list=document.querySelector(kind==="medication"?"#medicationNotificationTimes":"#todayNotificationTimes");
+    const selector=kind==="medication"?"#medicationNotificationTimes":kind==="glucose"?"#glucoseNotificationTimes":"#todayNotificationTimes";
+    const list=document.querySelector(selector);
     if(!list)return;
     const row=document.createElement("div");row.className="notification-time-row";
     row.innerHTML=`<input class="field compact-time" type="time" value="${value}"><button type="button" class="mini danger" data-remove-notification-time="${kind}">×</button>`;
     list.appendChild(row);
   };
-  document.querySelectorAll("[data-add-notification-time]").forEach(button=>button.addEventListener("click",()=>addNotificationTime(button.dataset.addNotificationTime,button.dataset.addNotificationTime==="medication"?"18:00":"18:15")));
+  document.querySelectorAll("[data-add-notification-time]").forEach(button=>button.addEventListener("click",()=>{
+    const kind=button.dataset.addNotificationTime;
+    addNotificationTime(kind,kind==="medication"?"18:00":kind==="glucose"?"20:00":"18:15");
+  }));
   document.querySelector("#notificationOptions")?.addEventListener("click",event=>{
     const button=event.target.closest("[data-remove-notification-time]");if(!button)return;
     const list=button.closest(".notification-time-list");if(list?.children.length>1)button.closest(".notification-time-row")?.remove();
@@ -165,7 +174,7 @@ function bindSimple(){
     if(enabled && !(await linaRequestNotificationPermission())) return;
     const readTimes=selector=>[...document.querySelectorAll(`${selector} input[type=time]`)].map(input=>input.value).filter(Boolean);
     const modules={};document.querySelectorAll("[data-module-reminder]").forEach(x=>modules[x.dataset.moduleReminder]=x.checked);
-    data.notifications={...(data.notifications||{}),enabled,medication:!!document.querySelector("#medicationNotifications")?.checked,todayTasks:!!document.querySelector("#todayNotifications")?.checked,dayCheckins:!!document.querySelector("#flowerNotifications")?.checked,dayCheckinStart:document.querySelector("#flowerReminderStart")?.value||"08:00",dayCheckinEnd:document.querySelector("#flowerReminderEnd")?.value||"22:00",dayCheckinEvery:Number(document.querySelector("#flowerReminderFrequency")?.value)||1,modules,medicationTimes:readTimes("#medicationNotificationTimes"),todayTimes:readTimes("#todayNotificationTimes"),lastSent:data.notifications?.lastSent||{}};
+    data.notifications={...(data.notifications||{}),enabled,medication:!!document.querySelector("#medicationNotifications")?.checked,todayTasks:!!document.querySelector("#todayNotifications")?.checked,glucose:!!document.querySelector("#glucoseNotifications")?.checked,dayCheckins:!!document.querySelector("#flowerNotifications")?.checked,dayCheckinStart:document.querySelector("#flowerReminderStart")?.value||"08:00",dayCheckinEnd:document.querySelector("#flowerReminderEnd")?.value||"22:00",dayCheckinEvery:Number(document.querySelector("#flowerReminderFrequency")?.value)||1,modules,medicationTimes:readTimes("#medicationNotificationTimes"),todayTimes:readTimes("#todayNotificationTimes"),glucoseTimes:readTimes("#glucoseNotificationTimes"),lastSent:data.notifications?.lastSent||{}};
     saveData();linaStartNotificationChecks();toast(enabled?"Notifications saved":"Notifications switched off");
   });
   document.querySelector("#testNotification")?.addEventListener("click",async()=>{

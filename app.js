@@ -445,14 +445,17 @@ function linaNotificationConfig(){
   cfg.enabled=!!cfg.enabled;
   cfg.medication=cfg.medication!==false;
   cfg.todayTasks=cfg.todayTasks!==false;
+  cfg.glucose=!!cfg.glucose;
   cfg.dayCheckins=!!cfg.dayCheckins;
   cfg.dayCheckinStart=cfg.dayCheckinStart||"08:00";
   cfg.dayCheckinEnd=cfg.dayCheckinEnd||"22:00";
   cfg.dayCheckinEvery=Math.max(1,Number(cfg.dayCheckinEvery)||1);
   cfg.medicationTimes=Array.isArray(cfg.medicationTimes)&&cfg.medicationTimes.length?cfg.medicationTimes:[cfg.medicationTime||"09:00"];
   cfg.todayTimes=Array.isArray(cfg.todayTimes)&&cfg.todayTimes.length?cfg.todayTimes:[cfg.todayTime||"09:15"];
+  cfg.glucoseTimes=Array.isArray(cfg.glucoseTimes)&&cfg.glucoseTimes.length?cfg.glucoseTimes:["08:00","13:00","19:00"];
   cfg.medicationTimes=[...new Set(cfg.medicationTimes.filter(Boolean))].sort();
   cfg.todayTimes=[...new Set(cfg.todayTimes.filter(Boolean))].sort();
+  cfg.glucoseTimes=[...new Set(cfg.glucoseTimes.filter(Boolean))].sort();
   cfg.lastSent=cfg.lastSent||{};
   delete cfg.medicationTime; delete cfg.todayTime;
   return cfg;
@@ -507,6 +510,13 @@ async function linaCheckNotifications(){
     if(cfg.todayTasks!==false&&clock>=reminderTime&&!cfg.lastSent[sentKey]){
       const count=linaPendingTodayTaskCount(dateValue);
       if(count>0) await linaShowNotification("Today in LinaHub",{body:`You have ${count} unfinished ${count===1?"task":"tasks"} due today.`,tag:`linahub-today-${dateValue}-${reminderTime}`,data:{route:"today"}});
+      cfg.lastSent[sentKey]=true; saveData();
+    }
+  }
+  for(const reminderTime of cfg.glucoseTimes){
+    const sentKey=`glucose:${dateValue}:${reminderTime}`;
+    if(cfg.glucose&&clock>=reminderTime&&!cfg.lastSent[sentKey]){
+      await linaShowNotification("Glucose check 🩸",{body:"Time for a quick finger-prick reading when you’re ready.",tag:`linahub-glucose-${dateValue}-${reminderTime}`,data:{route:"glucose"}});
       cfg.lastSent[sentKey]=true; saveData();
     }
   }

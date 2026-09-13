@@ -58,7 +58,7 @@ const DEFAULT_DATA={
   version:5,
   theme:"dark",
   colorTheme:"floral",
-  notifications:{enabled:false,medication:true,todayTasks:true,dayCheckins:false,medicationTimes:["09:00"],todayTimes:["09:15"],dayCheckinStart:"08:00",dayCheckinEnd:"22:00",dayCheckinEvery:1,lastSent:{}},
+  notifications:{enabled:false,medication:true,todayTasks:true,glucose:false,dayCheckins:false,medicationTimes:["09:00"],todayTimes:["09:15"],glucoseTimes:["08:00","13:00","19:00"],dayCheckinStart:"08:00",dayCheckinEnd:"22:00",dayCheckinEvery:1,lastSent:{}},
   checkins:{},
   morningCheckins:{},
   dailyCheckinCompleted:{},

@@ -58,7 +58,7 @@ function linaBannerKey(routeName){
     journal:"journal",today:"today",todo:"todo",shopping:"shopping",
     plants:"plants",plant:"plants",medication:"medication",pokemon:"pokemon",
     pets:"pets",tank:"pets",house:"house",health:"health",period:"period",
-    treasures:"treasures",hobbies:"hobbies",books:"books",gaming:"gaming"
+    treasures:"treasures",glucose:"glucose",hobbies:"hobbies",books:"books",gaming:"gaming"
   })[routeName]||"";
 }
 
@@ -151,6 +151,7 @@ function render(){
     plant:PlantProfilePage,
     settings:SettingsPage,
     health:HealthPage,
+    glucose:GlucosePage,
     hobbies:HobbiesPage,
     books:BooksPage,
     gaming:()=>SimplePage("Gaming","🎮","Your games and progress","gaming"),
@@ -218,6 +219,7 @@ function render(){
   if(route==="hobbies") bindHobbies();
   if(route==="books") bindBooks();
   if(route==="health") bindHealth();
+  if(route==="glucose") bindGlucose();
   if(route==="settings") bindSimple();
   if(route==="period") bindPeriod();
   if(route==="budget") bindBudget();

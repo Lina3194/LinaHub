@@ -79,7 +79,7 @@ const DEFAULT_DATA={
   },
   moduleIcons:{
     home:"⌂",today:"✅",todo:"📝",shopping:"🛒",settings:"⚙️",journal:"📖",health:"❤️",hobbies:"🎮",plants:"🌿",medication:"💊",pokemon:"🔴",pets:"🐠",books:"📚",gaming:"🎮",house:"🏡",period:"🌸",budget:"💷",treasures:"✨",
-    sleep:"😴",weight:"⚖️",measurements:"📏",healthOverview:"❤️",journey:"✨",
+    sleep:"😴",weight:"⚖️",measurements:"📏",glucose:"🩸",healthOverview:"❤️",journey:"✨",
     rooms:"🏠",shopping:"🛒",inventory:"📦",girlsTank:"🩷",boysTank:"💙",aquariumMaintenance:"🫧",
     bills:"🧾",savings:"💰",income:"💷",expenses:"💸"
   },
@@ -109,6 +109,7 @@ const DEFAULT_DATA={
     {id:"med-magnesium",name:"Magnesium",dose:"",time:"Evening",timeLabel:"Evening",scheduleType:"daily",weekdays:[],active:true,dosesPerDay:1,stock:0,notes:""}
   ],
   medicationLog:{},
+  glucoseEntries:[],
   weightEntries:[],
   measurements:[],
   sleepEntries:[],

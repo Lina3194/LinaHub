@@ -20,7 +20,7 @@ function moduleBanner(active){
   const image=data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||"";
   if(!image||active==="home"||active==="settings") return "";
   const names={
-    journal:"Daily Check-in",today:"Today",todo:"To-do",shopping:"Shopping",health:"Measurements",hobbies:"Hobbies",books:"Books",gaming:"Gaming",
+    journal:"Daily Check-in",today:"Today",todo:"To-do",shopping:"Shopping",health:"Measurements",glucose:"Glucose",hobbies:"Hobbies",books:"Books",gaming:"Gaming",
     plants:"Garden",medication:"Medication",pokemon:"Pokémon GO",pets:"Aquariums",house:"House",period:"Period Tracker",treasures:"Treasure Room"
   };
   return `<section class="module-banner ${key==="plants"?"plants-module-banner":""}">
@@ -34,13 +34,13 @@ function moduleHistoryKey(active){
     const tab=data.healthView?.tab||"dashboard";
     return ({sleep:"sleep",garden:"journal",weight:"weight",measurements:"measurements"})[tab]||"health";
   }
-  return ({journal:"journal",today:"today",todo:"todo",shopping:"shopping",plants:"plants",plant:"plants",hobbies:"hobbies",books:"books",gaming:"gaming",medication:"medication",pokemon:"pokemon",pets:"aquariums",tank:"aquariums",house:"house",period:"period",budget:"budget",treasures:"treasures"})[active]||active;
+  return ({journal:"journal",today:"today",todo:"todo",shopping:"shopping",plants:"plants",plant:"plants",glucose:"glucose",hobbies:"hobbies",books:"books",gaming:"gaming",medication:"medication",pokemon:"pokemon",pets:"aquariums",tank:"aquariums",house:"house",period:"period",budget:"budget",treasures:"treasures"})[active]||active;
 }
 function moduleRouteForHistoryKey(key){
   return ({weight:"health",sleep:"health",measurements:"health",mood:"health",energy:"health",pain:"health",health:"health",aquariums:"pets"})[key]||key;
 }
 function moduleSectionTabs(active,selected="today",historyKey=""){
-  const supported=new Set(["journal","today","todo","shopping","plants","plant","hobbies","books","gaming","medication","pokemon","pets","tank","house","period","budget","treasures"]);
+  const supported=new Set(["journal","today","todo","shopping","plants","plant","glucose","hobbies","books","gaming","medication","pokemon","pets","tank","house","period","budget","treasures"]);
   if(!supported.has(active)) return "";
   const key=historyKey||moduleHistoryKey(active);
   const landing=active==="plant"?"plants":active==="tank"?"pets":active;
@@ -115,7 +115,7 @@ function go(next,id="",direction="forward",options={}){
     data.periodCalendarMonth=localToday.slice(0,7);
     data.periodTab="today";
   }
-  const topLevelTiles=new Set(["journal","today","todo","plants","health","hobbies","books","gaming","medication","shopping","pokemon","pets","house","period","budget","treasures","settings","history"]);
+  const topLevelTiles=new Set(["journal","today","todo","plants","health","glucose","hobbies","books","gaming","medication","shopping","pokemon","pets","house","period","budget","treasures","settings","history"]);
   if(direction!=="back" && !id && topLevelTiles.has(destination.route) && (current.route==="home" || current.route!==destination.route)){
     resetModuleLanding(destination.route);
   }

@@ -27,7 +27,7 @@ function SettingsPage(){
     <section class="card settings-accordion notification-settings-card${accordionClass("notifications")}" data-settings-accordion="notifications">
       <button type="button" class="settings-accordion-toggle" aria-expanded="${accordionExpanded("notifications")}"><span><strong>Notifications</strong><small>Medication, Today and other reminders</small></span><b aria-hidden="true">⌄</b></button>
       <div class="settings-collapse-body"${accordionHidden("notifications")}>
-      <div class="cloud-card-head"><div><h2>Notification settings</h2><p>Medication and Today reminders while LinaHub is installed or open.</p></div><span class="notification-permission" id="notificationPermission">${typeof Notification!=="undefined"?Notification.permission:"unsupported"}</span></div>
+      <div class="cloud-card-head"><div><h2>App notifications</h2><p>Turn on device notifications so LinaHub can remind you while it is running or installed.</p></div><span class="notification-permission" id="notificationPermission">${typeof Notification!=="undefined"?Notification.permission:"unsupported"}</span></div>
       <label class="settings-toggle"><input type="checkbox" id="notificationsEnabled" ${data.notifications?.enabled?"checked":""}><span><strong>Enable notifications</strong><small>Allow LinaHub to send reminders on this device.</small></span></label>
       <div class="notification-options ${data.notifications?.enabled?"":"muted"}" id="notificationOptions">
         <div class="notification-kind-block">
@@ -47,7 +47,7 @@ function SettingsPage(){
         <div class="notification-module-grid">${[["plants","🌿 Plants"],["house","🏠 Chores"],["aquariums","🐠 Aquariums"],["sleep","😴 Sleep"],["period","🌸 Period"],["journal","📖 Journal"]].map(([key,label])=>`<label class="settings-toggle compact"><input type="checkbox" data-module-reminder="${key}" ${data.notifications?.modules?.[key]?"checked":""}><span><strong>${label}</strong><small>Include in reminders</small></span></label>`).join("")}</div>
       </div>
       <div class="cloud-actions"><button class="primary" id="saveNotifications">Save notifications</button><button class="secondary" id="testNotification">Send test</button></div>
-      <p class="settings-note">On iPhone, notifications require LinaHub to be added to your Home Screen. Timed reminders are checked whenever LinaHub is running; reliable reminders while it is fully closed would require a push-notification service.</p>
+      <p class="settings-note">On iPhone, add LinaHub to your Home Screen before enabling notifications. LinaHub can notify while it is open/running; reliable alerts while it is fully closed need a push-notification backend, which can be connected later without changing your tracker data.</p>
       </div>
     </section>
 
@@ -72,7 +72,7 @@ function SettingsPage(){
         ${[
           ["Bottom navigation",[["home","Home","⌂"],["today","Today","✅"],["todo","To-do","📝"],["shopping","Shopping","🛒"],["settings","Settings","⚙️"]]],
           ["Main tiles",[["journal","Daily Check-in","📖"],["plants","Garden","🌿"],["pokemon","Pokémon GO","🔴"],["pets","Aquariums","🐠"],["house","House","🏡"],["treasures","Treasure Room","✨"],["journey","Today's Journey","✨"]]],
-          ["Trackers",[["sleep","Sleep","😴"],["medication","Medication","💊"],["period","Period","🌸"],["weight","Weight","⚖️"],["measurements","Measurements","📏"]]],
+          ["Trackers",[["sleep","Sleep","😴"],["medication","Medication","💊"],["period","Period","🌸"],["weight","Weight","⚖️"],["measurements","Measurements","📏"],["glucose","Glucose","🩸"]]],
           ["Shopping",[["shoppingFridge","Fridge","❄️"],["shoppingFreezer","Freezer","🧊"],["shoppingPantry","Pantry","🥫"],["shoppingCleaning","Cleaning Supplies","🧽"],["shoppingToiletries","Toiletries","🧴"]]],
           ["House & Aquariums",[["rooms","Rooms","🏠"],["inventory","Inventory","📦"],["girlsTank","Girls Tank","🩷"],["boysTank","Boys Tank","💙"],["aquariumMaintenance","Maintenance","🫧"]]]
         ].map(([group,items])=>`<section class="icon-setting-group"><h3>${group}</h3><div class="tab-art-grid">${items.map(([key,label,fallback])=>`<article class="tab-art-setting"><div class="tab-art-preview">${data.homeImages?.[key]?`<img src="${data.homeImages[key]}" alt="">`:`<span>${esc(moduleIcon(key,fallback))}</span>`}</div><div class="tab-art-copy"><strong>${label}</strong></div><div class="tab-art-actions"><button type="button" class="secondary compact-upload" data-pick-tab-image="${key}">${data.homeImages?.[key]?"Change":"Add image"}</button><input type="file" accept="image/*" data-tab-image="${key}" hidden>${data.homeImages?.[key]?`<button type="button" class="mini danger" data-remove-tab-image="${key}">Remove</button>`:""}</div></article>`).join("")}</div></section>`).join("")}
@@ -86,7 +86,7 @@ function SettingsPage(){
         ${[
           ["journal","Daily Check-in"],["today","Today"],["todo","To-do"],
           ["plants","Garden"],["pets","Aquariums"],["house","House"],["shopping","Shopping"],
-          ["medication","Medication"],["health","Measurements"],["period","Period Tracker"],
+          ["medication","Medication"],["health","Measurements"],["glucose","Glucose"],["period","Period Tracker"],
           ["pokemon","Pokémon GO"],["treasures","Treasure Room"]
         ].map(([key,label])=>`
           <article class="banner-art-setting">
@@ -108,7 +108,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.103")}<br><br>1 Aug 2026</p>`,"settings");
+  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.104")}<br><br>1 Aug 2026</p>`,"settings");
 }
 
 function bindSimple(){

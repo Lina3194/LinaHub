@@ -1,7 +1,7 @@
 function ensureHomeLayout(){
   const defaults=[
     "journal","plants",
-    "pets","house","shopping","medication","measurements",
+    "pets","house","shopping","medication","measurements","glucose",
     "period","pokemon","treasures"
   ];
   if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
@@ -56,6 +56,7 @@ const HOME_TILE_INFO={
   shopping:["Shopping","Lists and essentials","🛒"],
   medication:["Medication","Tablets and schedule","💊"],
   measurements:["Measures","Track weight and body measurements","📏"],
+  glucose:["Glucose","Finger-prick readings and symptoms","🩸"],
   period:["Period","Cycle and symptom tracking","🌸"],
   pokemon:["Pokémon GO","Friends, gifts and Vivillon","🔴"],
   books:["Books","Reading list and progress","📚"],
@@ -129,6 +130,10 @@ function homeTileStatus(id){
   if(id==="health"){
     const latest=(data.weightEntries||[]).slice().sort((a,b)=>String(b.createdAt||b.date||"").localeCompare(String(a.createdAt||a.date||"")))[0];
     return latest?`${latest.weight??latest.value??"Saved"} kg`:`Open dashboard`;
+  }
+  if(id==="glucose"){
+    const latest=(data.glucoseEntries||[]).slice().sort((a,b)=>`${b.date||""}T${b.time||"00:00"}`.localeCompare(`${a.date||""}T${a.time||"00:00"}`))[0];
+    return latest&&Number.isFinite(Number(latest.value))?`${latest.value} mmol/L`:`Add reading`;
   }
   if(id==="period"){
     if(typeof periodStats==="function"){

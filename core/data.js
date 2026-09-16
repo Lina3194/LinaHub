@@ -92,7 +92,7 @@ const DEFAULT_DATA={
   savingsEntries:[],
   homeLayout:[
     {id:"journal",size:"medium"},{id:"health",size:"medium"},{id:"hobbies",size:"medium"},{id:"shopping",size:"medium"},
-    {id:"house",size:"medium"},{id:"findstuff",size:"medium"},{id:"checklists",size:"medium"},{id:"budget",size:"medium"},{id:"treasures",size:"wide"}
+    {id:"house",size:"medium"},{id:"budget",size:"medium"},{id:"treasures",size:"wide"}
   ],
   homeEditing:false,
   treasures:{},

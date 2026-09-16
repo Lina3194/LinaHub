@@ -35,7 +35,7 @@ function glucoseEntrySort(a,b){return `${b.date||""}T${b.time||"00:00"}`.localeC
 function glucoseLatest(){glucoseEnsureData();return data.glucoseEntries.slice().sort(glucoseEntrySort)[0]||null}
 function glucoseHistory(){
   const entries=data.glucoseEntries.slice().sort(glucoseEntrySort);
-  if(!entries.length)return `<section class="card empty glucose-empty"><span>🩸</span><h2>No readings yet</h2><p>Your glucose readings will appear here after you save them.</p></section>`;
+  if(!entries.length)return `<section class="card empty glucose-empty"><span>📟</span><h2>No readings yet</h2><p>Your glucose readings will appear here after you save them.</p></section>`;
   return `<section class="card glucose-history-card"><div class="section-title"><div><span class="section-kicker">History</span><h2>${entries.length} reading${entries.length===1?"":"s"}</h2></div></div><div class="glucose-history-list">${entries.map(entry=>{
     const before=(entry.feelingBefore||[]).join(", ");
     const after=(entry.feelingAfter||[]).join(", ");
@@ -55,7 +55,7 @@ function glucoseLogForm(){
   const selectedAfter=entry?.feelingAfter||[];
   const selectedFoods=entry?.mealTypes||[];
   return `<section class="card glucose-log-card">
-    <div class="section-title"><div><span class="section-kicker">🩸 Glucose</span><h2>${entry?"Edit reading":"Log a reading"}</h2></div>${entry?`<button type="button" class="mini" id="cancelGlucoseEdit">Cancel edit</button>`:""}</div>
+    <div class="section-title"><div><span class="section-kicker">📟 Glucose</span><h2>${entry?"Edit reading":"Log a reading"}</h2></div>${entry?`<button type="button" class="mini" id="cancelGlucoseEdit">Cancel edit</button>`:""}</div>
     <div class="glucose-value-row"><label><span>Glucose reading</span><div class="glucose-value-input"><input class="field" id="glucoseValue" inputmode="decimal" type="number" min="0" step="0.1" placeholder="e.g. 5.4" value="${entry?.value??""}"><span>mmol/L</span></div></label><label><span>Time</span><input class="field" id="glucoseTime" type="time" value="${esc(entry?.time||glucoseNowTime())}"></label><label><span>Date</span><input class="field" id="glucoseDate" type="date" max="${today()}" value="${esc(entry?.date||today())}"></label></div>
     <div class="glucose-timing-picker" role="group" aria-label="Before or after food"><button type="button" class="${timing==="before"?"active":""}" data-glucose-timing="before">Before food</button><button type="button" class="${timing==="after"?"active":""}" data-glucose-timing="after">After food</button></div>
     <div class="glucose-selection-tools"><button type="button" class="mini" id="clearGlucoseSelections">Clear all selections</button></div>
@@ -76,7 +76,7 @@ function GlucosePage(){
   glucoseEnsureData();
   const latest=glucoseLatest();
   return shell(`${head("Glucose","Finger-prick readings and how you felt","home")}
-    <section class="glucose-summary card"><div><span class="section-kicker">Latest reading</span><h2>${latest?`${esc(latest.value)} mmol/L`:"No reading yet"}</h2><p>${latest?`${latest.timing==="after"?"After food":"Before food"} · ${glucosePrettyDate(latest.date)} · ${esc(latest.time||"")}`:"Log your first reading whenever you're ready."}</p></div><span class="glucose-summary-icon">🩸</span></section>
+    <section class="glucose-summary card"><div><span class="section-kicker">Latest reading</span><h2>${latest?`${esc(latest.value)} mmol/L`:"No reading yet"}</h2><p>${latest?`${latest.timing==="after"?"After food":"Before food"} · ${glucosePrettyDate(latest.date)} · ${esc(latest.time||"")}`:"Log your first reading whenever you're ready."}</p></div><span class="glucose-summary-icon">📟</span></section>
     <div class="glucose-tabs"><button type="button" class="${glucoseUi.tab==="log"?"active":""}" data-glucose-tab="log">Log</button><button type="button" class="${glucoseUi.tab==="history"?"active":""}" data-glucose-tab="history">History</button></div>
     ${glucoseUi.tab==="history"?glucoseHistory():glucoseLogForm()}
   `,"glucose");
@@ -139,7 +139,7 @@ function bindGlucose(){
     };
     const existing=data.glucoseEntries.findIndex(x=>x.id===entry.id);
     if(existing>=0){entry.createdAt=data.glucoseEntries[existing].createdAt||entry.createdAt;data.glucoseEntries[existing]=entry}else data.glucoseEntries.push(entry);
-    glucoseUi.editingId="";saveData();toast("Glucose reading saved 🩸");glucoseUi.tab="history";render();
+    glucoseUi.editingId="";saveData();toast("Glucose reading saved 📟");glucoseUi.tab="history";render();
   });
   document.querySelectorAll("[data-glucose-edit]").forEach(button=>button.onclick=()=>{glucoseUi.editingId=button.dataset.glucoseEdit;glucoseUi.tab="log";render()});
   document.querySelectorAll("[data-glucose-delete]").forEach(button=>button.onclick=()=>{if(!confirm("Delete this glucose reading?"))return;data.glucoseEntries=data.glucoseEntries.filter(x=>x.id!==button.dataset.glucoseDelete);saveData();render();toast("Reading removed")});

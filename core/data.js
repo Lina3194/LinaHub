@@ -75,10 +75,10 @@ const DEFAULT_DATA={
   journalSleepMonth:"",
   homeIcons:{
     journal:"📖",health:"⚖️",hobbies:"🎮",plants:"🌿",medication:"💊",shopping:"🛒",shoppingFridge:"❄️",shoppingFreezer:"🧊",shoppingPantry:"🥫",shoppingCleaning:"🧽",shoppingToiletries:"🧴",
-    pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",budget:"💷",treasures:"✨",settings:"⚙️"
+    pokemon:"🔴",pets:"🐠",house:"🏡",lifetools:"🧰",findstuff:"🔎",checklists:"✅",period:"🌸",budget:"💷",treasures:"✨",settings:"⚙️"
   },
   moduleIcons:{
-    home:"⌂",today:"✅",todo:"📝",shopping:"🛒",settings:"⚙️",journal:"📖",health:"❤️",hobbies:"🎮",plants:"🌿",medication:"💊",pokemon:"🔴",pets:"🐠",books:"📚",gaming:"🎮",house:"🏡",period:"🌸",budget:"💷",treasures:"✨",
+    home:"⌂",today:"✅",todo:"📝",shopping:"🛒",settings:"⚙️",journal:"📖",health:"❤️",hobbies:"🎮",plants:"🌿",medication:"💊",pokemon:"🔴",pets:"🐠",books:"📚",gaming:"🎮",house:"🏡",lifetools:"🧰",findstuff:"🔎",checklists:"✅",period:"🌸",budget:"💷",treasures:"✨",
     sleep:"😴",weight:"⚖️",measurements:"📏",glucose:"🩸",healthOverview:"❤️",journey:"✨",
     rooms:"🏠",shopping:"🛒",inventory:"📦",girlsTank:"🩷",boysTank:"💙",aquariumMaintenance:"🫧",
     bills:"🧾",savings:"💰",income:"💷",expenses:"💸"
@@ -92,7 +92,7 @@ const DEFAULT_DATA={
   savingsEntries:[],
   homeLayout:[
     {id:"journal",size:"medium"},{id:"health",size:"medium"},{id:"hobbies",size:"medium"},{id:"shopping",size:"medium"},
-    {id:"house",size:"medium"},{id:"budget",size:"medium"},{id:"treasures",size:"wide"}
+    {id:"house",size:"medium"},{id:"findstuff",size:"medium"},{id:"checklists",size:"medium"},{id:"budget",size:"medium"},{id:"treasures",size:"wide"}
   ],
   homeEditing:false,
   treasures:{},
@@ -110,6 +110,18 @@ const DEFAULT_DATA={
   ],
   medicationLog:{},
   glucoseEntries:[],
+  stuffLocations:[],
+  reusableChecklists:[
+    {id:"checklist-trip-packing",name:"Trip packing",icon:"🧳",notes:"",items:[
+      {id:"trip-passport",text:"Passport",done:false},{id:"trip-charger",text:"Phone charger",done:false},{id:"trip-medication",text:"Medication",done:false},{id:"trip-toiletries",text:"Toiletries",done:false},{id:"trip-underwear",text:"Underwear",done:false},{id:"trip-headphones",text:"Headphones",done:false}
+    ]},
+    {id:"checklist-morning-routine",name:"Morning routine",icon:"🌅",notes:"",items:[
+      {id:"morning-teeth",text:"Brush teeth",done:false},{id:"morning-dressed",text:"Get dressed",done:false},{id:"morning-breakfast",text:"Breakfast / drink",done:false},{id:"morning-linahub",text:"Open LinaHub",done:false}
+    ]},
+    {id:"checklist-bedtime-routine",name:"Bedtime routine",icon:"🌙",notes:"",items:[
+      {id:"bedtime-teeth",text:"Brush teeth",done:false},{id:"bedtime-phone",text:"Plug phone in",done:false},{id:"bedtime-tomorrow",text:"Put out anything needed for tomorrow",done:false},{id:"bedtime-linahub",text:"Evening LinaHub check",done:false}
+    ]}
+  ],
   weightEntries:[],
   measurements:[],
   sleepEntries:[],

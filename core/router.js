@@ -20,7 +20,7 @@ function moduleBanner(active){
   const image=data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||"";
   if(!image||active==="home"||active==="settings") return "";
   const names={
-    journal:"Daily Check-in",today:"Today",todo:"To-do",shopping:"Shopping",health:"Measurements",glucose:"Glucose",hobbies:"Hobbies",books:"Books",gaming:"Gaming",
+    journal:"Daily Check-in",today:"Today",todo:"To-do",shopping:"Shopping",health:"Measurements",glucose:"Glucose",lifetools:"Life Tools",findstuff:"Find My Stuff",checklists:"Reusable Checklists",checklist:"Checklist",hobbies:"Hobbies",books:"Books",gaming:"Gaming",
     plants:"Garden",medication:"Medication",pokemon:"Pokémon GO",pets:"Aquariums",house:"House",period:"Period Tracker",treasures:"Treasure Room"
   };
   return `<section class="module-banner ${key==="plants"?"plants-module-banner":""}">
@@ -115,7 +115,7 @@ function go(next,id="",direction="forward",options={}){
     data.periodCalendarMonth=localToday.slice(0,7);
     data.periodTab="today";
   }
-  const topLevelTiles=new Set(["journal","today","todo","plants","health","glucose","hobbies","books","gaming","medication","shopping","pokemon","pets","house","period","budget","treasures","settings","history"]);
+  const topLevelTiles=new Set(["journal","today","todo","plants","health","glucose","lifetools","findstuff","checklists","hobbies","books","gaming","medication","shopping","pokemon","pets","house","period","budget","treasures","settings","history"]);
   if(direction!=="back" && !id && topLevelTiles.has(destination.route) && (current.route==="home" || current.route!==destination.route)){
     resetModuleLanding(destination.route);
   }

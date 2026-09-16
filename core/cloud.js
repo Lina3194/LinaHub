@@ -18,6 +18,8 @@ const CLOUD_MODULES={
   period:["periodEntries","periodCycles","periodOptions","periodSelectedDate","periodCalendarMonth","periodEditOptions","periodTab","periodOpenYears"],
   budget:["bills","budgetEntries","savingsEntries"],
   health:["weightEntries","measurements","healthPromptLog","sleepEntries","healthSleepEntries"],
+  glucose:["glucoseEntries"],
+  lifetools:["stuffLocations","reusableChecklists"],
   todo:["personalTasks"],
   settings:["theme","colorTheme","homeIcons","homeImages","homeLayout","treasures","favoriteTreasures","moduleBanners","v9CollapseDefaultsApplied"],
   misc:["version"]

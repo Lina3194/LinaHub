@@ -152,6 +152,10 @@ function render(){
     settings:SettingsPage,
     health:HealthPage,
     glucose:GlucosePage,
+    lifetools:LifeToolsPage,
+    findstuff:FindStuffPage,
+    checklists:ChecklistsPage,
+    checklist:ChecklistPage,
     hobbies:HobbiesPage,
     books:BooksPage,
     gaming:()=>SimplePage("Gaming","🎮","Your games and progress","gaming"),
@@ -220,6 +224,7 @@ function render(){
   if(route==="books") bindBooks();
   if(route==="health") bindHealth();
   if(route==="glucose") bindGlucose();
+  if(["lifetools","findstuff","checklists","checklist"].includes(route)) bindLifeTools();
   if(route==="settings") bindSimple();
   if(route==="period") bindPeriod();
   if(route==="budget") bindBudget();
@@ -554,7 +559,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1868",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1870",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

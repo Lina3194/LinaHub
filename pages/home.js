@@ -1,7 +1,9 @@
+// LinaHub 17.9.109 — direct Home tiles for Find My Stuff + Checklists.
 function ensureHomeLayout(){
+  let migratedLifeToolsHome109=false;
   const defaults=[
     "journal","plants",
-    "pets","house","shopping","medication","measurements","glucose",
+    "pets","house","shopping","medication","measurements","glucose","findstuff","checklists",
     "period","pokemon","treasures"
   ];
   if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
@@ -21,6 +23,23 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
+
+  // 17.9.109: expose the two Life Tools directly on Home so they are impossible to miss.
+  // Older builds grouped them behind a Life Tools tile; migrate that layout once while
+  // preserving the user's other tile order and customisations.
+  if(!data.lifeToolsHomeTiles109){
+    data.homeLayout=data.homeLayout.filter(item=>(typeof item==="string"?item:item?.id)!=="lifetools");
+    data.homeHidden=data.homeHidden.filter(id=>!["lifetools","findstuff","checklists"].includes(id));
+    const ids=new Set(data.homeLayout.map(item=>typeof item==="string"?item:item?.id));
+    const treasureIndex=data.homeLayout.findIndex(item=>(typeof item==="string"?item:item?.id)==="treasures");
+    const additions=[];
+    if(!ids.has("findstuff")) additions.push({id:"findstuff",size:"medium"});
+    if(!ids.has("checklists")) additions.push({id:"checklists",size:"medium"});
+    if(treasureIndex>=0) data.homeLayout.splice(treasureIndex,0,...additions);
+    else data.homeLayout.push(...additions);
+    data.lifeToolsHomeTiles109=true;
+    migratedLifeToolsHome109=true;
+  }
   // Keep the Home dashboard focused. These pages and their saved data remain available,
   // but their tiles are intentionally removed from the main Home page.
   const removedHomeTiles=new Set(["hobbies","health","today","todo","books","budget","gaming"]);
@@ -44,6 +63,7 @@ function ensureHomeLayout(){
     }
   });
   data.homeHidden=[...new Set(data.homeHidden.filter(id=>defaults.includes(id)&&!data.homeLayout.some(item=>item.id===id)))];
+  if(migratedLifeToolsHome109) saveData();
 }
 
 const HOME_TILE_INFO={
@@ -56,7 +76,10 @@ const HOME_TILE_INFO={
   shopping:["Shopping","Lists and essentials","🛒"],
   medication:["Medication","Tablets and schedule","💊"],
   measurements:["Measures","Track weight and body measurements","📏"],
-  glucose:["Glucose","Finger-prick readings and symptoms","🩸"],
+  glucose:["Glucose","Finger-prick readings and symptoms","📟"],
+  lifetools:["Life Tools","Find things & reusable checklists","🧰"],
+  findstuff:["Find My Stuff","Search where your things live","🔎"],
+  checklists:["Checklists","Reusable routines & packing lists","✅"],
   period:["Period","Cycle and symptom tracking","🌸"],
   pokemon:["Pokémon GO","Friends, gifts and Vivillon","🔴"],
   books:["Books","Reading list and progress","📚"],
@@ -134,6 +157,19 @@ function homeTileStatus(id){
   if(id==="glucose"){
     const latest=(data.glucoseEntries||[]).slice().sort((a,b)=>`${b.date||""}T${b.time||"00:00"}`.localeCompare(`${a.date||""}T${a.time||"00:00"}`))[0];
     return latest&&Number.isFinite(Number(latest.value))?`${latest.value} mmol/L`:`Add reading`;
+  }
+  if(id==="lifetools"){
+    const things=(data.stuffLocations||[]).length;
+    const lists=(data.reusableChecklists||[]).length;
+    return `${things} saved · ${lists} list${lists===1?"":"s"}`;
+  }
+  if(id==="findstuff"){
+    const things=(data.stuffLocations||[]).length;
+    return things?`${things} saved`:`Save first item`;
+  }
+  if(id==="checklists"){
+    const lists=(data.reusableChecklists||[]).length;
+    return `${lists} list${lists===1?"":"s"}`;
   }
   if(id==="period"){
     if(typeof periodStats==="function"){

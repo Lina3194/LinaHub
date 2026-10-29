@@ -58,7 +58,7 @@ const DEFAULT_DATA={
   version:5,
   theme:"dark",
   colorTheme:"floral",
-  notifications:{enabled:false,medication:true,todayTasks:true,glucose:false,dayCheckins:false,medicationTimes:["09:00"],todayTimes:["09:15"],glucoseTimes:["08:00","13:00","19:00"],dayCheckinStart:"08:00",dayCheckinEnd:"22:00",dayCheckinEvery:1,lastSent:{}},
+  notifications:{enabled:false,medication:true,todayTasks:true,dayCheckins:false,medicationTimes:["09:00"],todayTimes:["09:15"],dayCheckinStart:"08:00",dayCheckinEnd:"22:00",dayCheckinEvery:1,lastSent:{}},
   checkins:{},
   morningCheckins:{},
   dailyCheckinCompleted:{},
@@ -75,11 +75,11 @@ const DEFAULT_DATA={
   journalSleepMonth:"",
   homeIcons:{
     journal:"📖",health:"⚖️",hobbies:"🎮",plants:"🌿",medication:"💊",shopping:"🛒",shoppingFridge:"❄️",shoppingFreezer:"🧊",shoppingPantry:"🥫",shoppingCleaning:"🧽",shoppingToiletries:"🧴",
-    pokemon:"🔴",pets:"🐠",house:"🏡",lifetools:"🧰",findstuff:"🔎",checklists:"✅",period:"🌸",budget:"💷",treasures:"✨",settings:"⚙️"
+    pokemon:"🔴",pets:"🐠",house:"🏡",period:"🌸",budget:"💷",treasures:"✨",settings:"⚙️"
   },
   moduleIcons:{
-    home:"⌂",today:"✅",todo:"📝",shopping:"🛒",settings:"⚙️",journal:"📖",health:"❤️",hobbies:"🎮",plants:"🌿",medication:"💊",pokemon:"🔴",pets:"🐠",books:"📚",gaming:"🎮",house:"🏡",lifetools:"🧰",findstuff:"🔎",checklists:"✅",period:"🌸",budget:"💷",treasures:"✨",
-    sleep:"😴",weight:"⚖️",measurements:"📏",glucose:"🩸",healthOverview:"❤️",journey:"✨",
+    home:"⌂",today:"✅",todo:"📝",shopping:"🛒",settings:"⚙️",journal:"📖",health:"❤️",hobbies:"🎮",plants:"🌿",medication:"💊",pokemon:"🔴",pets:"🐠",books:"📚",gaming:"🎮",house:"🏡",period:"🌸",budget:"💷",treasures:"✨",
+    sleep:"😴",weight:"⚖️",measurements:"📏",healthOverview:"❤️",journey:"✨",
     rooms:"🏠",shopping:"🛒",inventory:"📦",girlsTank:"🩷",boysTank:"💙",aquariumMaintenance:"🫧",
     bills:"🧾",savings:"💰",income:"💷",expenses:"💸"
   },
@@ -105,23 +105,9 @@ const DEFAULT_DATA={
   pokemonFriends:structuredClone(POKEMON_FRIEND_SEED),
   pokemonSeededVersion:2,
   medications:[
-    {id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",timeLabel:"Morning",scheduleType:"daily",weekdays:[],active:true,dosesPerDay:1,stock:0,notes:""},
-    {id:"med-magnesium",name:"Magnesium",dose:"",time:"Evening",timeLabel:"Evening",scheduleType:"daily",weekdays:[],active:true,dosesPerDay:1,stock:0,notes:""}
+    {id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""}
   ],
   medicationLog:{},
-  glucoseEntries:[],
-  stuffLocations:[],
-  reusableChecklists:[
-    {id:"checklist-trip-packing",name:"Trip packing",icon:"🧳",notes:"",items:[
-      {id:"trip-passport",text:"Passport",done:false},{id:"trip-charger",text:"Phone charger",done:false},{id:"trip-medication",text:"Medication",done:false},{id:"trip-toiletries",text:"Toiletries",done:false},{id:"trip-underwear",text:"Underwear",done:false},{id:"trip-headphones",text:"Headphones",done:false}
-    ]},
-    {id:"checklist-morning-routine",name:"Morning routine",icon:"🌅",notes:"",items:[
-      {id:"morning-teeth",text:"Brush teeth",done:false},{id:"morning-dressed",text:"Get dressed",done:false},{id:"morning-breakfast",text:"Breakfast / drink",done:false},{id:"morning-linahub",text:"Open LinaHub",done:false}
-    ]},
-    {id:"checklist-bedtime-routine",name:"Bedtime routine",icon:"🌙",notes:"",items:[
-      {id:"bedtime-teeth",text:"Brush teeth",done:false},{id:"bedtime-phone",text:"Plug phone in",done:false},{id:"bedtime-tomorrow",text:"Put out anything needed for tomorrow",done:false},{id:"bedtime-linahub",text:"Evening LinaHub check",done:false}
-    ]}
-  ],
   weightEntries:[],
   measurements:[],
   sleepEntries:[],
@@ -191,9 +177,7 @@ const DEFAULT_DATA={
     {id:"nemesia-vanilla",name:"Nemesia 'Vanilla'",emoji:"🌼",notes:"",lastWatered:"",history:[],photo:""},
     {id:"spider-plant",name:"Spider Plant",emoji:"🪴",notes:"",lastWatered:"",history:[],photo:""},
     {id:"prayer-plant",name:"Prayer Plant",emoji:"🍃",notes:"",lastWatered:"",history:[],photo:""},
-    {id:"apple-seeds",name:"Apple Seeds",emoji:"🍎",notes:"",lastWatered:"",history:[],photo:""},
-    {id:"strawberry",name:"Strawberry",emoji:"🍓",notes:"",lastWatered:"",history:[],photo:"",guideId:"strawberry",wateringDays:3},
-    {id:"pink-kiss",name:"Pink Kiss",emoji:"🌸",notes:"",lastWatered:"",history:[],photo:"",guideId:"pink-kiss",wateringDays:4}
+    {id:"apple-seeds",name:"Apple Seeds",emoji:"🍎",notes:"",lastWatered:"",history:[],photo:""}
   ]
 };
 
@@ -338,58 +322,6 @@ function normalizeAquarium(tank,i){
   };
 }
 
-function aquariumFeedLocalDate(value){
-  if(!value)return "";
-  const d=new Date(value);
-  if(Number.isNaN(d.getTime()))return "";
-  const pad=n=>String(n).padStart(2,"0");
-  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-}
-function aquariumFeedLocalTime(value){
-  if(!value)return "";
-  const d=new Date(value);
-  if(Number.isNaN(d.getTime()))return "";
-  const pad=n=>String(n).padStart(2,"0");
-  return `${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
-function aquariumFeedTimestampFromId(value){
-  const match=String(value||"").match(/(?:^|-)feed-(\d{12,14})(?:-|$)/i)||String(value||"").match(/^feed-(\d{12,14})(?:-|$)/i);
-  if(!match)return "";
-  const ms=Number(match[1]);
-  if(!Number.isFinite(ms))return "";
-  const d=new Date(ms);
-  return Number.isNaN(d.getTime())?"":d.toISOString();
-}
-function normalizeLegacyAquariumFeeds(tank){
-  tank.feeds=Array.isArray(tank.feeds)?tank.feeds:[];
-  const recovered=[];
-  const seen=new Set();
-  const add=(feed,source="existing")=>{
-    if(!feed)return;
-    const raw=typeof feed==="string"?{date:feed}:feed;
-    let date=String(raw.date||raw.day||raw.feedDate||"").slice(0,10);
-    let stamp=raw.createdAt||raw.timestamp||raw.fedAt||raw.timeStamp||"";
-    if(!stamp)stamp=aquariumFeedTimestampFromId(raw.id);
-    if(!/^\d{4}-\d{2}-\d{2}$/.test(date))date=aquariumFeedLocalDate(stamp);
-    if(!/^\d{4}-\d{2}-\d{2}$/.test(date))return;
-    let time=String(raw.time||raw.feedTime||"").slice(0,5);
-    if(!/^\d{2}:\d{2}$/.test(time))time=aquariumFeedLocalTime(stamp);
-    const food=raw.food||raw.name||raw.note||"Fed";
-    const key=`${date}|${time}|${String(food).trim().toLowerCase()}`;
-    if(seen.has(key))return;
-    seen.add(key);
-    recovered.push({...raw,id:raw.id||`recovered-feed-${date}-${time||"unknown"}-${recovered.length}`,food,date,time,createdAt:stamp||`${date}T${time||"12:00"}:00`,recoveredFrom:raw.recoveredFrom||source});
-  };
-  tank.feeds.forEach(feed=>add(feed,"feeds"));
-  [tank.feedingHistory,tank.feedHistory,tank.feedingLog,tank.feedLog].forEach(list=>{
-    if(Array.isArray(list))list.forEach(feed=>add(feed,"legacy-history"));
-  });
-  const legacyLast=tank.lastFed||tank.lastFeed||tank.lastFeeding||tank.fedAt;
-  if(legacyLast)add(typeof legacyLast==="string"?{createdAt:legacyLast,food:"Recovered feeding"}:legacyLast,"legacy-last-feed");
-  tank.feeds=recovered.sort((a,b)=>`${a.date} ${a.time}`.localeCompare(`${b.date} ${b.time}`));
-  return tank;
-}
-
 function normalizePlant(p,i){
   if(typeof p==="string"){
     return {id:p.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||`plant-${i}`,name:p,emoji:"🌿",notes:"",lastWatered:"",history:[],photo:""};
@@ -399,76 +331,9 @@ function normalizePlant(p,i){
     lastWatered:p.lastWatered||"",history:Array.isArray(p.history)?p.history:[],photo:p.photo||"",
     photoKey:p.photoKey||`plant:${p.id||`plant-${i}`}`,guideId:p.guideId||"",wateringDays:Number(p.wateringDays)||0,
     light:p.light||"",lastFed:p.lastFed||"",feedingHistory:Array.isArray(p.feedingHistory)?p.feedingHistory:[],
-    repotHistory:Array.isArray(p.repotHistory)?p.repotHistory:[],pruneHistory:Array.isArray(p.pruneHistory)?p.pruneHistory:[],photoHistory:Array.isArray(p.photoHistory)?p.photoHistory:[],
+    repotHistory:Array.isArray(p.repotHistory)?p.repotHistory:[],photoHistory:Array.isArray(p.photoHistory)?p.photoHistory:[],
     reminderEnabled:p.reminderEnabled!==false
   };
-}
-
-
-function validHistoryDate(value){
-  return typeof value==="string"&&/^\d{4}-\d{2}-\d{2}$/.test(value);
-}
-function plantIdentityKeys(plant){
-  const keys=[];
-  const id=String(plant?.id||"").trim().toLowerCase();
-  const name=String(plant?.name||"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
-  if(id)keys.push(`id:${id}`);
-  if(name)keys.push(`name:${name}`);
-  return keys;
-}
-function extractPlantWateringDates(plant){
-  const values=[];
-  const lists=[plant?.history,plant?.wateringHistory,plant?.waterHistory,plant?.careHistory?.watering,plant?.careHistory?.watered];
-  for(const list of lists){
-    if(Array.isArray(list)){
-      for(const item of list){
-        const value=typeof item==="string"?item:item?.date;
-        if(validHistoryDate(value))values.push(value);
-      }
-    }
-  }
-  if(validHistoryDate(plant?.lastWatered))values.push(plant.lastWatered);
-  return [...new Set(values)].sort();
-}
-function recoverPlantHistoryFromBrowser(loaded){
-  try{
-    const recoveryMap=new Map();
-    const addPlant=plant=>{
-      const dates=extractPlantWateringDates(plant);
-      if(!dates.length)return;
-      for(const key of plantIdentityKeys(plant)){
-        const existing=recoveryMap.get(key)||[];
-        recoveryMap.set(key,[...new Set([...existing,...dates])].sort());
-      }
-    };
-    for(let i=0;i<localStorage.length;i++){
-      const key=localStorage.key(i);
-      if(!key||(!key.toLowerCase().includes("linahub")&&!key.toLowerCase().includes("plant")))continue;
-      try{
-        const parsed=JSON.parse(localStorage.getItem(key)||"null");
-        const candidates=[];
-        if(Array.isArray(parsed?.plants))candidates.push(...parsed.plants);
-        if(Array.isArray(parsed?.data?.plants))candidates.push(...parsed.data.plants);
-        if(Array.isArray(parsed?.garden?.plants))candidates.push(...parsed.garden.plants);
-        candidates.forEach(addPlant);
-      }catch{}
-    }
-    let recovered=0;
-    for(const plant of loaded.plants||[]){
-      const found=[];
-      for(const key of plantIdentityKeys(plant))found.push(...(recoveryMap.get(key)||[]));
-      const current=extractPlantWateringDates(plant);
-      const merged=[...new Set([...current,...found])].sort();
-      recovered+=Math.max(0,merged.length-current.length);
-      plant.history=merged;
-      plant.lastWatered=merged.at(-1)||plant.lastWatered||"";
-    }
-    if(recovered>0){
-      loaded.plantHistoryRecovered=(Number(loaded.plantHistoryRecovered)||0)+recovered;
-      loaded.plantHistoryRecoveredAt=new Date().toISOString();
-    }
-    return loaded;
-  }catch{return loaded}
 }
 
 function migrateLegacy(){
@@ -479,16 +344,12 @@ function migrateLegacy(){
       const old=JSON.parse(raw);
       const migrated={...DEFAULT_DATA,...old,version:5};
       migrated.plants=(old.plants||DEFAULT_DATA.plants).map(normalizePlant);
-      recoverPlantHistoryFromBrowser(migrated);
       migrated.aquariums=(migrated.aquariums||DEFAULT_DATA.aquariums).map(normalizeAquarium);
       prepareHouseData(migrated);
       migrated.personalTasks=(Array.isArray(migrated.personalTasks)?migrated.personalTasks:[]).map(normalizePersonalTask);
       migrated.medications=Array.isArray(migrated.medications)?migrated.medications:[];
       if(!migrated.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
         migrated.medications.unshift({id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""});
-      }
-      if(!migrated.medications.some(m=>(m.name||"").trim().toLowerCase()==="magnesium")){
-        migrated.medications.push({id:"med-magnesium",name:"Magnesium",dose:"",time:"Evening",timeLabel:"Evening",scheduleType:"daily",weekdays:[],active:true,dosesPerDay:1,stock:0,notes:""});
       }
       if(!Array.isArray(migrated.pokemonFriends)||migrated.pokemonFriends.length===0){
         migrated.pokemonFriends=structuredClone(POKEMON_FRIEND_SEED);migrated.pokemonSeededVersion=1;
@@ -507,16 +368,12 @@ function loadData(){
     if(raw){
       const loaded={...DEFAULT_DATA,...JSON.parse(raw)};
       loaded.plants=(loaded.plants||DEFAULT_DATA.plants).map(normalizePlant);
-      recoverPlantHistoryFromBrowser(loaded);
       loaded.aquariums=(loaded.aquariums||DEFAULT_DATA.aquariums).map(normalizeAquarium);
       prepareHouseData(loaded);
       loaded.personalTasks=(Array.isArray(loaded.personalTasks)?loaded.personalTasks:[]).map(normalizePersonalTask);
       loaded.medications=Array.isArray(loaded.medications)?loaded.medications:[];
       if(!loaded.medications.some(m=>(m.name||"").trim().toLowerCase()==="folic acid")){
         loaded.medications.unshift({id:"med-folic-acid",name:"Folic Acid",dose:"",time:"Morning",notes:""});
-      }
-      if(!loaded.medications.some(m=>(m.name||"").trim().toLowerCase()==="magnesium")){
-        loaded.medications.push({id:"med-magnesium",name:"Magnesium",dose:"",time:"Evening",timeLabel:"Evening",scheduleType:"daily",weekdays:[],active:true,dosesPerDay:1,stock:0,notes:""});
       }
       if(!loaded.pokemonSeededVersion && (!Array.isArray(loaded.pokemonFriends)||loaded.pokemonFriends.length===0)){
         loaded.pokemonFriends=structuredClone(POKEMON_FRIEND_SEED);loaded.pokemonSeededVersion=1;
@@ -565,60 +422,6 @@ function moduleVisual(key,fallback="✨",className="module-tile-image"){
 }
 
 let data=loadData();
-// LinaHub 17.9.90 — recover aquarium feeds saved by older versions.
-if(!data.aquariumFeedRecovery17990){
-  data.aquariums=Array.isArray(data.aquariums)?data.aquariums:[];
-  data.aquariums.forEach(normalizeLegacyAquariumFeeds);
-  data.aquariumFeedRecovery17990=true;
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
-}else{
-  // Keep normalising so cloud-restored legacy entries are repaired too.
-  let changed=false;
-  for(const tank of (data.aquariums||[])){
-    const before=JSON.stringify(tank.feeds||[]);
-    normalizeLegacyAquariumFeeds(tank);
-    if(JSON.stringify(tank.feeds||[])!==before)changed=true;
-  }
-  if(changed)localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
-}
-if(!data.plantsAdded17986){
-  data.plants=Array.isArray(data.plants)?data.plants:[];
-  const requestedPlants17986=[
-    {id:"strawberry",name:"Strawberry",emoji:"🍓",notes:"",lastWatered:"",history:[],feedingHistory:[],repotHistory:[],pruneHistory:[],photo:"",guideId:"strawberry",wateringDays:3,reminderEnabled:true},
-    {id:"pink-kiss",name:"Pink Kiss",emoji:"🌸",notes:"",lastWatered:"",history:[],feedingHistory:[],repotHistory:[],pruneHistory:[],photo:"",guideId:"pink-kiss",wateringDays:4,reminderEnabled:true}
-  ];
-  for(const plant of requestedPlants17986){
-    const exists=data.plants.some(item=>String(item.id||"").toLowerCase()===plant.id||String(item.name||"").trim().toLowerCase()===plant.name.toLowerCase());
-    if(!exists)data.plants.push(normalizePlant(plant,data.plants.length));
-  }
-  data.plantsAdded17986=true;
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
-}
-if(!data.plantsAdded17984){
-  data.plants=Array.isArray(data.plants)?data.plants:[];
-  const requestedPlants=[
-    {id:"strawberry",name:"Strawberry",emoji:"🍓",notes:"",lastWatered:"",history:[],feedingHistory:[],repotHistory:[],pruneHistory:[],photo:"",guideId:"strawberry",wateringDays:3,reminderEnabled:true},
-    {id:"pink-kiss",name:"Pink Kiss",emoji:"🌸",notes:"",lastWatered:"",history:[],feedingHistory:[],repotHistory:[],pruneHistory:[],photo:"",guideId:"pink-kiss",wateringDays:4,reminderEnabled:true}
-  ];
-  for(const plant of requestedPlants){
-    const exists=data.plants.some(item=>String(item.id)===plant.id||String(item.name||"").trim().toLowerCase()===plant.name.toLowerCase());
-    if(!exists)data.plants.push(normalizePlant(plant,data.plants.length));
-  }
-  data.plantsAdded17984=true;
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
-}
-if(!data.plantsAdded17980){
-  data.plants=Array.isArray(data.plants)?data.plants:[];
-  const additions=[
-    {id:"strawberry",name:"Strawberry",emoji:"🍓",notes:"",lastWatered:"",history:[],photo:"",guideId:"strawberry",wateringDays:3},
-    {id:"pink-kiss",name:"Pink Kiss",emoji:"🌸",notes:"",lastWatered:"",history:[],photo:"",guideId:"pink-kiss",wateringDays:4}
-  ];
-  for(const plant of additions){
-    if(!data.plants.some(item=>String(item.id)===plant.id||String(item.name||"").trim().toLowerCase()===plant.name.toLowerCase())) data.plants.push(normalizePlant(plant,data.plants.length));
-  }
-  data.plantsAdded17980=true;
-  localStorage.setItem(STORAGE_KEY,JSON.stringify(data));
-}
 if(undoForcedTileArtwork1772()){ saveData(); }
 if(!data.v9CollapseDefaultsApplied){
   data.journalControlsCollapsed=true;

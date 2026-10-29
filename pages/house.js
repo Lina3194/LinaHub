@@ -460,16 +460,15 @@ function bindHouse(){
 
 function openHouseEditor(id){
   const task=data.houseTasks.find(item=>String(item.id)===String(id));
-  if(!task) return;
-  closeHouseEditor();
-  const portal=document.createElement("div");
-  portal.id="houseEditorPortal";
-  portal.innerHTML=`
+  const host=document.querySelector("#houseEditModal");
+  if(!task||!host) return;
+
+  host.innerHTML=`
     <div class="house-editor-backdrop" id="houseEditorBackdrop">
-      <section class="house-editor-card" role="dialog" aria-modal="true" aria-labelledby="houseEditorTitle">
+      <section class="house-editor-card" role="dialog" aria-modal="true">
         <button type="button" class="house-editor-close" data-close-house-editor>×</button>
         <span class="section-kicker">🏡 House job</span>
-        <h2 id="houseEditorTitle">Edit job</h2>
+        <h2>Edit job</h2>
 
         <div class="form-grid">
           <label class="field-label">Job
@@ -498,40 +497,14 @@ function openHouseEditor(id){
       </section>
     </div>
   `;
-  document.body.appendChild(portal);
-  document.body.classList.add("house-editor-open");
-
-  const backdrop=portal.querySelector("#houseEditorBackdrop");
-  const card=portal.querySelector(".house-editor-card");
-  const saveButton=portal.querySelector("#saveHouseEdit");
-  const closeButtons=portal.querySelectorAll("[data-close-house-editor]");
-
-  card?.addEventListener("click",event=>event.stopPropagation());
-  backdrop?.addEventListener("click",event=>{
-    if(event.target===backdrop) closeHouseEditor();
-  });
-  closeButtons.forEach(button=>button.addEventListener("click",event=>{
-    event.preventDefault();
-    event.stopPropagation();
-    closeHouseEditor();
-  }));
-  saveButton?.addEventListener("click",event=>{
-    event.preventDefault();
-    event.stopPropagation();
-    saveHouseEditor();
-  });
-
-  requestAnimationFrame(()=>portal.querySelector("#editHouseTask")?.focus());
-  portal.querySelector("#editHouseFrequency")?.addEventListener("change",e=>{
+  document.querySelector("#editHouseFrequency")?.addEventListener("change",e=>{
     document.querySelector("#editHouseWeekdayWrap")?.classList.toggle("hidden",!["Specific weekdays","Every week on selected days"].includes(e.target.value));
   });
 }
 
 function closeHouseEditor(){
-  document.querySelector("#houseEditorPortal")?.remove();
   const host=document.querySelector("#houseEditModal");
   if(host) host.innerHTML="";
-  document.body.classList.remove("house-editor-open");
 }
 
 function saveHouseEditor(){
@@ -555,7 +528,6 @@ function saveHouseEditor(){
   task.priority=Number(document.querySelector("#editHousePriority")?.value)||1;
 
   saveData();
-  closeHouseEditor();
   toast("Job updated 🏡");
   render();
 }

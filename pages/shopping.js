@@ -6,8 +6,6 @@ const SHOPPING_CATEGORIES=[
   {id:"toiletries",name:"Toiletries",iconKey:"shoppingToiletries",fallback:"🧴",hint:"Bathroom and personal care"}
 ];
 
-let shoppingSessionCategory="";
-
 const DEFAULT_SHOPPING_ITEMS={
   fridge:[
     "Gnocchi","Galaxy bar","Minced beef","Sausages","Edam slices","Cucumber","Houmous","Carrots","Peach iced tea","Pink sauce","Chocolate milk","Cream cheese","Pineapple juice","Block cheese","Ham","Jam","Tesco Apples","Mayonnaise","Tomatoes","Unsalted butter","Yoghurt","Avocado","Butter","Salsa","Chicken","Chocolate digestives","Tomato purée","Jalapeños","Milk","Ketchup"
@@ -33,26 +31,6 @@ function shoppingDefaultId(category,name){
   return `regular-${category}-${String(name).toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}`;
 }
 
-function ensureShoppingItemIds(){
-  const seen=new Set();
-  let changed=false;
-  data.shoppingItems.forEach((item,index)=>{
-    let id=String(item?.id||"").trim();
-    if(!id || seen.has(id)){
-      const slug=String(item?.name||"item").toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")||"item";
-      const base=`shop-${normaliseShoppingCategory(item?.category)}-${slug}`;
-      let candidate=`${base}-${index+1}`;
-      let n=2;
-      while(seen.has(candidate))candidate=`${base}-${index+1}-${n++}`;
-      item.id=candidate;
-      id=candidate;
-      changed=true;
-    }
-    seen.add(id);
-  });
-  return changed;
-}
-
 function ensureShoppingData(){
   data.shoppingItems=Array.isArray(data.shoppingItems)?data.shoppingItems:[];
   data.shoppingItems=data.shoppingItems.map(item=>{
@@ -61,9 +39,9 @@ function ensureShoppingData(){
     return {...item,category:normaliseShoppingCategory(item.category),isRegular,needed,done:!needed};
   });
   data.shoppingView=data.shoppingView||{};
+  data.shoppingView.category=SHOPPING_CATEGORIES.some(c=>c.id===data.shoppingView.category)?data.shoppingView.category:"all";
   data.shoppingView.mode=data.shoppingView.mode==="regular"?"regular":"needed";
   data.shoppingView.editId=data.shoppingView.editId||"";
-  const repairedIds=ensureShoppingItemIds();
 
   if(!data.shoppingDefaultsInitialised){
     Object.entries(DEFAULT_SHOPPING_ITEMS).forEach(([category,names])=>{
@@ -74,8 +52,6 @@ function ensureShoppingData(){
       });
     });
     data.shoppingDefaultsInitialised=true;
-    saveData();
-  }else if(repairedIds){
     saveData();
   }
 }
@@ -100,37 +76,23 @@ function shoppingItemRow(item,{master=false}={}){
     </article>`;
   }
   const label=item.isRegular?(item.needed?"Needed":"In stock"):(item.needed?"One-off":"Bought");
-  return `<article class="shopping-item ${item.needed?"":"shopping-item-done"} ${item.isRegular?"shopping-regular-item":"shopping-oneoff-item"}" data-shopping-row-toggle="${esc(item.id)}" role="button" tabindex="0" aria-label="${item.needed?"Mark "+esc(item.name)+" as in stock":"Mark "+esc(item.name)+" as needed"}" onclick="event.stopPropagation();if(!event.target.closest('[data-shopping-edit],[data-shopping-delete]'))window.toggleRegularShoppingItem(this.dataset.shoppingRowToggle)">
-    <button type="button" class="shopping-check ${item.needed?"needed":"done"}" data-shopping-toggle="${esc(item.id)}" aria-label="${item.needed?"Mark as in stock":"Mark as needed"}" onclick="event.preventDefault();event.stopPropagation();window.toggleRegularShoppingItem(this.dataset.shoppingToggle)">${item.needed?"":"✓"}</button>
+  return `<article class="shopping-item ${item.needed?"":"shopping-item-done"} ${item.isRegular?"shopping-regular-item":"shopping-oneoff-item"}">
+    <button type="button" class="shopping-check ${item.needed?"needed":"done"}" data-shopping-toggle="${esc(item.id)}" aria-label="${item.needed?"Mark as bought":"Mark as needed"}">${item.needed?"":"✓"}</button>
     <div class="shopping-item-copy"><strong>${esc(item.name)}</strong><small>${item.quantity?`${esc(item.quantity)} · `:""}${esc(category.name)} · ${label}</small></div>
     ${item.isRegular||master?`<button type="button" class="shopping-edit" data-shopping-edit="${esc(item.id)}" aria-label="Edit ${esc(item.name)}">✎</button>`:`<button type="button" class="shopping-delete" data-shopping-delete="${esc(item.id)}" aria-label="Delete ${esc(item.name)}">×</button>`}
   </article>`;
 }
 
-function shoppingRegularGroups(items){
-  return SHOPPING_CATEGORIES.map(category=>{
-    const rows=items.filter(item=>item.category===category.id);
-    if(!rows.length)return "";
-    return `<section class="shopping-regular-group">
-      <div class="shopping-regular-group-head">
-        <div>${moduleVisual(category.iconKey,category.fallback,"module-tile-image")}<span><strong>${esc(category.name)}</strong><small>${rows.length} regular item${rows.length===1?"":"s"}</small></span></div>
-      </div>
-      <div class="shopping-list">${rows.map(item=>shoppingItemRow(item,{master:true})).join("")}</div>
-    </section>`;
-  }).join("");
-}
-
 function ShoppingPage(){
   ensureShoppingData();
-  const active=SHOPPING_CATEGORIES.some(c=>c.id===shoppingSessionCategory)?shoppingSessionCategory:"";
-  const listCategory=active||"all";
+  const active=data.shoppingView.category||"all";
   const mode=data.shoppingView.mode||"needed";
   const items=data.shoppingItems||[];
   const needed=items.filter(item=>item.needed);
   const regular=items.filter(item=>item.isRegular);
   const visible=mode==="regular"
-    ?(listCategory==="all"?regular:regular.filter(item=>item.category===listCategory))
-    :(listCategory==="all"?needed:needed.filter(item=>item.category===listCategory));
+    ?(active==="all"?regular:regular.filter(item=>item.category===active))
+    :(active==="all"?needed:needed.filter(item=>item.category===active));
   const categoryTiles=SHOPPING_CATEGORIES.map(category=>{
     const count=needed.filter(item=>item.category===category.id).length;
     const regularCount=regular.filter(item=>item.category===category.id).length;
@@ -160,43 +122,20 @@ function ShoppingPage(){
       </div>
       <div class="shopping-options">
         <input class="field" id="shoppingQuantity" type="text" maxlength="30" placeholder="Quantity (optional)">
-        <select class="field" id="shoppingCategory">${SHOPPING_CATEGORIES.map(c=>`<option value="${c.id}" ${((active||"pantry")===c.id)?"selected":""}>${c.name}</option>`).join("")}</select>
+        <select class="field" id="shoppingCategory">${SHOPPING_CATEGORIES.map(c=>`<option value="${c.id}" ${active===c.id?"selected":""}>${c.name}</option>`).join("")}</select>
       </div>
-      <label class="shopping-regular-choice"><input type="checkbox" id="shoppingSaveRegular" checked> <span>Save as a regular item</span><small>Regular is the default. Untick this if you only need the item once.</small></label>
+      <label class="shopping-regular-choice"><input type="checkbox" id="shoppingSaveRegular"> <span>Save as a regular item</span><small>New items are one-off unless you tick this.</small></label>
     </section>
 
     <section class="shopping-list-section">
       <div class="section-title-row">
-        <h2>${mode==="regular"?(listCategory==="all"?"Regular items by category":`${shoppingCategory(listCategory).name} regular items`):(listCategory==="all"?"Everything to buy":shoppingCategory(listCategory).name)}</h2>
-        ${listCategory!=="all"?`<button type="button" class="small-btn" data-shopping-category="all">View all</button>`:""}
+        <h2>${mode==="regular"?(active==="all"?"All regular items":`${shoppingCategory(active).name} regular items`):(active==="all"?"Everything to buy":shoppingCategory(active).name)}</h2>
+        ${active!=="all"?`<button type="button" class="small-btn" data-shopping-category="all">View all</button>`:""}
       </div>
-      ${mode==="regular"&&listCategory==="all"
-        ? `<div class="shopping-regular-groups">${shoppingRegularGroups(regular) || '<div class="card empty shopping-empty"><span>✓</span><p>No regular items yet.</p></div>'}</div>`
-        : `<div class="shopping-list">${visible.length?visible.map(item=>shoppingItemRow(item,{master:mode==="regular"})).join(""):`<div class="card empty shopping-empty"><span>✓</span><p>${mode==="regular"?"No regular items in this category yet.":listCategory==="all"?"Nothing left to buy.":`Nothing needed for ${shoppingCategory(listCategory).name.toLowerCase()}.`}</p></div>`}</div>`}
+      <div class="shopping-list">${visible.length?visible.map(item=>shoppingItemRow(item,{master:mode==="regular"})).join(""):`<div class="card empty shopping-empty"><span>✓</span><p>${mode==="regular"?"No regular items in this category yet.":active==="all"?"Nothing left to buy.":`Nothing needed for ${shoppingCategory(active).name.toLowerCase()}.`}</p></div>`}</div>
     </section>
   `,"shopping");
 }
-
-function toggleShoppingItemById(rawId){
-  const id=String(rawId||"");
-  let item=(data.shoppingItems||[]).find(x=>String(x.id)===id);
-  if(!item){
-    ensureShoppingItemIds();
-    item=(data.shoppingItems||[]).find(x=>String(x.id)===id);
-  }
-  if(!item){toast("I couldn't find that shopping item. Please try again.");return false;}
-  if(item.isRegular){
-    item.needed=!item.needed;
-    item.done=!item.needed;
-    item.completedAt=item.needed?"":new Date().toISOString();
-  }else if(item.needed){
-    data.shoppingItems=data.shoppingItems.filter(x=>String(x.id)!==id);
-  }
-  saveData();
-  render();
-  return true;
-}
-window.toggleRegularShoppingItem=toggleShoppingItemById;
 
 function bindShopping(){
   ensureShoppingData();
@@ -214,17 +153,12 @@ function bindShopping(){
   };
   page?.querySelector("#addShoppingItem")?.addEventListener("click",addItem);
   nameInput?.addEventListener("keydown",event=>{if(event.key==="Enter"){event.preventDefault();addItem();}});
-  page?.querySelectorAll("[data-shopping-row-toggle]").forEach(row=>row.addEventListener("keydown",event=>{
-    if((event.key==="Enter"||event.key===" ")&&!event.target.closest("[data-shopping-edit],[data-shopping-delete]")){
-      event.preventDefault();event.stopPropagation();toggleShoppingItemById(row.dataset.shoppingRowToggle);
-    }
-  }));
   page?.addEventListener("click",event=>{
     const modeButton=event.target.closest("[data-shopping-mode]");
     if(modeButton){data.shoppingView.mode=modeButton.dataset.shoppingMode;data.shoppingView.editId="";saveData();render();return;}
     const category=event.target.closest("[data-shopping-category]");
     if(category){
-      shoppingSessionCategory=category.dataset.shoppingCategory==="all"?"":category.dataset.shoppingCategory;
+      data.shoppingView.category=category.dataset.shoppingCategory;
       if(category.classList.contains("shopping-category-tile") && category.dataset.shoppingCategory!=="all"){
         data.shoppingView.mode="regular";
       }
@@ -236,8 +170,21 @@ function bindShopping(){
       }
       return;
     }
+    const toggle=event.target.closest("[data-shopping-toggle]");
+    if(toggle){
+      const item=data.shoppingItems.find(x=>String(x.id)===String(toggle.dataset.shoppingToggle));
+      if(item){
+        if(item.isRegular){
+          item.needed=!item.needed;item.done=!item.needed;item.completedAt=item.needed?"":new Date().toISOString();
+        }else if(item.needed){
+          data.shoppingItems=data.shoppingItems.filter(x=>String(x.id)!==String(item.id));
+        }
+        saveData();render();
+      }
+      return;
+    }
     const edit=event.target.closest("[data-shopping-edit]");
-    if(edit){event.stopPropagation();data.shoppingView.editId=edit.dataset.shoppingEdit;saveData();render();return;}
+    if(edit){data.shoppingView.editId=edit.dataset.shoppingEdit;saveData();render();return;}
     if(event.target.closest("[data-shopping-cancel-edit]")){data.shoppingView.editId="";saveData();render();return;}
     const saveEdit=event.target.closest("[data-shopping-save-edit]");
     if(saveEdit){
@@ -248,12 +195,6 @@ function bindShopping(){
       data.shoppingView.editId="";saveData();render();return;
     }
     const remove=event.target.closest("[data-shopping-delete]");
-    if(remove){event.stopPropagation();data.shoppingItems=data.shoppingItems.filter(x=>String(x.id)!==String(remove.dataset.shoppingDelete));data.shoppingView.editId="";saveData();render();return;}
-  });
-  page?.addEventListener("keydown",event=>{
-    if(event.key!=="Enter"&&event.key!==" ")return;
-    if(event.target.closest("button,input,select,textarea"))return;
-    const row=event.target.closest("[data-shopping-row-toggle]");
-    if(row){event.preventDefault();toggleShoppingItemById(row.dataset.shoppingRowToggle);}
+    if(remove){data.shoppingItems=data.shoppingItems.filter(x=>String(x.id)!==String(remove.dataset.shoppingDelete));data.shoppingView.editId="";saveData();render();return;}
   });
 }

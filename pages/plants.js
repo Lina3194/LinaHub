@@ -11,8 +11,6 @@ const PLANT_ENCYCLOPEDIA=[
   {id:"spider-plant",name:"Spider Plant",scientific:"Chlorophytum comosum",emoji:"🪴",light:"Bright indirect light, though it tolerates medium light.",water:"Water when the top few centimetres feel dry. Slight drying is safer than constant wetness.",humidity:"Average humidity; brown tips can worsen in very dry air.",temperature:"Normal indoor temperatures; avoid frost.",feeding:"Monthly half-strength feed in spring and summer.",soil:"Standard free-draining houseplant compost.",tips:["Brown tips may come from salts, dry air or irregular watering.","Plantlets can be rooted in water or compost.","It tolerates being slightly root-bound."],wateringDays:7},
   {id:"prayer-plant",name:"Prayer Plant",scientific:"Maranta leuconeura",emoji:"🍃",light:"Bright indirect light; direct sun can fade or scorch leaves.",water:"Keep lightly moist, watering when the surface just begins to dry. Use rainwater or filtered water where possible.",humidity:"Likes higher humidity.",temperature:"Warm and stable; avoid cold draughts.",feeding:"Half-strength feed monthly in spring and summer.",soil:"Moisture-retentive but airy houseplant mix with perlite.",tips:["Crispy edges often point to dry air, hard water or underwatering.","Leaves naturally fold upward at night.","Do not let the pot sit in water."],wateringDays:5},
   {id:"apple-seeds",name:"Apple Seeds",scientific:"Malus domestica",emoji:"🍎",light:"After germination, provide very bright light and gradually introduce direct sun.",water:"Keep seed compost lightly moist, never sodden.",humidity:"A covered container can help during germination, but ventilate to prevent mould.",temperature:"Seeds usually need a cold, moist stratification period before warmth.",feeding:"Do not feed until seedlings have several true leaves; then use a very weak balanced feed.",soil:"Fine seed compost initially, then free-draining potting compost.",tips:["Chill moist seeds in the fridge for roughly 6–10 weeks.","Seed-grown apples will not grow true to the parent fruit.","Remove any mouldy seeds promptly."],wateringDays:4},
-  {id:"strawberry",name:"Strawberry",scientific:"Fragaria × ananassa",emoji:"🍓",light:"Full sun is best, though light partial shade is tolerated.",water:"Keep the compost evenly moist, especially while flowering and fruiting, but do not leave the roots waterlogged.",humidity:"Normal outdoor or household humidity with good airflow.",temperature:"Prefers cool to mild conditions; protect container plants from hard frost and extreme heat.",feeding:"Use a high-potassium feed every 1–2 weeks once flowers appear.",soil:"Fertile, moisture-retentive but well-drained compost or soil.",tips:["Water at the base to keep flowers and fruit drier.","Remove excess runners unless you want new plants.","Watch for slugs, snails and grey mould around ripening fruit."],wateringDays:3},
-  {id:"pink-kiss",name:"Pink Kiss",scientific:"Dianthus Pink Kisses",emoji:"🌸",light:"Full sun or the brightest available position.",water:"Water when the top 2–3 cm of compost feels dry. Allow excess water to drain fully.",humidity:"Average humidity with good airflow.",temperature:"Prefers cooler bright conditions and can struggle in hot, stuffy rooms.",feeding:"Feed lightly every 2–3 weeks while actively flowering.",soil:"Free-draining multipurpose compost with added grit or perlite.",tips:["Deadhead faded flowers to encourage more blooms.","Avoid keeping the crown constantly wet.","A bright outdoor position is usually better than a warm indoor room."],wateringDays:4},
   {id:"pothos",name:"Pothos",scientific:"Epipremnum aureum",emoji:"🌿",light:"Bright indirect light; tolerates lower light with slower growth.",water:"Allow the top half of the compost to dry before watering thoroughly.",humidity:"Average household humidity is fine.",temperature:"Warm indoor conditions; avoid cold draughts.",feeding:"Monthly in spring and summer at half strength.",soil:"Free-draining houseplant compost.",tips:["Prune above a node for bushier growth.","Yellow leaves often follow overwatering.","Toxic if eaten by pets or people."],wateringDays:8},
   {id:"peace-lily",name:"Peace Lily",scientific:"Spathiphyllum",emoji:"🤍",light:"Medium to bright indirect light.",water:"Water when the top 2–3 cm dries; it may droop dramatically when thirsty.",humidity:"Enjoys moderate to high humidity.",temperature:"Warm indoor temperatures away from draughts.",feeding:"Monthly weak feed in spring and summer.",soil:"Moisture-retentive but draining houseplant compost.",tips:["Wipe leaves to keep them dust-free.","Brown tips can reflect salts or dry air.","Toxic if eaten by pets or people."],wateringDays:6},
   {id:"snake-plant",name:"Snake Plant",scientific:"Dracaena trifasciata",emoji:"🌵",light:"Bright indirect light is best, but it tolerates lower light.",water:"Let the compost dry fully before watering again.",humidity:"Normal or dry household air.",temperature:"Keep above roughly 10°C.",feeding:"Light feed every 6–8 weeks in spring and summer.",soil:"Very free-draining cactus or succulent mix.",tips:["Overwatering is the main danger.","Use a pot with drainage holes.","Toxic if eaten by pets."],wateringDays:18},
@@ -219,95 +217,24 @@ function plantEnsureExtendedData(p){
   p.history=Array.isArray(p.history)?p.history:[];
   p.feedingHistory=Array.isArray(p.feedingHistory)?p.feedingHistory:[];
   p.repotHistory=Array.isArray(p.repotHistory)?p.repotHistory:[];
-  p.pruneHistory=Array.isArray(p.pruneHistory)?p.pruneHistory:[];
   p.photoHistory=Array.isArray(p.photoHistory)?p.photoHistory:[];
-  if(p.lastWatered && !p.history.includes(p.lastWatered)) p.history.push(p.lastWatered);
-  if(p.lastFed && !p.feedingHistory.includes(p.lastFed)) p.feedingHistory.push(p.lastFed);
-  p.history.sort();
-  p.feedingHistory.sort();
-  p.repotHistory.sort();
-  p.pruneHistory.sort();
-  p.lastWatered=p.history.at(-1)||p.lastWatered||"";
-  p.lastFed=p.feedingHistory.at(-1)||p.lastFed||"";
   if(typeof p.reminderEnabled!=="boolean")p.reminderEnabled=true;
   data.plantCalendarMonthById=data.plantCalendarMonthById||{};
-  if(!data.plantCalendarMonthById[p.id]){
-    const latest=[p.history.at(-1),p.feedingHistory.at(-1),p.repotHistory.at(-1),p.pruneHistory.at(-1),today()].filter(Boolean).sort().at(-1)||today();
-    data.plantCalendarMonthById[p.id]=latest.slice(0,7);
-  }
 }
 function plantMonthShift(value,offset){const [y,m]=String(value||today().slice(0,7)).split("-").map(Number);const d=new Date(y,m-1+Number(offset||0),1);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}`}
 function plantTimelineCalendar(p){
   plantEnsureExtendedData(p);
   const month=data.plantCalendarMonthById[p.id]||today().slice(0,7);
   const [year,monthNumber]=month.split("-").map(Number),first=new Date(year,monthNumber-1,1),days=new Date(year,monthNumber,0).getDate(),leading=(first.getDay()+6)%7;
-  const watered=new Set(p.history.filter(x=>x.startsWith(month))),fed=new Set(p.feedingHistory.filter(x=>x.startsWith(month))),repotted=new Set(p.repotHistory.filter(x=>x.startsWith(month))),pruned=new Set(p.pruneHistory.filter(x=>x.startsWith(month)));
-  const todayDate=today();
-  const todayInMonth=todayDate.startsWith(month);
+  const watered=new Set(p.history.filter(x=>x.startsWith(month))),fed=new Set(p.feedingHistory.filter(x=>x.startsWith(month))),repotted=new Set(p.repotHistory.filter(x=>x.startsWith(month)));
   const cells=[];for(let i=0;i<leading;i++)cells.push('<span class="plant-cal-day empty"></span>');
   for(let day=1;day<=days;day++){
-    const date=`${month}-${String(day).padStart(2,"0")}`;
-    const classes=[watered.has(date)?"watered":"",fed.has(date)?"fed":"",repotted.has(date)?"repotted":"",pruned.has(date)?"pruned":"",date===todayDate?"today":""].filter(Boolean).join(" ");
-    const careColours=[];
-    if(watered.has(date))careColours.push("#35aee2");
-    if(fed.has(date))careColours.push("#e6bf55");
-    if(repotted.has(date))careColours.push("#b57ad9");
-    if(pruned.has(date))careColours.push("#78d98e");
-    const stripeStops=careColours.map((colour,index)=>`${colour} ${(index*100)/careColours.length}% ${((index+1)*100)/careColours.length}%`).join(",");
-    const careStyle=careColours.length?` style="--plant-care-bg:${careColours.length===1?careColours[0]:`linear-gradient(to bottom,${stripeStops})`}"`:"";
-    const marks=`${date===todayDate?'<i class="today-mark"></i>':""}`;
-    cells.push(`<button type="button" class="plant-cal-day ${classes} ${careColours.length?"has-care":""} ${careColours.length>1?"multi-care":""}"${careStyle} data-plant-calendar-date="${date}" aria-label="${formatDate(date)}${date===todayDate?', today':''}"><span>${day}</span>${marks}</button>`);
+    const date=`${month}-${String(day).padStart(2,"0")}`,classes=[watered.has(date)?"watered":"",fed.has(date)?"fed":"",repotted.has(date)?"repotted":""].filter(Boolean).join(" ");
+    const marks=`${watered.has(date)?'<i class="water-mark"></i>':""}${fed.has(date)?'<i class="feed-mark"></i>':""}${repotted.has(date)?'<i class="repot-mark"></i>':""}`;
+    cells.push(`<button type="button" class="plant-cal-day ${classes}" data-plant-calendar-date="${date}"><span>${day}</span>${marks}</button>`);
   }
-  return `<div class="plant-calendar-head"><button type="button" class="mini" data-plant-month="-1">‹</button><div class="plant-calendar-title"><strong>${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</strong><small>${todayInMonth?`Today: ${formatDate(todayDate)}`:`Today: ${formatDate(todayDate)}`}</small></div><button type="button" class="mini" data-plant-month="1">›</button></div><div class="plant-cal-weekdays">${["M","T","W","T","F","S","S"].map(x=>`<span>${x}</span>`).join("")}</div><div class="plant-cal-grid">${cells.join("")}</div><div class="plant-calendar-legend"><span><i class="today-legend"></i>Today</span><span><i class="water"></i>Watered</span><span><i class="feed"></i>Fed</span><span><i class="repot"></i>Repotted</span><span><i class="prune"></i>Pruned</span></div>`;
+  return `<div class="plant-calendar-head"><button type="button" class="mini" data-plant-month="-1">‹</button><strong>${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</strong><button type="button" class="mini" data-plant-month="1">›</button></div><div class="plant-cal-weekdays">${["M","T","W","T","F","S","S"].map(x=>`<span>${x}</span>`).join("")}</div><div class="plant-cal-grid">${cells.join("")}</div><div class="plant-calendar-legend"><span><i class="water"></i>Watered</span><span><i class="feed"></i>Fed</span><span><i class="repot"></i>Repotted</span></div>`;
 }
-
-function closePlantCareCalendarModal(){
-  document.querySelector('.plant-care-modal-backdrop')?.remove();
-  document.body.classList.remove('plant-care-modal-open');
-}
-function openPlantCareCalendarModal({date,hasW,hasF,hasR,hasP,onAction}){
-  closePlantCareCalendarModal();
-  const prettyDate=formatDate(date);
-  const active=[hasW?'<span class="plant-care-status watered">💧 Watered</span>':'',hasF?'<span class="plant-care-status fed">🌱 Fed</span>':'',hasR?'<span class="plant-care-status repotted">🪴 Repotted</span>':'',hasP?'<span class="plant-care-status pruned">✂️ Pruned</span>':''].filter(Boolean).join('');
-  const overlay=document.createElement('div');
-  overlay.className='plant-care-modal-backdrop';
-  overlay.innerHTML=`<section class="plant-care-modal" role="dialog" aria-modal="true" aria-labelledby="plantCareModalTitle">
-    <button type="button" class="mini plant-care-modal-close" aria-label="Close">×</button>
-    <span class="section-kicker">Plant care calendar</span>
-    <h2 id="plantCareModalTitle">${prettyDate}</h2>
-    <p class="helper-text">Choose what you want to log or remove for this date.</p>
-    <div class="plant-care-modal-current">
-      <small>Current records</small>
-      <div class="plant-care-status-row">${active || '<span class="plant-care-status none">No care logged yet</span>'}</div>
-    </div>
-    <div class="plant-care-modal-grid">
-      <button type="button" class="plant-care-choice watered" data-care-action="water"><span>💧</span><strong>${hasW?'Watered again':'Mark watered'}</strong><small>${hasW?'Keep this day in the watering log':'Add this date to the watering log'}</small></button>
-      <button type="button" class="plant-care-choice fed" data-care-action="feed"><span>🌱</span><strong>${hasF?'Fed again':'Mark fed'}</strong><small>${hasF?'Keep this day in the feeding log':'Add this date to the feeding log'}</small></button>
-      <button type="button" class="plant-care-choice repotted" data-care-action="repot"><span>🪴</span><strong>${hasR?'Repotted again':'Mark repotted'}</strong><small>${hasR?'Keep this day in the repot log':'Add this date to the repot log'}</small></button>
-      <button type="button" class="plant-care-choice pruned" data-care-action="prune"><span>✂️</span><strong>${hasP?'Pruned again':'Mark pruned'}</strong><small>${hasP?'Keep this day in the pruning log':'Add this date to the pruning log'}</small></button>
-      <button type="button" class="plant-care-choice danger" data-care-action="remove" ${(!hasW&&!hasF&&!hasR&&!hasP)?'disabled':''}><span>✕</span><strong>Remove records</strong><small>${(hasW||hasF||hasR||hasP)?'Clear all care records for this date':'Nothing to remove yet'}</small></button>
-    </div>
-    <div class="plant-care-modal-actions"><button type="button" class="secondary" data-close-plant-care-modal>Cancel</button></div>
-  </section>`;
-  const close=()=>{
-    window.removeEventListener('keydown',onKey);
-    closePlantCareCalendarModal();
-  };
-  const onKey=(e)=>{ if(e.key==='Escape') close(); };
-  overlay.addEventListener('click',e=>{
-    if(e.target===overlay || e.target.closest('[data-close-plant-care-modal]') || e.target.closest('.plant-care-modal-close')) close();
-    const btn=e.target.closest('[data-care-action]');
-    if(!btn || btn.disabled) return;
-    const action=btn.dataset.careAction;
-    close();
-    onAction?.(action);
-  });
-  document.body.appendChild(overlay);
-  document.body.classList.add('plant-care-modal-open');
-  window.addEventListener('keydown',onKey);
-  overlay.querySelector('[data-care-action="water"]')?.focus();
-}
-
 function plantReminderText(p,guide){
   plantEnsureExtendedData(p);const every=Number(p.wateringDays)||guide?.wateringDays||7;
   if(!p.reminderEnabled)return "Reminder off";
@@ -327,11 +254,10 @@ function PlantProfilePage(){
     <section class="card plant-profile-head"><div class="plant-photo-large">${plantPhotoSrc(p)?`<img src="${plantPhotoSrc(p)}" alt="${esc(p.name)}">`:`<span>${p.emoji}</span>`}</div><div class="plant-profile-actions"><label class="secondary upload-label">📷 Add / change photo<input id="plantPhoto" type="file" accept="image/*" hidden></label><em class="status-chip ${status.className}">${status.icon} ${status.text}</em></div></section>
     <div class="profile-tabs">${[["care","Care"],["history","Calendar"],["photos","Photos"],["notes","Notes"]].map(([id,label])=>`<button type="button" data-plant-tab="${id}" class="${active===id?"active":""}">${label}</button>`).join("")}</div>
     <div class="plant-tab-panel ${active==="care"?"active":""}"><section class="care-summary"><div><small>Last watered</small><strong>${p.lastWatered?formatDate(p.lastWatered):"Not yet"}</strong></div><div><small>Water every</small><strong>${every} days</strong></div><div><small>Reminder</small><strong class="${plantReminderText(p,guide).startsWith("Overdue")?"plant-overdue":""}">${esc(plantReminderText(p,guide))}</strong></div></section>
-      <section class="card clean-card plant-care-actions"><span class="section-kicker">Care log</span><h2>Add a care entry</h2><div class="plant-care-entry"><label><span>Date</span><input class="field" id="plantCareDate" type="date" value="${today()}" max="${today()}"></label><label><span>Care type</span><select class="field" id="plantCareType"><option value="water">💧 Water</option><option value="feed">🌱 Feed</option><option value="repot">🪴 Repot</option><option value="prune">✂️ Prune</option></select></label><button class="primary" id="logPlantCare">Add to care log</button></div><label class="plant-reminder-toggle"><input type="checkbox" id="plantReminderEnabled" ${p.reminderEnabled?"checked":""}><span>Use this plant's last watering date for reminders</span></label></section>${careGuideHtml(guide)}</div>
+      <section class="card clean-card plant-care-actions"><span class="section-kicker">Care log</span><h2>Water, feed or repot</h2><div class="plant-action-grid"><label><span>Date</span><input class="field" id="plantCareDate" type="date" value="${today()}" max="${today()}"></label><button class="primary" id="waterPlant">💧 Watered</button><button class="secondary" id="feedPlant">🌱 Fed</button><button class="secondary" id="repotPlant">🪴 Repotted</button></div><label class="plant-reminder-toggle"><input type="checkbox" id="plantReminderEnabled" ${p.reminderEnabled?"checked":""}><span>Use this plant's last watering date for reminders</span></label></section>${careGuideHtml(guide)}</div>
     <div class="plant-tab-panel ${active==="history"?"active":""}"><section class="card clean-card plant-calendar-card"><span class="section-kicker">History</span><h2>Plant care calendar</h2><p class="helper-text">Tap a coloured date to edit or remove its care records.</p>${plantTimelineCalendar(p)}</section></div>
     <div class="plant-tab-panel ${active==="photos"?"active":""}"><section class="card clean-card"><span class="section-kicker">Photo timeline</span><h2>${esc(p.name)} over time</h2>${plantPhotoTimelineHtml(p)}</section></div>
-    <div class="plant-tab-panel ${active==="notes"?"active":""}"><section class="card clean-card"><span class="section-kicker">Notes</span><h2>Care notes</h2><textarea class="field plant-notes" rows="6">${esc(p.notes)}</textarea><button type="button" class="primary" id="savePlantNotes">Save notes</button></section></div>
-    <section class="card clean-card plant-delete-card"><span class="section-kicker">Garden collection</span><h2>Remove this plant</h2><p class="helper-text">Use this when a plant has died or you no longer want it in your garden. Its care history and saved photos will also be removed.</p><button type="button" class="mini danger plant-delete-button" id="deletePlant">Remove ${esc(p.name)} from garden</button></section>`,'plants');
+    <div class="plant-tab-panel ${active==="notes"?"active":""}"><section class="card clean-card"><span class="section-kicker">Notes</span><h2>Care notes</h2><textarea class="field plant-notes" rows="6">${esc(p.notes)}</textarea><button type="button" class="primary" id="savePlantNotes">Save notes</button></section></div>`,'plants');
 }
 function bindPlants(){
   bindPlantTileControls();
@@ -340,71 +266,21 @@ function bindPlants(){
   const p=data.plants.find(x=>x.id===routeId);if(!p)return;plantEnsureExtendedData(p);
   document.querySelectorAll("[data-plant-month]").forEach(b=>b.onclick=()=>{data.plantCalendarMonthById[p.id]=plantMonthShift(data.plantCalendarMonthById[p.id]||today().slice(0,7),b.dataset.plantMonth);saveData();render()});
   document.querySelectorAll("[data-plant-calendar-date]").forEach(b=>b.onclick=()=>{
-    const date=b.dataset.plantCalendarDate,hasW=p.history.includes(date),hasF=p.feedingHistory.includes(date),hasR=p.repotHistory.includes(date),hasP=p.pruneHistory.includes(date);
-    openPlantCareCalendarModal({date,hasW,hasF,hasR,hasP,onAction:(value)=>{
-      if(value==="remove"){
-        p.history=p.history.filter(x=>x!==date);
-        p.feedingHistory=p.feedingHistory.filter(x=>x!==date);
-        p.repotHistory=p.repotHistory.filter(x=>x!==date);
-        p.pruneHistory=p.pruneHistory.filter(x=>x!==date);
-        toast("Care records removed");
-      }else if(value==="water"){
-        p.history=p.history.filter(x=>x!==date);
-        p.history.push(date);
-        toast("Watering logged 💧");
-      }else if(value==="feed"){
-        p.feedingHistory=p.feedingHistory.filter(x=>x!==date);
-        p.feedingHistory.push(date);
-        toast("Feeding logged 🌱");
-      }else if(value==="repot"){
-        p.repotHistory=p.repotHistory.filter(x=>x!==date);
-        p.repotHistory.push(date);
-        toast("Repotting logged 🪴");
-      }else if(value==="prune"){
-        p.pruneHistory=p.pruneHistory.filter(x=>x!==date);
-        p.pruneHistory.push(date);
-        toast("Pruning logged ✂️");
-      }
-      [p.history,p.feedingHistory,p.repotHistory,p.pruneHistory].forEach(a=>a.sort());
-      p.lastWatered=p.history.at(-1)||"";
-      p.lastFed=p.feedingHistory.at(-1)||"";
-      saveData();
-      render();
-    }});
+    const date=b.dataset.plantCalendarDate,hasW=p.history.includes(date),hasF=p.feedingHistory.includes(date),hasR=p.repotHistory.includes(date);
+    const action=prompt(`${formatDate(date)}\nType: water, feed, repot, or remove`,hasW?"water":hasF?"feed":hasR?"repot":"water");if(!action)return;
+    const value=action.trim().toLowerCase();
+    if(value==="remove"){p.history=p.history.filter(x=>x!==date);p.feedingHistory=p.feedingHistory.filter(x=>x!==date);p.repotHistory=p.repotHistory.filter(x=>x!==date)}
+    else if(value.startsWith("water")){p.history=p.history.filter(x=>x!==date);p.history.push(date)}
+    else if(value.startsWith("feed")){p.feedingHistory=p.feedingHistory.filter(x=>x!==date);p.feedingHistory.push(date)}
+    else if(value.startsWith("repot")){p.repotHistory=p.repotHistory.filter(x=>x!==date);p.repotHistory.push(date)}
+    [p.history,p.feedingHistory,p.repotHistory].forEach(a=>a.sort());p.lastWatered=p.history.at(-1)||"";p.lastFed=p.feedingHistory.at(-1)||"";saveData();render();
   });
   const careDate=()=>document.querySelector("#plantCareDate")?.value||today();
-  document.querySelector("#logPlantCare")?.addEventListener("click",()=>{
-    const d=careDate(),type=document.querySelector("#plantCareType")?.value||"water";
-    if(d>today()){toast("Choose today or an earlier date");return}
-    if(type==="feed"){
-      if(!p.feedingHistory.includes(d))p.feedingHistory.push(d);
-      p.feedingHistory.sort();p.lastFed=p.feedingHistory.at(-1)||"";
-      saveData();toast("Feeding logged 🌱");render();return;
-    }
-    if(type==="repot"){
-      if(!p.repotHistory.includes(d))p.repotHistory.push(d);
-      p.repotHistory.sort();saveData();toast("Repotting logged 🪴");render();return;
-    }
-    if(type==="prune"){
-      if(!p.pruneHistory.includes(d))p.pruneHistory.push(d);
-      p.pruneHistory.sort();saveData();toast("Pruning logged ✂️");render();return;
-    }
-    if(!p.history.includes(d))p.history.push(d);
-    p.history.sort();p.lastWatered=p.history.at(-1)||"";
-    saveData();toast("Watering logged 💧");render();
-  });
+  document.querySelector("#waterPlant")?.addEventListener("click",()=>{const d=careDate();if(!p.history.includes(d))p.history.push(d);p.history.sort();p.lastWatered=p.history.at(-1)||"";saveData();toast("Watering logged 💧");render()});
+  document.querySelector("#feedPlant")?.addEventListener("click",()=>{const d=careDate();if(!p.feedingHistory.includes(d))p.feedingHistory.push(d);p.feedingHistory.sort();p.lastFed=p.feedingHistory.at(-1)||"";saveData();toast("Feeding logged 🌱");render()});
+  document.querySelector("#repotPlant")?.addEventListener("click",()=>{const d=careDate();if(!p.repotHistory.includes(d))p.repotHistory.push(d);p.repotHistory.sort();saveData();toast("Repotting logged 🪴");render()});
   document.querySelector("#plantReminderEnabled")?.addEventListener("change",e=>{p.reminderEnabled=e.target.checked;saveData();render()});
   document.querySelector("#savePlantNotes")?.addEventListener("click",()=>{p.notes=document.querySelector(".plant-notes").value;saveData();toast("Plant notes saved 🌿")});
   document.querySelector("#plantPhoto")?.addEventListener("change",async e=>{const file=e.target.files?.[0];if(!file)return;try{const stamp=Date.now(),key=`plant-timeline:${p.id}:${stamp}`,value=await LinaImage.upload({file,key,width:1000,height:1000,fit:"contain",quality:.82,allowUpscale:false});p.photoKey=plantPhotoKey(p);await LinaImage.save(p.photoKey,value);p.photo=value;p.photoHistory.push({key,date:today(),createdAt:new Date().toISOString(),note:"Plant photo"});saveData();toast("Photo added to timeline 📷");render()}catch(error){toast(LinaImage.friendlyError(error))}});
   document.querySelectorAll("[data-plant-photo-delete]").forEach(b=>b.onclick=async()=>{if(!confirm("Remove this photo from the timeline?"))return;await LinaImage.remove(b.dataset.plantPhotoDelete).catch(()=>{});p.photoHistory=p.photoHistory.filter(x=>x.key!==b.dataset.plantPhotoDelete);saveData();render()});
-  document.querySelector("#deletePlant")?.addEventListener("click",async()=>{
-    if(!confirm(`Remove ${p.name} from your garden? This will permanently delete its care history, notes and saved photos.`))return;
-    const imageKeys=new Set([p.photoKey,plantPhotoKey(p),...(p.photoHistory||[]).map(item=>item?.key)].filter(Boolean));
-    for(const key of imageKeys){try{await LinaImage.remove(key)}catch{}}
-    data.plants=data.plants.filter(item=>item.id!==p.id);
-    if(data.plantCalendarMonthById)delete data.plantCalendarMonthById[p.id];
-    saveData();
-    toast(`${p.name} removed from your garden`);
-    go("plants","","back",{replace:true});
-  });
 }

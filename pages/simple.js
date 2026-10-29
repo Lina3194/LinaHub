@@ -27,7 +27,7 @@ function SettingsPage(){
     <section class="card settings-accordion notification-settings-card${accordionClass("notifications")}" data-settings-accordion="notifications">
       <button type="button" class="settings-accordion-toggle" aria-expanded="${accordionExpanded("notifications")}"><span><strong>Notifications</strong><small>Medication, Today and other reminders</small></span><b aria-hidden="true">⌄</b></button>
       <div class="settings-collapse-body"${accordionHidden("notifications")}>
-      <div class="cloud-card-head"><div><h2>App notifications</h2><p>Turn on device notifications so LinaHub can remind you while it is running or installed.</p></div><span class="notification-permission" id="notificationPermission">${typeof Notification!=="undefined"?Notification.permission:"unsupported"}</span></div>
+      <div class="cloud-card-head"><div><h2>Notification settings</h2><p>Medication and Today reminders while LinaHub is installed or open.</p></div><span class="notification-permission" id="notificationPermission">${typeof Notification!=="undefined"?Notification.permission:"unsupported"}</span></div>
       <label class="settings-toggle"><input type="checkbox" id="notificationsEnabled" ${data.notifications?.enabled?"checked":""}><span><strong>Enable notifications</strong><small>Allow LinaHub to send reminders on this device.</small></span></label>
       <div class="notification-options ${data.notifications?.enabled?"":"muted"}" id="notificationOptions">
         <div class="notification-kind-block">
@@ -41,18 +41,11 @@ function SettingsPage(){
           <button type="button" class="secondary add-notification-time" data-add-notification-time="today">+ Add another time</button>
         </div>
         <div class="notification-kind-block">
-          <label class="settings-toggle"><input type="checkbox" id="glucoseNotifications" ${data.notifications?.glucose?"checked":""}><span><strong>Glucose reminders</strong><small>Remind me to do a finger-prick reading.</small></span></label>
-          <div class="notification-time-list" id="glucoseNotificationTimes">${(data.notifications?.glucoseTimes||["08:00","13:00","19:00"]).map((time,index)=>`<div class="notification-time-row"><input class="field compact-time" type="time" value="${esc(time)}"><button type="button" class="mini danger" data-remove-notification-time="glucose" ${index===0?"disabled":""}>×</button></div>`).join("")}</div>
-          <button type="button" class="secondary add-notification-time" data-add-notification-time="glucose">+ Add another time</button>
-        </div>
-        <div class="notification-kind-block">
-          <label class="settings-toggle"><input type="checkbox" id="flowerNotifications" ${data.notifications?.dayCheckins?"checked":""}><span><strong>Journey check-ins</strong><small>Remind yourself to log energy, mood and pain.</small></span></label>
-          <div class="flower-reminder-grid"><label>From<input class="field" id="flowerReminderStart" type="time" value="${esc(data.notifications?.dayCheckinStart||"08:00")}"></label><label>Until<input class="field" id="flowerReminderEnd" type="time" value="${esc(data.notifications?.dayCheckinEnd||"22:00")}"></label><label>Every<select class="field" id="flowerReminderFrequency"><option value="1" ${(data.notifications?.dayCheckinEvery||1)==1?"selected":""}>1 hour</option><option value="2" ${(data.notifications?.dayCheckinEvery||1)==2?"selected":""}>2 hours</option><option value="3" ${(data.notifications?.dayCheckinEvery||1)==3?"selected":""}>3 hours</option></select></label></div>
         </div>
         <div class="notification-module-grid">${[["plants","🌿 Plants"],["house","🏠 Chores"],["aquariums","🐠 Aquariums"],["sleep","😴 Sleep"],["period","🌸 Period"],["journal","📖 Journal"]].map(([key,label])=>`<label class="settings-toggle compact"><input type="checkbox" data-module-reminder="${key}" ${data.notifications?.modules?.[key]?"checked":""}><span><strong>${label}</strong><small>Include in reminders</small></span></label>`).join("")}</div>
       </div>
       <div class="cloud-actions"><button class="primary" id="saveNotifications">Save notifications</button><button class="secondary" id="testNotification">Send test</button></div>
-      <p class="settings-note">On iPhone, add LinaHub to your Home Screen before enabling notifications. Scheduled reminders in this build run while LinaHub is open or still active. The app is also prepared to receive Web Push, but notifications while it is fully closed still need a push-notification backend.</p>
+      <p class="settings-note">On iPhone, notifications require LinaHub to be added to your Home Screen. Timed reminders are checked whenever LinaHub is running; reliable reminders while it is fully closed would require a push-notification service.</p>
       </div>
     </section>
 
@@ -77,9 +70,10 @@ function SettingsPage(){
         ${[
           ["Bottom navigation",[["home","Home","⌂"],["today","Today","✅"],["todo","To-do","📝"],["shopping","Shopping","🛒"],["settings","Settings","⚙️"]]],
           ["Main tiles",[["journal","Daily Check-in","📖"],["plants","Garden","🌿"],["pokemon","Pokémon GO","🔴"],["pets","Aquariums","🐠"],["house","House","🏡"],["treasures","Treasure Room","✨"],["journey","Today's Journey","✨"]]],
-          ["Trackers",[["sleep","Sleep","😴"],["medication","Medication","💊"],["period","Period","🌸"],["weight","Weight","⚖️"],["measurements","Measurements","📏"],["glucose","Glucose","🩸"]]],
+          ["Trackers",[["sleep","Sleep","😴"],["medication","Medication","💊"],["period","Period","🌸"],["weight","Weight","⚖️"],["measurements","Measurements","📏"]]],
           ["Shopping",[["shoppingFridge","Fridge","❄️"],["shoppingFreezer","Freezer","🧊"],["shoppingPantry","Pantry","🥫"],["shoppingCleaning","Cleaning Supplies","🧽"],["shoppingToiletries","Toiletries","🧴"]]],
-          ["House & Aquariums",[["rooms","Rooms","🏠"],["inventory","Inventory","📦"],["girlsTank","Girls Tank","🩷"],["boysTank","Boys Tank","💙"],["aquariumMaintenance","Maintenance","🫧"]]]
+          ["House & Aquariums",[["rooms","Rooms","🏠"],["inventory","Inventory","📦"],["girlsTank","Girls Tank","🩷"],["boysTank","Boys Tank","💙"],["aquariumMaintenance","Maintenance","🫧"]]],
+          ["Budget",[["bills","Bills","🧾"],["savings","Savings","💰"],["income","Income","💷"],["expenses","Expenses","💸"]]]
         ].map(([group,items])=>`<section class="icon-setting-group"><h3>${group}</h3><div class="tab-art-grid">${items.map(([key,label,fallback])=>`<article class="tab-art-setting"><div class="tab-art-preview">${data.homeImages?.[key]?`<img src="${data.homeImages[key]}" alt="">`:`<span>${esc(moduleIcon(key,fallback))}</span>`}</div><div class="tab-art-copy"><strong>${label}</strong></div><div class="tab-art-actions"><button type="button" class="secondary compact-upload" data-pick-tab-image="${key}">${data.homeImages?.[key]?"Change":"Add image"}</button><input type="file" accept="image/*" data-tab-image="${key}" hidden>${data.homeImages?.[key]?`<button type="button" class="mini danger" data-remove-tab-image="${key}">Remove</button>`:""}</div></article>`).join("")}</div></section>`).join("")}
       </div>
       </div>
@@ -91,16 +85,16 @@ function SettingsPage(){
         ${[
           ["journal","Daily Check-in"],["today","Today"],["todo","To-do"],
           ["plants","Garden"],["pets","Aquariums"],["house","House"],["shopping","Shopping"],
-          ["medication","Medication"],["health","Measurements"],["glucose","Glucose"],["period","Period Tracker"],
+          ["medication","Medication"],["health","Measurements"],["period","Period Tracker"],
           ["pokemon","Pokémon GO"],["treasures","Treasure Room"]
         ].map(([key,label])=>`
           <article class="banner-art-setting">
-            <div class="banner-art-preview">${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||((key==="treasures")?"assets/default-treasure-banner.svg":""))?`<img src="${data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||((key==="treasures")?"assets/default-treasure-banner.svg":"")}" alt="">`:`<span>${esc(data.homeIcons?.[key]||data.moduleIcons?.[key]||"✨")}</span>`}</div>
+            <div class="banner-art-preview">${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`))?`<img src="${data.moduleBanners?.[key]||window.LinaImage.peek(`banner:${key}`)}" alt="">`:`<span>${esc(data.homeIcons?.[key]||data.moduleIcons?.[key]||"✨")}</span>`}</div>
             <strong>${label}</strong>
             <div class="banner-art-actions">
-              <button type="button" class="secondary compact-upload" data-pick-banner-image="${key}">${(!data.removedMedia?.[`banner:${key}`]&&(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)))?"Change":"Add"}</button>
+              <button type="button" class="secondary compact-upload" data-pick-banner-image="${key}">${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`))?"Change":"Add"}</button>
               <input type="file" accept="image/*" data-banner-image="${key}" hidden>
-              ${(!data.removedMedia?.[`banner:${key}`]&&(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)))?`<button class="mini danger" data-remove-banner-image="${key}" aria-label="Remove ${label} banner">×</button>`:""}
+              ${(data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`))?`<button class="mini danger" data-remove-banner-image="${key}" aria-label="Remove ${label} banner">×</button>`:""}
             </div>
           </article>`).join("")}
       </div>
@@ -113,7 +107,7 @@ function SettingsPage(){
       <button class="primary" id="exportData">Export backup</button>
       <label class="secondary" style="display:block;margin-top:10px">Import backup<input id="importData" type="file" accept="application/json" hidden></label>
     </section>
-  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.110")}<br><br>16 Sep 2026</p>`,"settings");
+  <p class="app-version">Version ${esc(window.LINAHUB_BUILD||"17.9.9")}<br><br>1 Aug 2026</p>`,"settings");
 }
 
 function bindSimple(){
@@ -154,17 +148,13 @@ function bindSimple(){
     document.querySelector("#notificationOptions")?.classList.toggle("muted",!notificationEnabled.checked);
   });
   const addNotificationTime=(kind,value)=>{
-    const selector=kind==="medication"?"#medicationNotificationTimes":kind==="glucose"?"#glucoseNotificationTimes":"#todayNotificationTimes";
-    const list=document.querySelector(selector);
+    const list=document.querySelector(kind==="medication"?"#medicationNotificationTimes":"#todayNotificationTimes");
     if(!list)return;
     const row=document.createElement("div");row.className="notification-time-row";
     row.innerHTML=`<input class="field compact-time" type="time" value="${value}"><button type="button" class="mini danger" data-remove-notification-time="${kind}">×</button>`;
     list.appendChild(row);
   };
-  document.querySelectorAll("[data-add-notification-time]").forEach(button=>button.addEventListener("click",()=>{
-    const kind=button.dataset.addNotificationTime;
-    addNotificationTime(kind,kind==="medication"?"18:00":kind==="glucose"?"20:00":"18:15");
-  }));
+  document.querySelectorAll("[data-add-notification-time]").forEach(button=>button.addEventListener("click",()=>addNotificationTime(button.dataset.addNotificationTime,button.dataset.addNotificationTime==="medication"?"18:00":"18:15")));
   document.querySelector("#notificationOptions")?.addEventListener("click",event=>{
     const button=event.target.closest("[data-remove-notification-time]");if(!button)return;
     const list=button.closest(".notification-time-list");if(list?.children.length>1)button.closest(".notification-time-row")?.remove();
@@ -174,7 +164,7 @@ function bindSimple(){
     if(enabled && !(await linaRequestNotificationPermission())) return;
     const readTimes=selector=>[...document.querySelectorAll(`${selector} input[type=time]`)].map(input=>input.value).filter(Boolean);
     const modules={};document.querySelectorAll("[data-module-reminder]").forEach(x=>modules[x.dataset.moduleReminder]=x.checked);
-    data.notifications={...(data.notifications||{}),enabled,medication:!!document.querySelector("#medicationNotifications")?.checked,todayTasks:!!document.querySelector("#todayNotifications")?.checked,glucose:!!document.querySelector("#glucoseNotifications")?.checked,dayCheckins:!!document.querySelector("#flowerNotifications")?.checked,dayCheckinStart:document.querySelector("#flowerReminderStart")?.value||"08:00",dayCheckinEnd:document.querySelector("#flowerReminderEnd")?.value||"22:00",dayCheckinEvery:Number(document.querySelector("#flowerReminderFrequency")?.value)||1,modules,medicationTimes:readTimes("#medicationNotificationTimes"),todayTimes:readTimes("#todayNotificationTimes"),glucoseTimes:readTimes("#glucoseNotificationTimes"),lastSent:data.notifications?.lastSent||{}};
+    data.notifications={...(data.notifications||{}),enabled,medication:!!document.querySelector("#medicationNotifications")?.checked,todayTasks:!!document.querySelector("#todayNotifications")?.checked,dayCheckins:!!document.querySelector("#flowerNotifications")?.checked,dayCheckinStart:document.querySelector("#flowerReminderStart")?.value||"08:00",dayCheckinEnd:document.querySelector("#flowerReminderEnd")?.value||"22:00",dayCheckinEvery:Number(document.querySelector("#flowerReminderFrequency")?.value)||1,modules,medicationTimes:readTimes("#medicationNotificationTimes"),todayTimes:readTimes("#todayNotificationTimes"),lastSent:data.notifications?.lastSent||{}};
     saveData();linaStartNotificationChecks();toast(enabled?"Notifications saved":"Notifications switched off");
   });
   document.querySelector("#testNotification")?.addEventListener("click",async()=>{
@@ -231,24 +221,7 @@ function bindSimple(){
       const key=isBanner?button.dataset.removeBannerImage:button.dataset.removeTabImage;
       try{
         await LinaImage.remove(`${isBanner?"banner":"tab"}:${key}`);
-        data.removedMedia=data.removedMedia||{};
-        if(isBanner){
-          delete data.moduleBanners?.[key];
-          data.removedMedia[`banner:${key}`]=Date.now();
-          if(key==="treasures"){
-            await LinaImage.remove("tab:treasures").catch(()=>{});
-            delete data.homeImages?.treasures;
-            data.removedMedia["tab:treasures"]=Date.now();
-          }
-        }else{
-          delete data.homeImages?.[key];
-          data.removedMedia[`tab:${key}`]=Date.now();
-          if(key==="treasures"){
-            await LinaImage.remove("banner:treasures").catch(()=>{});
-            delete data.moduleBanners?.treasures;
-            data.removedMedia["banner:treasures"]=Date.now();
-          }
-        }
+        if(isBanner) delete data.moduleBanners?.[key]; else delete data.homeImages?.[key];
         if(!isBanner&&(key==="girlsTank"||key==="boysTank")){
           const tank=(data.aquariums||[]).find(item=>item.id===(key==="girlsTank"?"girls-tank":"boys-tank"));
           if(tank) tank.photo="";
@@ -300,15 +273,8 @@ function bindSimple(){
           const value=await LinaImage.upload({file,key:storageKey,width:isBanner?1200:420,height:isBanner?240:420,fit:"cover",quality:isBanner?0.76:0.82});
           const verified=await LinaImage.load(storageKey);
           if(!verified) throw new Error("Saved image could not be restored");
-          data.removedMedia=data.removedMedia||{};
-          if(isBanner){
-            delete data.removedMedia[`banner:${key}`];
-            if(key==="treasures") delete data.removedMedia["tab:treasures"];
-            data.moduleBanners=data.moduleBanners||{};data.moduleBanners[key]=value;
-          }
+          if(isBanner){data.moduleBanners=data.moduleBanners||{};data.moduleBanners[key]=value;}
           else{
-            delete data.removedMedia[`tab:${key}`];
-            if(key==="treasures") delete data.removedMedia["banner:treasures"];
             data.homeImages=data.homeImages||{};data.homeImages[key]=value;
             if(key==="girlsTank"||key==="boysTank"){
               const tank=(data.aquariums||[]).find(item=>item.id===(key==="girlsTank"?"girls-tank":"boys-tank"));

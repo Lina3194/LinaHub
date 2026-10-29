@@ -58,30 +58,24 @@ function linaBannerKey(routeName){
     journal:"journal",today:"today",todo:"todo",shopping:"shopping",
     plants:"plants",plant:"plants",medication:"medication",pokemon:"pokemon",
     pets:"pets",tank:"pets",house:"house",health:"health",period:"period",
-    treasures:"treasures",glucose:"glucose",hobbies:"hobbies",books:"books",gaming:"gaming"
+    treasures:"treasures",hobbies:"hobbies",books:"books",gaming:"gaming"
   })[routeName]||"";
-}
-
-async function linaDefaultBanner(key){
-  return ({treasures:"assets/default-treasure-banner.svg"})[key]||"";
 }
 
 async function linaResolveBanner(key){
   if(!key)return "";
-  if(data.removedMedia?.[`banner:${key}`])return "";
   const inMemory=data.moduleBanners?.[key]||window.LinaImage?.peek?.(`banner:${key}`)||"";
   if(inMemory)return inMemory;
-  if(window.LinaImage){
-    try{
-      const saved=await LinaImage.load(`banner:${key}`);
-      if(saved){
-        data.moduleBanners=data.moduleBanners||{};
-        data.moduleBanners[key]=saved;
-        return saved;
-      }
-    }catch(error){console.error("Could not restore banner",key,error)}
-  }
-  return data.removedMedia?.[`banner:${key}`]?"":linaDefaultBanner(key);
+  if(!window.LinaImage)return "";
+  try{
+    const saved=await LinaImage.load(`banner:${key}`);
+    if(saved){
+      data.moduleBanners=data.moduleBanners||{};
+      data.moduleBanners[key]=saved;
+      return saved;
+    }
+  }catch(error){console.error("Could not restore banner",key,error)}
+  return "";
 }
 
 function lina17StandardBanner(routeName){
@@ -151,11 +145,6 @@ function render(){
     plant:PlantProfilePage,
     settings:SettingsPage,
     health:HealthPage,
-    glucose:GlucosePage,
-    lifetools:LifeToolsPage,
-    findstuff:FindStuffPage,
-    checklists:ChecklistsPage,
-    checklist:ChecklistPage,
     hobbies:HobbiesPage,
     books:BooksPage,
     gaming:()=>SimplePage("Gaming","🎮","Your games and progress","gaming"),
@@ -223,8 +212,6 @@ function render(){
   if(route==="hobbies") bindHobbies();
   if(route==="books") bindBooks();
   if(route==="health") bindHealth();
-  if(route==="glucose") bindGlucose();
-  if(["lifetools","findstuff","checklists","checklist"].includes(route)) bindLifeTools();
   if(route==="settings") bindSimple();
   if(route==="period") bindPeriod();
   if(route==="budget") bindBudget();
@@ -232,8 +219,6 @@ function render(){
   if(route==="history") bindHistory();
   if(route==="pets"||route==="tank") bindAquariums();
   bindBottomNavigation();
-  linaMaybeOpenDailyCheckin();
-  linaMaybeOpenNightlyCheckin();
 }
 
 
@@ -263,9 +248,6 @@ function setupNavigation(){
 
     const dailyButton=event.target.closest("[data-open-daily-checkin]");
     if(dailyButton){event.preventDefault();event.stopPropagation();openDailyCheckin(true);return;}
-
-    const nightlyButton=event.target.closest("[data-open-nightly-checkin]");
-    if(nightlyButton){event.preventDefault();event.stopPropagation();openNightlyCheckin(true);return;}
 
     const healthTabButton=event.target.closest("[data-health-tab]");
     if(healthTabButton){
@@ -450,17 +432,14 @@ function linaNotificationConfig(){
   cfg.enabled=!!cfg.enabled;
   cfg.medication=cfg.medication!==false;
   cfg.todayTasks=cfg.todayTasks!==false;
-  cfg.glucose=!!cfg.glucose;
-  cfg.dayCheckins=!!cfg.dayCheckins;
+  cfg.dayCheckins=false; // v17.9.9: check-ins are manual only
   cfg.dayCheckinStart=cfg.dayCheckinStart||"08:00";
   cfg.dayCheckinEnd=cfg.dayCheckinEnd||"22:00";
   cfg.dayCheckinEvery=Math.max(1,Number(cfg.dayCheckinEvery)||1);
   cfg.medicationTimes=Array.isArray(cfg.medicationTimes)&&cfg.medicationTimes.length?cfg.medicationTimes:[cfg.medicationTime||"09:00"];
   cfg.todayTimes=Array.isArray(cfg.todayTimes)&&cfg.todayTimes.length?cfg.todayTimes:[cfg.todayTime||"09:15"];
-  cfg.glucoseTimes=Array.isArray(cfg.glucoseTimes)&&cfg.glucoseTimes.length?cfg.glucoseTimes:["08:00","13:00","19:00"];
   cfg.medicationTimes=[...new Set(cfg.medicationTimes.filter(Boolean))].sort();
   cfg.todayTimes=[...new Set(cfg.todayTimes.filter(Boolean))].sort();
-  cfg.glucoseTimes=[...new Set(cfg.glucoseTimes.filter(Boolean))].sort();
   cfg.lastSent=cfg.lastSent||{};
   delete cfg.medicationTime; delete cfg.todayTime;
   return cfg;
@@ -518,13 +497,6 @@ async function linaCheckNotifications(){
       cfg.lastSent[sentKey]=true; saveData();
     }
   }
-  for(const reminderTime of cfg.glucoseTimes){
-    const sentKey=`glucose:${dateValue}:${reminderTime}`;
-    if(cfg.glucose&&clock>=reminderTime&&!cfg.lastSent[sentKey]){
-      await linaShowNotification("Glucose check 🩸",{body:"Time for a quick finger-prick reading when you’re ready.",tag:`linahub-glucose-${dateValue}-${reminderTime}`,data:{route:"glucose"}});
-      cfg.lastSent[sentKey]=true; saveData();
-    }
-  }
   if(cfg.dayCheckins){
     const toMinutes=value=>{const [h,m]=String(value||"00:00").split(":").map(Number);return h*60+m};
     const nowMinutes=now.getHours()*60+now.getMinutes(),startMinutes=toMinutes(cfg.dayCheckinStart),endMinutes=toMinutes(cfg.dayCheckinEnd),step=cfg.dayCheckinEvery*60;
@@ -546,8 +518,8 @@ function linaStartNotificationChecks(){
   linaCheckNotifications();
   linaNotificationTimer=setInterval(linaCheckNotifications,60000);
 }
-document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible"){linaCheckNotifications();linaMaybeOpenDailyCheckin();linaMaybeOpenNightlyCheckin();}});
-window.addEventListener("focus",()=>{linaCheckNotifications();linaMaybeOpenDailyCheckin();linaMaybeOpenNightlyCheckin();});
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")linaCheckNotifications();});
+window.addEventListener("focus",()=>linaCheckNotifications());
 
 setupNavigation();
 setupSwipeBack();
@@ -559,7 +531,7 @@ if("serviceWorker" in navigator){navigator.serviceWorker.addEventListener("messa
 if("serviceWorker" in navigator){
   window.addEventListener("load",async()=>{
     try{
-      const registration=await navigator.serviceWorker.register("./sw.js?v=1871",{updateViaCache:"none"});
+      const registration=await navigator.serviceWorker.register("./sw.js?v=1793",{updateViaCache:"none"});
       await registration.update();
       let refreshed=false;
       navigator.serviceWorker.addEventListener("controllerchange",()=>{

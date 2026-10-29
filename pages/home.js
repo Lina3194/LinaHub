@@ -1,8 +1,7 @@
-// LinaHub 17.9.110 — remove Life Tools tiles from Home for now.
 function ensureHomeLayout(){
   const defaults=[
     "journal","plants",
-    "pets","house","shopping","medication","measurements","glucose",
+    "pets","house","shopping","medication","measurements",
     "period","pokemon","treasures"
   ];
   if(!Array.isArray(data.homeLayout)) data.homeLayout=[];
@@ -22,10 +21,9 @@ function ensureHomeLayout(){
     return value;
   });
   data.homeHidden=data.homeHidden.map(id=>id==="flowers"?"journal":id);
-
   // Keep the Home dashboard focused. These pages and their saved data remain available,
   // but their tiles are intentionally removed from the main Home page.
-  const removedHomeTiles=new Set(["hobbies","health","today","todo","books","budget","gaming","lifetools","findstuff","checklists"]);
+  const removedHomeTiles=new Set(["hobbies","health","today","todo","books","budget","gaming"]);
   data.homeLayout=data.homeLayout.filter(item=>!removedHomeTiles.has(typeof item==="string"?item:item?.id));
   data.homeHidden=data.homeHidden.filter(id=>!removedHomeTiles.has(id)&&id!=="period");
 
@@ -58,7 +56,6 @@ const HOME_TILE_INFO={
   shopping:["Shopping","Lists and essentials","🛒"],
   medication:["Medication","Tablets and schedule","💊"],
   measurements:["Measures","Track weight and body measurements","📏"],
-  glucose:["Glucose","Finger-prick readings and symptoms","📟"],
   period:["Period","Cycle and symptom tracking","🌸"],
   pokemon:["Pokémon GO","Friends, gifts and Vivillon","🔴"],
   books:["Books","Reading list and progress","📚"],
@@ -111,31 +108,15 @@ function homeTileStatus(id){
     return remaining?`${remaining} today`:`All taken`;
   }
   if(id==="measurements"){
-    const todayMorning=data.morningCheckins?.[todayKey];
-    const todayWeight=Number(String(todayMorning?.weight??"").replace(",","."));
-    if(Number.isFinite(todayWeight)&&todayWeight>0) return `${todayWeight} kg`;
-
-    const recoveredMorning=Object.entries(data.morningCheckins||{}).flatMap(([date,entry])=>{
-      const value=Number(String(entry?.weight??"").replace(",","."));
-      return Number.isFinite(value)&&value>0?[{date,value,createdAt:entry?.updatedAt||`${date}T12:00:00`}]:[];
-    });
-    const savedWeights=(data.weightEntries||[]).flatMap(entry=>{
-      const value=Number(entry?.weight??entry?.value);
-      return Number.isFinite(value)&&value>0?[{date:entry.date,value,createdAt:entry.createdAt||`${entry.date||""}T12:00:00`}]:[];
-    });
-    const latestWeight=[...savedWeights,...recoveredMorning].sort((a,b)=>String(b.createdAt||b.date||"").localeCompare(String(a.createdAt||a.date||"")))[0];
-    if(latestWeight) return `${latestWeight.value} kg`;
-
     const latestMeasure=(data.measurements||[]).slice().sort((a,b)=>String(b.createdAt||b.date||"").localeCompare(String(a.createdAt||a.date||"")))[0];
+    const latestWeight=(data.weightEntries||[]).slice().sort((a,b)=>String(b.createdAt||b.date||"").localeCompare(String(a.createdAt||a.date||"")))[0];
+    const weight=latestWeight?.weight??latestWeight?.value;
+    if(weight!==undefined&&weight!==null&&weight!=="") return `${weight} kg`;
     return latestMeasure?.date?`Updated ${new Date(`${latestMeasure.date}T12:00:00`).toLocaleDateString("en-GB",{day:"numeric",month:"short"})}`:"Add first entry";
   }
   if(id==="health"){
     const latest=(data.weightEntries||[]).slice().sort((a,b)=>String(b.createdAt||b.date||"").localeCompare(String(a.createdAt||a.date||"")))[0];
     return latest?`${latest.weight??latest.value??"Saved"} kg`:`Open dashboard`;
-  }
-  if(id==="glucose"){
-    const latest=(data.glucoseEntries||[]).slice().sort((a,b)=>`${b.date||""}T${b.time||"00:00"}`.localeCompare(`${a.date||""}T${a.time||"00:00"}`))[0];
-    return latest&&Number.isFinite(Number(latest.value))?`${latest.value} mmol/L`:`Add reading`;
   }
   if(id==="period"){
     if(typeof periodStats==="function"){
@@ -167,15 +148,12 @@ function homeTile(item,editing){
   const title=data.homeTileNames?.[item.id]||defaultTitle;
   // Keep the user's chosen main tile artwork. Only the tiny decorative corner
   // marks are removed separately; the actual tile image itself must stay intact.
-  const treasureBanner=data.removedMedia?.["banner:treasures"]?"":(data.moduleBanners?.treasures||window.LinaImage?.peek?.(`banner:treasures`)||data.homeImages?.treasures||"");
-  const useCustomArtwork=item.id==="treasures"?!!treasureBanner:!!data.homeImages?.[item.id];
-  const art=item.id==="treasures"&&treasureBanner
-    ? `<span class="module-image treasure-home-banner"><img src="${treasureBanner}" alt=""></span>`
-    : useCustomArtwork
-      ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
-      : item.id==="pokemon" && !(data.homeIcons?.[item.id])
-        ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1781" alt="Poké Ball"></span>`
-        : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
+  const useCustomArtwork=!!data.homeImages?.[item.id];
+  const art=useCustomArtwork
+    ? `<span class="module-image"><img src="${data.homeImages[item.id]}" alt=""></span>`
+    : item.id==="pokemon" && !(data.homeIcons?.[item.id])
+      ? `<span class="emoji app-icon-image"><img src="./icons/pokemon.svg?v=1781" alt="Poké Ball"></span>`
+      : `<span class="emoji">${esc(data.homeIcons?.[item.id]||fallback)}</span>`;
   const route=item.id==="measurements"?"health":item.id;
   const extra=item.id==="measurements"?' data-route-id="log"':"";
   const content=`${art}<strong>${esc(title)}</strong><small class="tile-subtitle">${subtitle}</small><span class="tile-status">${esc(homeTileStatus(item.id))}</span>`;
@@ -209,7 +187,7 @@ function tileEditor(id){
       <label>Tile name<input class="field" id="tileEditorName" value="${esc(title)}" maxlength="40"></label>
       <label>Icon or emoji<input class="field" id="tileEditorIcon" value="${esc(icon)}" maxlength="12"></label>
       <label>Tile size<select class="field" id="tileEditorSize"><option value="medium" ${item.size!=="wide"?"selected":""}>Standard tile</option><option value="wide" ${item.size==="wide"?"selected":""}>Wide tile</option></select></label>
-      <div class="tile-cover-row"><div class="tile-cover-preview">${(id==="treasures"?(data.moduleBanners?.treasures||window.LinaImage?.peek?.(`banner:treasures`)):data.homeImages?.[id])?`<img src="${id==="treasures"?(data.moduleBanners?.treasures||window.LinaImage?.peek?.(`banner:treasures`)):data.homeImages[id]}" alt="">`:`<span>${esc(icon)}</span>`}</div><div><strong>${id==="treasures"?"Treasure banner":"Custom cover image"}</strong><p>${id==="treasures"?"Uses the same wide banner as the Treasure Room page.":"Shows the whole picture without cropping."}</p><button type="button" class="secondary" id="tilePickImage">Choose image</button><input type="file" id="tileImageInput" accept="image/*" hidden>${(id==="treasures"?(data.moduleBanners?.treasures||window.LinaImage?.peek?.(`banner:treasures`)):data.homeImages?.[id])?`<button type="button" class="mini danger" id="tileRemoveImage">Remove image</button>`:""}</div></div>
+      <div class="tile-cover-row"><div class="tile-cover-preview">${data.homeImages?.[id]?`<img src="${data.homeImages[id]}" alt="">`:`<span>${esc(icon)}</span>`}</div><div><strong>Custom cover image</strong><p>Shows the whole picture without cropping.</p><button type="button" class="secondary" id="tilePickImage">Choose image</button><input type="file" id="tileImageInput" accept="image/*" hidden>${data.homeImages?.[id]?`<button type="button" class="mini danger" id="tileRemoveImage">Remove image</button>`:""}</div></div>
       <div class="tile-position-controls" aria-label="Move tile"><button type="button" class="secondary" id="tileMoveEarlier">← Move earlier</button><button type="button" class="secondary" id="tileMoveLater">Move later →</button></div>
       <div class="tile-editor-actions"><button type="button" class="danger secondary" id="tileHide">Hide tile</button><button type="button" class="primary" id="tileSave">Save changes</button></div>
     </section>
@@ -251,8 +229,6 @@ function homeMedicationReminder(){
   return `<section class="home-reminders"><h2>Reminders</h2><button type="button" class="home-reminder-card" data-route="medication"><span>✓</span><div><strong>${esc(med.name||"Take medication")}</strong><small>${esc(med.times?.[0]||med.time||"Today")}</small></div><b>Open</b><i>›</i></button></section>`;
 }
 
-
-
 function HomePage(){
   ensureHomeLayout();
   const d=new Date();
@@ -261,9 +237,6 @@ function HomePage(){
   const editing=!!data.homeEditing;
   const dayKey=typeof linaDailyDayKey==="function"?linaDailyDayKey():today();
   const complete=!!data.dailyCheckinCompleted?.[dayKey];
-  const nightKey=typeof linaNightlyDayKey==="function"?linaNightlyDayKey():dayKey;
-  const nightComplete=!!data.nightlyCheckinCompleted?.[nightKey];
-  const showNight=typeof linaNightlyWindowOpen==="function"?linaNightlyWindowOpen():false;
   return shell(`
     <section class="hero home-dashboard-hero">
       <div class="hero-row">
@@ -278,17 +251,13 @@ function HomePage(){
       </div>
       ${editing?`<p class="home-edit-help">Use the Edit button on any tile to rename it, change its name, icon or size. Move it earlier or later from inside the editor.</p>`:""}
     </section>
-    <section class="home-checkin-pair" aria-label="Today’s check-ins">
-      <button type="button" class="home-daily-checkin ${complete?"complete":""}" data-open-daily-checkin>
-        <span class="home-checkin-icon">${complete?"✓":"☀️"}</span><span><strong>Morning check-in</strong><small>${complete?"Done":"Not done"}</small></span><b>${complete?"Done":"Open"}</b>
-      </button>
-      <button type="button" class="home-daily-checkin home-nightly-checkin ${nightComplete?"complete":""}" data-open-nightly-checkin>
-        <span class="home-checkin-icon">${nightComplete?"✓":"🌙"}</span><span><strong>Evening check-in</strong><small>${nightComplete?"Done":showNight?"Ready now":"10 PM–2 AM"}</small></span><b>${nightComplete?"Done":"Open"}</b>
-      </button>
-    </section>
+    <button type="button" class="home-daily-checkin ${complete?"complete":""}" data-open-daily-checkin>
+      <span class="home-checkin-icon">${complete?"✓":"☀️"}</span><span><strong>${complete?"Daily check-in complete":"Daily check-in"}</strong><small>${complete?"Saved for today":"Track sleep, mood, energy and more"}</small></span><b>${complete?"✓":"Complete now"}</b>
+    </button>
     <section class="home-journey"><h2>Your journey</h2><div class="grid home-layout ${editing?"editing":""}">${data.homeLayout.map(item=>homeTile(item,editing)).join("")}</div></section>
     ${editing?hiddenHomeTiles():""}
     ${homeQuickOverview()}
+    ${homeMedicationReminder()}
     <div id="tileEditorMount"></div>
   `,"home");
 }
@@ -311,38 +280,12 @@ function bindTileEditor(id){
   host.querySelector("#tileImageInput")?.addEventListener("change",async e=>{
     const file=e.target.files?.[0]; if(!file) return;
     try{
-      if(id==="treasures"){
-        data.removedMedia=data.removedMedia||{};
-        delete data.removedMedia["banner:treasures"];
-        delete data.removedMedia["tab:treasures"];
-        data.moduleBanners=data.moduleBanners||{};
-        data.moduleBanners.treasures=await LinaImage.upload({file,key:"banner:treasures",width:1200,height:240,fit:"cover",quality:0.82,allowUpscale:false});
-        delete data.homeImages?.treasures;
-        await LinaImage.remove("tab:treasures").catch(()=>{});
-      }else{
-        data.homeImages=data.homeImages||{};
-        data.homeImages[id]=await LinaImage.upload({file,key:`tab:${id}`,width:1200,height:1200,fit:"contain",quality:0.82,allowUpscale:false});
-      }
-      saveData();close();bindTileEditor(id);toast(id==="treasures"?"Treasure banner updated ✨":"Cover image added ✨");
+      data.homeImages=data.homeImages||{};
+      data.homeImages[id]=await LinaImage.upload({file,key:`tab:${id}`,width:1200,height:1200,fit:"contain",quality:0.82,allowUpscale:false});
+      saveData();close();bindTileEditor(id);toast("Cover image added ✨");
     }catch(error){toast(LinaImage.friendlyError(error))}
   });
-  host.querySelector("#tileRemoveImage")?.addEventListener("click",async()=>{
-    if(id==="treasures"){
-      await Promise.all([
-        LinaImage.remove("banner:treasures").catch(()=>{}),
-        LinaImage.remove("tab:treasures").catch(()=>{})
-      ]);
-      delete data.moduleBanners?.treasures;
-      delete data.homeImages?.treasures;
-      data.removedMedia=data.removedMedia||{};
-      data.removedMedia["banner:treasures"]=Date.now();
-      data.removedMedia["tab:treasures"]=Date.now();
-    }else{
-      await LinaImage.remove(`tab:${id}`).catch(()=>{});
-      delete data.homeImages[id];
-    }
-    saveData();close();bindTileEditor(id);toast(id==="treasures"?"Treasure banner removed":"Cover image removed");
-  });
+  host.querySelector("#tileRemoveImage")?.addEventListener("click",async()=>{await LinaImage.remove(`tab:${id}`).catch(()=>{});delete data.homeImages[id];saveData();close();bindTileEditor(id);toast("Cover image removed")});
   const moveTile=step=>{
     const i=data.homeLayout.findIndex(x=>x.id===id);const j=i+step;
     if(i<0||j<0||j>=data.homeLayout.length){toast(step<0?"This tile is already first":"This tile is already last");return;}

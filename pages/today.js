@@ -163,16 +163,7 @@ function bindToday(){
       const tank=(data.aquariums||[]).find(item=>String(item.id)===id);
       if(!tank)return;
       tank.feeds=Array.isArray(tank.feeds)?tank.feeds:[];
-      if(!tankFeedToday(tank)){
-        const now=new Date(),pad=n=>String(n).padStart(2,'0');
-        tank.feeds.push({
-          id:`feed-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,
-          food:"Fed from Today",
-          date:today(),
-          time:`${pad(now.getHours())}:${pad(now.getMinutes())}`,
-          createdAt:now.toISOString()
-        });
-      }
+      if(!tankFeedToday(tank)) tank.feeds.push({id:`feed-${Date.now()}-${Math.random().toString(36).slice(2,7)}`,food:"Fed from Today",createdAt:new Date().toISOString()});
       message=`${tank.name} fed 🐠`;
     }else return;
 

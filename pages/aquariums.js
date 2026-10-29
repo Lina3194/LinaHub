@@ -21,7 +21,7 @@ function aquariumTimestampForDate(dateValue){
 }
 function tankFeedToday(tank){
   return [...(tank.feeds||[])]
-    .filter(feed=>(feed?.date?String(feed.date).slice(0,10):aquariumLocalDate(feed.createdAt))===today())
+    .filter(feed=>aquariumLocalDate(feed.createdAt)===today())
     .sort((a,b)=>(b.createdAt||"").localeCompare(a.createdAt||""))[0]||null;
 }
 
@@ -50,16 +50,13 @@ function lina17MaintenanceDue(lastDate,cycleDays){
   return lina17RelativeCareDate(due.toISOString().slice(0,10));
 }
 function lina17FeedDate(feed){
-  if(feed?.date&&/^\d{4}-\d{2}-\d{2}/.test(String(feed.date)))return String(feed.date).slice(0,10);
-  if(feed?.createdAt){const recovered=aquariumLocalDate(feed.createdAt);if(recovered)return recovered}
-  if(typeof aquariumFeedTimestampFromId==="function"){const stamp=aquariumFeedTimestampFromId(feed?.id);if(stamp)return aquariumLocalDate(stamp)}
+  if(feed?.date)return String(feed.date).slice(0,10);
+  if(feed?.createdAt){const d=new Date(feed.createdAt);if(!Number.isNaN(d.getTime()))return d.toISOString().slice(0,10)}
   return "";
 }
 function lina17FeedTime(feed){
-  if(feed?.time&&/^\d{2}:\d{2}/.test(String(feed.time)))return String(feed.time).slice(0,5);
-  let stamp=feed?.createdAt||"";
-  if(!stamp&&typeof aquariumFeedTimestampFromId==="function")stamp=aquariumFeedTimestampFromId(feed?.id);
-  if(stamp){const d=new Date(stamp);if(!Number.isNaN(d.getTime()))return d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
+  if(feed?.time)return String(feed.time).slice(0,5);
+  if(feed?.createdAt){const d=new Date(feed.createdAt);if(!Number.isNaN(d.getTime()))return d.toLocaleTimeString("en-GB",{hour:"2-digit",minute:"2-digit"})}
   return "";
 }
 function lina17FeedTimestamp(date,time){
@@ -78,7 +75,7 @@ function lina17LatestFeed(tank){
 }
 function AquariumsPage(){return shell(`${head("Aquariums","Feeding and maintenance at a glance")}
   <div class="aquarium-grid">${(data.aquariums||[]).map(tank=>{const m=lina17Maintenance(tank),tileKey=tank.id==="girls-tank"?"girlsTank":tank.id==="boys-tank"?"boysTank":"",photo=tank.photo||(tileKey?data.homeImages?.[tileKey]:"");return `<section class="card aquarium-dashboard-card status-good"><button class="tank-dashboard-open" data-route="tank" data-route-id="${esc(tank.id)}"><span class="tank-dashboard-image">${photo?`<img src="${photo}" alt="${esc(tank.name)}">`:`<span>${tank.emoji||"🐠"}</span>`}</span><span class="tank-dashboard-main"><strong>${esc(tank.name)}</strong><span class="tank-dashboard-rows"><small><b>🌡️ Temp</b><em>${esc(tank.temperature||"Not set")}${tank.temperature&&!String(tank.temperature).includes("°")?"°C":""}</em></small><small><b>🐟 Last feed</b><em>${esc(lina17LatestFeed(tank))}</em></small><small><b>💧 Water</b><em>${esc(lina17MaintenanceDue(m.waterChange,7))}</em></small><small><b>🧽 Sponge</b><em>${esc(m.spongeChange?lina17RelativeCareDate(m.spongeChange,{pastLabel:"ago"}):"Not logged")}</em></small><small><b>⚙️ Filter</b><em>${esc(m.filterChange?lina17RelativeCareDate(m.filterChange,{pastLabel:"ago"}):"Not logged")}</em></small></span></span><b class="tank-card-arrow">›</b></button></section>`}).join("")}</div>`,"pets")}
-function AquariumTankPage(){const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return AquariumsPage();if(typeof normalizeLegacyAquariumFeeds==="function")normalizeLegacyAquariumFeeds(tank);const m=lina17Maintenance(tank);const feeds=lina17SortedFeeds(tank);const now=new Date(),defaultTime=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;const jobs=[["waterChange","Water Change","💧"],["clean","Tank Clean","🫧"],["spongeChange","Sponge Clean","🧽"],["filterChange","Filter Change","⚙️"]];return shell(`${head(tank.name,"Aquarium care",true)}
+function AquariumTankPage(){const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return AquariumsPage();const m=lina17Maintenance(tank);const feeds=lina17SortedFeeds(tank);const now=new Date(),defaultTime=`${String(now.getHours()).padStart(2,"0")}:${String(now.getMinutes()).padStart(2,"0")}`;const jobs=[["waterChange","Water Change","💧"],["clean","Tank Clean","🫧"],["spongeChange","Sponge Clean","🧽"],["filterChange","Filter Change","⚙️"]];return shell(`${head(tank.name,"Aquarium care",true)}
   <section class="card aquarium-temperature-card"><div class="aquarium-temperature-copy"><span class="section-kicker">🌡️ Temperature</span><h2>${tank.temperature!==""?`${esc(tank.temperature)}°C`:"Not recorded"}</h2><small>${tank.temperatureUpdated?`Updated ${new Date(tank.temperatureUpdated).toLocaleString("en-GB",{dateStyle:"medium",timeStyle:"short"})}`:"Add the current tank temperature"}</small></div><div class="aquarium-temperature-controls"><label><span>°C</span><input class="field" id="tankTemperature" type="number" inputmode="decimal" step="0.1" min="0" max="50" value="${esc(tank.temperature)}" placeholder="25.0"></label><button class="primary" id="saveTankTemperature">Save</button></div></section>
   <section class="card aquarium-feeds"><div class="aquarium-feed-quick"><div><span class="section-kicker">🍽️ Feeding</span><h2>Log feeding</h2><small>${lina17LatestFeed(tank)==="Not logged"?"Not fed yet":`Last: ${esc(lina17LatestFeed(tank))}`}</small></div><button type="button" class="aquarium-quick-action" id="quickFeedTank" aria-label="Mark tank as fed now"><span>🍽️</span><strong>Fed now</strong></button></div><details class="aquarium-feed-history"><summary><span>Feeding history</span><b>${feeds.length} ⌄</b></summary><div class="feed-list">${feeds.length?feeds.map(({feed,index,date,time})=>`<div class="compact-feed-row"><span><strong>${esc(feed.food||feed.name||"Fed")}</strong><small>${date?formatDate(date):"Date not recorded"}${time?` · ${esc(time)}`:""}</small></span><button class="mini danger" data-delete-feed="${index}">×</button></div>`).join(""):"<p class='muted-copy'>No feeding entries yet.</p>"}<div class="feed-add-grid"><label><span>Date</span><input class="field" id="feedDate" type="date" value="${today()}" max="${today()}"></label><label><span>Time</span><input class="field" id="feedTime" type="time" value="${defaultTime}"></label><label class="feed-note-field"><span>Food / note</span><input class="field" id="feedName" placeholder="Food or feeding note"></label><button class="secondary" id="addFeed">Log dated feed</button></div></div></details></section>
   <section class="card aquarium-maintenance-card"><div class="section-title-row"><div><span class="section-kicker">Maintenance</span><h2>Tap a task when it is done</h2></div></div><div class="maintenance-rows">${jobs.map(([key,label,icon])=>`<article class="maintenance-row"><button type="button" class="maintenance-quick-button" data-quick-maintenance="${key}" aria-label="Mark ${label} done today"><span class="maintenance-icon">${icon}</span><span><strong>${label}</strong><small>${m[key]?`Last: ${formatDate(m[key])}`:"Not logged yet"}</small></span><b>✓</b></button><div class="maintenance-date-controls"><input class="field" type="date" data-maintenance-date="${key}" value="${m[key]||today()}"><button class="secondary" data-save-maintenance="${key}">Log date</button></div></article>`).join("")}</div></section>
@@ -101,7 +98,7 @@ function aquariumFeedCalendar(tank){
   return `<div class="aquarium-calendar-head"><button class="mini" data-aquarium-month="-1">‹</button><strong>${first.toLocaleDateString("en-GB",{month:"long",year:"numeric"})}</strong><button class="mini" data-aquarium-month="1">›</button></div><div class="aquarium-cal-weekdays">${["M","T","W","T","F","S","S"].map(x=>`<span>${x}</span>`).join("")}</div><div class="aquarium-cal-grid">${cells.join("")}</div>`;
 }
 function AquariumTankPage(){
-  const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return AquariumsPage();if(typeof normalizeLegacyAquariumFeeds==="function")normalizeLegacyAquariumFeeds(tank);const m=aquariumEnsureExtended(tank),feeds=lina17SortedFeeds(tank),jobs=[["waterChange","Water Change","💧"],["clean","Tank Clean","🫧"],["spongeChange","Sponge Clean","🧽"],["filterChange","Filter Change","⚙️"]];
+  const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return AquariumsPage();const m=aquariumEnsureExtended(tank),feeds=lina17SortedFeeds(tank),jobs=[["waterChange","Water Change","💧"],["clean","Tank Clean","🫧"],["spongeChange","Sponge Clean","🧽"],["filterChange","Filter Change","⚙️"]];
   return shell(`${head(tank.name,"Aquarium care",true)}
   <section class="card aquarium-temperature-card"><div><span class="section-kicker">🌡️ Temperature</span><h2>${tank.temperature!==""?`${esc(tank.temperature)}°C`:"Not recorded"}</h2></div><div class="aquarium-temperature-controls"><input class="field" id="tankTemperature" type="number" step="0.1" value="${esc(tank.temperature)}"><button class="primary" id="saveTankTemperature">Save</button></div></section>
   <section class="card aquarium-feeds"><div class="aquarium-feed-quick"><div><span class="section-kicker">Feeding</span><h2>${esc(lina17LatestFeed(tank))}</h2></div><button type="button" class="aquarium-quick-action" id="quickFeedTank"><span>🍽️</span><strong>Fed now</strong></button></div><div class="aquarium-feed-calendar">${aquariumFeedCalendar(tank)}</div><details><summary>Feeding history (${feeds.length})</summary><div class="feed-list">${feeds.map(({feed,index,date,time})=>`<div class="compact-feed-row"><span><strong>${esc(feed.food||"Fed")}</strong><small>${formatDate(date)}${time?` · ${esc(time)}`:""}</small></span><button class="mini" data-edit-feed="${index}">Edit</button><button class="mini danger" data-delete-feed="${index}">Undo</button></div>`).join("")||'<p>No feeding history yet.</p>'}</div></details></section>
@@ -112,20 +109,7 @@ function bindAquariums(){
   const tank=(data.aquariums||[]).find(x=>x.id===routeId)||(data.aquariums||[])[0];if(!tank)return;const m=aquariumEnsureExtended(tank);
   document.querySelector("#quickFeedTank")?.addEventListener("click",()=>{const now=new Date();tank.feeds=tank.feeds||[];tank.feeds.push({id:`feed-${Date.now()}`,food:"Fed",date:today(),time:now.toTimeString().slice(0,5),createdAt:now.toISOString()});saveData();toast("Feeding logged 🍽️");render()});
   document.querySelectorAll("[data-aquarium-month]").forEach(b=>b.onclick=()=>{data.aquariumCalendarMonth[tank.id]=plantMonthShift(data.aquariumCalendarMonth[tank.id]||today().slice(0,7),b.dataset.aquariumMonth);saveData();render()});
-  document.querySelectorAll("[data-aquarium-feed-date]").forEach(b=>b.onclick=()=>{
-    const d=b.dataset.aquariumFeedDate;
-    const matches=(tank.feeds||[]).map((feed,index)=>({feed,index,date:lina17FeedDate(feed),stamp:new Date(feed.createdAt||`${lina17FeedDate(feed)}T${lina17FeedTime(feed)||"12:00"}:00`).getTime()||0})).filter(x=>x.date===d).sort((a,b)=>b.stamp-a.stamp);
-    if(matches.length){
-      if(!confirm(`Undo the most recent feeding logged on ${formatDate(d)}?${matches.length>1?`\nThere are ${matches.length} feedings on this date; the others will stay.`:""}`))return;
-      tank.feeds.splice(matches[0].index,1);
-      saveData();toast("Feeding undone");render();return;
-    }
-    if(confirm(`Log feeding on ${formatDate(d)}?`)){
-      tank.feeds=tank.feeds||[];
-      tank.feeds.push({id:`feed-${Date.now()}`,food:"Fed",date:d,time:"",createdAt:`${d}T12:00:00`});
-      saveData();toast("Feeding logged 🍽️");render();
-    }
-  });
+  document.querySelectorAll("[data-aquarium-feed-date]").forEach(b=>b.onclick=()=>{const d=b.dataset.aquariumFeedDate;if(confirm(`Log feeding on ${formatDate(d)}?`)){tank.feeds.push({id:`feed-${Date.now()}`,food:"Fed",date:d,time:"",createdAt:`${d}T12:00:00`});saveData();render()}});
   document.querySelectorAll("[data-quick-maintenance]").forEach(b=>b.onclick=()=>{const key=b.dataset.quickMaintenance,d=today();m[key]=d;if(!m.history[key].includes(d))m.history[key].push(d);m.history[key].sort();saveData();toast("Marked done ✓");render()});
   document.querySelectorAll("[data-save-maintenance]").forEach(b=>b.onclick=()=>{const key=b.dataset.saveMaintenance,d=document.querySelector(`[data-maintenance-date="${key}"]`)?.value||today();m[key]=d;if(!m.history[key].includes(d))m.history[key].push(d);m.history[key].sort();saveData();render()});
   document.querySelectorAll("[data-maintenance-interval]").forEach(input=>input.onchange=()=>{m.intervals[input.dataset.maintenanceInterval]=Math.max(1,Number(input.value)||1);saveData();render()});

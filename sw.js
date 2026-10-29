@@ -1,54 +1,52 @@
-const BUILD_VERSION = "linahub-v17.9.110";
+const BUILD_VERSION = "linahub-v17.9.9";
 const CACHE = BUILD_VERSION;
 const ASSETS = [
   "./",
   "./index.html",
-  "./manifest.webmanifest?v=1871",
-  "./icons/favicon.png?v=1871",
-  "./icons/apple-touch-icon.png?v=1871",
-  "./icons/icon-192.png?v=1871",
-  "./icons/icon-512.png?v=1871",
-  "./icons/pokemon.svg?v=1871",
-  "./styles/base.css?v=1871",
-  "./styles/home.css?v=1871",
-  "./styles/journal.css?v=1871",
-  "./styles/plants.css?v=1871",
-  "./styles/modules.css?v=1871",
-  "./styles/period.css?v=1871",
-  "./styles/treasures.css?v=1871",
-  "./styles/phone-final-fixes.css?v=1871",
-  "./styles/phone-ui-1714.css?v=1871",
-  "./styles/phone-ui-1715.css?v=1871",
-  "./styles/medication-phone-1730.css?v=1871",
-  "./styles/exact-fixes-1732.css?v=1871",
-  "./styles/medication-1733.css?v=1871",
-  "./core/pokemon-seed.js?v=1871",
-  "./core/media.js?v=1871",
-  "./core/data.js?v=1871",
-  "./core/router.js?v=1871",
-  "./core/cloud.js?v=1871",
-  "./pages/home.js?v=1871",
-  "./pages/today.js?v=1871",
-  "./pages/todo.js?v=1871",
-  "./pages/shopping.js?v=1871",
-  "./pages/hobbies.js?v=1871",
-  "./pages/books.js?v=1871",
-  "./pages/journal.js?v=1871",
-  "./pages/plants.js?v=1871",
-  "./pages/pokemon.js?v=1871",
-  "./pages/house.js?v=1871",
-  "./pages/medication.js?v=1871",
-  "./pages/health.js?v=1871",
-  "./pages/glucose.js?v=1871",
-  "./pages/lifetools.js?v=1871",
-  "./pages/simple.js?v=1871",
-  "./pages/aquariums.js?v=1871",
-  "./pages/period.js?v=1871",
-  "./pages/treasures.js?v=1871",
-  "./pages/budget.js?v=1871",
-  "./pages/history.js?v=1871",
-  "./app.js?v=1871",
-  "./ui-1714.js?v=1871"
+  "./manifest.webmanifest?v=1793",
+  "./icons/favicon.png?v=1793",
+  "./icons/apple-touch-icon.png?v=1793",
+  "./icons/icon-192.png?v=1793",
+  "./icons/icon-512.png?v=1793",
+  "./icons/pokemon.svg?v=1793",
+  "./styles/base.css?v=1793",
+  "./styles/home.css?v=1793",
+  "./styles/journal.css?v=1793",
+  "./styles/plants.css?v=1793",
+  "./styles/modules.css?v=1793",
+  "./styles/period.css?v=1793",
+  "./styles/treasures.css?v=1793",
+  "./styles/phone-final-fixes.css?v=1793",
+  "./styles/phone-ui-1714.css?v=1793",
+  "./styles/phone-ui-1715.css?v=1793",
+  "./styles/medication-phone-1730.css?v=1793",
+  "./styles/exact-fixes-1732.css?v=1793",
+  "./styles/medication-1733.css?v=1793",
+  "./core/pokemon-seed.js?v=1793",
+  "./core/media.js?v=1793",
+  "./core/data.js?v=1793",
+  "./core/router.js?v=1793",
+  "./core/cloud.js?v=1793",
+  "./pages/home.js?v=1793",
+  "./pages/today.js?v=1793",
+  "./pages/todo.js?v=1793",
+  "./pages/shopping.js?v=1793",
+  "./pages/hobbies.js?v=1793",
+  "./pages/books.js?v=1793",
+  "./pages/journal.js?v=1793",
+  "./pages/plants.js?v=1793",
+  "./pages/pokemon.js?v=1793",
+  "./pages/house.js?v=1793",
+  "./pages/medication.js?v=1793",
+  "./pages/health.js?v=1793",
+  "./pages/simple.js?v=1793",
+  "./pages/aquariums.js?v=1793",
+  "./pages/period.js?v=1793",
+  "./pages/treasures.js?v=1793",
+  "./pages/budget.js?v=1793",
+  "./pages/history.js?v=1793",
+  "./app.js?v=1793",
+  "./ui-1714.js?v=1793"
 ];
 
 self.addEventListener("install",event=>{
@@ -74,12 +72,6 @@ self.addEventListener("fetch",event=>{
     return;
   }
   event.respondWith(caches.match(event.request).then(response=>response||fetch(event.request)));
-});
-
-self.addEventListener("push",event=>{
-  let payload={title:"LinaHub ✨",body:"You have a reminder.",route:"home"};
-  try{const incoming=event.data?.json?.();if(incoming)payload={...payload,...incoming}}catch{try{payload.body=event.data?.text?.()||payload.body}catch{}}
-  event.waitUntil(self.registration.showNotification(payload.title,{body:payload.body,icon:"./icons/icon-192.png",badge:"./icons/icon-192.png",tag:payload.tag||"linahub-push",data:{route:payload.route||"home"}}));
 });
 self.addEventListener("notificationclick",event=>{
   event.notification.close();

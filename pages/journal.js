@@ -6,49 +6,36 @@ const SCALE_OPTIONS={
 };
 const JOURNAL_ORDER=["energy","mood","pain","spoons","water","selfcare","supports"];
 const TRACKER_META={
-  sleep:{label:"Sleep",icon:"☾",question:"How was your Sleep?",prompt:"Tap a day to log your Sleep for that date.",empty:"No sleep logged yet.",options:[
-    {label:"Very poor",blurb:"Restless or very little sleep",fill:"#7b4dff",glow:"rgba(123,77,255,.42)",accent:"#e1d1ff",level:"26%"},
-    {label:"Poor",blurb:"Light sleep or frequent wake ups",fill:"#b084ff",glow:"rgba(176,132,255,.38)",accent:"#f0e8ff",level:"38%"},
-    {label:"Okay",blurb:"Some rest, but could be better",fill:"#7ecbff",glow:"rgba(126,203,255,.34)",accent:"#eef8ff",level:"48%"},
-    {label:"Good",blurb:"Solid sleep, felt rested",fill:"#ffd166",glow:"rgba(255,209,102,.34)",accent:"#fff5d8",level:"58%"},
-    {label:"Great",blurb:"Amazing sleep, refreshed",fill:"#ff8fc7",glow:"rgba(255,143,199,.34)",accent:"#ffe6f2",level:"68%"}
+  sleep:{label:"Sleep",icon:"☾",question:"How was your Sleep?",prompt:"Tap a bottle to log your Sleep for that day.",empty:"No sleep mood logged yet.",options:[
+    {label:"Very poor",blurb:"Restless or very little sleep",fill:"#6d46a8",glow:"rgba(182,130,255,.42)",accent:"#d6bcff",level:"26%"},
+    {label:"Poor",blurb:"Light sleep or frequent wake ups",fill:"#8b73d6",glow:"rgba(179,160,255,.36)",accent:"#e6dbff",level:"38%"},
+    {label:"Okay",blurb:"Some rest, but could be better",fill:"#8eb4f4",glow:"rgba(143,190,255,.33)",accent:"#eef6ff",level:"48%"},
+    {label:"Good",blurb:"Solid sleep, felt rested",fill:"#f3c77a",glow:"rgba(255,211,140,.34)",accent:"#fff2d2",level:"58%"},
+    {label:"Great",blurb:"Amazing sleep, refreshed",fill:"#f1b4cb",glow:"rgba(255,186,214,.34)",accent:"#fff2b8",level:"68%"}
   ]},
-  deep:{label:"Deep sleep",icon:"💤",question:"Deep sleep is calculated from your sleep log.",prompt:"Tap a day to view your Deep sleep for that date.",empty:"No deep sleep recorded yet.",options:[
-    {label:"Very low",blurb:"Under 30 minutes",fill:"#7b4dff",glow:"rgba(123,77,255,.42)",accent:"#e1d1ff",level:"26%"},
-    {label:"Low",blurb:"30 to 59 minutes",fill:"#9b7dff",glow:"rgba(155,125,255,.38)",accent:"#ece3ff",level:"38%"},
-    {label:"Okay",blurb:"1 to 1.5 hours",fill:"#7ecbff",glow:"rgba(126,203,255,.34)",accent:"#eef8ff",level:"48%"},
-    {label:"Good",blurb:"1.5 to 2 hours",fill:"#9ce27d",glow:"rgba(156,226,125,.34)",accent:"#eff9e8",level:"58%"},
-    {label:"Excellent",blurb:"Over 2 hours",fill:"#ffd166",glow:"rgba(255,209,102,.34)",accent:"#fff5d8",level:"68%"}
+  pain:{label:"Pain",icon:"✦",question:"How was your Pain?",prompt:"Tap a bottle to log your Pain for that day.",empty:"No pain level logged yet.",options:[
+    {label:"Very severe",blurb:"Flare day or hard to function",fill:"#5d3a92",glow:"rgba(154,112,232,.4)",accent:"#d6beff",level:"72%"},
+    {label:"Severe",blurb:"A rough day",fill:"#8663c7",glow:"rgba(175,148,245,.34)",accent:"#eadfff",level:"62%"},
+    {label:"Moderate",blurb:"Manageable but noticeable",fill:"#9cb3ef",glow:"rgba(154,190,245,.3)",accent:"#eef5ff",level:"52%"},
+    {label:"Mild",blurb:"Mostly okay with some aches",fill:"#efc2d2",glow:"rgba(255,197,221,.3)",accent:"#fff1dc",level:"46%"},
+    {label:"No pain",blurb:"A lighter easier day",fill:"#f0cf86",glow:"rgba(255,222,147,.3)",accent:"#fff6c8",level:"42%"}
   ]},
-  pain:{label:"Pain",icon:"✦",question:"How was your Pain?",prompt:"Tap a day to log your Pain for that date.",empty:"No pain level logged yet.",options:[
-    {label:"Very severe",blurb:"Flare day or hard to function",fill:"#7b4dff",glow:"rgba(123,77,255,.42)",accent:"#e1d1ff",level:"72%"},
-    {label:"Severe",blurb:"A rough day",fill:"#b084ff",glow:"rgba(176,132,255,.38)",accent:"#f0e8ff",level:"62%"},
-    {label:"Moderate",blurb:"Manageable but noticeable",fill:"#7ecbff",glow:"rgba(126,203,255,.34)",accent:"#eef8ff",level:"52%"},
-    {label:"Mild",blurb:"Mostly okay with some aches",fill:"#ffd166",glow:"rgba(255,209,102,.34)",accent:"#fff5d8",level:"46%"},
-    {label:"No pain",blurb:"A lighter easier day",fill:"#ff8fc7",glow:"rgba(255,143,199,.34)",accent:"#ffe6f2",level:"42%"}
+  mood:{label:"Mood",icon:"❀",question:"How was your Mood?",prompt:"Tap a bottle to log your Mood for that day.",empty:"No mood logged yet.",options:[
+    {label:"Stressed",blurb:"Everything felt heavy",fill:"#6c478f",glow:"rgba(177,131,240,.38)",accent:"#dbc7ff",level:"68%"},
+    {label:"Anxious",blurb:"Uneasy or unsettled",fill:"#9183cc",glow:"rgba(191,182,251,.3)",accent:"#f0eaff",level:"58%"},
+    {label:"Okay",blurb:"Steady enough",fill:"#9db7df",glow:"rgba(175,209,255,.28)",accent:"#eef7ff",level:"50%"},
+    {label:"Calm",blurb:"Gentle and settled",fill:"#bad5ad",glow:"rgba(191,236,177,.28)",accent:"#f3ffe9",level:"48%"},
+    {label:"Happy",blurb:"Bright and light",fill:"#f1c1b7",glow:"rgba(255,204,183,.28)",accent:"#fff1bd",level:"56%"}
   ]},
-  mood:{label:"Mood",icon:"❀",question:"How was your Mood?",prompt:"Tap a day to log your Mood for that date.",empty:"No mood logged yet.",options:[
-    {label:"Stressed",blurb:"Everything felt heavy",fill:"#7b4dff",glow:"rgba(123,77,255,.42)",accent:"#e1d1ff",level:"68%"},
-    {label:"Anxious",blurb:"Uneasy or unsettled",fill:"#b084ff",glow:"rgba(176,132,255,.38)",accent:"#f0e8ff",level:"58%"},
-    {label:"Okay",blurb:"Steady enough",fill:"#7ecbff",glow:"rgba(126,203,255,.34)",accent:"#eef8ff",level:"50%"},
-    {label:"Calm",blurb:"Gentle and settled",fill:"#9ce27d",glow:"rgba(156,226,125,.34)",accent:"#eff9e8",level:"48%"},
-    {label:"Happy",blurb:"Bright and light",fill:"#ff8fc7",glow:"rgba(255,143,199,.34)",accent:"#ffe6f2",level:"56%"}
-  ]},
-  energy:{label:"Energy",icon:"✧",question:"How was your Energy?",prompt:"Tap a day to log your Energy for that date.",empty:"No energy level logged yet.",options:[
-    {label:"Very low",blurb:"Running on fumes",fill:"#7b4dff",glow:"rgba(123,77,255,.42)",accent:"#e1d1ff",level:"32%"},
-    {label:"Low",blurb:"A bit worn out",fill:"#b084ff",glow:"rgba(176,132,255,.38)",accent:"#f0e8ff",level:"40%"},
-    {label:"Okay",blurb:"Enough to get by",fill:"#7ecbff",glow:"rgba(126,203,255,.34)",accent:"#eef8ff",level:"48%"},
-    {label:"Good",blurb:"A productive day",fill:"#ffd166",glow:"rgba(255,209,102,.34)",accent:"#fff5d8",level:"58%"},
-    {label:"Amazing",blurb:"Plenty in the tank",fill:"#ff8fc7",glow:"rgba(255,143,199,.34)",accent:"#ffe6f2",level:"66%"}
+  energy:{label:"Energy",icon:"✧",question:"How was your Energy?",prompt:"Tap a bottle to log your Energy for that day.",empty:"No energy level logged yet.",options:[
+    {label:"Very low",blurb:"Running on fumes",fill:"#5f4190",glow:"rgba(156,120,235,.38)",accent:"#d8c3ff",level:"32%"},
+    {label:"Low",blurb:"A bit worn out",fill:"#7f6dc0",glow:"rgba(181,164,245,.32)",accent:"#eae3ff",level:"40%"},
+    {label:"Okay",blurb:"Enough to get by",fill:"#8fb6ec",glow:"rgba(156,204,255,.28)",accent:"#eef8ff",level:"48%"},
+    {label:"Good",blurb:"A productive day",fill:"#efc98c",glow:"rgba(255,213,146,.28)",accent:"#fff4cd",level:"58%"},
+    {label:"Amazing",blurb:"Plenty in the tank",fill:"#f2b8c8",glow:"rgba(255,192,218,.28)",accent:"#fff2ba",level:"66%"}
   ]}
 };
-const TRACKER_ART={
-  sleep:{title:"Sleep Tracker",accent:"☾"},
-  deep:{title:"Deep Sleep Tracker",accent:"💤"},
-  mood:{title:"Mood Tracker",accent:"♡"},
-  pain:{title:"Pain Tracker",accent:"✦"},
-  energy:{title:"Energy Tracker",accent:"✧"}
-};
+
 
 function journalDate(){return data.journalSelectedDate||today()}
 function dateLabel(value){return new Date(value+"T12:00:00").toLocaleDateString("en-GB",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}
@@ -144,12 +131,8 @@ function journalStoredMinutes(sleep,morning,type){
 }
 function journalSleepMetricValue(row,metric){
   const sleep=row.sleep||{},morning=row.morning||{},checkin=row.checkin||{};
-  if(metric==="sleep"){
-    const quality=sleep.quality??morning.sleepQuality??checkin.sleep;
-    return quality===null||quality===undefined||quality===""?null:Number(quality);
-  }
-  if(metric==="deep"){
-    const minutes=journalStoredMinutes(sleep,morning,"deep");
+  if(metric==="sleep"||metric==="deep"){
+    const minutes=journalStoredMinutes(sleep,morning,metric);
     return minutes>0?minutes:null;
   }
   const value=morning[metric]??checkin[metric];
@@ -165,21 +148,17 @@ function journalSleepMetricInfo(metric){
   }[metric]||{label:"Sleep",unit:"minutes",icon:"🌙",max:720};
 }
 function journalSleepMetricEmoji(metric,value){
-  if(value===null||value===undefined)return "";
-  if(metric==="deep")return journalSleepMinutesLabel(value);
-  if(!["sleep","pain","mood","energy"].includes(metric))return "";
+  if(!["sleep","pain","mood","energy"].includes(metric)||value===null||value===undefined)return "";
   const index=Math.max(0,Math.min(4,Math.round(Number(value))));
   return TRACKER_META[metric]?.options?.[index]?.label||"";
 }
 function journalSleepMetricLabel(metric,value){
   if(value===null||value===undefined)return "";
-  if(metric==="deep")return journalSleepMinutesLabel(value);
   const index=Math.max(0,Math.min(4,Math.round(Number(value))));
   return TRACKER_META[metric]?.options?.[index]?.label||"";
 }
 function journalSleepCellLabel(metric,value){
   if(value===null||value===undefined)return "";
-  if(metric==="deep")return journalSleepMinutesLabel(value);
   const index=Math.max(0,Math.min(4,Math.round(Number(value))));
   return TRACKER_META[metric]?.options?.[index]?.label||"";
 }
@@ -193,170 +172,85 @@ function trackerMetricMeta(metric){
   return TRACKER_META[metric]||TRACKER_META.sleep;
 }
 function trackerMetricButtons(active){
-  return ["sleep","deep","pain","mood","energy"].map(metric=>{
+  return ["sleep","pain","mood","energy"].map(metric=>{
     const meta=trackerMetricMeta(metric);
-    return `<button type="button" class="tracker-metric-pill ${active===metric?"active":""}" data-tracker-metric="${metric}">${meta.label}</button>`;
+    return `<button type="button" class="tracker-metric-pill ${active===metric?"active":""}" data-tracker-metric="${metric}"><span>${meta.icon}</span>${meta.label}</button>`;
   }).join("");
 }
 function trackerTone(metric,value){
   const meta=trackerMetricMeta(metric);
   if(value===null||value===undefined||value==="")return {fill:"rgba(255,255,255,.06)",glow:"rgba(0,0,0,0)",accent:"rgba(255,255,255,.28)",level:"16%",label:"Not logged",blurb:meta.empty};
-  if(metric==="deep"){
-    const minutes=Math.max(0,Number(value)||0);
-    const index=minutes>=120?4:minutes>=90?3:minutes>=60?2:minutes>=30?1:0;
-    return meta.options[index]||meta.options[0];
-  }
   return meta.options[Math.max(0,Math.min(4,Math.round(Number(value))))]||meta.options[0];
 }
 function trackerButtonStyle(metric,value){
   const tone=trackerTone(metric,value);
   return `--tracker-fill:${tone.fill};--tracker-glow:${tone.glow};--tracker-accent:${tone.accent};--tracker-level:${tone.level};`;
 }
-function trackerColourSwatch(metric,value,extraClass=""){
-  const empty=value===null||value===undefined||value==="";
-  return `<span class="tracker-colour-swatch ${empty?"is-empty":""} ${extraClass}" style="${trackerButtonStyle(metric,value)}" aria-hidden="true"></span>`;
-}
-function trackerHeartSvg(){
-  return `<svg viewBox="0 0 100 90" class="tracker-art-heart-svg" focusable="false" aria-hidden="true"><path d="M50 82C22 62 8 48 8 28C8 14 18 4 31 4C40 4 47 8 50 15C53 8 60 4 69 4C82 4 92 14 92 28C92 48 78 62 50 82Z"/></svg>`;
-}
-function trackerDayNote(row,metric,value){
-  const sleep=row?.sleep||{},morning=row?.morning||{};
-  if(metric==="sleep"){ const total=journalStoredMinutes(sleep,morning,"sleep"); return total>0?journalSleepMinutesLabel(total):"—"; }
-  if(metric==="deep"){ const total=journalStoredMinutes(sleep,morning,"deep"); return total>0?journalSleepMinutesLabel(total):"—"; }
-  if(value===null||value===undefined||value==="") return "—";
-  return trackerTone(metric,value).label;
-}
-function trackerArtBackdrop(metric){
-  if(metric==="sleep"||metric==="deep") return `<svg viewBox="0 0 560 330" class="tracker-backdrop-svg" aria-hidden="true"><defs><radialGradient id="sleepMoon" cx="38%" cy="32%"><stop offset="0" stop-color="#fff7d2" stop-opacity=".95"/><stop offset="1" stop-color="#a783ff" stop-opacity=".22"/></radialGradient><linearGradient id="sleepCloud" x1="0" x2="1"><stop stop-color="#9181d3" stop-opacity=".24"/><stop offset="1" stop-color="#e4b8ee" stop-opacity=".09"/></linearGradient></defs><circle cx="425" cy="82" r="62" fill="url(#sleepMoon)"/><circle cx="448" cy="62" r="62" fill="#221633"/><g fill="url(#sleepCloud)"><ellipse cx="116" cy="247" rx="88" ry="31"/><ellipse cx="184" cy="230" rx="79" ry="38"/><ellipse cx="263" cy="250" rx="96" ry="33"/></g><g fill="#f5d787"><circle cx="82" cy="66" r="2.7"/><circle cx="146" cy="101" r="2"/><circle cx="208" cy="55" r="2.4"/><circle cx="323" cy="78" r="1.8"/><circle cx="482" cy="171" r="2.2"/></g></svg>`;
-  if(metric==="mood") return `<svg viewBox="0 0 560 330" class="tracker-backdrop-svg" aria-hidden="true"><defs><radialGradient id="moodBloom"><stop stop-color="#ff8fbe" stop-opacity=".58"/><stop offset="1" stop-color="#d052dd" stop-opacity="0"/></radialGradient></defs><g fill="none" stroke="#cb9de3" stroke-width="2.2" stroke-opacity=".18"><path d="M84 312c35-70 54-139 48-224"/><path d="M475 312c-43-74-59-141-49-229"/><path d="M130 200c-24-24-42-33-70-37"/><path d="M430 205c28-25 47-34 76-38"/></g><g fill="url(#moodBloom)"><circle cx="109" cy="76" r="66"/><circle cx="454" cy="84" r="72"/><circle cx="66" cy="246" r="55"/><circle cx="500" cy="246" r="58"/></g><g fill="#f4b4d0" fill-opacity=".22"><ellipse cx="112" cy="72" rx="17" ry="42" transform="rotate(18 112 72)"/><ellipse cx="91" cy="92" rx="17" ry="42" transform="rotate(-44 91 92)"/><ellipse cx="454" cy="81" rx="18" ry="45" transform="rotate(31 454 81)"/><ellipse cx="477" cy="101" rx="17" ry="42" transform="rotate(-27 477 101)"/></g></svg>`;
-  if(metric==="pain") return `<svg viewBox="0 0 560 330" class="tracker-backdrop-svg" aria-hidden="true"><defs><linearGradient id="painLeaf" x1="0" x2="1"><stop stop-color="#7f6bc7" stop-opacity=".42"/><stop offset="1" stop-color="#efb5d3" stop-opacity=".12"/></linearGradient></defs><g fill="none" stroke="url(#painLeaf)" stroke-width="3" stroke-linecap="round"><path d="M41 300c80-52 124-126 135-246"/><path d="M519 300c-80-52-124-126-135-246"/></g><g fill="url(#painLeaf)"><ellipse cx="132" cy="116" rx="18" ry="43" transform="rotate(38 132 116)"/><ellipse cx="103" cy="168" rx="18" ry="42" transform="rotate(52 103 168)"/><ellipse cx="88" cy="226" rx="17" ry="39" transform="rotate(66 88 226)"/><ellipse cx="428" cy="116" rx="18" ry="43" transform="rotate(-38 428 116)"/><ellipse cx="457" cy="168" rx="18" ry="42" transform="rotate(-52 457 168)"/><ellipse cx="472" cy="226" rx="17" ry="39" transform="rotate(-66 472 226)"/></g><ellipse cx="280" cy="172" rx="164" ry="118" fill="#9d65ff" fill-opacity=".035"/></svg>`;
-  return `<svg viewBox="0 0 560 330" class="tracker-backdrop-svg" aria-hidden="true"><defs><radialGradient id="energySun"><stop stop-color="#ffd985" stop-opacity=".52"/><stop offset=".44" stop-color="#d052dd" stop-opacity=".13"/><stop offset="1" stop-color="#9d65ff" stop-opacity="0"/></radialGradient></defs><circle cx="280" cy="167" r="146" fill="url(#energySun)"/><g stroke="#f0c56f" stroke-opacity=".17" stroke-width="2"><path d="M280 9v48M280 276v45M122 166H61M499 166h-61M169 55l33 35M391 55l-33 35M169 278l33-35M391 278l-33-35"/></g><g fill="#f3cc79"><circle cx="74" cy="77" r="2.4"/><circle cx="470" cy="70" r="2"/><circle cx="507" cy="245" r="2.5"/><circle cx="88" cy="267" r="1.8"/></g></svg>`;
-}
-function trackerTokenMarkup(metric,day,value,date,row){
-  const logged=!(value===null||value===undefined||value==="");
-  const tone=trackerTone(metric,value);
-  const note=trackerDayNote(row,metric,value);
-  return `<button type="button" class="tracker-art-day ${logged?"logged":"empty"}" data-sleep-date="${date}" style="${trackerButtonStyle(metric,value)}" aria-label="${esc(dateLabel(date))}. ${esc(logged?`${trackerMetricMeta(metric).label}: ${tone.label}`:"Not logged")}">
-    <span class="tracker-art-heart" aria-hidden="true">${trackerHeartSvg()}</span>
-    <span class="tracker-art-day-number">${day}</span>
-    <span class="tracker-art-day-note">${esc(note)}</span>
-  </button>`;
-}
-function trackerDateSelectors(monthKey,rows){
-  const [selectedYear,selectedMonth]=monthKey.split("-").map(Number);
-  const months=["January","February","March","April","May","June","July","August","September","October","November","December"];
-  const currentYear=new Date().getFullYear();
-  const historyYears=rows.map(row=>Number(row.date.slice(0,4))).filter(Boolean);
-  const minYear=Math.min(currentYear-5,...historyYears);
-  const maxYear=Math.max(currentYear+5,...historyYears);
-  const yearOptions=[];
-  for(let year=minYear;year<=maxYear;year++) yearOptions.push(`<option value="${year}" ${year===selectedYear?"selected":""}>${year}</option>`);
-  return `<div class="tracker-date-selectors">
-    <label><span>Month</span><select class="field" id="journalSleepMonthSelect">${months.map((label,index)=>`<option value="${String(index+1).padStart(2,"0")}" ${index+1===selectedMonth?"selected":""}>${label}</option>`).join("")}</select></label>
-    <label><span>Year</span><select class="field" id="journalSleepYearSelect">${yearOptions.join("")}</select></label>
-    <button type="button" class="secondary tracker-today-button" data-tracker-today>Today</button>
-  </div>`;
-}
-
 function journalSleepEditModal(rows,metric){
   const date=data.journalSleepEditDate||"";
   if(!date)return "";
   const row=rows.find(item=>item.date===date)||{date,sleep:null,morning:null,checkin:null};
   const current=journalSleepMetricValue(row,metric);
   const meta=trackerMetricMeta(metric);
-  const currentTone=trackerTone(metric,current);
-  if(metric==="deep"){
-    const deepMinutes=journalStoredMinutes(row.sleep||{},row.morning||{},"deep");
-    return `<div class="sleep-edit-backdrop" id="sleepEditBackdrop">
-      <section class="sleep-edit-modal tracker-edit-modal" role="dialog" aria-modal="true" aria-labelledby="sleepEditTitle">
-        <div class="sleep-edit-head">
-          <div><span class="section-kicker">${meta.label} tracker</span><h2 id="sleepEditTitle">${esc(new Date(date+"T12:00:00").toLocaleDateString("en-GB",{month:"long",day:"numeric",year:"numeric"}))}</h2></div>
-          <button type="button" data-close-sleep-edit aria-label="Close">×</button>
-        </div>
-        <section class="tracker-modal-current" style="${trackerButtonStyle(metric,current)}">
-          ${trackerColourSwatch(metric,current,"tracker-current-swatch")}
-          <div><span class="tracker-modal-question">Deep sleep total</span><strong>${esc(deepMinutes?journalSleepMinutesLabel(deepMinutes):"Not recorded")}</strong><small>${esc(currentTone.blurb)}</small></div>
-        </section>
-        <p class="tracker-deep-help">Deep sleep is pulled from the saved sleep log for that date, so it is view-only here.</p>
-        <div class="sleep-edit-actions tracker-edit-actions"><button type="button" class="primary" data-close-sleep-edit>Close</button></div>
-      </section>
-    </div>`;
-  }
   const selected=current===null||current===undefined?"":String(current);
+  const currentTone=trackerTone(metric,current);
   return `<div class="sleep-edit-backdrop" id="sleepEditBackdrop">
     <section class="sleep-edit-modal tracker-edit-modal" role="dialog" aria-modal="true" aria-labelledby="sleepEditTitle">
       <div class="sleep-edit-head">
-        <div><span class="section-kicker">${meta.label} tracker</span><h2 id="sleepEditTitle">${esc(new Date(date+"T12:00:00").toLocaleDateString("en-GB",{month:"long",day:"numeric",year:"numeric"}))}</h2></div>
+        <div><span class="section-kicker">${meta.icon} ${meta.label} tracker</span><h2 id="sleepEditTitle">${esc(new Date(date+"T12:00:00").toLocaleDateString("en-GB",{month:"long",day:"numeric",year:"numeric"}))}</h2></div>
         <button type="button" data-close-sleep-edit aria-label="Close">×</button>
       </div>
       <section class="tracker-modal-current" style="${trackerButtonStyle(metric,current)}">
-        ${trackerColourSwatch(metric,current,"tracker-current-swatch")}
+        <div class="tracker-modal-bottle"><span class="tracker-bottle tracker-bottle-large shape-4 ${current===null||current===undefined?"is-empty":""}"><span class="tracker-liquid"></span><span class="tracker-shine"></span><span class="tracker-bubbles"></span><span class="tracker-bottle-symbol">${meta.icon}</span></span></div>
         <div><span class="tracker-modal-question">${meta.question}</span><strong>${currentTone.label}</strong><small>${currentTone.blurb}</small></div>
       </section>
       <input type="hidden" id="sleepEditMetric" value="${metric}">
       <input type="hidden" id="sleepEditTrackerValue" value="${selected}">
-      <div class="tracker-choice-grid">${meta.options.map((option,index)=>`<button type="button" class="tracker-choice ${selected===String(index)?"active":""}" data-tracker-choice="${index}" style="${trackerButtonStyle(metric,index)}">${trackerColourSwatch(metric,index,"tracker-choice-swatch")}<div><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></div></button>`).join("")}</div>
+      <div class="tracker-choice-grid">${meta.options.map((option,index)=>`<button type="button" class="tracker-choice ${selected===String(index)?"active":""}" data-tracker-choice="${index}" style="${trackerButtonStyle(metric,index)}"><span class="tracker-choice-swatch"><span class="tracker-mini-bottle shape-${index%6}"><span class="tracker-liquid"></span><span class="tracker-bottle-symbol">${meta.icon}</span></span></span><div><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></div></button>`).join("")}</div>
       <div class="sleep-edit-actions tracker-edit-actions"><button type="button" class="secondary" id="clearSleepCalendarEdit">Clear</button><button type="button" class="primary" id="saveSleepCalendarEdit">Save</button></div>
     </section>
   </div>`;
 }
 function journalSleepCalendar(rows,metric,monthKey){
   const [year,month]=monthKey.split("-").map(Number);
-  const daysInMonth=new Date(year,month,0).getDate();
-  const meta=trackerMetricMeta(metric);
-  const monthDate=new Date(`${monthKey}-01T12:00:00`);
-  const monthTitle=monthDate.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
-  const tokens=[];
+  const daysInMonth=new Date(year,month,0,12).getDate();
+  const rowByDate=new Map(rows.map(row=>[row.date,row]));
+  const buttons=[];
   for(let day=1;day<=daysInMonth;day++){
-    const date=`${monthKey}-${String(day).padStart(2,"0")}`;
-    const row=rows.find(item=>item.date===date);
+    const date=`${year}-${String(month).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    const row=rowByDate.get(date);
     const value=row?journalSleepMetricValue(row,metric):null;
-    tokens.push(trackerTokenMarkup(metric,day,value,date,row));
+    const tone=trackerTone(metric,value);
+    const todayClass=date===today()?"is-today":"";
+    buttons.push(`<button type="button" class="tracker-day ${value===null?"empty":"logged"} ${todayClass}" data-sleep-date="${date}" style="${trackerButtonStyle(metric,value)}" aria-label="${esc(dateLabel(date))}. ${esc(value===null?trackerMetricMeta(metric).empty:`${trackerMetricMeta(metric).label}: ${tone.label}`)}"><span class="tracker-bottle shape-${day%6} ${value===null?"is-empty":""}"><span class="tracker-liquid"></span><span class="tracker-shine"></span><span class="tracker-bubbles"></span><span class="tracker-bottle-symbol">${trackerMetricMeta(metric).icon}</span></span><span class="tracker-day-number">${day}</span></button>`);
   }
-  return `<section class="card journal-tracker-card tracker-enchanted-card tracker-metric-${metric}">
-    <div class="tracker-enchanted-panel">
-      ${trackerArtBackdrop(metric)}
-      <div class="tracker-calendar-bar">
-        <button type="button" class="tracker-calendar-arrow" data-sleep-month-step="-1" aria-label="Previous month">‹</button>
-        <div class="tracker-art-heading tracker-art-heading-compact">
-          <span class="section-kicker">${meta.label}</span>
-          <h2>${monthTitle}</h2>
-          <p>${meta.prompt}</p>
-        </div>
-        <button type="button" class="tracker-calendar-arrow" data-sleep-month-step="1" aria-label="Next month">›</button>
-      </div>
-      <div class="tracker-art-grid">${tokens.join("")}</div>
-      <div class="tracker-art-flourish" aria-hidden="true"><i></i><span>✦</span><b></b></div>
-    </div>
-  </section>`;
+  const rowsHtml=[];
+  for(let index=0;index<buttons.length;index+=8){
+    rowsHtml.push(`<div class="tracker-shelf-row"><span class="tracker-shelf-sparkle sparkle-a">✦</span><span class="tracker-shelf-sparkle sparkle-b">⋆</span><div class="tracker-shelf-bottles">${buttons.slice(index,index+8).join("")}</div><div class="tracker-shelf-plank"><span></span></div></div>`);
+  }
+  return `<section class="card journal-tracker-card"><div class="tracker-shelves">${rowsHtml.join("")}</div></section>`;
 }
 function journalTrackerLegend(metric){
   const meta=trackerMetricMeta(metric);
-  return `<section class="card tracker-key-card tracker-enchanted-key"><div class="section-title"><div><span class="section-kicker">${meta.label} key</span><h2>${meta.label} levels</h2></div></div><div class="tracker-enchanted-key-list">${meta.options.map((option,index)=>`<div class="tracker-enchanted-key-item" style="${trackerButtonStyle(metric,index)}"><span class="tracker-key-heart" aria-hidden="true">${trackerHeartSvg()}</span><span><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></span></div>`).join("")}</div></section>`;
+  return `<section class="card tracker-key-card"><div class="section-title"><div><span class="section-kicker">${meta.icon} ${meta.label} key</span><h2>${meta.label} colours</h2></div></div><div class="tracker-key-grid">${meta.options.map((option,index)=>`<div class="tracker-key-item" style="${trackerButtonStyle(metric,index)}"><span class="tracker-mini-bottle shape-${index%6}"><span class="tracker-liquid"></span><span class="tracker-bottle-symbol">${meta.icon}</span></span><div><strong>${esc(option.label)}</strong><small>${esc(option.blurb)}</small></div></div>`).join("")}</div></section>`;
 }
 function JournalSleepPage(){
   const rows=journalSleepHistory();
-  const metric=["sleep","deep","pain","mood","energy"].includes(data.journalSleepMetric)?data.journalSleepMetric:"sleep";
+  const metric=["sleep","pain","mood","energy"].includes(data.journalSleepMetric)?data.journalSleepMetric:"sleep";
   if(data.journalSleepMetric!==metric){data.journalSleepMetric=metric;saveData();}
+  const meta=trackerMetricMeta(metric);
   const monthKey=journalSleepMonthKey();
   const monthDate=new Date(`${monthKey}-01T12:00:00`);
   const monthTitle=monthDate.toLocaleDateString("en-GB",{month:"long",year:"numeric"});
-  return shell(`<div class="tracker-page-compact tracker-page-clean">${head("Journal","Monthly wellness tracker")}${journalTabs("sleep")}
-    <section class="card sleep-calendar-controls tracker-hero-card tracker-hero-simple">
-      <div><span class="section-kicker">Monthly wellness tracker</span><h2>${monthTitle}</h2><p class="tracker-helper">Today: ${esc(new Date(today()+"T12:00:00").toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"}))}</p></div>
-      <label class="tracker-picker-inline"><span>Tracker</span><select class="field" id="journalSleepMetric"><option value="sleep" ${metric==="sleep"?"selected":""}>Sleep</option><option value="deep" ${metric==="deep"?"selected":""}>Deep sleep</option><option value="pain" ${metric==="pain"?"selected":""}>Pain</option><option value="mood" ${metric==="mood"?"selected":""}>Mood</option><option value="energy" ${metric==="energy"?"selected":""}>Energy</option></select></label>
-    </section>
+  const latestMonth=(rows[0]?.date||today()).slice(0,7);
+  const nextDisabled=monthKey>=latestMonth;
+  return shell(`${head("Journal","Monthly wellness tracker")}${journalTabs("sleep")}
+    <section class="card sleep-calendar-controls tracker-hero-card"><div><span class="section-kicker">✨ Monthly wellness tracker</span><h2>${monthTitle}</h2><p class="tracker-helper">${meta.prompt}</p></div><label><span>Tracker</span><select class="field" id="journalSleepMetric"><option value="sleep" ${metric==="sleep"?"selected":""}>Sleep</option><option value="pain" ${metric==="pain"?"selected":""}>Pain</option><option value="mood" ${metric==="mood"?"selected":""}>Mood</option><option value="energy" ${metric==="energy"?"selected":""}>Energy</option></select></label><div class="sleep-month-arrows"><button type="button" data-sleep-month-step="-1" aria-label="Previous month">‹</button><button type="button" data-sleep-month-step="1" aria-label="Next month" ${nextDisabled?"disabled":""}>›</button></div><div class="tracker-metric-tabs">${trackerMetricButtons(metric)}</div></section>
     ${journalSleepCalendar(rows,metric,monthKey)}
+    <p class="sleep-calendar-help">Tap any bottle to log or edit ${meta.label.toLowerCase()} for that day.</p>
     ${journalTrackerLegend(metric)}
-    ${journalSleepEditModal(rows,metric)}</div>` ,"journal");
+    ${journalSleepEditModal(rows,metric)}` ,"journal");
 }
-
-let journalCheckinHistoryMode=window.journalCheckinHistoryMode||"week";
-let journalCheckinHistoryAnchor=window.journalCheckinHistoryAnchor?new Date(window.journalCheckinHistoryAnchor):new Date();
-function journalCheckinDateKey(date){const d=new Date(date);d.setHours(12,0,0,0);return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}`}
-function journalCheckinPrettyDate(date,options={day:"numeric",month:"short"}){return new Date(date).toLocaleDateString("en-GB",options)}
-function journalCheckinRange(){const anchor=new Date(journalCheckinHistoryAnchor);anchor.setHours(12,0,0,0);let start,end;if(journalCheckinHistoryMode==="month"){start=new Date(anchor.getFullYear(),anchor.getMonth(),1,12);end=new Date(anchor.getFullYear(),anchor.getMonth()+1,0,12)}else{const mondayOffset=(anchor.getDay()+6)%7;start=new Date(anchor);start.setDate(anchor.getDate()-mondayOffset);end=new Date(start);end.setDate(start.getDate()+6)}return {start,end}}
-function journalCheckinHistory(){const {start,end}=journalCheckinRange();const days=[];for(let d=new Date(start);d<=end;d.setDate(d.getDate()+1))days.push(new Date(d));const todayKey=journalCheckinDateKey(new Date());const rangeLabel=journalCheckinHistoryMode==="month"?`${journalCheckinPrettyDate(start,{month:"long",year:"numeric"})} · ${journalCheckinPrettyDate(start,{day:"numeric",month:"short"})} – ${journalCheckinPrettyDate(end,{day:"numeric",month:"short",year:"numeric"})}`:`${journalCheckinPrettyDate(start,{day:"numeric",month:"short"})} – ${journalCheckinPrettyDate(end,{day:"numeric",month:"short",year:"numeric"})}`;const completed=days.reduce((total,day)=>{const key=journalCheckinDateKey(day);return total+(data.dailyCheckinCompleted?.[key]?1:0)+(data.nightlyCheckinCompleted?.[key]?1:0)},0);return `<section class="card journal-checkin-history"><div class="journal-checkin-history-top"><div><span class="section-kicker">CHECK-INS</span><h2>Morning & evening history</h2><p>${esc(rangeLabel)}</p></div><div class="journal-checkin-history-total">${completed}/${days.length*2} done</div></div><div class="journal-checkin-history-controls"><div class="journal-checkin-history-tabs"><button type="button" data-journal-checkin-mode="week" class="${journalCheckinHistoryMode==="week"?"active":""}">Week</button><button type="button" data-journal-checkin-mode="month" class="${journalCheckinHistoryMode==="month"?"active":""}">Month</button></div><div class="journal-checkin-history-arrows"><button type="button" data-journal-checkin-move="-1">‹</button><button type="button" data-journal-checkin-today>Today</button><button type="button" data-journal-checkin-move="1">›</button></div></div><div class="journal-checkin-history-grid ${journalCheckinHistoryMode}">${days.map(day=>{const key=journalCheckinDateKey(day),morning=!!data.dailyCheckinCompleted?.[key],evening=!!data.nightlyCheckinCompleted?.[key];return `<article class="${key===todayKey?"today":""}" title="${journalCheckinPrettyDate(day,{weekday:"long",day:"numeric",month:"long",year:"numeric"})}"><span>${journalCheckinHistoryMode==="week"?journalCheckinPrettyDate(day,{weekday:"short"}):""}</span><strong>${day.getDate()}</strong><div><i class="${morning?"done":""}">☀</i><i class="${evening?"done":""}">☾</i></div></article>`}).join("")}</div><div class="journal-checkin-history-key"><span><i>☀</i> Morning</span><span><i>☾</i> Evening</span><small>Coloured icons are done</small></div></section>`}
 
 function JournalTrendsPage(){
   const period=data.journalTrendPeriod||"week";
@@ -364,7 +258,7 @@ function JournalTrendsPage(){
   const controls=`<div class="trend-periods"><button type="button" data-period="day" class="${period==="day"?"active":""}">Day</button><button type="button" data-period="week" class="${period==="week"?"active":""}">Week</button><button type="button" data-period="month" class="${period==="month"?"active":""}">Month</button><button type="button" data-period="six" class="${period==="six"?"active":""}">6 months</button><button type="button" data-period="year" class="${period==="year"?"active":""}">Year</button></div>`;
   const dayPicker=period==="day"?`<div class="trend-day-picker"><button type="button" data-trend-day-step="-1" aria-label="Previous day">‹</button><label><span>Day</span><input type="date" id="journalTrendDate" max="${today()}" value="${dayDate}"></label><button type="button" data-trend-day-step="1" aria-label="Next day" ${dayDate>=today()?"disabled":""}>›</button></div>`:"";
   const charts=period==="day"?`${hourlyTrendChart("energy","Energy",dayDate)}${hourlyTrendChart("mood","Mood",dayDate)}${hourlyTrendChart("pain","Pain",dayDate)}`:`${trendChart("energy","Energy",period)}${trendChart("mood","Mood",period)}${trendChart("pain","Pain",period)}`;
-  return shell(`${head("Journal","Trends")}${journalTabs("trends")}${controls}${dayPicker}<section class="trend-grid">${charts}</section>${journalCheckinHistory()}`,"journal")
+  return shell(`${head("Journal","Trends")}${journalTabs("trends")}${controls}${dayPicker}<section class="trend-grid">${charts}</section>`,"journal")
 }
 
 function bindJournal(){
@@ -384,10 +278,7 @@ function bindJournal(){
  document.querySelector("#journalSleepMetric")?.addEventListener("change",event=>{data.journalSleepMetric=event.target.value;saveData();render()});
  document.querySelectorAll("[data-tracker-metric]").forEach(button=>button.onclick=()=>{data.journalSleepMetric=button.dataset.trackerMetric||"sleep";saveData();render()});
  document.querySelectorAll("[data-sleep-month-step]").forEach(button=>button.onclick=()=>{const [year,month]=(data.journalSleepMonth||journalSleepMonthKey()).split("-").map(Number);const next=new Date(year,month-1+Number(button.dataset.sleepMonthStep),1,12);data.journalSleepMonth=`${next.getFullYear()}-${String(next.getMonth()+1).padStart(2,"0")}`;saveData();render()});
- document.querySelector("#journalSleepMonthSelect")?.addEventListener("change",event=>{const [year]=journalSleepMonthKey().split("-");data.journalSleepMonth=`${year}-${event.target.value}`;saveData();render()});
- document.querySelector("#journalSleepYearSelect")?.addEventListener("change",event=>{const [,month]=journalSleepMonthKey().split("-");data.journalSleepMonth=`${event.target.value}-${month}`;saveData();render()});
- document.querySelector("[data-tracker-today]")?.addEventListener("click",()=>{data.journalSleepMonth=today().slice(0,7);saveData();render()});
- document.querySelectorAll("[data-sleep-date]").forEach(button=>button.onclick=()=>{data.journalSleepEditDate=button.dataset.sleepDate;saveData();render()});
+ document.querySelectorAll("[data-sleep-date]").forEach(button=>button.onclick=()=>{if(!button.classList.contains("has-data"))return;data.journalSleepEditDate=button.dataset.sleepDate;saveData();render()});
  document.querySelectorAll("[data-close-sleep-edit]").forEach(button=>button.onclick=closeSleepEditor);
  document.querySelector("#sleepEditBackdrop")?.addEventListener("click",event=>{if(event.target.id!=="sleepEditBackdrop")return;closeSleepEditor()});
  if(sleepEditBackdrop){
@@ -426,9 +317,6 @@ function bindJournal(){
  document.querySelectorAll("[data-period]").forEach(btn=>btn.onclick=()=>{data.journalTrendPeriod=btn.dataset.period;if(btn.dataset.period==="day"&&!data.journalTrendDate)data.journalTrendDate=today();saveData();render()});
  document.querySelector("#journalTrendDate")?.addEventListener("change",event=>{data.journalTrendDate=event.target.value||today();saveData();render()});
  document.querySelectorAll("[data-trend-day-step]").forEach(btn=>btn.onclick=()=>{const current=new Date(`${data.journalTrendDate||today()}T12:00:00`);current.setDate(current.getDate()+Number(btn.dataset.trendDayStep));const next=current.toISOString().slice(0,10);data.journalTrendDate=next>today()?today():next;saveData();render()});
- document.querySelectorAll("[data-journal-checkin-mode]").forEach(button=>button.addEventListener("click",()=>{journalCheckinHistoryMode=button.dataset.journalCheckinMode||"week";window.journalCheckinHistoryMode=journalCheckinHistoryMode;render()}));
- document.querySelectorAll("[data-journal-checkin-move]").forEach(button=>button.addEventListener("click",()=>{const step=Number(button.dataset.journalCheckinMove)||0;const next=new Date(journalCheckinHistoryAnchor);if(journalCheckinHistoryMode==="month")next.setMonth(next.getMonth()+step);else next.setDate(next.getDate()+step*7);journalCheckinHistoryAnchor=next;window.journalCheckinHistoryAnchor=next.toISOString();render()}));
- document.querySelector("[data-journal-checkin-today]")?.addEventListener("click",()=>{journalCheckinHistoryAnchor=new Date();window.journalCheckinHistoryAnchor=journalCheckinHistoryAnchor.toISOString();render()});
  document.querySelectorAll("[data-scale]").forEach(btn=>btn.onclick=()=>{document.querySelectorAll(`[data-scale="${btn.dataset.scale}"]`).forEach(x=>x.classList.remove("active"));btn.classList.add("active")});
  document.querySelectorAll("[data-token]").forEach(btn=>btn.onclick=()=>{const n=Number(btn.dataset.value),name=btn.dataset.token;document.querySelectorAll(`[data-token="${name}"]`).forEach(x=>x.classList.toggle("active",Number(x.dataset.value)<=n))});
  document.querySelectorAll("[data-care]").forEach(btn=>btn.onclick=()=>btn.classList.toggle("active"));
